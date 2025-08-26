@@ -1,19 +1,14 @@
-## Comments
+## Chú thích
 
-All programmers strive to make their code easy to understand, but sometimes
-extra explanation is warranted. In these cases, programmers leave _comments_ in
-their source code that the compiler will ignore but people reading the source
-code may find useful.
+Mọi lập trình viên đều cố gắng làm cho mã của họ dễ hiểu, nhưng đôi khi cần thêm giải thích. Trong những trường hợp đó, lập trình viên để lại _chú thích_ trong mã nguồn mà trình biên dịch sẽ bỏ qua nhưng người đọc mã có thể thấy hữu ích.
 
-Here’s a simple comment:
+Đây là một chú thích đơn giản:
 
 ```rust
 // hello, world
 ```
 
-In Rust, the idiomatic comment style starts a comment with two slashes, and the
-comment continues until the end of the line. For comments that extend beyond a
-single line, you’ll need to include `//` on each line, like this:
+Trong Rust, kiểu chú thích theo phong cách chuẩn bắt đầu một chú thích bằng hai dấu gạch chéo, và chú thích sẽ kéo dài đến cuối dòng. Với chú thích vượt quá một dòng, bạn sẽ cần thêm `//` ở mỗi dòng, như sau:
 
 ```rust
 // So we're doing something complicated here, long enough that we need
@@ -21,7 +16,7 @@ single line, you’ll need to include `//` on each line, like this:
 // explain what's going on.
 ```
 
-Comments can also be placed at the end of lines containing code:
+Chú thích cũng có thể đặt ở cuối các dòng chứa mã:
 
 <span class="filename">Filename: src/main.rs</span>
 
@@ -29,8 +24,7 @@ Comments can also be placed at the end of lines containing code:
 {{#rustdoc_include ../listings/ch03-common-programming-concepts/no-listing-24-comments-end-of-line/src/main.rs}}
 ```
 
-But you’ll more often see them used in this format, with the comment on a
-separate line above the code it’s annotating:
+Nhưng bạn sẽ thường thấy chúng được dùng theo dạng này hơn, với chú thích nằm trên một dòng riêng phía trên đoạn mã mà nó ghi chú:
 
 <span class="filename">Filename: src/main.rs</span>
 
@@ -38,8 +32,6 @@ separate line above the code it’s annotating:
 {{#rustdoc_include ../listings/ch03-common-programming-concepts/no-listing-25-comments-above-line/src/main.rs}}
 ```
 
-Rust also has another kind of comment, documentation comments, which we’ll
-discuss in the [“Publishing a Crate to Crates.io”][publishing]<!-- ignore -->
-section of Chapter 14.
+Rust còn có một loại chú thích khác, chú thích tài liệu (documentation comments), mà chúng ta sẽ thảo luận trong phần [“Xuất bản một Crate lên Crates.io”][publishing]<!-- ignore --> của Chương 14.
 
 [publishing]: ch14-02-publishing-to-crates-io.html
