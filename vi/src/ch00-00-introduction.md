@@ -1,196 +1,95 @@
-# Introduction
+# Giới thiệu
 
-> Note: This edition of the book is the same as [The Rust Programming
-> Language][nsprust] available in print and ebook format from [No Starch
+> Ghi chú: Phiên bản này của cuốn sách giống với [The Rust Programming
+> Language][nsprust] có sẵn ở dạng bản in và ebook từ [No Starch
 > Press][nsp].
 
 [nsprust]: https://nostarch.com/rust-programming-language-2nd-edition
 [nsp]: https://nostarch.com/
 
-Welcome to _The Rust Programming Language_, an introductory book about Rust.
-The Rust programming language helps you write faster, more reliable software.
-High-level ergonomics and low-level control are often at odds in programming
-language design; Rust challenges that conflict. Through balancing powerful
-technical capacity and a great developer experience, Rust gives you the option
-to control low-level details (such as memory usage) without all the hassle
-traditionally associated with such control.
+Chào mừng bạn đến với _Ngôn ngữ lập trình Rust_, một cuốn sách giới thiệu về Rust.
+Ngôn ngữ lập trình Rust giúp bạn viết phần mềm nhanh hơn, đáng tin cậy hơn.
+Tính tiện dụng cấp cao và khả năng kiểm soát cấp thấp thường mâu thuẫn với nhau trong thiết kế ngôn ngữ lập trình; Rust thách thức sự xung đột đó. Bằng cách cân bằng giữa năng lực kỹ thuật mạnh mẽ và trải nghiệm tuyệt vời cho nhà phát triển, Rust cho bạn tùy chọn kiểm soát các chi tiết cấp thấp (như sử dụng bộ nhớ) mà không gặp phải những rắc rối thường đi kèm với việc kiểm soát đó.
 
-## Who Rust Is For
+## Rust dành cho ai
 
-Rust is ideal for many people for a variety of reasons. Let’s look at a few of
-the most important groups.
+Rust là lựa chọn lý tưởng cho nhiều người vì nhiều lý do khác nhau. Hãy cùng xem xét một vài nhóm quan trọng nhất.
 
-### Teams of Developers
+### Các nhóm phát triển
 
-Rust is proving to be a productive tool for collaborating among large teams of
-developers with varying levels of systems programming knowledge. Low-level code
-is prone to various subtle bugs, which in most other languages can be caught
-only through extensive testing and careful code review by experienced
-developers. In Rust, the compiler plays a gatekeeper role by refusing to
-compile code with these elusive bugs, including concurrency bugs. By working
-alongside the compiler, the team can spend their time focusing on the program’s
-logic rather than chasing down bugs.
+Rust đang chứng tỏ là một công cụ hiệu quả cho việc hợp tác giữa các nhóm lớn các nhà phát triển với các trình độ kiến thức lập trình hệ thống khác nhau. Mã nguồn cấp thấp dễ gặp phải nhiều lỗi tinh vi, mà ở hầu hết các ngôn ngữ khác chỉ có thể phát hiện được thông qua kiểm thử sâu rộng và đánh giá mã nguồn cẩn thận bởi các nhà phát triển có kinh nghiệm. Trong Rust, trình biên dịch đóng vai trò như một người gác cổng bằng cách từ chối biên dịch mã nguồn có chứa những lỗi khó phát hiện này, bao gồm cả lỗi tương tranh (concurrency bugs). Bằng cách làm việc cùng với trình biên dịch, nhóm có thể dành thời gian tập trung vào logic của chương trình thay vì đuổi theo các lỗi.
 
-Rust also brings contemporary developer tools to the systems programming world:
+Rust cũng mang đến các công cụ phát triển hiện đại cho thế giới lập trình hệ thống:
 
-- Cargo, the included dependency manager and build tool, makes adding,
-  compiling, and managing dependencies painless and consistent across the Rust
-  ecosystem.
-- The Rustfmt formatting tool ensures a consistent coding style across
-  developers.
-- The rust-analyzer powers Integrated Development Environment (IDE)
-  integration for code completion and inline error messages.
+- Cargo, trình quản lý phụ thuộc và công cụ xây dựng đi kèm, giúp việc thêm, biên dịch và quản lý các phụ thuộc trở nên dễ dàng và nhất quán trong toàn bộ hệ sinh thái Rust.
+- Công cụ định dạng Rustfmt đảm bảo một phong cách viết mã nhất quán giữa các nhà phát triển.
+- rust-analyzer cung cấp sức mạnh cho việc tích hợp Môi trường phát triển tích hợp (IDE) để hoàn thành mã và hiển thị thông báo lỗi nội tuyến.
 
-By using these and other tools in the Rust ecosystem, developers can be
-productive while writing systems-level code.
+Bằng cách sử dụng những công cụ này và các công cụ khác trong hệ sinh thái Rust, các nhà phát triển có thể làm việc hiệu quả khi viết mã ở cấp độ hệ thống.
 
-### Students
+### Sinh viên
 
-Rust is for students and those who are interested in learning about systems
-concepts. Using Rust, many people have learned about topics like operating
-systems development. The community is very welcoming and happy to answer
-student questions. Through efforts such as this book, the Rust teams want to
-make systems concepts more accessible to more people, especially those new to
-programming.
+Rust dành cho sinh viên và những người quan tâm đến việc học các khái niệm về hệ thống. Sử dụng Rust, nhiều người đã học về các chủ đề như phát triển hệ điều hành. Cộng đồng rất chào đón và sẵn lòng trả lời các câu hỏi của sinh viên. Thông qua những nỗ lực như cuốn sách này, các nhóm Rust muốn làm cho các khái niệm hệ thống trở nên dễ tiếp cận hơn với nhiều người hơn, đặc biệt là những người mới bắt đầu lập trình.
 
-### Companies
+### Các công ty
 
-Hundreds of companies, large and small, use Rust in production for a variety of
-tasks, including command line tools, web services, DevOps tooling, embedded
-devices, audio and video analysis and transcoding, cryptocurrencies,
-bioinformatics, search engines, Internet of Things applications, machine
-learning, and even major parts of the Firefox web browser.
+Hàng trăm công ty, lớn và nhỏ, sử dụng Rust trong môi trường sản phẩm cho nhiều tác vụ khác nhau, bao gồm các công cụ dòng lệnh, dịch vụ web, công cụ DevOps, thiết bị nhúng, phân tích và chuyển mã âm thanh và video, tiền điện tử, tin sinh học, công cụ tìm kiếm, ứng dụng Internet of Things, học máy, và thậm chí cả các phần chính của trình duyệt web Firefox.
 
-### Open Source Developers
+### Các nhà phát triển mã nguồn mở
 
-Rust is for people who want to build the Rust programming language, community,
-developer tools, and libraries. We’d love to have you contribute to the Rust
-language.
+Rust dành cho những người muốn xây dựng ngôn ngữ lập trình Rust, cộng đồng, công cụ cho nhà phát triển và các thư viện. Chúng tôi rất mong bạn đóng góp cho ngôn ngữ Rust.
 
-### People Who Value Speed and Stability
+### Những người coi trọng tốc độ và sự ổn định
 
-Rust is for people who crave speed and stability in a language. By speed, we
-mean both how quickly Rust code can run and the speed at which Rust lets you
-write programs. The Rust compiler’s checks ensure stability through feature
-additions and refactoring. This is in contrast to the brittle legacy code in
-languages without these checks, which developers are often afraid to modify. By
-striving for zero-cost abstractions—higher-level features that compile to
-lower-level code as fast as code written manually—Rust endeavors to make safe
-code be fast code as well.
+Rust dành cho những người khao khát tốc độ và sự ổn định trong một ngôn ngữ. Nói về tốc độ, chúng tôi muốn nói đến cả tốc độ chạy của mã Rust và tốc độ mà Rust cho phép bạn viết chương trình. Các kiểm tra của trình biên dịch Rust đảm bảo sự ổn định thông qua việc thêm tính năng và tái cấu trúc mã. Điều này trái ngược với mã nguồn cũ dễ vỡ trong các ngôn ngữ không có những kiểm tra này, mà các nhà phát triển thường ngại sửa đổi. Bằng cách phấn đấu cho các trừu tượng hóa không chi phí (zero-cost abstractions)—các tính năng cấp cao biên dịch thành mã cấp thấp nhanh như mã được viết thủ công—Rust nỗ lực để làm cho mã an toàn cũng là mã nhanh.
 
-The Rust language hopes to support many other users as well; those mentioned
-here are merely some of the biggest stakeholders. Overall, Rust’s greatest
-ambition is to eliminate the trade-offs that programmers have accepted for
-decades by providing safety _and_ productivity, speed _and_ ergonomics. Give
-Rust a try and see if its choices work for you.
+Ngôn ngữ Rust cũng hy vọng sẽ hỗ trợ nhiều người dùng khác; những người được đề cập ở đây chỉ là một vài trong số các bên liên quan lớn nhất. Nhìn chung, tham vọng lớn nhất của Rust là loại bỏ những đánh đổi mà các lập trình viên đã chấp nhận trong nhiều thập kỷ bằng cách cung cấp sự an toàn _và_ năng suất, tốc độ _và_ tính tiện dụng. Hãy thử Rust và xem liệu các lựa chọn của nó có phù hợp với bạn không.
 
-## Who This Book Is For
+## Cuốn sách này dành cho ai
 
-This book assumes that you’ve written code in another programming language but
-doesn’t make any assumptions about which one. We’ve tried to make the material
-broadly accessible to those from a wide variety of programming backgrounds. We
-don’t spend a lot of time talking about what programming _is_ or how to think
-about it. If you’re entirely new to programming, you would be better served by
-reading a book that specifically provides an introduction to programming.
+Cuốn sách này giả định rằng bạn đã từng viết mã bằng một ngôn ngữ lập trình khác nhưng không đưa ra bất kỳ giả định nào về đó là ngôn ngữ nào. Chúng tôi đã cố gắng làm cho tài liệu có thể tiếp cận rộng rãi với những người có nền tảng lập trình đa dạng. Chúng tôi không dành nhiều thời gian để nói về lập trình _là_ gì hay cách suy nghĩ về nó. Nếu bạn hoàn toàn mới với lập trình, bạn nên đọc một cuốn sách chuyên về giới thiệu lập trình.
 
-## How to Use This Book
+## Cách sử dụng cuốn sách này
 
-In general, this book assumes that you’re reading it in sequence from front to
-back. Later chapters build on concepts in earlier chapters, and earlier
-chapters might not delve into details on a particular topic but will revisit
-the topic in a later chapter.
+Nhìn chung, cuốn sách này giả định rằng bạn đang đọc nó theo thứ tự từ đầu đến cuối. Các chương sau sẽ xây dựng dựa trên các khái niệm trong các chương trước, và các chương trước có thể không đi sâu vào chi tiết về một chủ đề cụ thể nhưng sẽ quay lại chủ đề đó trong một chương sau.
 
-You’ll find two kinds of chapters in this book: concept chapters and project
-chapters. In concept chapters, you’ll learn about an aspect of Rust. In project
-chapters, we’ll build small programs together, applying what you’ve learned so
-far. Chapters 2, 12, and 21 are project chapters; the rest are concept chapters.
+Bạn sẽ tìm thấy hai loại chương trong cuốn sách này: chương khái niệm và chương dự án. Trong các chương khái niệm, bạn sẽ học về một khía cạnh của Rust. Trong các chương dự án, chúng ta sẽ cùng nhau xây dựng các chương trình nhỏ, áp dụng những gì bạn đã học được cho đến nay. Chương 2, 12 và 21 là các chương dự án; phần còn lại là các chương khái niệm.
 
-Chapter 1 explains how to install Rust, how to write a “Hello, world!” program,
-and how to use Cargo, Rust’s package manager and build tool. Chapter 2 is a
-hands-on introduction to writing a program in Rust, having you build up a
-number guessing game. Here we cover concepts at a high level, and later
-chapters will provide additional detail. If you want to get your hands dirty
-right away, Chapter 2 is the place for that. Chapter 3 covers Rust features
-that are similar to those of other programming languages, and in Chapter 4
-you’ll learn about Rust’s ownership system. If you’re a particularly meticulous
-learner who prefers to learn every detail before moving on to the next, you
-might want to skip Chapter 2 and go straight to Chapter 3, returning to Chapter
-2 when you’d like to work on a project applying the details you’ve learned.
+Chương 1 giải thích cách cài đặt Rust, cách viết chương trình “Hello, world!” và cách sử dụng Cargo, trình quản lý gói và công cụ xây dựng của Rust. Chương 2 là phần giới thiệu thực hành về việc viết một chương trình bằng Rust, yêu cầu bạn xây dựng một trò chơi đoán số. Ở đây chúng ta sẽ đề cập đến các khái niệm ở mức độ cao, và các chương sau sẽ cung cấp thêm chi tiết. Nếu bạn muốn bắt tay vào làm ngay, Chương 2 là nơi dành cho bạn. Chương 3 đề cập đến các tính năng của Rust tương tự như các ngôn ngữ lập trình khác, và trong Chương 4 bạn sẽ học về hệ thống sở hữu của Rust. Nếu bạn là một người học đặc biệt tỉ mỉ, thích học mọi chi tiết trước khi chuyển sang phần tiếp theo, bạn có thể muốn bỏ qua Chương 2 và đi thẳng đến Chương 3, sau đó quay lại Chương 2 khi bạn muốn làm một dự án áp dụng các chi tiết đã học.
 
-Chapter 5 discusses structs and methods, and Chapter 6 covers enums, `match`
-expressions, and the `if let` control flow construct. You’ll use structs and
-enums to make custom types in Rust.
+Chương 5 thảo luận về struct và phương thức, và Chương 6 đề cập đến enum, biểu thức `match`, và cấu trúc điều khiển luồng `if let`. Bạn sẽ sử dụng struct và enum để tạo các kiểu tùy chỉnh trong Rust.
 
-In Chapter 7, you’ll learn about Rust’s module system and about privacy rules
-for organizing your code and its public Application Programming Interface
-(API). Chapter 8 discusses some common collection data structures that the
-standard library provides, such as vectors, strings, and hash maps. Chapter 9
-explores Rust’s error-handling philosophy and techniques.
+Trong Chương 7, bạn sẽ học về hệ thống mô-đun của Rust và về các quy tắc riêng tư để tổ chức mã nguồn và Giao diện lập trình ứng dụng (API) công khai của nó. Chương 8 thảo luận về một số cấu trúc dữ liệu tập hợp phổ biến mà thư viện chuẩn cung cấp, chẳng hạn như vector, chuỗi và hash map. Chương 9 khám phá triết lý và kỹ thuật xử lý lỗi của Rust.
 
-Chapter 10 digs into generics, traits, and lifetimes, which give you the power
-to define code that applies to multiple types. Chapter 11 is all about testing,
-which even with Rust’s safety guarantees is necessary to ensure your program’s
-logic is correct. In Chapter 12, we’ll build our own implementation of a subset
-of functionality from the `grep` command line tool that searches for text
-within files. For this, we’ll use many of the concepts we discussed in the
-previous chapters.
+Chương 10 đi sâu vào generics, traits và lifetimes, những thứ cho bạn sức mạnh để định nghĩa mã áp dụng cho nhiều kiểu. Chương 11 hoàn toàn về kiểm thử, mà ngay cả với các đảm bảo an toàn của Rust, vẫn cần thiết để đảm bảo logic chương trình của bạn là chính xác. Trong Chương 12, chúng ta sẽ xây dựng một triển khai riêng của một tập hợp con chức năng từ công cụ dòng lệnh `grep` dùng để tìm kiếm văn bản trong các tệp. Để làm điều này, chúng ta sẽ sử dụng nhiều khái niệm đã thảo luận trong các chương trước.
 
-Chapter 13 explores closures and iterators: features of Rust that come from
-functional programming languages. In Chapter 14, we’ll examine Cargo in more
-depth and talk about best practices for sharing your libraries with others.
-Chapter 15 discusses smart pointers that the standard library provides and the
-traits that enable their functionality.
+Chương 13 khám phá closure và iterator: các tính năng của Rust đến từ các ngôn ngữ lập trình chức năng. Trong Chương 14, chúng ta sẽ xem xét Cargo sâu hơn và nói về các thực hành tốt nhất để chia sẻ thư viện của bạn với người khác. Chương 15 thảo luận về các con trỏ thông minh mà thư viện chuẩn cung cấp và các trait cho phép chức năng của chúng.
 
-In Chapter 16, we’ll walk through different models of concurrent programming and
-talk about how Rust helps you to program in multiple threads fearlessly. In
-Chapter 17, we build on that by exploring Rust’s async and await syntax, along
-with tasks, futures, and streams, and the lightweight concurrency model they
-enable.
+Trong Chương 16, chúng ta sẽ đi qua các mô hình lập trình tương tranh khác nhau và nói về cách Rust giúp bạn lập trình đa luồng một cách không sợ hãi. Trong Chương 17, chúng ta sẽ xây dựng trên đó bằng cách khám phá cú pháp async và await của Rust, cùng với các task, future và stream, và mô hình tương tranh nhẹ mà chúng cho phép.
 
-Chapter 18 looks at how Rust idioms compare to object-oriented programming
-principles you might be familiar with. Chapter 19 is a reference on patterns and
-pattern matching, which are powerful ways of expressing ideas throughout Rust
-programs. Chapter 20 contains a smorgasbord of advanced topics of interest,
-including unsafe Rust, macros, and more about lifetimes, traits, types,
-functions, and closures.
+Chương 18 xem xét cách các thành ngữ Rust so sánh với các nguyên tắc lập trình hướng đối tượng mà bạn có thể đã quen thuộc. Chương 19 là một tài liệu tham khảo về các mẫu và khớp mẫu, là những cách mạnh mẽ để thể hiện ý tưởng trong các chương trình Rust. Chương 20 chứa một tập hợp các chủ đề nâng cao đáng quan tâm, bao gồm Rust không an toàn, macro, và nhiều hơn nữa về lifetimes, traits, types, functions, và closures.
 
-In Chapter 21, we’ll complete a project in which we’ll implement a low-level
-multithreaded web server!
+Trong Chương 21, chúng ta sẽ hoàn thành một dự án trong đó chúng ta sẽ triển khai một máy chủ web đa luồng cấp thấp!
 
-Finally, some appendixes contain useful information about the language in a more
-reference-like format. **Appendix A** covers Rust’s keywords, **Appendix B**
-covers Rust’s operators and symbols, **Appendix C** covers derivable traits
-provided by the standard library, **Appendix D** covers some useful development
-tools, and **Appendix E** explains Rust editions. In **Appendix F**, you can
-find translations of the book, and in **Appendix G** we’ll cover how Rust is
-made and what nightly Rust is.
+Cuối cùng, một số phụ lục chứa thông tin hữu ích về ngôn ngữ ở định dạng giống như tài liệu tham khảo hơn. **Phụ lục A** bao gồm các từ khóa của Rust, **Phụ lục B** bao gồm các toán tử và ký hiệu của Rust, **Phụ lục C** bao gồm các trait có thể dẫn xuất được cung cấp bởi thư viện chuẩn, **Phụ lục D** bao gồm một số công cụ phát triển hữu ích, và **Phụ lục E** giải thích về các phiên bản Rust (editions). Trong **Phụ lục F**, bạn có thể tìm thấy các bản dịch của cuốn sách, và trong **Phụ lục G** chúng ta sẽ đề cập đến cách Rust được tạo ra và nightly Rust là gì.
 
-There is no wrong way to read this book: if you want to skip ahead, go for it!
-You might have to jump back to earlier chapters if you experience any
-confusion. But do whatever works for you.
+Không có cách nào sai để đọc cuốn sách này: nếu bạn muốn bỏ qua, cứ tự nhiên! Bạn có thể phải quay lại các chương trước nếu gặp bất kỳ sự nhầm lẫn nào. Nhưng hãy làm bất cứ điều gì phù hợp với bạn.
 
 <span id="ferris"></span>
 
-An important part of the process of learning Rust is learning how to read the
-error messages the compiler displays: these will guide you toward working code.
-As such, we’ll provide many examples that don’t compile along with the error
-message the compiler will show you in each situation. Know that if you enter
-and run a random example, it may not compile! Make sure you read the
-surrounding text to see whether the example you’re trying to run is meant to
-error. Ferris will also help you distinguish code that isn’t meant to work:
+Một phần quan trọng của quá trình học Rust là học cách đọc các thông báo lỗi mà trình biên dịch hiển thị: chúng sẽ hướng dẫn bạn đến mã nguồn hoạt động được. Do đó, chúng tôi sẽ cung cấp nhiều ví dụ không biên dịch được cùng với thông báo lỗi mà trình biên dịch sẽ hiển thị cho bạn trong mỗi tình huống. Hãy biết rằng nếu bạn nhập và chạy một ví dụ ngẫu nhiên, nó có thể không biên dịch được! Hãy chắc chắn rằng bạn đọc văn bản xung quanh để xem liệu ví dụ bạn đang cố chạy có chủ đích gây ra lỗi hay không. Ferris cũng sẽ giúp bạn phân biệt mã không được thiết kế để hoạt động:
 
-| Ferris                                                                                                           | Meaning                                          |
+| Ferris                                                                                                           | Ý nghĩa                                          |
 | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
-| <img src="img/ferris/does_not_compile.svg" class="ferris-explain" alt="Ferris with a question mark"/>            | This code does not compile!                      |
-| <img src="img/ferris/panics.svg" class="ferris-explain" alt="Ferris throwing up their hands"/>                   | This code panics!                                |
-| <img src="img/ferris/not_desired_behavior.svg" class="ferris-explain" alt="Ferris with one claw up, shrugging"/> | This code does not produce the desired behavior. |
+| <img src="img/ferris/does_not_compile.svg" class="ferris-explain" alt="Ferris with a question mark"/>            | Mã này không biên dịch được!                      |
+| <img src="img/ferris/panics.svg" class="ferris-explain" alt="Ferris throwing up their hands"/>                   | Mã này panic!                                |
+| <img src="img/ferris/not_desired_behavior.svg" class="ferris-explain" alt="Ferris with one claw up, shrugging"/> | Mã này không tạo ra hành vi mong muốn. |
 
-In most situations, we’ll lead you to the correct version of any code that
-doesn’t compile.
+Trong hầu hết các tình huống, chúng tôi sẽ dẫn bạn đến phiên bản đúng của bất kỳ mã nào không biên dịch được.
 
-## Source Code
+## Mã nguồn
 
-The source files from which this book is generated can be found on
-[GitHub][book].
+Các tệp nguồn mà từ đó cuốn sách này được tạo ra có thể được tìm thấy trên [GitHub][book].
 
 [book]: https://github.com/rust-lang/book/tree/main/src
+
