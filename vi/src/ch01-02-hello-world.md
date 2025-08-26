@@ -1,28 +1,16 @@
-## Hello, World!
+## Xin chào, Thế giới!
 
-Now that you’ve installed Rust, it’s time to write your first Rust program.
-It’s traditional when learning a new language to write a little program that
-prints the text `Hello, world!` to the screen, so we’ll do the same here!
+Bây giờ bạn đã cài đặt Rust, đã đến lúc viết chương trình Rust đầu tiên. Thường lệ khi học một ngôn ngữ mới là viết một chương trình nhỏ in ra dòng chữ `Hello, world!` lên màn hình, và chúng ta sẽ làm điều tương tự ở đây!
 
-> Note: This book assumes basic familiarity with the command line. Rust makes
-> no specific demands about your editing or tooling or where your code lives, so
-> if you prefer to use an integrated development environment (IDE) instead of
-> the command line, feel free to use your favorite IDE. Many IDEs now have some
-> degree of Rust support; check the IDE’s documentation for details. The Rust
-> team has been focusing on enabling great IDE support via `rust-analyzer`. See
-> [Appendix D][devtools]<!-- ignore --> for more details.
+> Chú ý: Cuốn sách này giả định bạn đã quen cơ bản với dòng lệnh. Rust không đặt yêu cầu cụ thể về việc chỉnh sửa, công cụ hay nơi lưu mã nguồn của bạn, vì vậy nếu bạn thích dùng một môi trường phát triển tích hợp (IDE) thay vì dòng lệnh, cứ thoải mái dùng IDE ưa thích. Nhiều IDE hiện đã có mức độ hỗ trợ Rust; kiểm tra tài liệu của IDE để biết chi tiết. Nhóm Rust đang tập trung vào việc cải thiện hỗ trợ IDE tuyệt vời qua `rust-analyzer`. Xem [Appendix D][devtools]<!-- ignore --> để biết thêm chi tiết.
 
-### Creating a Project Directory
+### Tạo Thư mục Dự án
 
-You’ll start by making a directory to store your Rust code. It doesn’t matter
-to Rust where your code lives, but for the exercises and projects in this book,
-we suggest making a _projects_ directory in your home directory and keeping all
-your projects there.
+Bạn sẽ bắt đầu bằng cách tạo một thư mục để lưu mã Rust. Rust không quan tâm mã của bạn nằm ở đâu, nhưng cho các bài tập và dự án trong cuốn sách này, chúng tôi gợi ý tạo một thư mục _projects_ trong thư mục nhà của bạn và giữ tất cả dự án ở đó.
 
-Open a terminal and enter the following commands to make a _projects_ directory
-and a directory for the “Hello, world!” project within the _projects_ directory.
+Mở một terminal và nhập các lệnh sau để tạo thư mục _projects_ và một thư mục cho dự án “Hello, world!” bên trong thư mục _projects_.
 
-For Linux, macOS, and PowerShell on Windows, enter this:
+Đối với Linux, macOS và PowerShell trên Windows, nhập:
 
 ```console
 $ mkdir ~/projects
@@ -31,7 +19,7 @@ $ mkdir hello_world
 $ cd hello_world
 ```
 
-For Windows CMD, enter this:
+Đối với CMD trên Windows, nhập:
 
 ```cmd
 > mkdir "%USERPROFILE%\projects"
@@ -40,16 +28,13 @@ For Windows CMD, enter this:
 > cd hello_world
 ```
 
-### Writing and Running a Rust Program
+### Viết và Chạy Một Chương trình Rust
 
-Next, make a new source file and call it _main.rs_. Rust files always end with
-the _.rs_ extension. If you’re using more than one word in your filename, the
-convention is to use an underscore to separate them. For example, use
-_hello_world.rs_ rather than _helloworld.rs_.
+Tiếp theo, tạo một tệp nguồn mới và đặt tên là _main.rs_. Các tệp Rust luôn kết thúc bằng phần mở rộng _.rs_. Nếu bạn dùng nhiều hơn một từ trong tên tệp, quy ước là dùng dấu gạch dưới để phân tách chúng. Ví dụ, dùng _hello_world.rs_ thay vì _helloworld.rs_.
 
-Now open the _main.rs_ file you just created and enter the code in Listing 1-1.
+Bây giờ mở tệp _main.rs_ bạn vừa tạo và nhập mã trong Danh sách 1-1.
 
-<Listing number="1-1" file-name="main.rs" caption="A program that prints `Hello, world!`">
+<Listing number="1-1" file-name="main.rs" caption="Một chương trình in `Hello, world!`">
 
 ```rust
 fn main() {
@@ -59,9 +44,7 @@ fn main() {
 
 </Listing>
 
-Save the file and go back to your terminal window in the
-_~/projects/hello_world_ directory. On Linux or macOS, enter the following
-commands to compile and run the file:
+Lưu tệp và quay lại cửa sổ terminal trong thư mục _~/projects/hello_world_. Trên Linux hoặc macOS, nhập các lệnh sau để biên dịch và chạy tệp:
 
 ```console
 $ rustc main.rs
@@ -69,7 +52,7 @@ $ ./main
 Hello, world!
 ```
 
-On Windows, enter the command `.\main` instead of `./main`:
+Trên Windows, nhập lệnh `.\main` thay vì `./main`:
 
 ```powershell
 > rustc main.rs
@@ -77,18 +60,13 @@ On Windows, enter the command `.\main` instead of `./main`:
 Hello, world!
 ```
 
-Regardless of your operating system, the string `Hello, world!` should print to
-the terminal. If you don’t see this output, refer back to the
-[“Troubleshooting”][troubleshooting]<!-- ignore --> part of the Installation
-section for ways to get help.
+Bất kể hệ điều hành của bạn là gì, chuỗi `Hello, world!` sẽ được in ra terminal. Nếu bạn không thấy kết quả này, quay lại phần [“Troubleshooting”][troubleshooting]<!-- ignore --> trong phần Cài đặt để biết cách nhận trợ giúp.
 
-If `Hello, world!` did print, congratulations! You’ve officially written a Rust
-program. That makes you a Rust programmer—welcome!
+Nếu `Hello, world!` xuất hiện, chúc mừng! Bạn đã chính thức viết một chương trình Rust. Điều đó biến bạn thành một lập trình viên Rust — chào mừng!
 
-### Anatomy of a Rust Program
+### Cấu trúc Một Chương trình Rust
 
-Let’s review this “Hello, world!” program in detail. Here’s the first piece of
-the puzzle:
+Hãy xem xét chi tiết chương trình “Hello, world!” này. Đây là mảnh đầu tiên của bài toán:
 
 ```rust
 fn main() {
@@ -96,72 +74,46 @@ fn main() {
 }
 ```
 
-These lines define a function named `main`. The `main` function is special: it
-is always the first code that runs in every executable Rust program. Here, the
-first line declares a function named `main` that has no parameters and returns
-nothing. If there were parameters, they would go inside the parentheses `()`.
+Các dòng này định nghĩa một hàm tên là `main`. Hàm `main` là đặc biệt: nó luôn là mã đầu tiên chạy trong mọi chương trình thực thi Rust. Ở đây, dòng đầu khai báo một hàm tên `main` không có tham số và không trả về gì. Nếu có tham số, chúng sẽ nằm bên trong dấu ngoặc `()`.
 
-The function body is wrapped in `{}`. Rust requires curly brackets around all
-function bodies. It’s good style to place the opening curly bracket on the same
-line as the function declaration, adding one space in between.
+Thân hàm được bao bởi `{}`. Rust yêu cầu dấu ngoặc nhọn quanh tất cả thân hàm. Việc đặt dấu ngoặc mở cùng dòng với khai báo hàm và để một khoảng trắng ở giữa là một phong cách tốt.
 
-> Note: If you want to stick to a standard style across Rust projects, you can
-> use an automatic formatter tool called `rustfmt` to format your code in a
-> particular style (more on `rustfmt` in
-> [Appendix D][devtools]<!-- ignore -->). The Rust team has included this tool
-> with the standard Rust distribution, as `rustc` is, so it should already be
-> installed on your computer!
+> Chú ý: Nếu bạn muốn tuân theo một phong cách chuẩn trên các dự án Rust, bạn có thể dùng công cụ định dạng tự động có tên `rustfmt` để định dạng mã theo một phong cách cụ thể (sẽ nói thêm về `rustfmt` trong [Appendix D][devtools]<!-- ignore -->). Nhóm Rust đã bao gồm công cụ này trong bản phân phối tiêu chuẩn, cũng như `rustc`, nên nó nên đã được cài trên máy của bạn!
 
-The body of the `main` function holds the following code:
+Phần thân của hàm `main` chứa đoạn mã sau:
 
 ```rust
 println!("Hello, world!");
 ```
 
-This line does all the work in this little program: it prints text to the
-screen. There are three important details to notice here.
+Dòng này thực hiện toàn bộ công việc trong chương trình nhỏ này: nó in văn bản ra màn hình. Có ba chi tiết quan trọng cần lưu ý ở đây.
 
-First, `println!` calls a Rust macro. If it had called a function instead, it
-would be entered as `println` (without the `!`). Rust macros are a way to write
-code that generates code to extend Rust syntax, and we’ll discuss them in more
-detail in [Chapter 20][ch20-macros]<!-- ignore -->. For now, you just need to
-know that using a `!` means that you’re calling a macro instead of a normal
-function and that macros don’t always follow the same rules as functions.
+Thứ nhất, `println!` gọi một macro của Rust. Nếu nó gọi một hàm thay vì vậy, nó sẽ được viết là `println` (không có `!`). Macro trong Rust là một cách viết mã tạo ra mã để mở rộng cú pháp Rust, và chúng ta sẽ thảo luận chi tiết hơn trong [Chapter 20][ch20-macros]<!-- ignore -->. Hiện tại, bạn chỉ cần biết rằng việc có `!` nghĩa là bạn đang gọi một macro thay vì một hàm bình thường và macro không phải lúc nào cũng tuân theo các quy tắc giống hàm.
 
-Second, you see the `"Hello, world!"` string. We pass this string as an argument
-to `println!`, and the string is printed to the screen.
+Thứ hai, bạn thấy chuỗi `"Hello, world!"`. Chúng ta truyền chuỗi này làm đối số cho `println!`, và chuỗi sẽ được in ra màn hình.
 
-Third, we end the line with a semicolon (`;`), which indicates that this
-expression is over and the next one is ready to begin. Most lines of Rust code
-end with a semicolon.
+Thứ ba, chúng ta kết thúc dòng bằng dấu chấm phẩy (`;`), điều này chỉ ra rằng biểu thức này kết thúc và biểu thức tiếp theo có thể bắt đầu. Hầu hết các dòng mã Rust kết thúc bằng dấu chấm phẩy.
 
-### Compiling and Running Are Separate Steps
+### Biên dịch và Chạy là Hai Bước Riêng Biệt
 
-You’ve just run a newly created program, so let’s examine each step in the
-process.
+Bạn vừa chạy một chương trình mới tạo, vậy hãy xem xét từng bước trong quy trình.
 
-Before running a Rust program, you must compile it using the Rust compiler by
-entering the `rustc` command and passing it the name of your source file, like
-this:
+Trước khi chạy một chương trình Rust, bạn phải biên dịch nó bằng trình biên dịch Rust bằng cách nhập lệnh `rustc` và truyền tên tệp nguồn, như sau:
 
 ```console
 $ rustc main.rs
 ```
 
-If you have a C or C++ background, you’ll notice that this is similar to `gcc`
-or `clang`. After compiling successfully, Rust outputs a binary executable.
+Nếu bạn có nền tảng C hoặc C++, bạn sẽ nhận thấy điều này tương tự `gcc` hoặc `clang`. Sau khi biên dịch thành công, Rust sẽ xuất ra một tệp thực thi nhị phân.
 
-On Linux, macOS, and PowerShell on Windows, you can see the executable by
-entering the `ls` command in your shell:
+Trên Linux, macOS và PowerShell trên Windows, bạn có thể thấy tệp thực thi bằng cách nhập lệnh `ls` trong shell của bạn:
 
 ```console
 $ ls
 main  main.rs
 ```
 
-On Linux and macOS, you’ll see two files. With PowerShell on Windows, you’ll
-see the same three files that you would see using CMD. With CMD on Windows, you
-would enter the following:
+Trên Linux và macOS, bạn sẽ thấy hai tệp. Với PowerShell trên Windows, bạn sẽ thấy cùng ba tệp như khi dùng CMD. Với CMD trên Windows, bạn sẽ nhập như sau:
 
 ```cmd
 > dir /B %= the /B option says to only show the file names =%
@@ -170,31 +122,17 @@ main.pdb
 main.rs
 ```
 
-This shows the source code file with the _.rs_ extension, the executable file
-(_main.exe_ on Windows, but _main_ on all other platforms), and, when using
-Windows, a file containing debugging information with the _.pdb_ extension.
-From here, you run the _main_ or _main.exe_ file, like this:
+Điều này hiển thị tệp mã nguồn với phần mở rộng _.rs_, tệp thực thi (_main.exe_ trên Windows, nhưng _main_ trên các nền tảng khác), và, khi dùng Windows, một tệp chứa thông tin gỡ lỗi với phần mở rộng _.pdb_. Từ đây, bạn chạy tệp _main_ hoặc _main.exe_, như sau:
 
 ```console
 $ ./main # or .\main on Windows
 ```
 
-If your _main.rs_ is your “Hello, world!” program, this line prints `Hello,
-world!` to your terminal.
+Nếu _main.rs_ của bạn là chương trình “Hello, world!”, dòng này sẽ in `Hello, world!` ra terminal của bạn.
 
-If you’re more familiar with a dynamic language, such as Ruby, Python, or
-JavaScript, you might not be used to compiling and running a program as
-separate steps. Rust is an _ahead-of-time compiled_ language, meaning you can
-compile a program and give the executable to someone else, and they can run it
-even without having Rust installed. If you give someone a _.rb_, _.py_, or
-_.js_ file, they need to have a Ruby, Python, or JavaScript implementation
-installed (respectively). But in those languages, you only need one command to
-compile and run your program. Everything is a trade-off in language design.
+Nếu bạn quen hơn với một ngôn ngữ động, như Ruby, Python, hoặc JavaScript, bạn có thể không quen việc biên dịch và chạy chương trình là hai bước riêng. Rust là một ngôn ngữ _biên dịch trước-thời-gian_ (ahead-of-time compiled), nghĩa là bạn có thể biên dịch một chương trình và đưa tệp thực thi cho người khác, và họ có thể chạy nó ngay cả khi không cài Rust. Nếu bạn đưa cho ai đó một tệp _.rb_, _.py_, hoặc _.js_, họ cần cài một trình triển khai Ruby, Python, hay JavaScript (tương ứng). Nhưng ở những ngôn ngữ đó, bạn chỉ cần một lệnh để biên dịch và chạy chương trình. Mọi thiết kế ngôn ngữ đều có sự đánh đổi.
 
-Just compiling with `rustc` is fine for simple programs, but as your project
-grows, you’ll want to manage all the options and make it easy to share your
-code. Next, we’ll introduce you to the Cargo tool, which will help you write
-real-world Rust programs.
+Chỉ biên dịch bằng `rustc` là đủ cho các chương trình đơn giản, nhưng khi dự án của bạn lớn hơn, bạn sẽ muốn quản lý tất cả tùy chọn và dễ dàng chia sẻ mã. Tiếp theo, chúng ta sẽ giới thiệu công cụ Cargo, công cụ sẽ giúp bạn viết các chương trình Rust thực tế.
 
 [troubleshooting]: ch01-01-installation.html#troubleshooting
 [devtools]: appendix-04-useful-development-tools.html
