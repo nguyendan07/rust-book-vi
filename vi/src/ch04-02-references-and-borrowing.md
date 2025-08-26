@@ -1,16 +1,8 @@
-## References and Borrowing
+## Tham chiếu và Mượn (References and Borrowing)
 
-The issue with the tuple code in Listing 4-5 is that we have to return the
-`String` to the calling function so we can still use the `String` after the
-call to `calculate_length`, because the `String` was moved into
-`calculate_length`. Instead, we can provide a reference to the `String` value.
-A _reference_ is like a pointer in that it’s an address we can follow to access
-the data stored at that address; that data is owned by some other variable.
-Unlike a pointer, a reference is guaranteed to point to a valid value of a
-particular type for the life of that reference.
+Vấn đề với đoạn mã tuple trong Listing 4-5 là chúng ta phải trả lại `String` cho hàm gọi để vẫn có thể sử dụng `String` sau khi gọi `calculate_length`, bởi vì `String` đã bị chuyển quyền sở hữu vào `calculate_length`. Thay vào đó, chúng ta có thể cung cấp một tham chiếu tới giá trị `String`. Một _tham chiếu_ giống như một con trỏ ở chỗ nó là một địa chỉ mà chúng ta có thể theo để truy cập dữ liệu được lưu tại địa chỉ đó; dữ liệu đó được sở hữu bởi một biến khác. Khác với con trỏ, một tham chiếu được đảm bảo sẽ trỏ tới một giá trị hợp lệ của một kiểu cụ thể trong suốt vòng đời của tham chiếu đó.
 
-Here is how you would define and use a `calculate_length` function that has a
-reference to an object as a parameter instead of taking ownership of the value:
+Đây là cách bạn định nghĩa và sử dụng hàm `calculate_length` nhận tham chiếu tới một đối tượng làm tham số thay vì lấy quyền sở hữu giá trị:
 
 <Listing file-name="src/main.rs">
 
@@ -20,56 +12,35 @@ reference to an object as a parameter instead of taking ownership of the value:
 
 </Listing>
 
-First, notice that all the tuple code in the variable declaration and the
-function return value is gone. Second, note that we pass `&s1` into
-`calculate_length` and, in its definition, we take `&String` rather than
-`String`. These ampersands represent _references_, and they allow you to refer
-to some value without taking ownership of it. Figure 4-6 depicts this concept.
+Đầu tiên, hãy chú ý rằng toàn bộ mã tuple trong khai báo biến và giá trị trả về của hàm đã biến mất. Thứ hai, lưu ý rằng chúng ta truyền `&s1` vào `calculate_length` và trong định nghĩa của nó, chúng ta nhận `&String` thay vì `String`. Những dấu `&` này đại diện cho _tham chiếu_, và chúng cho phép bạn tham chiếu tới một giá trị mà không lấy quyền sở hữu nó. Hình 4-6 minh họa khái niệm này.
 
-<img alt="Three tables: the table for s contains only a pointer to the table
-for s1. The table for s1 contains the stack data for s1 and points to the
-string data on the heap." src="img/trpl04-06.svg" class="center" />
+<img alt="Ba bảng: bảng cho s chỉ chứa một con trỏ tới bảng cho s1. Bảng cho s1 chứa dữ liệu stack cho s1 và trỏ tới dữ liệu chuỗi trên heap." src="img/trpl04-06.svg" class="center" />
 
-<span class="caption">Figure 4-6: A diagram of `&String s` pointing at `String
-s1`</span>
+<span class="caption">Hình 4-6: Sơ đồ `&String s` trỏ tới `String s1`</span>
 
-> Note: The opposite of referencing by using `&` is _dereferencing_, which is
-> accomplished with the dereference operator, `*`. We’ll see some uses of the
-> dereference operator in Chapter 8 and discuss details of dereferencing in
-> Chapter 15.
+> Lưu ý: Đối lập với việc tham chiếu bằng cách sử dụng `&` là _giải tham chiếu_, được thực hiện với toán tử giải tham chiếu, `*`. Chúng ta sẽ thấy một số ví dụ về toán tử này ở Chương 8 và bàn về chi tiết giải tham chiếu ở Chương 15.
 
-Let’s take a closer look at the function call here:
+Hãy xem kỹ hơn về lời gọi hàm ở đây:
 
 ```rust
 {{#rustdoc_include ../listings/ch04-understanding-ownership/no-listing-07-reference/src/main.rs:here}}
 ```
 
-The `&s1` syntax lets us create a reference that _refers_ to the value of `s1`
-but does not own it. Because the reference does not own it, the value it points
-to will not be dropped when the reference stops being used.
+Cú pháp `&s1` cho phép chúng ta tạo một tham chiếu _tham chiếu_ tới giá trị của `s1` nhưng không sở hữu nó. Vì tham chiếu không sở hữu giá trị, nên giá trị mà nó trỏ tới sẽ không bị hủy khi tham chiếu ngừng được sử dụng.
 
-Likewise, the signature of the function uses `&` to indicate that the type of
-the parameter `s` is a reference. Let’s add some explanatory annotations:
+Tương tự, chữ ký của hàm sử dụng `&` để chỉ ra rằng kiểu của tham số `s` là một tham chiếu. Hãy thêm một số chú thích giải thích:
 
 ```rust
 {{#rustdoc_include ../listings/ch04-understanding-ownership/no-listing-08-reference-with-annotations/src/main.rs:here}}
 ```
 
-The scope in which the variable `s` is valid is the same as any function
-parameter’s scope, but the value pointed to by the reference is not dropped
-when `s` stops being used, because `s` doesn’t have ownership. When functions
-have references as parameters instead of the actual values, we won’t need to
-return the values in order to give back ownership, because we never had
-ownership.
+Phạm vi mà biến `s` hợp lệ giống như phạm vi của bất kỳ tham số hàm nào, nhưng giá trị được tham chiếu bởi tham chiếu sẽ không bị hủy khi `s` ngừng được sử dụng, bởi vì `s` không có quyền sở hữu. Khi các hàm nhận tham chiếu làm tham số thay vì giá trị thực, chúng ta sẽ không cần trả lại giá trị để chuyển lại quyền sở hữu, bởi vì chúng ta chưa từng sở hữu nó.
 
-We call the action of creating a reference _borrowing_. As in real life, if a
-person owns something, you can borrow it from them. When you’re done, you have
-to give it back. You don’t own it.
+Hành động tạo một tham chiếu được gọi là _mượn_. Giống như trong đời thực, nếu một người sở hữu thứ gì đó, bạn có thể mượn nó từ họ. Khi bạn xong việc, bạn phải trả lại. Bạn không sở hữu nó.
 
-So, what happens if we try to modify something we’re borrowing? Try the code in
-Listing 4-6. Spoiler alert: it doesn’t work!
+Vậy điều gì xảy ra nếu chúng ta cố gắng sửa đổi thứ mà chúng ta đang mượn? Hãy thử đoạn mã trong Listing 4-6. Bật mí: nó không hoạt động!
 
-<Listing number="4-6" file-name="src/main.rs" caption="Attempting to modify a borrowed value">
+<Listing number="4-6" file-name="src/main.rs" caption="Cố gắng sửa đổi một giá trị được mượn">
 
 ```rust,ignore,does_not_compile
 {{#rustdoc_include ../listings/ch04-understanding-ownership/listing-04-06/src/main.rs}}
@@ -77,19 +48,17 @@ Listing 4-6. Spoiler alert: it doesn’t work!
 
 </Listing>
 
-Here’s the error:
+Đây là lỗi:
 
 ```console
 {{#include ../listings/ch04-understanding-ownership/listing-04-06/output.txt}}
 ```
 
-Just as variables are immutable by default, so are references. We’re not
-allowed to modify something we have a reference to.
+Cũng giống như biến mặc định là bất biến, tham chiếu cũng vậy. Chúng ta không được phép sửa đổi thứ mà chúng ta chỉ có tham chiếu tới.
 
-### Mutable References
+### Tham chiếu có thể thay đổi
 
-We can fix the code from Listing 4-6 to allow us to modify a borrowed value
-with just a few small tweaks that use, instead, a _mutable reference_:
+Chúng ta có thể sửa đoạn mã từ Listing 4-6 để cho phép sửa đổi giá trị được mượn chỉ với một vài thay đổi nhỏ bằng cách sử dụng _tham chiếu có thể thay đổi_:
 
 <Listing file-name="src/main.rs">
 
@@ -99,14 +68,9 @@ with just a few small tweaks that use, instead, a _mutable reference_:
 
 </Listing>
 
-First we change `s` to be `mut`. Then we create a mutable reference with `&mut
-s` where we call the `change` function, and update the function signature to
-accept a mutable reference with `some_string: &mut String`. This makes it very
-clear that the `change` function will mutate the value it borrows.
+Đầu tiên chúng ta đổi `s` thành `mut`. Sau đó, chúng ta tạo một tham chiếu có thể thay đổi với `&mut s` khi gọi hàm `change`, và cập nhật chữ ký hàm để nhận tham chiếu có thể thay đổi với `some_string: &mut String`. Điều này làm rõ rằng hàm `change` sẽ thay đổi giá trị mà nó mượn.
 
-Mutable references have one big restriction: if you have a mutable reference to
-a value, you can have no other references to that value. This code that
-attempts to create two mutable references to `s` will fail:
+Tham chiếu có thể thay đổi có một hạn chế lớn: nếu bạn có một tham chiếu có thể thay đổi tới một giá trị, bạn không thể có bất kỳ tham chiếu nào khác tới giá trị đó. Đoạn mã này cố gắng tạo hai tham chiếu có thể thay đổi tới `s` sẽ bị lỗi:
 
 <Listing file-name="src/main.rs">
 
@@ -116,93 +80,59 @@ attempts to create two mutable references to `s` will fail:
 
 </Listing>
 
-Here’s the error:
+Đây là lỗi:
 
 ```console
 {{#include ../listings/ch04-understanding-ownership/no-listing-10-multiple-mut-not-allowed/output.txt}}
 ```
 
-This error says that this code is invalid because we cannot borrow `s` as
-mutable more than once at a time. The first mutable borrow is in `r1` and must
-last until it’s used in the `println!`, but between the creation of that
-mutable reference and its usage, we tried to create another mutable reference
-in `r2` that borrows the same data as `r1`.
+Lỗi này nói rằng đoạn mã này không hợp lệ vì chúng ta không thể mượn `s` dưới dạng có thể thay đổi nhiều hơn một lần cùng lúc. Lần mượn có thể thay đổi đầu tiên là ở `r1` và phải kéo dài cho tới khi nó được sử dụng trong `println!`, nhưng giữa lúc tạo tham chiếu có thể thay đổi đó và lúc sử dụng nó, chúng ta đã cố gắng tạo một tham chiếu có thể thay đổi khác ở `r2` mượn cùng dữ liệu với `r1`.
 
-The restriction preventing multiple mutable references to the same data at the
-same time allows for mutation but in a very controlled fashion. It’s something
-that new Rustaceans struggle with because most languages let you mutate
-whenever you’d like. The benefit of having this restriction is that Rust can
-prevent data races at compile time. A _data race_ is similar to a race
-condition and happens when these three behaviors occur:
+Hạn chế ngăn chặn nhiều tham chiếu có thể thay đổi tới cùng dữ liệu cùng lúc cho phép sửa đổi nhưng theo cách rất kiểm soát. Đây là điều mà người mới học Rust thường gặp khó khăn vì hầu hết các ngôn ngữ cho phép bạn sửa đổi bất cứ khi nào bạn muốn. Lợi ích của hạn chế này là Rust có thể ngăn chặn các lỗi tranh chấp dữ liệu ngay tại thời điểm biên dịch. Một _tranh chấp dữ liệu_ giống như một điều kiện tranh chấp và xảy ra khi ba hành vi sau xuất hiện:
 
-- Two or more pointers access the same data at the same time.
-- At least one of the pointers is being used to write to the data.
-- There’s no mechanism being used to synchronize access to the data.
+- Hai hoặc nhiều con trỏ truy cập cùng dữ liệu cùng lúc.
+- Ít nhất một con trỏ được sử dụng để ghi dữ liệu.
+- Không có cơ chế nào được sử dụng để đồng bộ hóa việc truy cập dữ liệu.
 
-Data races cause undefined behavior and can be difficult to diagnose and fix
-when you’re trying to track them down at runtime; Rust prevents this problem by
-refusing to compile code with data races!
+Tranh chấp dữ liệu gây ra hành vi không xác định và có thể rất khó phát hiện và sửa khi bạn cố gắng tìm lỗi lúc chạy; Rust ngăn chặn vấn đề này bằng cách từ chối biên dịch mã có tranh chấp dữ liệu!
 
-As always, we can use curly brackets to create a new scope, allowing for
-multiple mutable references, just not _simultaneous_ ones:
+Như thường lệ, chúng ta có thể sử dụng dấu ngoặc nhọn để tạo một phạm vi mới, cho phép nhiều tham chiếu có thể thay đổi, chỉ là không _đồng thời_:
 
 ```rust
 {{#rustdoc_include ../listings/ch04-understanding-ownership/no-listing-11-muts-in-separate-scopes/src/main.rs:here}}
 ```
 
-Rust enforces a similar rule for combining mutable and immutable references.
-This code results in an error:
+Rust cũng áp dụng quy tắc tương tự khi kết hợp tham chiếu có thể thay đổi và tham chiếu bất biến. Đoạn mã này sẽ gây lỗi:
 
 ```rust,ignore,does_not_compile
 {{#rustdoc_include ../listings/ch04-understanding-ownership/no-listing-12-immutable-and-mutable-not-allowed/src/main.rs:here}}
 ```
 
-Here’s the error:
+Đây là lỗi:
 
 ```console
 {{#include ../listings/ch04-understanding-ownership/no-listing-12-immutable-and-mutable-not-allowed/output.txt}}
 ```
 
-Whew! We _also_ cannot have a mutable reference while we have an immutable one
-to the same value.
+Chà! Chúng ta _cũng_ không thể có một tham chiếu có thể thay đổi trong khi đang có một tham chiếu bất biến tới cùng giá trị.
 
-Users of an immutable reference don’t expect the value to suddenly change out
-from under them! However, multiple immutable references are allowed because no
-one who is just reading the data has the ability to affect anyone else’s
-reading of the data.
+Người dùng của tham chiếu bất biến không mong đợi giá trị bị thay đổi bất ngờ! Tuy nhiên, nhiều tham chiếu bất biến được phép vì không ai chỉ đọc dữ liệu có thể ảnh hưởng tới việc đọc của người khác.
 
-Note that a reference’s scope starts from where it is introduced and continues
-through the last time that reference is used. For instance, this code will
-compile because the last usage of the immutable references is in the `println!`,
-before the mutable reference is introduced:
+Lưu ý rằng phạm vi của một tham chiếu bắt đầu từ nơi nó được giới thiệu và kéo dài tới lần cuối cùng tham chiếu đó được sử dụng. Ví dụ, đoạn mã này sẽ biên dịch vì lần sử dụng cuối cùng của các tham chiếu bất biến là trong `println!`, trước khi tham chiếu có thể thay đổi được tạo ra:
 
 ```rust
 {{#rustdoc_include ../listings/ch04-understanding-ownership/no-listing-13-reference-scope-ends/src/main.rs:here}}
 ```
 
-The scopes of the immutable references `r1` and `r2` end after the `println!`
-where they are last used, which is before the mutable reference `r3` is
-created. These scopes don’t overlap, so this code is allowed: the compiler can
-tell that the reference is no longer being used at a point before the end of
-the scope.
+Phạm vi của các tham chiếu bất biến `r1` và `r2` kết thúc sau `println!` nơi chúng được sử dụng lần cuối, trước khi tham chiếu có thể thay đổi `r3` được tạo ra. Các phạm vi này không giao nhau, nên đoạn mã này được phép: trình biên dịch có thể xác định rằng tham chiếu không còn được sử dụng tại một điểm trước khi kết thúc phạm vi.
 
-Even though borrowing errors may be frustrating at times, remember that it’s
-the Rust compiler pointing out a potential bug early (at compile time rather
-than at runtime) and showing you exactly where the problem is. Then you don’t
-have to track down why your data isn’t what you thought it was.
+Dù đôi khi lỗi mượn có thể gây khó chịu, hãy nhớ rằng đó là trình biên dịch Rust chỉ ra một lỗi tiềm ẩn sớm (tại thời điểm biên dịch thay vì lúc chạy) và chỉ rõ chính xác vị trí vấn đề. Nhờ vậy bạn không phải mất công tìm hiểu tại sao dữ liệu của mình không như mong đợi.
 
-### Dangling References
+### Tham chiếu treo
 
-In languages with pointers, it’s easy to erroneously create a _dangling
-pointer_—a pointer that references a location in memory that may have been
-given to someone else—by freeing some memory while preserving a pointer to that
-memory. In Rust, by contrast, the compiler guarantees that references will
-never be dangling references: if you have a reference to some data, the
-compiler will ensure that the data will not go out of scope before the
-reference to the data does.
+Trong các ngôn ngữ có con trỏ, rất dễ vô tình tạo ra một _con trỏ treo_—một con trỏ tham chiếu tới một vị trí bộ nhớ có thể đã được cấp phát cho ai đó khác—bằng cách giải phóng bộ nhớ trong khi vẫn giữ một con trỏ tới bộ nhớ đó. Ngược lại, trong Rust, trình biên dịch đảm bảo rằng tham chiếu sẽ không bao giờ là tham chiếu treo: nếu bạn có một tham chiếu tới dữ liệu nào đó, trình biên dịch sẽ đảm bảo rằng dữ liệu đó sẽ không bị ra khỏi phạm vi trước khi tham chiếu tới dữ liệu đó kết thúc.
 
-Let’s try to create a dangling reference to see how Rust prevents them with a
-compile-time error:
+Hãy thử tạo một tham chiếu treo để xem Rust ngăn chặn chúng bằng lỗi biên dịch như thế nào:
 
 <Listing file-name="src/main.rs">
 
@@ -212,23 +142,19 @@ compile-time error:
 
 </Listing>
 
-Here’s the error:
+Đây là lỗi:
 
 ```console
 {{#include ../listings/ch04-understanding-ownership/no-listing-14-dangling-reference/output.txt}}
 ```
 
-This error message refers to a feature we haven’t covered yet: lifetimes. We’ll
-discuss lifetimes in detail in Chapter 10. But, if you disregard the parts
-about lifetimes, the message does contain the key to why this code is a problem:
+Thông báo lỗi này đề cập tới một tính năng mà chúng ta chưa học: vòng đời (lifetimes). Chúng ta sẽ bàn về vòng đời chi tiết ở Chương 10. Nhưng nếu bạn bỏ qua phần về vòng đời, thông báo vẫn chứa ý chính về lý do tại sao đoạn mã này có vấn đề:
 
 ```text
-this function's return type contains a borrowed value, but there is no value
-for it to be borrowed from
+kiểu trả về của hàm này chứa một giá trị được mượn, nhưng không có giá trị nào để mượn từ đó
 ```
 
-Let’s take a closer look at exactly what’s happening at each stage of our
-`dangle` code:
+Hãy xem kỹ hơn từng bước của đoạn mã `dangle`:
 
 <Listing file-name="src/main.rs">
 
@@ -238,26 +164,22 @@ Let’s take a closer look at exactly what’s happening at each stage of our
 
 </Listing>
 
-Because `s` is created inside `dangle`, when the code of `dangle` is finished,
-`s` will be deallocated. But we tried to return a reference to it. That means
-this reference would be pointing to an invalid `String`. That’s no good! Rust
-won’t let us do this.
+Vì `s` được tạo bên trong `dangle`, khi mã của `dangle` kết thúc, `s` sẽ bị giải phóng. Nhưng chúng ta lại cố trả về một tham chiếu tới nó. Điều đó nghĩa là tham chiếu này sẽ trỏ tới một `String` không hợp lệ. Điều này không ổn! Rust sẽ không cho phép chúng ta làm vậy.
 
-The solution here is to return the `String` directly:
+Giải pháp ở đây là trả về trực tiếp `String`:
 
 ```rust
 {{#rustdoc_include ../listings/ch04-understanding-ownership/no-listing-16-no-dangle/src/main.rs:here}}
 ```
 
-This works without any problems. Ownership is moved out, and nothing is
-deallocated.
+Cách này hoạt động mà không gặp vấn đề gì. Quyền sở hữu được chuyển ra ngoài, và không có gì bị giải phóng.
 
-### The Rules of References
+### Các quy tắc của tham chiếu
 
-Let’s recap what we’ve discussed about references:
+Hãy tổng kết lại những gì chúng ta đã học về tham chiếu:
 
-- At any given time, you can have _either_ one mutable reference _or_ any
-  number of immutable references.
-- References must always be valid.
+- Tại một thời điểm, bạn chỉ có _hoặc_ một tham chiếu có thể thay đổi _hoặc_ bất kỳ số lượng tham chiếu bất biến nào.
+- Tham chiếu luôn phải hợp lệ.
 
-Next, we’ll look at a different kind of reference: slices.
+Tiếp theo, chúng ta sẽ tìm hiểu về một loại tham chiếu khác: slice.
+
