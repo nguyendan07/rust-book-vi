@@ -1,126 +1,91 @@
-## Control Flow
+## Luồng điều khiển
 
-The ability to run some code depending on whether a condition is `true` and to
-run some code repeatedly while a condition is `true` are basic building blocks
-in most programming languages. The most common constructs that let you control
-the flow of execution of Rust code are `if` expressions and loops.
+Khả năng chạy một đoạn mã tùy thuộc vào việc một điều kiện là `true` và chạy lặp đi lặp lại khi điều kiện là `true` là những khối xây dựng cơ bản trong hầu hết các ngôn ngữ lập trình. Các cấu trúc phổ biến nhất giúp bạn điều khiển luồng thực thi của mã Rust là các biểu thức `if` và các vòng lặp.
 
-### `if` Expressions
+### Biểu thức `if`
 
-An `if` expression allows you to branch your code depending on conditions. You
-provide a condition and then state, “If this condition is met, run this block
-of code. If the condition is not met, do not run this block of code.”
+Một biểu thức `if` cho phép bạn rẽ nhánh mã tùy theo điều kiện. Bạn cung cấp một điều kiện rồi nêu: “Nếu điều kiện này thỏa, chạy khối mã này. Nếu điều kiện không thỏa, đừng chạy khối mã này.”
 
-Create a new project called _branches_ in your _projects_ directory to explore
-the `if` expression. In the _src/main.rs_ file, input the following:
+Tạo một dự án mới tên là _branches_ trong thư mục _projects_ của bạn để khám phá biểu thức `if`. Trong tệp _src/main.rs_, nhập nội dung sau:
 
-<span class="filename">Filename: src/main.rs</span>
+<span class="filename">Tên tệp: src/main.rs</span>
 
 ```rust
 {{#rustdoc_include ../listings/ch03-common-programming-concepts/no-listing-26-if-true/src/main.rs}}
 ```
 
-All `if` expressions start with the keyword `if`, followed by a condition. In
-this case, the condition checks whether or not the variable `number` has a
-value less than 5. We place the block of code to execute if the condition is
-`true` immediately after the condition inside curly brackets. Blocks of code
-associated with the conditions in `if` expressions are sometimes called _arms_,
-just like the arms in `match` expressions that we discussed in the [“Comparing
-the Guess to the Secret Number”][comparing-the-guess-to-the-secret-number]<!--
-ignore --> section of Chapter 2.
+Tất cả các biểu thức `if` bắt đầu với từ khóa `if`, theo sau là một điều kiện. Trong trường hợp này, điều kiện kiểm tra xem biến `number` có giá trị nhỏ hơn 5 hay không. Chúng ta đặt khối mã cần thực thi nếu điều kiện là `true` ngay sau điều kiện, bên trong dấu ngoặc nhọn. Các khối mã gắn với điều kiện trong biểu thức `if` đôi khi được gọi là _arm_, tương tự như các arm trong biểu thức `match` mà chúng ta đã bàn trong phần [“So sánh lần đoán với số bí mật”][comparing-the-guess-to-the-secret-number]<!--
+ignore --> của Chương 2.
 
-Optionally, we can also include an `else` expression, which we chose to do
-here, to give the program an alternative block of code to execute should the
-condition evaluate to `false`. If you don’t provide an `else` expression and
-the condition is `false`, the program will just skip the `if` block and move on
-to the next bit of code.
+Tùy chọn, chúng ta cũng có thể thêm một biểu thức `else`, như ở đây, để cung cấp cho chương trình một khối mã thay thế để thực thi nếu điều kiện đánh giá là `false`. Nếu bạn không cung cấp `else` và điều kiện là `false`, chương trình sẽ chỉ bỏ qua khối `if` và tiếp tục phần mã tiếp theo.
 
-Try running this code; you should see the following output:
+Hãy chạy đoạn mã này; bạn sẽ thấy kết quả sau:
 
 ```console
 {{#include ../listings/ch03-common-programming-concepts/no-listing-26-if-true/output.txt}}
 ```
 
-Let’s try changing the value of `number` to a value that makes the condition
-`false` to see what happens:
+Hãy thử đổi giá trị của `number` sang một giá trị khiến điều kiện `false` để xem điều gì xảy ra:
 
 ```rust,ignore
 {{#rustdoc_include ../listings/ch03-common-programming-concepts/no-listing-27-if-false/src/main.rs:here}}
 ```
 
-Run the program again, and look at the output:
+Chạy lại chương trình và xem kết quả:
 
 ```console
 {{#include ../listings/ch03-common-programming-concepts/no-listing-27-if-false/output.txt}}
 ```
 
-It’s also worth noting that the condition in this code _must_ be a `bool`. If
-the condition isn’t a `bool`, we’ll get an error. For example, try running the
-following code:
+Cũng đáng lưu ý là điều kiện trong đoạn mã này _bắt buộc_ phải là `bool`. Nếu điều kiện không phải là `bool`, chúng ta sẽ nhận lỗi. Ví dụ, thử chạy đoạn mã sau:
 
-<span class="filename">Filename: src/main.rs</span>
+<span class="filename">Tên tệp: src/main.rs</span>
 
 ```rust,ignore,does_not_compile
 {{#rustdoc_include ../listings/ch03-common-programming-concepts/no-listing-28-if-condition-must-be-bool/src/main.rs}}
 ```
 
-The `if` condition evaluates to a value of `3` this time, and Rust throws an
-error:
+Lần này điều kiện `if` đánh giá ra giá trị `3`, và Rust báo lỗi:
 
 ```console
 {{#include ../listings/ch03-common-programming-concepts/no-listing-28-if-condition-must-be-bool/output.txt}}
 ```
 
-The error indicates that Rust expected a `bool` but got an integer. Unlike
-languages such as Ruby and JavaScript, Rust will not automatically try to
-convert non-Boolean types to a Boolean. You must be explicit and always provide
-`if` with a Boolean as its condition. If we want the `if` code block to run
-only when a number is not equal to `0`, for example, we can change the `if`
-expression to the following:
+Lỗi cho biết Rust mong đợi `bool` nhưng nhận được một số nguyên. Không giống các ngôn ngữ như Ruby và JavaScript, Rust sẽ không tự động cố chuyển các kiểu không phải Boolean thành Boolean. Bạn phải rõ ràng và luôn cung cấp một giá trị Boolean làm điều kiện cho `if`. Nếu chúng ta muốn khối `if` chỉ chạy khi một số khác `0`, chẳng hạn, ta có thể đổi biểu thức `if` như sau:
 
-<span class="filename">Filename: src/main.rs</span>
+<span class="filename">Tên tệp: src/main.rs</span>
 
 ```rust
 {{#rustdoc_include ../listings/ch03-common-programming-concepts/no-listing-29-if-not-equal-0/src/main.rs}}
 ```
 
-Running this code will print `number was something other than zero`.
+Chạy đoạn mã này sẽ in `number was something other than zero`.
 
-#### Handling Multiple Conditions with `else if`
+#### Xử lý nhiều điều kiện với `else if`
 
-You can use multiple conditions by combining `if` and `else` in an `else if`
-expression. For example:
+Bạn có thể dùng nhiều điều kiện bằng cách kết hợp `if` và `else` trong một biểu thức `else if`. Ví dụ:
 
-<span class="filename">Filename: src/main.rs</span>
+<span class="filename">Tên tệp: src/main.rs</span>
 
 ```rust
 {{#rustdoc_include ../listings/ch03-common-programming-concepts/no-listing-30-else-if/src/main.rs}}
 ```
 
-This program has four possible paths it can take. After running it, you should
-see the following output:
+Chương trình này có bốn đường đi có thể thực hiện. Sau khi chạy, bạn sẽ thấy kết quả sau:
 
 ```console
 {{#include ../listings/ch03-common-programming-concepts/no-listing-30-else-if/output.txt}}
 ```
 
-When this program executes, it checks each `if` expression in turn and executes
-the first body for which the condition evaluates to `true`. Note that even
-though 6 is divisible by 2, we don’t see the output `number is divisible by 2`,
-nor do we see the `number is not divisible by 4, 3, or 2` text from the `else`
-block. That’s because Rust only executes the block for the first `true`
-condition, and once it finds one, it doesn’t even check the rest.
+Khi chương trình thực thi, nó kiểm tra từng biểu thức `if` theo thứ tự và thực thi khối đầu tiên có điều kiện đánh giá là `true`. Lưu ý rằng mặc dù 6 chia hết cho 2, chúng ta không thấy dòng `number is divisible by 2`, cũng không thấy dòng `number is not divisible by 4, 3, or 2` từ khối `else`. Đó là vì Rust chỉ thực thi khối cho điều kiện `true` đầu tiên, và khi đã tìm thấy, nó sẽ không kiểm tra các điều kiện còn lại.
 
-Using too many `else if` expressions can clutter your code, so if you have more
-than one, you might want to refactor your code. Chapter 6 describes a powerful
-Rust branching construct called `match` for these cases.
+Dùng quá nhiều `else if` có thể khiến mã rối rắm, nên nếu bạn có nhiều hơn một `else if`, bạn có thể muốn tái cấu trúc. Chương 6 mô tả một cấu trúc rẽ nhánh mạnh mẽ trong Rust gọi là `match` cho những trường hợp như vậy.
 
-#### Using `if` in a `let` Statement
+#### Dùng `if` trong câu lệnh `let`
 
-Because `if` is an expression, we can use it on the right side of a `let`
-statement to assign the outcome to a variable, as in Listing 3-2.
+Vì `if` là một biểu thức, ta có thể dùng nó ở vế phải của câu lệnh `let` để gán kết quả cho một biến, như trong Liệt kê 3-2.
 
-<Listing number="3-2" file-name="src/main.rs" caption="Assigning the result of an `if` expression to a variable">
+<Listing number="3-2" file-name="src/main.rs" caption="Gán kết quả của một biểu thức `if` cho biến">
 
 ```rust
 {{#rustdoc_include ../listings/ch03-common-programming-concepts/listing-03-02/src/main.rs}}
@@ -128,71 +93,47 @@ statement to assign the outcome to a variable, as in Listing 3-2.
 
 </Listing>
 
-The `number` variable will be bound to a value based on the outcome of the `if`
-expression. Run this code to see what happens:
+Biến `number` sẽ được gán một giá trị dựa trên kết quả của biểu thức `if`. Hãy chạy đoạn mã này để xem điều gì xảy ra:
 
 ```console
 {{#include ../listings/ch03-common-programming-concepts/listing-03-02/output.txt}}
 ```
 
-Remember that blocks of code evaluate to the last expression in them, and
-numbers by themselves are also expressions. In this case, the value of the
-whole `if` expression depends on which block of code executes. This means the
-values that have the potential to be results from each arm of the `if` must be
-the same type; in Listing 3-2, the results of both the `if` arm and the `else`
-arm were `i32` integers. If the types are mismatched, as in the following
-example, we’ll get an error:
+Hãy nhớ rằng các khối mã được đánh giá thành biểu thức cuối cùng trong khối, và các con số tự chúng cũng là biểu thức. Trong trường hợp này, giá trị của toàn bộ biểu thức `if` phụ thuộc vào khối nào được thực thi. Điều này có nghĩa là các giá trị có thể trở thành kết quả từ mỗi arm của `if` phải cùng kiểu; trong Liệt kê 3-2, kết quả của cả arm `if` và arm `else` đều là số nguyên `i32`. Nếu các kiểu không trùng khớp, như trong ví dụ sau, chúng ta sẽ nhận lỗi:
 
-<span class="filename">Filename: src/main.rs</span>
+<span class="filename">Tên tệp: src/main.rs</span>
 
 ```rust,ignore,does_not_compile
 {{#rustdoc_include ../listings/ch03-common-programming-concepts/no-listing-31-arms-must-return-same-type/src/main.rs}}
 ```
 
-When we try to compile this code, we’ll get an error. The `if` and `else` arms
-have value types that are incompatible, and Rust indicates exactly where to
-find the problem in the program:
+Khi cố biên dịch đoạn mã này, chúng ta sẽ nhận lỗi. Các arm `if` và `else` có kiểu giá trị không tương thích, và Rust chỉ ra chính xác vị trí có vấn đề trong chương trình:
 
 ```console
 {{#include ../listings/ch03-common-programming-concepts/no-listing-31-arms-must-return-same-type/output.txt}}
 ```
 
-The expression in the `if` block evaluates to an integer, and the expression in
-the `else` block evaluates to a string. This won’t work because variables must
-have a single type, and Rust needs to know at compile time what type the
-`number` variable is, definitively. Knowing the type of `number` lets the
-compiler verify the type is valid everywhere we use `number`. Rust wouldn’t be
-able to do that if the type of `number` was only determined at runtime; the
-compiler would be more complex and would make fewer guarantees about the code
-if it had to keep track of multiple hypothetical types for any variable.
+Biểu thức trong khối `if` đánh giá thành một số nguyên, còn biểu thức trong khối `else` đánh giá thành một chuỗi. Điều này sẽ không hoạt động vì biến phải có một kiểu duy nhất, và Rust cần biết kiểu của biến `number` ngay tại thời điểm biên dịch, một cách dứt khoát. Biết kiểu của `number` cho phép trình biên dịch xác minh kiểu đó là hợp lệ ở mọi nơi ta dùng `number`. Rust sẽ không thể làm điều đó nếu kiểu của `number` chỉ được xác định lúc chạy; trình biên dịch sẽ phức tạp hơn và đưa ra ít đảm bảo hơn về mã nếu nó phải theo dõi nhiều kiểu giả định cho bất kỳ biến nào.
 
-### Repetition with Loops
+### Lặp lại với các vòng lặp
 
-It’s often useful to execute a block of code more than once. For this task,
-Rust provides several _loops_, which will run through the code inside the loop
-body to the end and then start immediately back at the beginning. To experiment
-with loops, let’s make a new project called _loops_.
+Thường thì chúng ta cần thực thi một khối mã nhiều hơn một lần. Để làm việc này, Rust cung cấp nhiều _vòng lặp_, chúng sẽ chạy qua đoạn mã bên trong thân vòng lặp đến cuối rồi ngay lập tức bắt đầu lại từ đầu. Để thử nghiệm với vòng lặp, hãy tạo một dự án mới tên _loops_.
 
-Rust has three kinds of loops: `loop`, `while`, and `for`. Let’s try each one.
+Rust có ba loại vòng lặp: `loop`, `while`, và `for`. Hãy thử từng loại.
 
-#### Repeating Code with `loop`
+#### Lặp lại mã với `loop`
 
-The `loop` keyword tells Rust to execute a block of code over and over again
-forever or until you explicitly tell it to stop.
+Từ khóa `loop` bảo Rust thực thi một khối mã lặp đi lặp lại mãi mãi hoặc cho đến khi bạn bảo nó dừng lại một cách tường minh.
 
-As an example, change the _src/main.rs_ file in your _loops_ directory to look
-like this:
+Ví dụ, hãy đổi tệp _src/main.rs_ trong thư mục _loops_ của bạn thành như sau:
 
-<span class="filename">Filename: src/main.rs</span>
+<span class="filename">Tên tệp: src/main.rs</span>
 
 ```rust,ignore
 {{#rustdoc_include ../listings/ch03-common-programming-concepts/no-listing-32-loop/src/main.rs}}
 ```
 
-When we run this program, we’ll see `again!` printed over and over continuously
-until we stop the program manually. Most terminals support the keyboard shortcut
-<kbd>ctrl</kbd>-<kbd>c</kbd> to interrupt a program that is stuck in a continual
-loop. Give it a try:
+Khi chạy chương trình này, chúng ta sẽ thấy `again!` được in ra liên tục cho đến khi chúng ta dừng chương trình thủ công. Hầu hết terminal hỗ trợ phím tắt <kbd>ctrl</kbd>-<kbd>c</kbd> để ngắt một chương trình bị kẹt trong vòng lặp vô tận. Hãy thử nhé:
 
 <!-- manual-regeneration
 cd listings/ch03-common-programming-concepts/no-listing-32-loop
@@ -202,9 +143,9 @@ CTRL-C
 
 ```console
 $ cargo run
-   Compiling loops v0.1.0 (file:///projects/loops)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.08s
-     Running `target/debug/loops`
+  Compiling loops v0.1.0 (file:///projects/loops)
+   Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.08s
+    Running `target/debug/loops`
 again!
 again!
 again!
@@ -212,79 +153,45 @@ again!
 ^Cagain!
 ```
 
-The symbol `^C` represents where you pressed <kbd>ctrl</kbd>-<kbd>c</kbd>.
+Ký hiệu `^C` biểu thị nơi bạn đã nhấn <kbd>ctrl</kbd>-<kbd>c</kbd>.
 
-You may or may not see the word `again!` printed after the `^C`, depending on
-where the code was in the loop when it received the interrupt signal.
+Bạn có thể thấy hoặc không thấy chữ `again!` được in sau `^C`, tùy thuộc vào việc mã đang ở đâu trong vòng lặp khi nhận tín hiệu ngắt.
 
-Fortunately, Rust also provides a way to break out of a loop using code. You
-can place the `break` keyword within the loop to tell the program when to stop
-executing the loop. Recall that we did this in the guessing game in the
-[“Quitting After a Correct Guess”][quitting-after-a-correct-guess]<!-- ignore
---> section of Chapter 2 to exit the program when the user won the game by
-guessing the correct number.
+May mắn thay, Rust cũng cung cấp cách thoát khỏi vòng lặp bằng mã. Bạn có thể đặt từ khóa `break` bên trong vòng lặp để cho chương trình biết khi nào dừng thực thi vòng lặp. Hãy nhớ rằng chúng ta đã làm điều này trong trò chơi đoán số ở phần [“Thoát sau khi đoán đúng”][quitting-after-a-correct-guess]<!-- ignore --> của Chương 2 để thoát chương trình khi người dùng thắng trò chơi bằng cách đoán đúng số.
 
-We also used `continue` in the guessing game, which in a loop tells the program
-to skip over any remaining code in this iteration of the loop and go to the
-next iteration.
+Chúng ta cũng đã dùng `continue` trong trò chơi đoán số, thứ mà trong vòng lặp sẽ bảo chương trình bỏ qua phần mã còn lại của vòng lặp hiện tại và chuyển sang vòng lặp kế tiếp.
 
-#### Returning Values from Loops
+#### Trả về giá trị từ vòng lặp
 
-One of the uses of a `loop` is to retry an operation you know might fail, such
-as checking whether a thread has completed its job. You might also need to pass
-the result of that operation out of the loop to the rest of your code. To do
-this, you can add the value you want returned after the `break` expression you
-use to stop the loop; that value will be returned out of the loop so you can
-use it, as shown here:
+Một trong những cách dùng của `loop` là thử lại một thao tác mà bạn biết có thể thất bại, chẳng hạn như kiểm tra xem một thread đã hoàn thành công việc hay chưa. Bạn cũng có thể cần truyền kết quả của thao tác đó ra khỏi vòng lặp cho phần mã còn lại. Để làm điều này, bạn có thể thêm giá trị muốn trả về sau biểu thức `break` bạn dùng để dừng vòng lặp; giá trị đó sẽ được trả về từ vòng lặp để bạn dùng, như sau:
 
 ```rust
 {{#rustdoc_include ../listings/ch03-common-programming-concepts/no-listing-33-return-value-from-loop/src/main.rs}}
 ```
 
-Before the loop, we declare a variable named `counter` and initialize it to
-`0`. Then we declare a variable named `result` to hold the value returned from
-the loop. On every iteration of the loop, we add `1` to the `counter` variable,
-and then check whether the `counter` is equal to `10`. When it is, we use the
-`break` keyword with the value `counter * 2`. After the loop, we use a
-semicolon to end the statement that assigns the value to `result`. Finally, we
-print the value in `result`, which in this case is `20`.
+Trước vòng lặp, chúng ta khai báo một biến tên `counter` và khởi tạo nó bằng `0`. Sau đó khai báo một biến tên `result` để giữ giá trị trả về từ vòng lặp. Ở mỗi lần lặp, chúng ta cộng `1` vào `counter`, rồi kiểm tra xem `counter` có bằng `10` hay không. Khi bằng, chúng ta dùng từ khóa `break` với giá trị `counter * 2`. Sau vòng lặp, chúng ta dùng dấu chấm phẩy để kết thúc câu lệnh gán giá trị cho `result`. Cuối cùng, chúng ta in giá trị trong `result`, trong trường hợp này là `20`.
 
-You can also `return` from inside a loop. While `break` only exits the current
-loop, `return` always exits the current function.
+Bạn cũng có thể `return` từ bên trong một vòng lặp. Trong khi `break` chỉ thoát vòng lặp hiện tại, `return` luôn thoát khỏi hàm hiện tại.
 
-#### Loop Labels to Disambiguate Between Multiple Loops
+#### Nhãn vòng lặp để phân biệt giữa nhiều vòng lặp
 
-If you have loops within loops, `break` and `continue` apply to the innermost
-loop at that point. You can optionally specify a _loop label_ on a loop that
-you can then use with `break` or `continue` to specify that those keywords
-apply to the labeled loop instead of the innermost loop. Loop labels must begin
-with a single quote. Here’s an example with two nested loops:
+Nếu bạn có các vòng lặp lồng nhau, `break` và `continue` áp dụng cho vòng lặp trong cùng tại thời điểm đó. Bạn có thể tùy chọn chỉ định một _nhãn vòng lặp_ cho một vòng lặp, rồi dùng với `break` hoặc `continue` để chỉ định rằng các từ khóa đó áp dụng cho vòng lặp được gắn nhãn thay vì vòng lặp trong cùng. Nhãn vòng lặp phải bắt đầu bằng một dấu nháy đơn. Đây là một ví dụ với hai vòng lặp lồng nhau:
 
 ```rust
 {{#rustdoc_include ../listings/ch03-common-programming-concepts/no-listing-32-5-loop-labels/src/main.rs}}
 ```
 
-The outer loop has the label `'counting_up`, and it will count up from 0 to 2.
-The inner loop without a label counts down from 10 to 9. The first `break` that
-doesn’t specify a label will exit the inner loop only. The `break
-'counting_up;` statement will exit the outer loop. This code prints:
+Vòng lặp ngoài có nhãn `'counting_up`, và nó sẽ đếm tăng từ 0 đến 2. Vòng lặp trong không có nhãn đếm giảm từ 10 xuống 9. Lệnh `break` đầu tiên không chỉ rõ nhãn sẽ chỉ thoát vòng lặp trong. Câu lệnh `break 'counting_up;` sẽ thoát vòng lặp ngoài. Đoạn mã này in ra:
 
 ```console
 {{#rustdoc_include ../listings/ch03-common-programming-concepts/no-listing-32-5-loop-labels/output.txt}}
 ```
 
-#### Conditional Loops with `while`
+#### Vòng lặp có điều kiện với `while`
 
-A program will often need to evaluate a condition within a loop. While the
-condition is `true`, the loop runs. When the condition ceases to be `true`, the
-program calls `break`, stopping the loop. It’s possible to implement behavior
-like this using a combination of `loop`, `if`, `else`, and `break`; you could
-try that now in a program, if you’d like. However, this pattern is so common
-that Rust has a built-in language construct for it, called a `while` loop. In
-Listing 3-3, we use `while` to loop the program three times, counting down each
-time, and then, after the loop, print a message and exit.
+Một chương trình thường cần đánh giá một điều kiện bên trong vòng lặp. Khi điều kiện là `true`, vòng lặp chạy. Khi điều kiện không còn `true`, chương trình gọi `break`, dừng vòng lặp. Có thể hiện thực hành vi như vậy bằng cách kết hợp `loop`, `if`, `else`, và `break`; bạn có thể thử tự làm nếu muốn. Tuy nhiên, mẫu này phổ biến đến mức Rust có một cấu trúc ngôn ngữ dựng sẵn cho nó, gọi là vòng lặp `while`. Trong Liệt kê 3-3, chúng ta dùng `while` để lặp chương trình ba lần, đếm ngược mỗi lần, rồi sau vòng lặp in một thông điệp và thoát.
 
-<Listing number="3-3" file-name="src/main.rs" caption="Using a `while` loop to run code while a condition evaluates to `true`">
+<Listing number="3-3" file-name="src/main.rs" caption="Dùng vòng lặp `while` để chạy mã khi một điều kiện đánh giá là `true`">
 
 ```rust
 {{#rustdoc_include ../listings/ch03-common-programming-concepts/listing-03-03/src/main.rs}}
@@ -292,17 +199,13 @@ time, and then, after the loop, print a message and exit.
 
 </Listing>
 
-This construct eliminates a lot of nesting that would be necessary if you used
-`loop`, `if`, `else`, and `break`, and it’s clearer. While a condition
-evaluates to `true`, the code runs; otherwise, it exits the loop.
+Cấu trúc này loại bỏ nhiều tầng lồng nhau nếu bạn dùng `loop`, `if`, `else`, và `break`, và nó rõ ràng hơn. Chừng nào điều kiện đánh giá là `true`, mã sẽ chạy; nếu không, nó thoát vòng lặp.
 
-#### Looping Through a Collection with `for`
+#### Lặp qua một tập hợp với `for`
 
-You can choose to use the `while` construct to loop over the elements of a
-collection, such as an array. For example, the loop in Listing 3-4 prints each
-element in the array `a`.
+Bạn có thể chọn dùng `while` để lặp qua các phần tử của một tập hợp, như một mảng. Ví dụ, vòng lặp trong Liệt kê 3-4 in từng phần tử trong mảng `a`.
 
-<Listing number="3-4" file-name="src/main.rs" caption="Looping through each element of a collection using a `while` loop">
+<Listing number="3-4" file-name="src/main.rs" caption="Lặp qua từng phần tử của một tập hợp bằng vòng lặp `while`">
 
 ```rust
 {{#rustdoc_include ../listings/ch03-common-programming-concepts/listing-03-04/src/main.rs}}
@@ -310,30 +213,19 @@ element in the array `a`.
 
 </Listing>
 
-Here, the code counts up through the elements in the array. It starts at index
-`0`, and then loops until it reaches the final index in the array (that is,
-when `index < 5` is no longer `true`). Running this code will print every
-element in the array:
+Ở đây, mã đếm tăng qua các phần tử trong mảng. Nó bắt đầu tại chỉ mục `0`, rồi lặp cho đến khi đạt đến chỉ mục cuối cùng trong mảng (nghĩa là khi `index < 5` không còn `true`). Chạy đoạn mã này sẽ in mọi phần tử trong mảng:
 
 ```console
 {{#include ../listings/ch03-common-programming-concepts/listing-03-04/output.txt}}
 ```
 
-All five array values appear in the terminal, as expected. Even though `index`
-will reach a value of `5` at some point, the loop stops executing before trying
-to fetch a sixth value from the array.
+Cả năm giá trị của mảng xuất hiện trong terminal, như mong đợi. Mặc dù `index` sẽ đạt giá trị `5` tại một thời điểm, vòng lặp dừng thực thi trước khi cố lấy phần tử thứ sáu từ mảng.
 
-However, this approach is error prone; we could cause the program to panic if
-the index value or test condition is incorrect. For example, if you changed the
-definition of the `a` array to have four elements but forgot to update the
-condition to `while index < 4`, the code would panic. It’s also slow, because
-the compiler adds runtime code to perform the conditional check of whether the
-index is within the bounds of the array on every iteration through the loop.
+Tuy nhiên, cách tiếp cận này dễ lỗi; chúng ta có thể khiến chương trình panic nếu giá trị chỉ mục hoặc điều kiện kiểm tra không đúng. Ví dụ, nếu bạn đổi định nghĩa mảng `a` thành có bốn phần tử nhưng quên cập nhật điều kiện thành `while index < 4`, mã sẽ panic. Nó cũng chậm, vì trình biên dịch thêm mã chạy lúc thực thi để kiểm tra xem chỉ mục có nằm trong phạm vi mảng ở mỗi vòng lặp hay không.
 
-As a more concise alternative, you can use a `for` loop and execute some code
-for each item in a collection. A `for` loop looks like the code in Listing 3-5.
+Là một cách gọn gàng hơn, bạn có thể dùng vòng lặp `for` để thực thi một đoạn mã cho từng phần tử trong tập hợp. Vòng lặp `for` trông như mã trong Liệt kê 3-5.
 
-<Listing number="3-5" file-name="src/main.rs" caption="Looping through each element of a collection using a `for` loop">
+<Listing number="3-5" file-name="src/main.rs" caption="Lặp qua từng phần tử của một tập hợp bằng vòng lặp `for`">
 
 ```rust
 {{#rustdoc_include ../listings/ch03-common-programming-concepts/listing-03-05/src/main.rs}}
@@ -341,50 +233,31 @@ for each item in a collection. A `for` loop looks like the code in Listing 3-5.
 
 </Listing>
 
-When we run this code, we’ll see the same output as in Listing 3-4. More
-importantly, we’ve now increased the safety of the code and eliminated the
-chance of bugs that might result from going beyond the end of the array or not
-going far enough and missing some items. Machine code generated from `for`
-loops can be more efficient as well, because the index doesn’t need to be
-compared to the length of the array at every iteration.
+Khi chạy đoạn mã này, chúng ta sẽ thấy đầu ra giống Liệt kê 3-4. Quan trọng hơn, chúng ta đã tăng độ an toàn cho mã và loại bỏ khả năng lỗi có thể xảy ra do vượt quá cuối mảng hoặc không đi đủ xa và bỏ sót một số phần tử. Mã máy được tạo từ vòng lặp `for` cũng có thể hiệu quả hơn, vì không cần so sánh chỉ mục với độ dài mảng ở mỗi vòng lặp.
 
-Using the `for` loop, you wouldn’t need to remember to change any other code if
-you changed the number of values in the array, as you would with the method
-used in Listing 3-4.
+Dùng vòng lặp `for`, bạn sẽ không phải nhớ đổi bất kỳ đoạn mã nào khác nếu bạn thay đổi số lượng phần tử trong mảng, như bạn phải làm với cách ở Liệt kê 3-4.
 
-The safety and conciseness of `for` loops make them the most commonly used loop
-construct in Rust. Even in situations in which you want to run some code a
-certain number of times, as in the countdown example that used a `while` loop
-in Listing 3-3, most Rustaceans would use a `for` loop. The way to do that
-would be to use a `Range`, provided by the standard library, which generates
-all numbers in sequence starting from one number and ending before another
-number.
+Tính an toàn và ngắn gọn của vòng lặp `for` khiến nó trở thành cấu trúc vòng lặp được dùng nhiều nhất trong Rust. Ngay cả trong những tình huống bạn muốn chạy một đoạn mã một số lần nhất định, như ví dụ đếm ngược dùng vòng lặp `while` trong Liệt kê 3-3, hầu hết Rustacean sẽ dùng vòng lặp `for`. Cách làm là dùng một `Range` do thư viện tiêu chuẩn cung cấp, tạo ra tất cả các số theo thứ tự bắt đầu từ một số và kết thúc trước một số khác.
 
-Here’s what the countdown would look like using a `for` loop and another method
-we’ve not yet talked about, `rev`, to reverse the range:
+Đoạn đếm ngược sẽ trông như thế này khi dùng vòng lặp `for` và một phương thức khác mà ta chưa bàn, `rev`, để đảo ngược range:
 
-<span class="filename">Filename: src/main.rs</span>
+<span class="filename">Tên tệp: src/main.rs</span>
 
 ```rust
 {{#rustdoc_include ../listings/ch03-common-programming-concepts/no-listing-34-for-range/src/main.rs}}
 ```
 
-This code is a bit nicer, isn’t it?
+Đoạn mã này dễ chịu hơn một chút, phải không?
 
-## Summary
+## Tóm tắt
 
-You made it! This was a sizable chapter: you learned about variables, scalar
-and compound data types, functions, comments, `if` expressions, and loops! To
-practice with the concepts discussed in this chapter, try building programs to
-do the following:
+Tuyệt vời! Đây là một chương khá dài: bạn đã học về biến, kiểu dữ liệu vô hướng và tổng hợp, hàm, chú thích, biểu thức `if`, và các vòng lặp! Để luyện tập các khái niệm trong chương này, hãy thử xây dựng các chương trình sau:
 
-- Convert temperatures between Fahrenheit and Celsius.
-- Generate the *n*th Fibonacci number.
-- Print the lyrics to the Christmas carol “The Twelve Days of Christmas,”
-  taking advantage of the repetition in the song.
+- Chuyển đổi nhiệt độ giữa Fahrenheit và Celsius.
+- Tạo số Fibonacci thứ *n*.
+- In lời bài hát Giáng Sinh “The Twelve Days of Christmas,” tận dụng sự lặp lại trong bài.
 
-When you’re ready to move on, we’ll talk about a concept in Rust that _doesn’t_
-commonly exist in other programming languages: ownership.
+Khi sẵn sàng tiếp tục, chúng ta sẽ nói về một khái niệm trong Rust mà _thường_ không tồn tại ở các ngôn ngữ lập trình khác: ownership.
 
 [comparing-the-guess-to-the-secret-number]: ch02-00-guessing-game-tutorial.html#comparing-the-guess-to-the-secret-number
 [quitting-after-a-correct-guess]: ch02-00-guessing-game-tutorial.html#quitting-after-a-correct-guess
