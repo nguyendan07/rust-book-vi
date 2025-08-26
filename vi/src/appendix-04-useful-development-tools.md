@@ -1,47 +1,33 @@
-## Appendix D - Useful Development Tools
+## Phụ lục D - Các công cụ phát triển hữu ích
 
-In this appendix, we talk about some useful development tools that the Rust
-project provides. We’ll look at automatic formatting, quick ways to apply
-warning fixes, a linter, and integrating with IDEs.
+Trong phụ lục này, chúng ta sẽ nói về một số công cụ phát triển hữu ích mà dự án Rust cung cấp. Chúng ta sẽ xem xét định dạng tự động, các cách nhanh chóng để áp dụng các bản sửa lỗi cảnh báo, một linter và tích hợp với các IDE.
 
-### Automatic Formatting with `rustfmt`
+### Định dạng tự động với `rustfmt`
 
-The `rustfmt` tool reformats your code according to the community code style.
-Many collaborative projects use `rustfmt` to prevent arguments about which
-style to use when writing Rust: everyone formats their code using the tool.
+Công cụ `rustfmt` định dạng lại mã của bạn theo phong cách mã của cộng đồng. Nhiều dự án hợp tác sử dụng `rustfmt` để ngăn chặn các cuộc tranh cãi về việc sử dụng phong cách nào khi viết Rust: mọi người đều định dạng mã của mình bằng công cụ này.
 
-Rust installations include `rustfmt` by default, so you should already have the
-programs `rustfmt` and `cargo-fmt` on your system. These two commands are
-analogous to `rustc` and `cargo` in that `rustfmt` allows finer-grained control
-and `cargo-fmt` understands conventions of a project that uses Cargo. To format
-any Cargo project, enter the following:
+Các bản cài đặt Rust bao gồm `rustfmt` theo mặc định, vì vậy bạn đã có sẵn các chương trình `rustfmt` và `cargo-fmt` trên hệ thống của mình. Hai lệnh này tương tự như `rustc` và `cargo` ở chỗ `rustfmt` cho phép kiểm soát chi tiết hơn và `cargo-fmt` hiểu các quy ước của một dự án sử dụng Cargo. Để định dạng bất kỳ dự án Cargo nào, hãy nhập như sau:
 
 ```console
 $ cargo fmt
 ```
 
-Running this command reformats all the Rust code in the current crate. This
-should only change the code style, not the code semantics. For more information
-on `rustfmt`, see [its documentation][rustfmt].
+Chạy lệnh này sẽ định dạng lại tất cả mã Rust trong crate hiện tại. Điều này chỉ nên thay đổi phong cách mã, không phải ngữ nghĩa của mã. Để biết thêm thông tin về `rustfmt`, hãy xem [tài liệu của nó][rustfmt].
 
-### Fix Your Code with `rustfix`
+### Sửa mã của bạn với `rustfix`
 
-The `rustfix` tool is included with Rust installations and can automatically fix
-compiler warnings that have a clear way to correct the problem that’s likely
-what you want. You’ve probably seen compiler warnings before. For example,
-consider this code:
+Công cụ `rustfix` được bao gồm trong các bản cài đặt Rust và có thể tự động sửa các cảnh báo của trình biên dịch có cách khắc phục rõ ràng và có khả năng là điều bạn muốn. Có lẽ bạn đã từng thấy các cảnh báo của trình biên dịch trước đây. Ví dụ, hãy xem xét đoạn mã này:
 
-<span class="filename">Filename: src/main.rs</span>
+<span class="filename">Tên tệp: src/main.rs</span>
 
 ```rust
 fn main() {
-    let mut x = 42;
-    println!("{x}");
+  let mut x = 42;
+  println!("{x}");
 }
 ```
 
-Here, we’re defining the variable `x` as mutable, but we never actually mutate
-it. Rust warns us about that:
+Ở đây, chúng ta định nghĩa biến `x` là có thể thay đổi, nhưng chúng ta không bao giờ thực sự thay đổi nó. Rust cảnh báo chúng ta về điều đó:
 
 ```console
 $ cargo build
@@ -57,62 +43,55 @@ warning: variable does not need to be mutable
   = note: `#[warn(unused_mut)]` on by default
 ```
 
-The warning suggests that we remove the `mut` keyword. We can automatically
-apply that suggestion using the `rustfix` tool by running the command `cargo
-fix`:
+Cảnh báo đề nghị chúng ta xóa từ khóa `mut`. Chúng ta có thể tự động áp dụng đề xuất đó bằng công cụ `rustfix` bằng cách chạy lệnh `cargo fix`:
 
 ```console
 $ cargo fix
-    Checking myprogram v0.1.0 (file:///projects/myprogram)
-      Fixing src/main.rs (1 fix)
-    Finished dev [unoptimized + debuginfo] target(s) in 0.59s
+  Checking myprogram v0.1.0 (file:///projects/myprogram)
+    Fixing src/main.rs (1 fix)
+  Finished dev [unoptimized + debuginfo] target(s) in 0.59s
 ```
 
-When we look at _src/main.rs_ again, we’ll see that `cargo fix` has changed the
-code:
+Khi chúng ta xem lại tệp _src/main.rs_, chúng ta sẽ thấy rằng `cargo fix` đã thay đổi mã:
 
-<span class="filename">Filename: src/main.rs</span>
+<span class="filename">Tên tệp: src/main.rs</span>
 
 ```rust
 fn main() {
-    let x = 42;
-    println!("{x}");
+  let x = 42;
+  println!("{x}");
 }
 ```
 
-The variable `x` is now immutable, and the warning no longer appears.
+Biến `x` bây giờ là bất biến, và cảnh báo không còn xuất hiện nữa.
 
-You can also use the `cargo fix` command to transition your code between
-different Rust editions. Editions are covered in [Appendix E][editions].
+Bạn cũng có thể sử dụng lệnh `cargo fix` để chuyển đổi mã của mình giữa các phiên bản Rust khác nhau. Các phiên bản được đề cập trong [Phụ lục E][editions].
 
-### More Lints with Clippy
+### Nhiều lints hơn với Clippy
 
-The Clippy tool is a collection of lints to analyze your code so you can catch
-common mistakes and improve your Rust code. Clippy is included with standard
-Rust installations.
+Công cụ Clippy là một tập hợp các lints để phân tích mã của bạn để bạn có thể phát hiện các lỗi phổ biến và cải thiện mã Rust của mình. Clippy được bao gồm trong các bản cài đặt Rust tiêu chuẩn.
 
-To run Clippy’s lints on any Cargo project, enter the following:
+Để chạy các lints của Clippy trên bất kỳ dự án Cargo nào, hãy nhập như sau:
 
 ```console
 $ cargo clippy
 ```
 
-For example, say you write a program that uses an approximation of a
-mathematical constant, such as pi, as this program does:
+Ví dụ, giả sử bạn viết một chương trình sử dụng một giá trị gần đúng của một hằng số toán học, chẳng hạn như pi, như chương trình này:
 
 <Listing file-name="src/main.rs">
 
 ```rust
 fn main() {
-    let x = 3.1415;
-    let r = 8.0;
-    println!("the area of the circle is {}", x * r * r);
+  let x = 3.1415;
+  let r = 8.0;
+  println!("the area of the circle is {}", x * r * r);
 }
 ```
 
 </Listing>
 
-Running `cargo clippy` on this project results in this error:
+Chạy `cargo clippy` trên dự án này sẽ dẫn đến lỗi sau:
 
 ```text
 error: approximate value of `f{32, 64}::consts::PI` found
@@ -126,39 +105,30 @@ error: approximate value of `f{32, 64}::consts::PI` found
   = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#approx_constant
 ```
 
-This error lets you know that Rust already has a more precise `PI` constant
-defined, and that your program would be more correct if you used the constant
-instead. You would then change your code to use the `PI` constant.
+Lỗi này cho bạn biết rằng Rust đã có một hằng số `PI` chính xác hơn được định nghĩa, và chương trình của bạn sẽ đúng hơn nếu bạn sử dụng hằng số đó. Sau đó, bạn sẽ thay đổi mã của mình để sử dụng hằng số `PI`.
 
-The following code doesn’t result in any errors or warnings from Clippy:
+Đoạn mã sau không gây ra bất kỳ lỗi hoặc cảnh báo nào từ Clippy:
 
 <Listing file-name="src/main.rs">
 
 ```rust
 fn main() {
-    let x = std::f64::consts::PI;
-    let r = 8.0;
-    println!("the area of the circle is {}", x * r * r);
+  let x = std::f64::consts::PI;
+  let r = 8.0;
+  println!("the area of the circle is {}", x * r * r);
 }
 ```
 
 </Listing>
 
-For more information on Clippy, see [its documentation][clippy].
+Để biết thêm thông tin về Clippy, hãy xem [tài liệu của nó][clippy].
 
-### IDE Integration Using `rust-analyzer`
+### Tích hợp IDE bằng `rust-analyzer`
 
-To help with IDE integration, the Rust community recommends using
-[`rust-analyzer`][rust-analyzer]<!-- ignore -->. This tool is a set of
-compiler-centric utilities that speak [Language Server Protocol][lsp]<!--
-ignore -->, which is a specification for IDEs and programming languages to
-communicate with each other. Different clients can use `rust-analyzer`, such as
-[the Rust analyzer plug-in for Visual Studio Code][vscode].
+Để hỗ trợ tích hợp IDE, cộng đồng Rust khuyến nghị sử dụng [`rust-analyzer`][rust-analyzer]<!-- ignore -->. Công cụ này là một bộ các tiện ích tập trung vào trình biên dịch, sử dụng [Giao thức Máy chủ Ngôn ngữ (Language Server Protocol)][lsp]<!--
+ignore -->, là một đặc tả để các IDE và ngôn ngữ lập trình giao tiếp với nhau. Các máy khách khác nhau có thể sử dụng `rust-analyzer`, chẳng hạn như [plug-in Rust analyzer cho Visual Studio Code][vscode].
 
-Visit the `rust-analyzer` project’s [home page][rust-analyzer]<!-- ignore -->
-for installation instructions, then install the language server support in your
-particular IDE. Your IDE will gain capabilities such as autocompletion, jump to
-definition, and inline errors.
+Truy cập [trang chủ][rust-analyzer]<!-- ignore --> của dự án `rust-analyzer` để xem hướng dẫn cài đặt, sau đó cài đặt hỗ trợ máy chủ ngôn ngữ trong IDE cụ thể của bạn. IDE của bạn sẽ có thêm các khả năng như tự động hoàn thành, nhảy đến định nghĩa và hiển thị lỗi nội tuyến.
 
 [rustfmt]: https://github.com/rust-lang/rustfmt
 [editions]: appendix-05-editions.md

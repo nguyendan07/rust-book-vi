@@ -1,50 +1,30 @@
-## Appendix G - How Rust is Made and “Nightly Rust”
+## Phụ lục G - Cách Rust được tạo ra và “Rust Nightly”
 
-This appendix is about how Rust is made and how that affects you as a Rust
-developer.
+Phụ lục này nói về cách Rust được tạo ra và điều đó ảnh hưởng đến bạn như thế nào với tư cách là một nhà phát triển Rust.
 
-### Stability Without Stagnation
+### Ổn định không trì trệ
 
-As a language, Rust cares a _lot_ about the stability of your code. We want
-Rust to be a rock-solid foundation you can build on, and if things were
-constantly changing, that would be impossible. At the same time, if we can’t
-experiment with new features, we may not find out important flaws until after
-their release, when we can no longer change things.
+Là một ngôn ngữ, Rust quan tâm _rất nhiều_ đến sự ổn định của mã của bạn. Chúng tôi muốn Rust là một nền tảng vững chắc mà bạn có thể xây dựng, và nếu mọi thứ liên tục thay đổi, điều đó sẽ là không thể. Đồng thời, nếu chúng ta không thể thử nghiệm các tính năng mới, chúng ta có thể không phát hiện ra những sai sót quan trọng cho đến sau khi chúng được phát hành, khi chúng ta không còn có thể thay đổi mọi thứ nữa.
 
-Our solution to this problem is what we call “stability without stagnation”,
-and our guiding principle is this: you should never have to fear upgrading to a
-new version of stable Rust. Each upgrade should be painless, but should also
-bring you new features, fewer bugs, and faster compile times.
+Giải pháp của chúng tôi cho vấn đề này là cái mà chúng tôi gọi là “ổn định không trì trệ”, và nguyên tắc chỉ đạo của chúng tôi là: bạn không bao giờ phải sợ hãi khi nâng cấp lên phiên bản Rust ổn định mới. Mỗi lần nâng cấp đều phải dễ dàng, nhưng cũng mang lại cho bạn các tính năng mới, ít lỗi hơn và thời gian biên dịch nhanh hơn.
 
-### Choo, Choo! Release Channels and Riding the Trains
+### Choo, Choo! Các kênh phát hành và đi theo đoàn tàu
 
-Rust development operates on a _train schedule_. That is, all development is
-done on the `master` branch of the Rust repository. Releases follow a software
-release train model, which has been used by Cisco IOS and other software
-projects. There are three _release channels_ for Rust:
+Việc phát triển Rust hoạt động theo một _lịch trình tàu hỏa_. Tức là, tất cả việc phát triển đều được thực hiện trên nhánh `master` của kho mã Rust. Các bản phát hành tuân theo mô hình tàu phát hành phần mềm, đã được sử dụng bởi Cisco IOS và các dự án phần mềm khác. Có ba _kênh phát hành_ cho Rust:
 
 - Nightly
 - Beta
 - Stable
 
-Most Rust developers primarily use the stable channel, but those who want to
-try out experimental new features may use nightly or beta.
+Hầu hết các nhà phát triển Rust chủ yếu sử dụng kênh stable, nhưng những người muốn thử các tính năng mới thử nghiệm có thể sử dụng nightly hoặc beta.
 
-Here’s an example of how the development and release process works: let’s
-assume that the Rust team is working on the release of Rust 1.5. That release
-happened in December of 2015, but it will provide us with realistic version
-numbers. A new feature is added to Rust: a new commit lands on the `master`
-branch. Each night, a new nightly version of Rust is produced. Every day is a
-release day, and these releases are created by our release infrastructure
-automatically. So as time passes, our releases look like this, once a night:
+Đây là một ví dụ về cách quy trình phát triển và phát hành hoạt động: giả sử rằng nhóm Rust đang làm việc trên bản phát hành Rust 1.5. Bản phát hành đó đã xảy ra vào tháng 12 năm 2015, nhưng nó sẽ cung cấp cho chúng ta các số phiên bản thực tế. Một tính năng mới được thêm vào Rust: một commit mới được đưa vào nhánh `master`. Mỗi đêm, một phiên bản nightly mới của Rust được tạo ra. Mỗi ngày là một ngày phát hành, và các bản phát hành này được tạo ra tự động bởi cơ sở hạ tầng phát hành của chúng tôi. Vì vậy, theo thời gian, các bản phát hành của chúng tôi trông như thế này, mỗi đêm một lần:
 
 ```text
 nightly: * - - * - - *
 ```
 
-Every six weeks, it’s time to prepare a new release! The `beta` branch of the
-Rust repository branches off from the `master` branch used by nightly. Now,
-there are two releases:
+Cứ sáu tuần một lần, đã đến lúc chuẩn bị một bản phát hành mới! Nhánh `beta` của kho mã Rust được tách ra từ nhánh `master` được sử dụng bởi nightly. Bây giờ, có hai bản phát hành:
 
 ```text
 nightly: * - - * - - *
@@ -52,9 +32,7 @@ nightly: * - - * - - *
 beta:                *
 ```
 
-Most Rust users do not use beta releases actively, but test against beta in
-their CI system to help Rust discover possible regressions. In the meantime,
-there’s still a nightly release every night:
+Hầu hết người dùng Rust không sử dụng các bản phát hành beta một cách tích cực, nhưng họ kiểm thử với beta trong hệ thống CI của mình để giúp Rust phát hiện các lỗi hồi quy có thể xảy ra. Trong khi đó, vẫn có một bản phát hành nightly mỗi đêm:
 
 ```text
 nightly: * - - * - - * - - * - - *
@@ -62,10 +40,7 @@ nightly: * - - * - - * - - * - - *
 beta:                *
 ```
 
-Let’s say a regression is found. Good thing we had some time to test the beta
-release before the regression snuck into a stable release! The fix is applied
-to `master`, so that nightly is fixed, and then the fix is backported to the
-`beta` branch, and a new release of beta is produced:
+Giả sử một lỗi hồi quy được tìm thấy. Thật may là chúng ta đã có thời gian để kiểm thử bản phát hành beta trước khi lỗi hồi quy lọt vào một bản phát hành ổn định! Bản vá được áp dụng cho `master`, để nightly được sửa, và sau đó bản vá được đưa ngược lại vào nhánh `beta`, và một bản phát hành beta mới được tạo ra:
 
 ```text
 nightly: * - - * - - * - - * - - * - - *
@@ -73,8 +48,7 @@ nightly: * - - * - - * - - * - - * - - *
 beta:                * - - - - - - - - *
 ```
 
-Six weeks after the first beta was created, it’s time for a stable release! The
-`stable` branch is produced from the `beta` branch:
+Sáu tuần sau khi bản beta đầu tiên được tạo ra, đã đến lúc cho một bản phát hành ổn định! Nhánh `stable` được tạo ra từ nhánh `beta`:
 
 ```text
 nightly: * - - * - - * - - * - - * - - * - * - *
@@ -84,10 +58,7 @@ beta:                * - - - - - - - - *
 stable:                                *
 ```
 
-Hooray! Rust 1.5 is done! However, we’ve forgotten one thing: because the six
-weeks have gone by, we also need a new beta of the _next_ version of Rust, 1.6.
-So after `stable` branches off of `beta`, the next version of `beta` branches
-off of `nightly` again:
+Hoan hô! Rust 1.5 đã hoàn thành! Tuy nhiên, chúng ta đã quên một điều: vì sáu tuần đã trôi qua, chúng ta cũng cần một bản beta mới của phiên bản Rust _tiếp theo_, 1.6. Vì vậy, sau khi `stable` tách ra từ `beta`, phiên bản `beta` tiếp theo lại tách ra từ `nightly`:
 
 ```text
 nightly: * - - * - - * - - * - - * - - * - * - *
@@ -97,63 +68,33 @@ beta:                * - - - - - - - - *       *
 stable:                                *
 ```
 
-This is called the “train model” because every six weeks, a release “leaves the
-station”, but still has to take a journey through the beta channel before it
-arrives as a stable release.
+Đây được gọi là “mô hình tàu hỏa” vì cứ sáu tuần một lần, một bản phát hành “rời ga”, nhưng vẫn phải đi qua kênh beta trước khi đến được dưới dạng một bản phát hành ổn định.
 
-Rust releases every six weeks, like clockwork. If you know the date of one Rust
-release, you can know the date of the next one: it’s six weeks later. A nice
-aspect of having releases scheduled every six weeks is that the next train is
-coming soon. If a feature happens to miss a particular release, there’s no need
-to worry: another one is happening in a short time! This helps reduce pressure
-to sneak possibly unpolished features in close to the release deadline.
+Rust phát hành sáu tuần một lần, như một chiếc đồng hồ. Nếu bạn biết ngày của một bản phát hành Rust, bạn có thể biết ngày của bản phát hành tiếp theo: đó là sáu tuần sau. Một khía cạnh hay của việc có các bản phát hành được lên lịch sáu tuần một lần là chuyến tàu tiếp theo sẽ sớm đến. Nếu một tính năng tình cờ bỏ lỡ một bản phát hành cụ thể, không cần phải lo lắng: một bản phát hành khác sẽ diễn ra trong một thời gian ngắn! Điều này giúp giảm áp lực phải đưa các tính năng có thể chưa được hoàn thiện vào gần thời hạn phát hành.
 
-Thanks to this process, you can always check out the next build of Rust and
-verify for yourself that it’s easy to upgrade to: if a beta release doesn’t
-work as expected, you can report it to the team and get it fixed before the
-next stable release happens! Breakage in a beta release is relatively rare, but
-`rustc` is still a piece of software, and bugs do exist.
+Nhờ quy trình này, bạn luôn có thể kiểm tra bản dựng tiếp theo của Rust và tự mình xác minh rằng việc nâng cấp rất dễ dàng: nếu một bản phát hành beta không hoạt động như mong đợi, bạn có thể báo cáo cho nhóm và được sửa chữa trước khi bản phát hành ổn định tiếp theo diễn ra! Sự cố trong một bản phát hành beta tương đối hiếm, nhưng `rustc` vẫn là một phần mềm, và lỗi vẫn tồn tại.
 
-### Maintenance time
+### Thời gian bảo trì
 
-The Rust project supports the most recent stable version. When a new stable
-version is released, the old version reaches its end of life (EOL). This means
-each version is supported for six weeks.
+Dự án Rust hỗ trợ phiên bản ổn định gần đây nhất. Khi một phiên bản ổn định mới được phát hành, phiên bản cũ sẽ hết vòng đời (EOL). Điều này có nghĩa là mỗi phiên bản được hỗ trợ trong sáu tuần.
 
-### Unstable Features
+### Các tính năng không ổn định
 
-There’s one more catch with this release model: unstable features. Rust uses a
-technique called “feature flags” to determine what features are enabled in a
-given release. If a new feature is under active development, it lands on
-`master`, and therefore, in nightly, but behind a _feature flag_. If you, as a
-user, wish to try out the work-in-progress feature, you can, but you must be
-using a nightly release of Rust and annotate your source code with the
-appropriate flag to opt in.
+Có một điểm cần lưu ý nữa với mô hình phát hành này: các tính năng không ổn định. Rust sử dụng một kỹ thuật gọi là “cờ tính năng” (feature flags) để xác định những tính năng nào được bật trong một bản phát hành nhất định. Nếu một tính năng mới đang được phát triển tích cực, nó sẽ được đưa vào `master`, và do đó, vào nightly, nhưng đằng sau một _cờ tính năng_. Nếu bạn, với tư cách là người dùng, muốn thử tính năng đang trong quá trình hoàn thiện, bạn có thể, nhưng bạn phải sử dụng bản phát hành nightly của Rust và chú thích mã nguồn của mình bằng cờ thích hợp để chọn tham gia.
 
-If you’re using a beta or stable release of Rust, you can’t use any feature
-flags. This is the key that allows us to get practical use with new features
-before we declare them stable forever. Those who wish to opt into the bleeding
-edge can do so, and those who want a rock-solid experience can stick with
-stable and know that their code won’t break. Stability without stagnation.
+Nếu bạn đang sử dụng bản phát hành beta hoặc stable của Rust, bạn không thể sử dụng bất kỳ cờ tính năng nào. Đây là chìa khóa cho phép chúng tôi có được kinh nghiệm thực tế với các tính năng mới trước khi chúng tôi tuyên bố chúng ổn định mãi mãi. Những người muốn chọn tham gia vào các tính năng tiên tiến nhất có thể làm như vậy, và những người muốn có một trải nghiệm vững chắc có thể gắn bó với stable và biết rằng mã của họ sẽ không bị hỏng. Ổn định không trì trệ.
 
-This book only contains information about stable features, as in-progress
-features are still changing, and surely they’ll be different between when this
-book was written and when they get enabled in stable builds. You can find
-documentation for nightly-only features online.
+Cuốn sách này chỉ chứa thông tin về các tính năng ổn định, vì các tính năng đang trong quá trình hoàn thiện vẫn đang thay đổi, và chắc chắn chúng sẽ khác nhau giữa thời điểm cuốn sách này được viết và khi chúng được bật trong các bản dựng ổn định. Bạn có thể tìm thấy tài liệu cho các tính năng chỉ có trên nightly trực tuyến.
 
-### Rustup and the Role of Rust Nightly
+### Rustup và vai trò của Rust Nightly
 
-Rustup makes it easy to change between different release channels of Rust, on a
-global or per-project basis. By default, you’ll have stable Rust installed. To
-install nightly, for example:
+Rustup giúp dễ dàng thay đổi giữa các kênh phát hành khác nhau của Rust, trên cơ sở toàn cục hoặc theo từng dự án. Theo mặc định, bạn sẽ có Rust stable được cài đặt. Để cài đặt nightly, ví dụ:
 
 ```console
 $ rustup toolchain install nightly
 ```
 
-You can see all of the _toolchains_ (releases of Rust and associated
-components) you have installed with `rustup` as well. Here’s an example on one
-of your authors’ Windows computer:
+Bạn cũng có thể xem tất cả các _toolchains_ (các bản phát hành của Rust và các thành phần liên quan) mà bạn đã cài đặt với `rustup`. Đây là một ví dụ trên máy tính Windows của một trong những tác giả của bạn:
 
 ```powershell
 > rustup toolchain list
@@ -162,45 +103,21 @@ beta-x86_64-pc-windows-msvc
 nightly-x86_64-pc-windows-msvc
 ```
 
-As you can see, the stable toolchain is the default. Most Rust users use stable
-most of the time. You might want to use stable most of the time, but use
-nightly on a specific project, because you care about a cutting-edge feature.
-To do so, you can use `rustup override` in that project’s directory to set the
-nightly toolchain as the one `rustup` should use when you’re in that directory:
+Như bạn có thể thấy, toolchain stable là mặc định. Hầu hết người dùng Rust sử dụng stable trong phần lớn thời gian. Bạn có thể muốn sử dụng stable trong phần lớn thời gian, nhưng sử dụng nightly cho một dự án cụ thể, vì bạn quan tâm đến một tính năng tiên tiến. Để làm như vậy, bạn có thể sử dụng `rustup override` trong thư mục của dự án đó để đặt toolchain nightly làm toolchain mà `rustup` nên sử dụng khi bạn ở trong thư mục đó:
 
 ```console
 $ cd ~/projects/needs-nightly
 $ rustup override set nightly
 ```
 
-Now, every time you call `rustc` or `cargo` inside of
-_~/projects/needs-nightly_, `rustup` will make sure that you are using nightly
-Rust, rather than your default of stable Rust. This comes in handy when you
-have a lot of Rust projects!
+Bây giờ, mỗi khi bạn gọi `rustc` hoặc `cargo` bên trong _~/projects/needs-nightly_, `rustup` sẽ đảm bảo rằng bạn đang sử dụng Rust nightly, thay vì mặc định là Rust stable. Điều này rất hữu ích khi bạn có nhiều dự án Rust!
 
-### The RFC Process and Teams
+### Quy trình RFC và các Nhóm
 
-So how do you learn about these new features? Rust’s development model follows
-a _Request For Comments (RFC) process_. If you’d like an improvement in Rust,
-you can write up a proposal, called an RFC.
+Vậy làm thế nào để bạn tìm hiểu về những tính năng mới này? Mô hình phát triển của Rust tuân theo một quy trình _Yêu cầu Bình luận (Request For Comments - RFC)_. Nếu bạn muốn một cải tiến trong Rust, bạn có thể viết một đề xuất, được gọi là RFC.
 
-Anyone can write RFCs to improve Rust, and the proposals are reviewed and
-discussed by the Rust team, which is comprised of many topic subteams. There’s
-a full list of the teams [on Rust’s website](https://www.rust-lang.org/governance), which includes teams for
-each area of the project: language design, compiler implementation,
-infrastructure, documentation, and more. The appropriate team reads the
-proposal and the comments, writes some comments of their own, and eventually,
-there’s consensus to accept or reject the feature.
+Bất kỳ ai cũng có thể viết RFC để cải thiện Rust, và các đề xuất được xem xét và thảo luận bởi nhóm Rust, bao gồm nhiều nhóm nhỏ theo chủ đề. Có một danh sách đầy đủ các nhóm [trên trang web của Rust](https://www.rust-lang.org/governance), bao gồm các nhóm cho từng lĩnh vực của dự án: thiết kế ngôn ngữ, triển khai trình biên dịch, cơ sở hạ tầng, tài liệu, và nhiều hơn nữa. Nhóm thích hợp sẽ đọc đề xuất và các bình luận, viết một số bình luận của riêng họ, và cuối cùng, có sự đồng thuận để chấp nhận hoặc từ chối tính năng.
 
-If the feature is accepted, an issue is opened on the Rust repository, and
-someone can implement it. The person who implements it very well may not be the
-person who proposed the feature in the first place! When the implementation is
-ready, it lands on the `master` branch behind a feature gate, as we discussed
-in the [“Unstable Features”](#unstable-features)<!-- ignore --> section.
+Nếu tính năng được chấp nhận, một issue sẽ được mở trên kho mã Rust, và ai đó có thể triển khai nó. Người triển khai nó rất có thể không phải là người đã đề xuất tính năng ngay từ đầu! Khi việc triển khai sẵn sàng, nó sẽ được đưa vào nhánh `master` đằng sau một cổng tính năng (feature gate), như chúng ta đã thảo luận trong phần [“Các tính năng không ổn định”](#unstable-features)<!-- ignore -->.
 
-After some time, once Rust developers who use nightly releases have been able
-to try out the new feature, team members will discuss the feature, how it’s
-worked out on nightly, and decide if it should make it into stable Rust or not.
-If the decision is to move forward, the feature gate is removed, and the
-feature is now considered stable! It rides the trains into a new stable release
-of Rust.
+Sau một thời gian, một khi các nhà phát triển Rust sử dụng các bản phát hành nightly đã có thể thử tính năng mới, các thành viên trong nhóm sẽ thảo luận về tính năng đó, cách nó hoạt động trên nightly, và quyết định xem nó có nên được đưa vào Rust stable hay không. Nếu quyết định là tiếp tục, cổng tính năng sẽ được gỡ bỏ, và tính năng đó bây giờ được coi là ổn định! Nó đi theo các chuyến tàu vào một bản phát hành ổn định mới của Rust.

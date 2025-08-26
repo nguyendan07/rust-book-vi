@@ -1,57 +1,25 @@
-## Appendix E - Editions
+## Phụ lục E - Các phiên bản
 
-In Chapter 1, you saw that `cargo new` adds a bit of metadata to your
-_Cargo.toml_ file about an edition. This appendix talks about what that means!
+Trong Chương 1, bạn đã thấy rằng `cargo new` thêm một chút siêu dữ liệu vào tệp _Cargo.toml_ của bạn về một phiên bản (_edition_). Phụ lục này nói về ý nghĩa của điều đó!
 
-The Rust language and compiler have a six-week release cycle, meaning users get
-a constant stream of new features. Other programming languages release larger
-changes less often; Rust releases smaller updates more frequently. After a
-while, all of these tiny changes add up. But from release to release, it can be
-difficult to look back and say, “Wow, between Rust 1.10 and Rust 1.31, Rust has
-changed a lot!”
+Ngôn ngữ và trình biên dịch Rust có chu kỳ phát hành sáu tuần, nghĩa là người dùng nhận được một luồng liên tục các tính năng mới. Các ngôn ngữ lập trình khác phát hành các thay đổi lớn hơn ít thường xuyên hơn; Rust phát hành các bản cập nhật nhỏ hơn thường xuyên hơn. Sau một thời gian, tất cả những thay đổi nhỏ này cộng lại. Nhưng từ phiên bản này sang phiên bản khác, khó để nhìn lại và nói, “Wow, giữa Rust 1.10 và Rust 1.31, Rust đã thay đổi rất nhiều!”
 
-Every three years or so, the Rust team produces a new Rust _edition_. Each
-edition brings together the features that have landed into a clear package with
-fully updated documentation and tooling. New editions ship as part of the usual
-six-week release process.
+Khoảng ba năm một lần, nhóm Rust tạo ra một _edition_ Rust mới. Mỗi edition gom các tính năng đã được thêm vào thành một gói rõ ràng với tài liệu và công cụ được cập nhật đầy đủ. Các edition mới được phát hành như một phần của quy trình phát hành sáu tuần thông thường.
 
-Editions serve different purposes for different people:
+Các edition phục vụ những mục đích khác nhau cho những người khác nhau:
 
-- For active Rust users, a new edition brings together incremental changes into
-  an easy-to-understand package.
-- For non-users, a new edition signals that some major advancements have
-  landed, which might make Rust worth another look.
-- For those developing Rust, a new edition provides a rallying point for the
-  project as a whole.
+- Đối với người dùng Rust đang hoạt động, một edition mới gom các thay đổi dần dần lại thành một gói dễ hiểu.
+- Đối với những người chưa dùng, một edition mới báo hiệu rằng đã có những tiến bộ lớn, có thể khiến họ cân nhắc quay lại tìm hiểu Rust.
+- Đối với những người đang phát triển Rust, một edition mới cung cấp một điểm quy tụ cho toàn bộ dự án.
 
-At the time of this writing, four Rust editions are available: Rust 2015, Rust
-2018, Rust 2021, and Rust 2024. This book is written using Rust 2024 edition
-idioms.
+Tại thời điểm viết tài liệu này, có bốn edition Rust có sẵn: Rust 2015, Rust 2018, Rust 2021 và Rust 2024. Cuốn sách này được viết theo các phong cách (idioms) của edition Rust 2024.
 
-The `edition` key in _Cargo.toml_ indicates which edition the compiler should
-use for your code. If the key doesn’t exist, Rust uses `2015` as the edition
-value for backward compatibility reasons.
+Khóa `edition` trong _Cargo.toml_ cho biết trình biên dịch nên sử dụng edition nào cho mã của bạn. Nếu khóa không tồn tại, Rust sử dụng `2015` làm giá trị edition vì lý do tương thích ngược.
 
-Each project can opt in to an edition other than the default 2015 edition.
-Editions can contain incompatible changes, such as including a new keyword that
-conflicts with identifiers in code. However, unless you opt in to those
-changes, your code will continue to compile even as you upgrade the Rust
-compiler version you use.
+Mỗi dự án có thể chọn tham gia một edition khác với edition mặc định 2015. Edition có thể chứa những thay đổi không tương thích, chẳng hạn như thêm một từ khóa mới xung đột với các định danh trong mã. Tuy nhiên, trừ khi bạn chọn tham gia những thay đổi đó, mã của bạn sẽ tiếp tục biên dịch ngay cả khi bạn nâng cấp phiên bản trình biên dịch Rust mà bạn sử dụng.
 
-All Rust compiler versions support any edition that existed prior to that
-compiler’s release, and they can link crates of any supported editions
-together. Edition changes only affect the way the compiler initially parses
-code. Therefore, if you’re using Rust 2015 and one of your dependencies uses
-Rust 2018, your project will compile and be able to use that dependency. The
-opposite situation, where your project uses Rust 2018 and a dependency uses
-Rust 2015, works as well.
+Tất cả các phiên bản trình biên dịch Rust đều hỗ trợ bất kỳ edition nào tồn tại trước khi phiên bản trình biên dịch đó được phát hành, và chúng có thể liên kết các crate thuộc bất kỳ edition được hỗ trợ nào với nhau. Thay đổi edition chỉ ảnh hưởng cách trình biên dịch phân tích cú pháp ban đầu mã nguồn. Do đó, nếu bạn đang dùng Rust 2015 và một trong các phụ thuộc của bạn dùng Rust 2018, dự án của bạn sẽ biên dịch và có thể sử dụng phụ thuộc đó. Tình huống ngược lại, khi dự án của bạn dùng Rust 2018 và một phụ thuộc dùng Rust 2015, cũng hoạt động bình thường.
 
-To be clear: most features will be available on all editions. Developers using
-any Rust edition will continue to see improvements as new stable releases are
-made. However, in some cases, mainly when new keywords are added, some new
-features might only be available in later editions. You will need to switch
-editions if you want to take advantage of such features.
+Để làm rõ: hầu hết các tính năng sẽ có sẵn trên tất cả các edition. Những nhà phát triển dùng bất kỳ edition Rust nào sẽ tiếp tục thấy các cải tiến khi có các bản phát hành ổn định mới. Tuy nhiên, trong một số trường hợp, chủ yếu khi thêm từ khóa mới, một số tính năng mới có thể chỉ có trong các edition sau. Bạn sẽ cần chuyển đổi edition nếu muốn tận dụng những tính năng như vậy.
 
-For more details, the [_Edition Guide_](https://doc.rust-lang.org/stable/edition-guide/) is a complete book
-about editions that enumerates the differences between editions and explains
-how to automatically upgrade your code to a new edition via `cargo fix`.
+Để biết chi tiết hơn, [_Hướng dẫn về các phiên bản_](https://doc.rust-lang.org/stable/edition-guide/) là một cuốn sách hoàn chỉnh về các edition, liệt kê sự khác biệt giữa các edition và giải thích cách tự động nâng cấp mã của bạn lên edition mới thông qua `cargo fix`.

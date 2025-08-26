@@ -1,7 +1,7 @@
-## Appendix F: Translations of the Book
+## Phụ lục F: Các bản dịch của sách
 
-For resources in languages other than English. Most are still in progress; see
-[the Translations label][label] to help or let us know about a new translation!
+Để có các tài liệu bằng các ngôn ngữ khác ngoài tiếng Anh. Hầu hết vẫn đang trong quá trình dịch; xem
+[nhãn Translations][label] để giúp đỡ hoặc cho chúng tôi biết về một bản dịch mới!
 
 [label]: https://github.com/rust-lang/book/issues?q=is%3Aopen+is%3Aissue+label%3ATranslations
 
