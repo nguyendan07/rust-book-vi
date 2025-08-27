@@ -1,14 +1,15 @@
 # Using Structs to Structure Related Data
 
-A _struct_, or _structure_, is a custom data type that lets you package
-together and name multiple related values that make up a meaningful group. If
-you’re familiar with an object-oriented language, a _struct_ is like an
-object’s data attributes. In this chapter, we’ll compare and contrast tuples
-with structs to build on what you already know and demonstrate when structs are
-a better way to group data.
+Một _struct_, hoặc _structure_, là một kiểu dữ liệu tùy chỉnh cho phép bạn
+gói gọn và đặt tên cho nhiều giá trị liên quan tạo thành một nhóm có ý nghĩa.
+Nếu bạn quen thuộc với ngôn ngữ hướng đối tượng, một _struct_ giống như các
+thuộc tính dữ liệu của một đối tượng. Trong chương này, chúng ta sẽ so sánh
+và đối chiếu giữa tuples và structs để xây dựng trên những gì bạn đã biết
+và minh họa khi nào structs là cách tốt hơn để nhóm dữ liệu.
 
-We’ll demonstrate how to define and instantiate structs. We’ll discuss how to
-define associated functions, especially the kind of associated functions called
-_methods_, to specify behavior associated with a struct type. Structs and enums
-(discussed in Chapter 6) are the building blocks for creating new types in your
-program’s domain to take full advantage of Rust’s compile-time type checking.
+Chúng ta sẽ minh họa cách định nghĩa và khởi tạo structs. Chúng ta sẽ thảo
+luận về cách định nghĩa các hàm liên kết, đặc biệt là loại hàm liên kết được
+gọi là _methods_, để chỉ định hành vi liên kết với kiểu struct. Structs và
+enums (được thảo luận trong Chương 6) là các khối xây dựng để tạo ra các
+kiểu mới trong miền của chương trình của bạn nhằm tận dụng tối đa việc kiểm
+tra kiểu tại thời điểm biên dịch của Rust.
