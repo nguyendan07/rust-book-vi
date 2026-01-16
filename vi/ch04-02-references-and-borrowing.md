@@ -1,6 +1,6 @@
-## References and Borrowing
+## Tham chiếu (References) và Mượn (Borrowing)
 
-Ownership, boxes, and moves provide a foundation for safely programming with the heap. However, move-only APIs can be inconvenient to use. For example, say you want to read some strings twice:
+Ownership (Quyền sở hữu), boxes, và moves (di chuyển) cung cấp một nền tảng để lập trình an toàn với heap. Tuy nhiên, các API chỉ cho phép di chuyển (move-only) có thể gây bất tiện khi sử dụng. Ví dụ, giả sử bạn muốn đọc một vài chuỗi ký tự hai lần:
 
 ```aquascope,interpreter,shouldFail,horizontal
 fn main() {
@@ -15,7 +15,7 @@ fn greet(g1: String, g2: String) {
 }
 ```
 
-In this example, calling `greet` moves the data from `m1` and `m2` into the parameters of `greet`. Both strings are dropped at the end of `greet`, and therefore cannot be used within `main`. If we try to read them like in the operation `format!(..)`, then that would be undefined behavior. The Rust compiler therefore rejects this program with the same error we saw last section:
+Trong ví dụ này, việc gọi `greet` di chuyển dữ liệu từ `m1` và `m2` vào các tham số của `greet`. Cả hai chuỗi đều bị hủy (dropped) ở cuối hàm `greet`, và do đó không thể được sử dụng bên trong `main`. Nếu chúng ta cố gắng đọc chúng như trong thao tác `format!(..)`, thì đó sẽ là hành vi không xác định (undefined behavior). Do đó, trình biên dịch Rust từ chối chương trình này với cùng một lỗi mà chúng ta đã thấy ở phần trước:
 
 ```text
 error[E0382]: borrow of moved value: `m1`
@@ -23,7 +23,7 @@ error[E0382]: borrow of moved value: `m1`
  (...rest of the error...)
 ```
 
-This move behavior is extremely inconvenient. Programs often need to use a string more than once. An alternative `greet` could return ownership of the strings, like this:
+Hành vi di chuyển này cực kỳ bất tiện. Các chương trình thường cần sử dụng một chuỗi nhiều hơn một lần. Một cách thay thế là `greet` có thể trả lại quyền sở hữu của các chuỗi, như thế này:
 
 ```aquascope,interpreter,horizontal
 fn main() {
@@ -39,11 +39,11 @@ fn greet(g1: String, g2: String) -> (String, String) {
 }
 ```
 
-However, this style of program is quite verbose. Rust provides a concise style of reading and writing without moves through references.
+Tuy nhiên, phong cách lập trình này khá dài dòng. Rust cung cấp một phong cách ngắn gọn để đọc và ghi mà không cần di chuyển thông qua các tham chiếu (references).
 
-### References Are Non-Owning Pointers
+### Tham Chiếu Là Các Con Trỏ Không Sở Hữu (References Are Non-Owning Pointers)
 
-A **reference** is a kind of pointer. Here's an example of a reference that rewrites our `greet` program in a more convenient manner:
+Một **tham chiếu** (reference) là một loại con trỏ. Dưới đây là một ví dụ về một tham chiếu viết lại chương trình `greet` của chúng ta theo cách thuận tiện hơn:
 
 ```aquascope,interpreter,horizontal
 fn main() {
@@ -58,21 +58,21 @@ fn greet(g1: &String, g2: &String) { // note the ampersands
 }
 ```
 
-The expression `&m1` uses the ampersand operator to create a reference to (or "borrow") `m1`. The type of the `greet` parameter `g1` is changed to `&String`, meaning "a reference to a `String`".
+Biểu thức `&m1` sử dụng toán tử và (ampersand) để tạo ra một tham chiếu đến (hoặc "mượn" - borrow) `m1`. Kiểu dữ liệu của tham số `g1` trong `greet` được đổi thành `&String`, nghĩa là "một tham chiếu đến một `String`".
 
 <!-- At runtime, the references look like this:
 
 <img src="img/experiment/ch04-02-stack1.jpg" class="center" width="350" /> -->
 
-Observe at L2 that there are two steps from `g1` to the string "Hello". `g1` is a reference that points to `m1` on the stack, and `m1` is a String containing a box that points to "Hello" on the heap.
+Quan sát tại L2 rằng có hai bước từ `g1` đến chuỗi "Hello". `g1` là một tham chiếu trỏ đến `m1` trên stack, và `m1` là một String chứa một box trỏ đến "Hello" trên heap.
 
-While `m1` owns the heap data "Hello", `g1` does _not_ own either `m1` or "Hello". Therefore after `greet` ends and the program reaches L3, no heap data has been deallocated. Only the stack frame for `greet` disappears. This fact is consistent with our *Box Deallocation Principle*. Because `g1` did not own "Hello", Rust did not deallocate "Hello" on behalf of `g1`.
+Trong khi `m1` sở hữu dữ liệu heap "Hello", `g1` _không_ sở hữu cả `m1` hay "Hello". Do đó sau khi `greet` kết thúc và chương trình đi đến L3, không có dữ liệu heap nào bị giải phóng. Chỉ có stack frame cho `greet` biến mất. Sự thật này nhất quán với _Nguyên tắc Giải phóng Box_ của chúng ta. Bởi vì `g1` đã không sở hữu "Hello", Rust đã không giải phóng "Hello" thay cho `g1`.
 
-References are **non-owning pointers**, because they do not own the data they point to.
+Các tham chiếu là **các con trỏ không sở hữu** (non-owning pointers), bởi vì chúng không sở hữu dữ liệu mà chúng trỏ tới.
 
-### Dereferencing a Pointer Accesses Its Data
+### Giải Tham Chiếu Một Con Trỏ Để Truy Cập Dữ Liệu Của Nó (Dereferencing a Pointer Accesses Its Data)
 
-The previous examples using boxes and strings have not shown how Rust "follows" a pointer to its data. For example, the `println!` macro has mysteriously worked for both owned strings of type `String`, and for string references of type `&String`. The underlying mechanism is the **dereference** operator, written with an asterisk (`*`). For example, here's a program that uses dereferences in a few different ways:
+Các ví dụ trước sử dụng box và string chưa chỉ ra cách Rust "đi theo" một con trỏ đến dữ liệu của nó. Ví dụ, macro `println!` đã hoạt động một cách bí ẩn cho cả các chuỗi được sở hữu kiểu `String`, và cho các tham chiếu chuỗi kiểu `&String`. Cơ chế bên dưới là toán tử **giải tham chiếu** (dereference), được viết bằng dấu hoa thị (`*`). Ví dụ, đây là một chương trình sử dụng giải tham chiếu theo vài cách khác nhau:
 
 ```aquascope,interpreter
 # fn main() {
@@ -89,9 +89,9 @@ let c: i32 = *r2;`[]`    // so only one dereference is needed to read it
 # }
 ```
 
-Observe the difference between `r1` pointing to `x` on the stack, and `r2` pointing to the heap value `2`.
+Quan sát sự khác biệt giữa `r1` trỏ đến `x` trên stack, và `r2` trỏ đến giá trị heap `2`.
 
-You probably won't see the dereference operator very often when you read Rust code. Rust implicitly inserts dereferences and references in certain cases, such as calling a method with the dot operator. For example, this program shows two equivalent ways of calling the [`i32::abs`](https://doc.rust-lang.org/std/primitive.i32.html#method.abs) (absolute value) and [`str::len`](https://doc.rust-lang.org/std/primitive.str.html#method.len) (string length) functions:
+Bạn có thể sẽ không thấy toán tử giải tham chiếu quá thường xuyên khi đọc code Rust. Rust ngầm định chèn các giải tham chiếu và tham chiếu trong một số trường hợp nhất định, ví dụ như gọi một phương thức với toán tử dấu chấm. Ví dụ, chương trình này hiển thị hai cách tương đương để gọi các hàm [`i32::abs`](https://doc.rust-lang.org/std/primitive.i32.html#method.abs) (giá trị tuyệt đối) và [`str::len`](https://doc.rust-lang.org/std/primitive.str.html#method.len) (độ dài chuỗi):
 
 ```rust,ignore
 # fn main()  {
@@ -112,26 +112,27 @@ assert_eq!(s_len1, s_len2);
 # }
 ```
 
-This example shows implicit conversions in three ways:
-1. The `i32::abs` function expects an input of type `i32`. To call `abs` with a `Box<i32>`, you can explicitly dereference the box like `i32::abs(*x)`. You can also implicitly dereference the box using method-call syntax like `x.abs()`. The dot syntax is syntactic sugar for the function-call syntax.
+Ví dụ này cho thấy các chuyển đổi ngầm định theo ba cách:
 
-2. This implicit conversion works for multiple layers of pointers. For example, calling `abs` on a reference to a box `r: &Box<i32>` will insert two dereferences.
+1. Hàm `i32::abs` mong đợi một đầu vào kiểu `i32`. Để gọi `abs` với một `Box<i32>`, bạn có thể giải tham chiếu box một cách tường minh như `i32::abs(*x)`. Bạn cũng có thể giải tham chiếu box một cách ngầm định bằng cách dùng cú pháp gọi phương thức như `x.abs()`. Cú pháp dấu chấm là cú pháp tiện ích (syntactic sugar) cho cú pháp gọi hàm.
 
-3. This conversion also works the opposite direction. The function `str::len` expects a reference `&str`. If you call `len` on an owned `String`, then Rust will insert a single borrowing operator. (In fact, there is a further conversion from `String` to `str`!)
+2. Sự chuyển đổi ngầm định này hoạt động cho nhiều lớp con trỏ. Ví dụ, gọi `abs` trên một tham chiếu đến một box `r: &Box<i32>` sẽ chèn vào hai lần giải tham chiếu.
 
-We will say more about method calls and implicit conversions in later chapters. For now, the important takeaway is that these conversions are happening with method calls and some macros like `println`. We want to unravel all the "magic" of Rust so you can have a clear mental model of how Rust works.
+3. Sự chuyển đổi này cũng hoạt động theo chiều ngược lại. Hàm `str::len` mong đợi một tham chiếu `&str`. Nếu bạn gọi `len` trên một `String` được sở hữu, thì Rust sẽ chèn một toán tử mượn đơn lẻ. (Thực tế, có một sự chuyển đổi xa hơn từ `String` sang `str`!)
+
+Chúng ta sẽ nói thêm về các lời gọi phương thức và chuyển đổi ngầm định trong các chương sau. Hiện tại, điều quan trọng cần nhớ là những chuyển đổi này đang diễn ra với các lời gọi phương thức và một số macro như `println`. Chúng tôi muốn làm sáng tỏ tất cả "ma thuật" của Rust để bạn có thể có một mô hình tư duy rõ ràng về cách Rust hoạt động.
 
 {{#quiz ../quizzes/ch04-02-references-sec1-basics.toml}}
 
-### Rust Avoids Simultaneous Aliasing and Mutation
+### Rust Tránh Việc Vừa Aliasing Vừa Mutation Cùng Lúc
 
-Pointers are a powerful and dangerous feature because they enable **aliasing**. Aliasing is accessing the same data through different variables. On its own, aliasing is harmless. But combined with **mutation**, we have a recipe for disaster. One variable can "pull the rug out" from another variable in many ways, for example:
+Các con trỏ là một tính năng mạnh mẽ và nguy hiểm bởi vì chúng cho phép **aliasing** (tạo bí danh). Aliasing là việc truy cập cùng một dữ liệu thông qua các biến khác nhau. Tự bản thân nó, aliasing là vô hại. Nhưng khi kết hợp với **mutation** (sự thay đổi/đột biến), chúng ta có một công thức cho thảm họa. Một biến có thể "rút ván" biến khác theo nhiều cách, ví dụ:
 
-- By deallocating the aliased data, leaving the other variable to point to deallocated memory.
-- By mutating the aliased data, invalidating runtime properties expected by the other variable.
-- By _concurrently_ mutating the aliased data, causing a data race with nondeterministic behavior for the other variable.
+-   Bằng cách giải phóng dữ liệu đang được alias, để lại biến kia trỏ vào vùng nhớ đã bị giải phóng.
+-   Bằng cách thay đổi dữ liệu đang được alias, làm mất hiệu lực các thuộc tính runtime mà biến kia mong đợi.
+-   Bằng cách thay đổi dữ liệu đang được alias _một cách đồng thời_ (concurrently), gây ra data race (xung đột dữ liệu) với hành vi không xác định cho biến kia.
 
-As a running example, we are going to look at programs using the vector data structure, [`Vec`]. Unlike arrays which have a fixed length, vectors have a variable length by storing their elements in the heap. For example, [`Vec::push`] adds an element to the end of a vector, like this:
+Như một ví dụ xuyên suốt, chúng ta sẽ xem xét các chương trình sử dụng cấu trúc dữ liệu vector, [`Vec`]. Không giống như mảng có độ dài cố định, vector có độ dài thay đổi được bằng cách lưu trữ các phần tử của chúng trong heap. Ví dụ, [`Vec::push`] thêm một phần tử vào cuối một vector, như thế này:
 
 ```aquascope,interpreter,horizontal
 #fn main() {
@@ -140,9 +141,9 @@ v.push(4);`[]`
 #}
 ```
 
-The macro `vec!` creates a vector with the elements between the brackets. The vector `v` has type `Vec<i32>`. The syntax `<i32>` means the elements of the vector have type `i32`.
+Macro `vec!` tạo ra một vector với các phần tử nằm trong dấu ngoặc vuông. Vector `v` có kiểu `Vec<i32>`. Cú pháp `<i32>` có nghĩa là các phần tử của vector có kiểu `i32`.
 
-One important implementation detail is that `v` allocates a heap array of a certain *capacity*. We can peek into `Vec`'s internals and see this detail for ourselves:
+Một chi tiết cài đặt quan trọng là `v` cấp phát một mảng heap với một _sức chứa_ (capacity) nhất định. Chúng ta có thể nhìn vào bên trong của `Vec` và tự mình thấy chi tiết này:
 
 ```aquascope,interpreter,horizontal,concreteTypes
 #fn main() {
@@ -150,11 +151,11 @@ let mut v: Vec<i32> = vec![1, 2, 3];`[]`
 #}
 ```
 
-> *Note:* click the binocular icon in the top right of the diagram to toggle this detailed view in any runtime diagram.
+> _Lưu ý:_ nhấp vào biểu tượng ống nhòm ở góc trên bên phải của sơ đồ để bật chế độ xem chi tiết này trong bất kỳ sơ đồ runtime nào.
 
-Notice that the vector has a length (`len`) of 3 and a capacity (`cap`) of 3. The vector is at capacity. So when we do a `push`, the vector has to create a new allocation with larger capacity, copy all the elements over, and deallocate the original heap array. In the diagram above, the array `1 2 3 4` is in a (potentially) different memory location than the original array `1 2 3`.
+Lưu ý rằng vector có độ dài (`len`) là 3 và sức chứa (`cap`) là 3. Vector đang ở mức tối đa sức chứa. Vì vậy khi chúng ta thực hiện `push`, vector phải tạo một cấp phát mới với sức chứa lớn hơn, sao chép tất cả các phần tử sang, và giải phóng mảng heap ban đầu. Trong sơ đồ trên, mảng `1 2 3 4` nằm ở một vị trí bộ nhớ (có khả năng) khác so với mảng ban đầu `1 2 3`.
 
-To tie this back to memory safety, let's bring references into the mix. Say we created a reference to a vector's heap data. Then that reference can be invalidated by a push, as simulated below:
+Để liên kết điều này trở lại với an toàn bộ nhớ, hãy đưa các tham chiếu vào. Giả sử chúng ta tạo một tham chiếu đến dữ liệu heap của một vector. Sau đó tham chiếu đó có thể bị làm mất hiệu lực bởi một lệnh push, như được mô phỏng dưới đây:
 
 ```aquascope,interpreter,shouldFail,horizontal
 #fn main() {
@@ -165,30 +166,29 @@ println!("Third element is {}", *num);`[]`
 #}
 ```
 
-Initially, `v` points to an array with 3 elements on the heap. Then `num` is created as a reference to the third element, as seen at L1. However, the operation `v.push(4)` resizes `v`. The resize will deallocate the previous array and allocate a new, bigger array. In the process, `num` is left pointing to invalid memory. Therefore at L3, dereferencing `*num` reads invalid memory, causing undefined behavior.
+Ban đầu, `v` trỏ đến một mảng với 3 phần tử trên heap. Sau đó `num` được tạo ra như một tham chiếu đến phần tử thứ ba, như thấy ở L1. Tuy nhiên, thao tác `v.push(4)` thay đổi kích thước `v`. Việc thay đổi kích thước sẽ giải phóng mảng trước đó và cấp phát một mảng mới, lớn hơn. Trong quá trình đó, `num` bị bỏ lại và trỏ đến bộ nhớ không hợp lệ. Do đó tại L3, việc giải tham chiếu `*num` đọc bộ nhớ không hợp lệ, gây ra hành vi không xác định.
 
-In more abstract terms, the issue is that the vector `v` is both aliased (by the reference `num`) and mutated (by the operation `v.push(4)`). So to avoid these kinds of issues, Rust follows a basic principle:
+Nói một cách trừu tượng hơn, vấn đề là vector `v` vừa bị alias (bởi tham chiếu `num`) và vừa bị thay đổi (bởi thao tác `v.push(4)`). Vì vậy để tránh những loại vấn đề này, Rust tuân theo một nguyên tắc cơ bản:
 
-> **Pointer Safety Principle**: data should never be aliased and mutated at the same time.
+> **Nguyên tắc An toàn Con trỏ**: dữ liệu không bao giờ được phép vừa bị alias vừa bị thay đổi cùng một lúc.
 
-Data can be aliased. Data can be mutated. But data cannot be _both_ aliased _and_ mutated. For example, Rust enforces this principle for boxes (owned pointers) by disallowing aliasing. Assigning a box from one variable to another will move ownership, invalidating the previous variable. Owned data can only be accessed through the owner &mdash; no aliases.
+Dữ liệu có thể bị alias. Dữ liệu có thể bị thay đổi. Nhưng dữ liệu không thể _vừa_ bị alias _vừa_ bị thay đổi. Ví dụ, Rust thực thi nguyên tắc này cho các box (con trỏ sở hữu) bằng cách không cho phép aliasing. Việc gán một box từ biến này sang biến khác sẽ di chuyển quyền sở hữu, làm mất hiệu lực biến trước đó. Dữ liệu được sở hữu chỉ có thể được truy cập thông qua chủ sở hữu &mdash; không có alias.
 
-However, because references are non-owning pointers, they need different rules than boxes to ensure the *Pointer Safety Principle*. By design, references are meant to temporarily create aliases. In the rest of this section, we will explain the basics of how Rust ensures the safety of references through the **borrow checker.**
+Tuy nhiên, bởi vì các tham chiếu là các con trỏ không sở hữu, chúng cần các quy tắc khác với box để đảm bảo _Nguyên tắc An toàn Con trỏ_. Theo thiết kế, các tham chiếu được dùng để tạo các alias tạm thời. Trong phần còn lại của mục này, chúng tôi sẽ giải thích những điều cơ bản về cách Rust đảm bảo sự an toàn của các tham chiếu thông qua **bộ kiểm tra mượn (borrow checker).**
 
-### References Change Permissions on Places
+### Tham Chiếu Thay Đổi Các Quyền Hạn Trên Các Place (References Change Permissions on Places)
 
-The core idea behind the borrow checker is that variables have three kinds of **permissions** on their data:
+Ý tưởng cốt lõi đằng sau bộ kiểm tra mượn là các biến có ba loại **quyền hạn** (permissions) trên dữ liệu của chúng:
 
-- **Read** (@Perm{read}): data can be copied to another location.
-- **Write** (@Perm{write}): data can be mutated.
-- **Own** (@Perm{own}): data can be moved or dropped.
+-   **Read** (Đọc) (@Perm{read}): dữ liệu có thể được sao chép đến vị trí khác.
+-   **Write** (Ghi) (@Perm{write}): dữ liệu có thể được thay đổi (mutated).
+-   **Own** (Sở hữu) (@Perm{own}): dữ liệu có thể được di chuyển (moved) hoặc hủy (dropped).
 
-These permissions don't exist at runtime, only within the compiler. They describe how the compiler "thinks" about your program before the program is executed.
+Các quyền hạn này không tồn tại khi chạy (runtime), chỉ tồn tại bên trong trình biên dịch. Chúng mô tả cách trình biên dịch "suy nghĩ" về chương trình của bạn trước khi chương trình được thực thi.
 
-By default, a variable has read/own permissions (@Perm{read}@Perm{own}) on its data. If a variable is annotated with `let mut`, then it also has the write permission (@Perm{write}). The key idea is
-that **references can temporarily remove these permissions.**
+Mặc định, một biến có quyền đọc/sở hữu (@Perm{read}@Perm{own}) trên dữ liệu của nó. Nếu một biến được chú thích với `let mut`, thì nó cũng có quyền ghi (@Perm{write}). Ý tưởng chính là **các tham chiếu có thể tạm thời loại bỏ các quyền hạn này.**
 
-To illustrate this idea, let's look at the permissions on a variation of the program above that is actually safe. The `push` has been moved after the `println!`. The permissions in this program are visualized with a new kind of diagram. The diagram shows the changes in permissions on each line.
+Để minh họa ý tưởng này, hãy xem xét các quyền hạn trên một biến thể của chương trình trên mà thực sự an toàn. Lệnh `push` đã được chuyển xuống sau lệnh `println!`. Các quyền hạn trong chương trình này được trực quan hóa với một loại sơ đồ mới. Sơ đồ hiển thị những thay đổi về quyền hạn trên mỗi dòng.
 
 ```aquascope,permissions,stepper
 #fn main() {
@@ -199,19 +199,19 @@ v.push(4);
 #}
 ```
 
-Let's walk through each line:
+Hãy đi qua từng dòng:
 
-1. After `let mut v = (...)`, the variable `v` has been initialized (indicated by <i class="fa fa-level-up"></i>). It gains @Perm[gained]{read}@Perm[gained]{write}@Perm[gained]{own} permissions (the plus sign indicates gain).
-2. After `let num = &v[2]`, the data in `v` has been **borrowed** by `num` (indicated by <i class="fa fa-arrow-right"></i>). Three things happen:
-   - The borrow removes @Perm[lost]{write}@Perm[lost]{own} permissions from `v` (the slash indicates loss). `v` cannot be written or owned, but it can still be read.
-   - The variable `num` has gained @Perm{read}@Perm{own} permissions. `num` is not writable (the missing @Perm{write} permission is shown as a dash <span class="perm write">‒</span>) because it was not marked `let mut`.
-   - The **place** `*num` has gained the @Perm{read} permission.
-3. After `println!(...)`, then `num` is no longer in use, so `v` is no longer borrowed. Therefore:
-   - `v` regains its @Perm{write}@Perm{own} permissions (indicated by <i class="fa fa-rotate-left"></i>).
-   - `num` and `*num` have lost all of their permissions (indicated by <i class="fa fa-level-down"></i>).
-4. After `v.push(4)`, then `v` is no longer in use, and it loses all of its permissions.
+1. Sau `let mut v = (...)`, biến `v` đã được khởi tạo (biểu thị bởi <i class="fa fa-level-up"></i>). Nó nhận được các quyền @Perm[gained]{read}@Perm[gained]{write}@Perm[gained]{own} (dấu cộng biểu thị sự nhận thêm).
+2. Sau `let num = &v[2]`, dữ liệu trong `v` đã được **mượn** (borrowed) bởi `num` (biểu thị bởi <i class="fa fa-arrow-right"></i>). Ba điều xảy ra:
+    - Việc mượn loại bỏ các quyền @Perm[lost]{write}@Perm[lost]{own} khỏi `v` (dấu gạch chéo biểu thị sự mất đi). `v` không thể được ghi hoặc sở hữu, nhưng nó vẫn có thể được đọc.
+    - Biến `num` đã nhận được các quyền @Perm{read}@Perm{own}. `num` không thể ghi được (quyền @Perm{write} bị thiếu được hiển thị như một dấu gạch ngang <span class="perm write">‒</span>) bởi vì nó không được đánh dấu `let mut`.
+    - **Place** (vị trí/vùng nhớ) `*num` đã nhận được quyền @Perm{read}.
+3. Sau `println!(...)`, thì `num` không còn được sử dụng nữa, nên `v` không còn bị mượn. Do đó:
+    - `v` lấy lại các quyền @Perm{write}@Perm{own} của nó (biểu thị bởi <i class="fa fa-rotate-left"></i>).
+    - `num` và `*num` đã mất tất cả các quyền của chúng (biểu thị bởi <i class="fa fa-level-down"></i>).
+4. Sau `v.push(4)`, thì `v` không còn được sử dụng nữa, và nó mất tất cả các quyền của nó.
 
-Next, let's explore a few nuances of the diagram. First, why do you see both `num` and `*num`? Because accessing data through a reference is not the same as manipulating the reference itself. For example, say we declared a reference to a number with `let mut`:
+Tiếp theo, hãy khám phá một vài sắc thái của sơ đồ. Đầu tiên, tại sao bạn thấy cả `num` và `*num`? Bởi vì truy cập dữ liệu thông qua một tham chiếu không giống như thao tác trên chính tham chiếu đó. Ví dụ, giả sử chúng ta khai báo một tham chiếu đến một số với `let mut`:
 
 ```aquascope,permissions,stepper
 #fn main() {
@@ -221,18 +221,17 @@ let mut x_ref = &x;
 #}
 ```
 
-Notice that `x_ref` has the @Perm{write} permission, while `*x_ref` does not. That means we can assign a different reference to the `x_ref` variable (e.g. `x_ref = &y`), but we cannot mutate the data it points to (e.g. `*x_ref += 1`).
+Lưu ý rằng `x_ref` có quyền @Perm{write}, trong khi `*x_ref` thì không. Điều đó có nghĩa là chúng ta có thể gán một tham chiếu khác cho biến `x_ref` (ví dụ `x_ref = &y`), nhưng chúng ta không thể thay đổi dữ liệu mà nó trỏ tới (ví dụ `*x_ref += 1`).
 
-More generally, permissions are defined on **places** and not just variables. A place is anything you can put on the left-hand side of an assignment. Places include:
+Tổng quát hơn, các quyền hạn được định nghĩa trên các **place** (vị trí/vùng nhớ) chứ không chỉ các biến. Một place là bất cứ thứ gì bạn có thể đặt ở phía bên trái của một phép gán. Các place bao gồm:
 
-- Variables, like `a`.
-- Dereferences of places, like `*a`.
-- Array accesses of places, like `a[0]`.
-- Fields of places, like `a.0` for tuples or `a.field` for structs (discussed next chapter).
-- Any combination of the above, like `*((*a)[0].1)`.
+-   Các biến, như `a`.
+-   Các giải tham chiếu của các place, như `*a`.
+-   Các truy cập mảng của các place, như `a[0]`.
+-   Các trường của các place, như `a.0` cho tuple hoặc `a.field` cho struct (được thảo luận ở chương sau).
+-   Bất kỳ sự kết hợp nào của những thứ trên, như `*((*a)[0].1)`.
 
-
-Second, why do places lose permissions when they become unused? Because some permissions are mutually exclusive. If you write `num = &v[2]`, then `v` cannot be mutated or dropped while `num` is in use. But that doesn't mean it's invalid to use `num` again. For example, if we add another `println!` to the above program, then `num` simply loses its permissions one line later:
+Thứ hai, tại sao các place mất quyền hạn khi chúng trở nên không được sử dụng? Bởi vì một số quyền hạn loại trừ lẫn nhau. Nếu bạn viết `num = &v[2]`, thì `v` không thể bị thay đổi hoặc bị hủy trong khi `num` đang được sử dụng. Nhưng điều đó không có nghĩa là việc sử dụng `num` một lần nữa là không hợp lệ. Ví dụ, nếu chúng ta thêm một `println!` khác vào chương trình trên, thì `num` đơn giản là mất quyền hạn của nó trễ hơn một dòng:
 
 ```aquascope,permissions,stepper
 #fn main() {
@@ -244,14 +243,13 @@ v.push(4);
 #}
 ```
 
-It's only a problem if you attempt to use `num` again *after* mutating `v`. Let's look at this in more detail.
+Vấn đề chỉ xảy ra nếu bạn cố gắng sử dụng `num` một lần nữa _sau khi_ thay đổi `v`. Hãy xem xét điều này chi tiết hơn.
 
+### Bộ Kiểm Tra Mượn Tìm Các Vi Phạm Quyền Hạn (The Borrow Checker Finds Permission Violations)
 
-### The Borrow Checker Finds Permission Violations
+Hãy nhớ lại _Nguyên tắc An toàn Con trỏ_: dữ liệu không nên bị alias và bị thay đổi. Mục tiêu của các quyền hạn này là đảm bảo rằng dữ liệu không thể bị thay đổi nếu nó đang bị alias. Việc tạo một tham chiếu đến dữ liệu ("mượn" nó) làm cho dữ liệu đó tạm thời chỉ đọc được cho đến khi tham chiếu không còn được sử dụng.
 
-Recall the *Pointer Safety Principle*: data should not be aliased and mutated. The goal of these permissions is to ensure that data cannot be mutated if it is aliased. Creating a reference to data ("borrowing" it) causes that data to be temporarily read-only until the reference is no longer in use.
-
-Rust uses these permissions in its **borrow checker**. The borrow checker looks for potentially unsafe operations involving references. Let's return to the unsafe program we saw earlier, where `push` invalidates a reference. This time we'll add another aspect to the permissions diagram:
+Rust sử dụng các quyền hạn này trong **bộ kiểm tra mượn** (borrow checker) của nó. Bộ kiểm tra mượn tìm kiếm các thao tác có khả năng không an toàn liên quan đến tham chiếu. Hãy quay lại chương trình không an toàn chúng ta đã thấy trước đó, nơi `push` làm mất hiệu lực một tham chiếu. Lần này chúng ta sẽ thêm một khía cạnh khác vào sơ đồ quyền hạn:
 
 ```aquascope,permissions,boundaries,stepper,shouldFail
 #fn main() {
@@ -262,11 +260,11 @@ println!("Third element is {}", *num);
 #}
 ```
 
-Any time a place is used, Rust expects that place to have certain permissions depending on the operation. For example, the borrow `&v[2]` requires that `v` is readable. Therefore the @Perm{read} permission is shown between the operation `&` and the place `v`. The letter is filled-in because `v` has the read permission at that line.
+Bất cứ khi nào một place được sử dụng, Rust mong đợi place đó có các quyền hạn nhất định tùy thuộc vào thao tác. Ví dụ, việc mượn `&v[2]` yêu cầu rằng `v` phải có thể đọc được. Do đó quyền @Perm{read} được hiển thị giữa thao tác `&` và place `v`. Chữ cái được tô đầy bởi vì `v` có quyền đọc tại dòng đó.
 
-By contrast, the mutating operation `v.push(4)` requires that `v` is readable and writable. Both @Perm{read} and @Perm{write} are shown. However, `v` does not have write permissions (it is borrowed by `num`). So the letter @Perm[missing]{write} is hollow, indicating that the write permission is *expected* but `v` does not have it.
+Ngược lại, thao tác thay đổi `v.push(4)` yêu cầu rằng `v` phải có thể đọc và ghi được. Cả @Perm{read} và @Perm{write} đều được hiển thị. Tuy nhiên, `v` không có quyền ghi (nó đang bị mượn bởi `num`). Vì vậy chữ cái @Perm[missing]{write} bị rỗng, biểu thị rằng quyền ghi được _mong đợi_ nhưng `v` không có nó.
 
-If you try to compile this program, then the Rust compiler will return the following error:
+Nếu bạn cố gắng biên dịch chương trình này, trình biên dịch Rust sẽ trả về lỗi sau:
 
 ```text
 error[E0502]: cannot borrow `v` as mutable because it is also borrowed as immutable
@@ -280,14 +278,13 @@ error[E0502]: cannot borrow `v` as mutable because it is also borrowed as immuta
   |                                 ---- immutable borrow later used here
 ```
 
-The error message explains that `v` cannot be mutated while the reference `num` is in use. That's the surface-level reason &mdash; the underlying issue is that `num` could be invalidated by `push`. Rust catches that potential violation of memory safety.
+Thông báo lỗi giải thích rằng `v` không thể bị thay đổi trong khi tham chiếu `num` đang được sử dụng. Đó là lý do ở cấp độ bề mặt &mdash; vấn đề cơ bản là `num` có thể bị làm mất hiệu lực bởi `push`. Rust bắt được khả năng vi phạm an toàn bộ nhớ đó.
 
+### Tham Chiếu Khả Biến (Mutable) Cung Cấp Quyền Truy Cập Duy Nhất và Không Sở Hữu (Non-Owning) Đến Dữ Liệu
 
-### Mutable References Provide Unique and Non-Owning Access to Data
+Các tham chiếu chúng ta đã thấy cho đến nay là các **tham chiếu bất biến** (immutable references) chỉ đọc (còn được gọi là **tham chiếu chia sẻ** - shared references). Các tham chiếu bất biến cho phép aliasing nhưng không cho phép thay đổi. Tuy nhiên, việc tạm thời cung cấp quyền truy cập thay đổi đến dữ liệu mà không cần di chuyển nó cũng rất hữu ích.
 
-The references we have seen so far are read-only **immutable references** (also called **shared references**). Immutable references permit aliasing but disallow mutation. However, it is also useful to temporarily provide mutable access to data without moving it.
-
-The mechanism for this is **mutable references** (also called **unique references**). Here's a simple example of a mutable reference with the accompanying permissions changes:
+Cơ chế cho việc này là **tham chiếu khả biến** (mutable references) (còn được gọi là **tham chiếu duy nhất** - unique references). Dưới đây là một ví dụ đơn giản về một tham chiếu khả biến với các thay đổi quyền hạn đi kèm:
 
 ```aquascope,permissions,stepper,boundaries
 #fn main() {
@@ -299,18 +296,18 @@ println!("Vector is now {:?}", v);
 #}
 ```
 
-<blockquote><div style="margin-block-start: 1em; margin-block-end: 1em"><i>Note:</i> when the expected permissions are not strictly relevant to an example, we will abbreviate them as dots like <div class="permission-stack stack-size-2"><div class="perm read"><div class="small">•</div><div class="big">R</div></div><div class="perm write"><div class="small">•</div><div class="big">W</div></div></div>. You can hover your mouse over the circles (or tap on a touchscreen) to see the corresponding permission letters.</div></blockquote>
+<blockquote><div style="margin-block-start: 1em; margin-block-end: 1em"><i>Lưu ý:</i> khi các quyền hạn mong đợi không thực sự liên quan đến một ví dụ, chúng tôi sẽ viết tắt chúng thành các dấu chấm như <div class="permission-stack stack-size-2"><div class="perm read"><div class="small">•</div><div class="big">R</div></div><div class="perm write"><div class="small">•</div><div class="big">W</div></div></div>. Bạn có thể di chuột qua các vòng tròn (hoặc chạm vào trên màn hình cảm ứng) để xem các chữ cái quyền hạn tương ứng.</div></blockquote>
 
-A mutable reference is created with the `&mut` operator. The type of `num` is written as `&mut i32`. Compared to immutable references, you can see two important differences in the permissions:
+Một tham chiếu khả biến được tạo bằng toán tử `&mut`. Kiểu của `num` được viết là `&mut i32`. So với các tham chiếu bất biến, bạn có thể thấy hai sự khác biệt quan trọng trong các quyền hạn:
 
-1. When `num` was an immutable reference, `v` still had the @Perm{read} permission. Now that `num` is a mutable reference, `v` has lost _all_ permissions while `num` is in use.
-2. When `num` was an immutable reference, the place `*num` only had the @Perm{read} permission. Now that `num` is a mutable reference, `*num` has also gained the @Perm{write} permission.
+1. Khi `num` là một tham chiếu bất biến, `v` vẫn có quyền @Perm{read}. Bây giờ khi `num` là một tham chiếu khả biến, `v` đã mất _tất cả_ các quyền trong khi `num` đang được sử dụng.
+2. Khi `num` là một tham chiếu bất biến, place `*num` chỉ có quyền @Perm{read}. Bây giờ khi `num` là một tham chiếu khả biến, `*num` cũng đã nhận được quyền @Perm{write}.
 
-The first observation is what makes mutable references *safe*. Mutable references allow mutation but prevent aliasing. The borrowed place `v` becomes temporarily unusable, so effectively not an alias.
+Quan sát thứ nhất là điều làm cho các tham chiếu khả biến _an toàn_. Các tham chiếu khả biến cho phép thay đổi nhưng ngăn chặn aliasing. Place được mượn `v` trở nên tạm thời không sử dụng được, do đó thực sự không phải là một alias.
 
-The second observation is what makes mutable references *useful*. `v[2]` can be mutated through `*num`. For example, `*num += 1` mutates `v[2]`. Note that `*num` has the @Perm{write} permission, but `num` does not. `num` refers to the mutable reference itself, e.g. `num` cannot be reassigned to a *different* mutable reference.
+Quan sát thứ hai là điều làm cho các tham chiếu khả biến _hữu ích_. `v[2]` có thể được thay đổi thông qua `*num`. Ví dụ, `*num += 1` thay đổi `v[2]`. Lưu ý rằng `*num` có quyền @Perm{write}, nhưng `num` thì không. `num` đề cập đến chính tham chiếu khả biến đó, ví dụ `num` không thể được gán lại cho một tham chiếu khả biến _khác_.
 
-Mutable references can also be temporarily "downgraded" to read-only references. For example:
+Các tham chiếu khả biến cũng có thể tạm thời bị "hạ cấp" thành các tham chiếu chỉ đọc. Ví dụ:
 
 ```aquascope,permissions,stepper,boundaries
 #fn main() {
@@ -321,16 +318,15 @@ println!("{} {}", *num, *num2);
 #}
 ```
 
-> *Note:* when permission changes are not relevant to an example, we will hide them. You can view hidden steps by clicking "»", and you can view hidden permissions within a step by clicking "● ● ●".
+> _Lưu ý:_ khi các thay đổi quyền hạn không liên quan đến ví dụ, chúng tôi sẽ ẩn chúng đi. Bạn có thể xem các bước bị ẩn bằng cách nhấp vào "»", và bạn có thể xem các quyền hạn bị ẩn trong một bước bằng cách nhấp vào "● ● ●".
 
-In this program, the borrow `&*num` removes the @Perm{write} permission from `*num` but _not_ the @Perm{read} permission, so `println!(..)` can read both `*num` and `*num2`.
+Trong chương trình này, việc mượn `&*num` loại bỏ quyền @Perm{write} khỏi `*num` nhưng _không_ loại bỏ quyền @Perm{read}, vì vậy `println!(..)` có thể đọc cả `*num` và `*num2`.
 
+### Các Quyền Hạn Được Trả Lại Khi Kết Thúc Lifetime Của Một Tham Chiếu
 
-### Permissions Are Returned At The End of a Reference's Lifetime
+Chúng tôi đã nói ở trên rằng một tham chiếu thay đổi các quyền hạn trong khi nó đang "được sử dụng". Cụm từ "được sử dụng" đang mô tả **lifetime** (vòng đời) của một tham chiếu, hoặc phạm vi code kéo dài từ lúc sinh ra (nơi tham chiếu được tạo) đến lúc chết (lần cuối cùng tham chiếu được sử dụng).
 
-We said above that a reference changes permissions while it is "in use". The phrase "in use" is describing a reference's **lifetime**, or the range of code spanning from its birth (where the reference is created) to its death (the last time(s) the reference is used).
-
-For example, in this program, the lifetime of `y` starts with `let y = &x`, and ends with `let z = *y`:
+Ví dụ, trong chương trình này, lifetime của `y` bắt đầu với `let y = &x`, và kết thúc với `let z = *y`:
 
 ```aquascope,permissions,stepper,boundaries
 #fn main() {
@@ -341,9 +337,9 @@ x += z;
 #}
 ```
 
-The @Perm{write} permission on `x` is returned to `x` after the lifetime of `y` has ended, like we have seen before.
+Quyền @Perm{write} trên `x` được trả lại cho `x` sau khi lifetime của `y` đã kết thúc, giống như chúng ta đã thấy trước đây.
 
-In the previous examples, a lifetime has been a contiguous region of code. However, once we introduce control flow, this is not necessarily the case. For example, here is a function that capitalizes the first character in a vector of ASCII characters:
+Trong các ví dụ trước, một lifetime là một vùng code liên tục. Tuy nhiên, một khi chúng ta đưa vào luồng điều khiển (control flow), điều này không nhất thiết phải đúng. Ví dụ, đây là một hàm viết hoa ký tự đầu tiên trong một vector các ký tự ASCII:
 
 ```aquascope,permissions,stepper,boundaries
 fn ascii_capitalize(v: &mut Vec<char>) {
@@ -357,16 +353,15 @@ fn ascii_capitalize(v: &mut Vec<char>) {
 }
 ```
 
-The variable `c` has a different lifetime in each branch of the if-statement. In the then-block, `c` is used in the expression `c.to_ascii_uppercase()`. Therefore `*v` does not regain the @Perm{write} permission until after that line.
+Biến `c` có một lifetime khác nhau trong mỗi nhánh của câu lệnh if. Trong khối then, `c` được sử dụng trong biểu thức `c.to_ascii_uppercase()`. Do đó `*v` không lấy lại quyền @Perm{write} cho đến sau dòng đó.
 
-However, in the else-block, `c` is not used. `*v` immediately regains the @Perm{write} permission on entry to the else-block.
+Tuy nhiên, trong khối else, `c` không được sử dụng. `*v` ngay lập tức lấy lại quyền @Perm{write} khi vào khối else.
 
 {{#quiz ../quizzes/ch04-02-references-sec2-perms.toml}}
 
+### Dữ Liệu Phải Sống Lâu Hơn (Outlive) Tất Cả Các Tham Chiếu Đến Nó
 
-### Data Must Outlive All Of Its References
-
-As a part of the *Pointer Safety Principle*, the borrow checker enforces that **data must outlive any references to it.** Rust enforces this property in two ways. The first way deals with references that are created and dropped within the scope of a single function. For example, say we tried to drop a string while holding a reference to it:
+Là một phần của _Nguyên tắc An toàn Con trỏ_, bộ kiểm tra mượn bắt buộc rằng **dữ liệu phải sống lâu hơn bất kỳ tham chiếu nào đến nó.** Rust thực thi thuộc tính này theo hai cách. Cách đầu tiên xử lý các tham chiếu được tạo và hủy trong phạm vi của một hàm đơn lẻ. Ví dụ, giả sử chúng ta cố gắng hủy một chuỗi trong khi đang giữ một tham chiếu đến nó:
 
 ```aquascope,permissions,stepper,boundaries,shouldFail
 #fn main() {
@@ -377,9 +372,9 @@ println!("{}", s_ref);
 #}
 ```
 
-To catch these kinds of errors, Rust uses the permissions we've already discussed. The borrow `&s` removes the @Perm{own} permission from `s`. However, `drop` expects the @Perm{own} permission, leading to a permission mismatch.
+Để bắt những loại lỗi này, Rust sử dụng các quyền hạn mà chúng ta đã thảo luận. Việc mượn `&s` loại bỏ quyền @Perm{own} khỏi `s`. Tuy nhiên, `drop` mong đợi quyền @Perm{own}, dẫn đến sự không khớp quyền hạn.
 
-The key idea is that in this example, Rust knows how long `s_ref` lives. But Rust needs a different enforcement mechanism when it doesn't know how long a reference lives. Specifically, when references are either input to a function, or output from a function. For example, here is a safe function that returns a reference to the first element in a vector:
+Ý tưởng chính là trong ví dụ này, Rust biết `s_ref` sống bao lâu. Nhưng Rust cần một cơ chế thực thi khác khi nó không biết một tham chiếu sống bao lâu. Cụ thể, khi các tham chiếu là đầu vào của một hàm, hoặc đầu ra từ một hàm. Ví dụ, đây là một hàm an toàn trả về một tham chiếu đến phần tử đầu tiên trong một vector:
 
 ```aquascope,permissions,boundaries,showFlows
 fn first(strings: &Vec<String>) -> &String {
@@ -388,9 +383,9 @@ fn first(strings: &Vec<String>) -> &String {
 }
 ```
 
-This snippet introduces a new kind of permission, the flow permission @Perm{flow}. The @Perm{flow} permission is expected whenever an expression uses an input reference (like `&strings[0]`), or returns an output reference (like `return s_ref`).
+Đoạn code này giới thiệu một loại quyền hạn mới, quyền luồng (flow permission) @Perm{flow}. Quyền @Perm{flow} được mong đợi bất cứ khi nào một biểu thức sử dụng một tham chiếu đầu vào (như `&strings[0]`), hoặc trả về một tham chiếu đầu ra (như `return s_ref`).
 
-Unlike the @Perm{read}@Perm{write}@Perm{own} permissions, @Perm{flow} does not change throughout the body of a function. A reference has the @Perm{flow} permission if it's allowed to be used (that is, to *flow*) in a particular expression. For example, let's say we change `first` to a new function `first_or` that includes a `default` parameter:
+Không giống như các quyền @Perm{read}@Perm{write}@Perm{own}, quyền @Perm{flow} không thay đổi trong suốt thân hàm. Một tham chiếu có quyền @Perm{flow} nếu nó được phép sử dụng (nghĩa là, được phép _flow_ - chảy) trong một biểu thức cụ thể. Ví dụ, giả sử chúng ta đổi `first` thành một hàm mới `first_or` bao gồm một tham số `default`:
 
 ```aquascope,permissions,boundaries,showFlows,shouldFail
 fn first_or<'a, 'b, 'c>(strings: &'a Vec<String>, default: &'b String) -> &'c String {
@@ -402,7 +397,7 @@ fn first_or<'a, 'b, 'c>(strings: &'a Vec<String>, default: &'b String) -> &'c St
 }
 ```
 
-This function no longer compiles, because the expressions `&strings[0]` and `default` lack the necessary @Perm{flow} permission to be returned. But why? Rust gives the following error:
+Hàm này không còn biên dịch được nữa, bởi vì các biểu thức `&strings[0]` và `default` thiếu quyền @Perm{flow} cần thiết để được trả về. Nhưng tại sao? Rust đưa ra lỗi sau:
 
 ```text
 error[E0106]: missing lifetime specifier
@@ -414,7 +409,7 @@ error[E0106]: missing lifetime specifier
   = help: this function's return type contains a borrowed value, but the signature does not say whether it is borrowed from `strings` or `default`
 ```
 
-The message "missing lifetime specifier" is a bit mysterious, but the help message provides some useful context. If Rust *just* looks at the function signature, it doesn't know whether the output `&String` is a reference to either `strings` or `default`. To understand why that matters, let's say we used `first_or` like this:
+Thông báo "missing lifetime specifier" (thiếu chỉ định lifetime) hơi bí ẩn, nhưng thông báo trợ giúp cung cấp một số ngữ cảnh hữu ích. Nếu Rust _chỉ_ nhìn vào chữ ký hàm, nó không biết liệu đầu ra `&String` là một tham chiếu đến `strings` hay `default`. Để hiểu tại sao điều đó quan trọng, giả sử chúng ta sử dụng `first_or` như thế này:
 
 ```rust,ignore
 fn main() {
@@ -426,11 +421,11 @@ fn main() {
 }
 ```
 
-This program is unsafe if `first_or` allows `default` to *flow* into the return value. Like the previous example, `drop` could invalidate `s`. Rust would only allow this program to compile if it was *certain* that `default` cannot flow into the return value.
+Chương trình này là không an toàn nếu `first_or` cho phép `default` _flow_ (chảy) vào giá trị trả về. Giống như ví dụ trước, `drop` có thể làm mất hiệu lực `s`. Rust sẽ chỉ cho phép chương trình này biên dịch nếu nó _chắc chắn_ rằng `default` không thể chảy vào giá trị trả về.
 
-To specify whether `default` can be returned, Rust provides a mechanism called *lifetime parameters*. We will explain that feature later in Chapter 10.3, ["Validating References with Lifetimes"](ch10-03-lifetime-syntax.html). For now, it's enough to know that: (1) input/output references are treated differently than references within a function body, and (2) Rust uses a different mechanism, the @Perm{flow} permission, to check the safety of those references.
+Để chỉ định liệu `default` có thể được trả về hay không, Rust cung cấp một cơ chế gọi là _tham số lifetime_ (lifetime parameters). Chúng tôi sẽ giải thích tính năng đó sau trong Chương 10.3, ["Validating References with Lifetimes"](ch10-03-lifetime-syntax.html). Hiện tại, chỉ cần biết rằng: (1) các tham chiếu đầu vào/đầu ra được đối xử khác với các tham chiếu bên trong thân hàm, và (2) Rust sử dụng một cơ chế khác, quyền @Perm{flow}, để kiểm tra sự an toàn của các tham chiếu đó.
 
-To see the @Perm{flow} permission in another context, say you tried to return a reference to a variable on the stack like this:
+Để thấy quyền @Perm{flow} trong một ngữ cảnh khác, giả sử bạn cố gắng trả về một tham chiếu đến một biến trên stack như thế này:
 
 ```aquascope,permissions,boundaries,showFlows,shouldFail
 fn return_a_string() -> &String {
@@ -440,24 +435,22 @@ fn return_a_string() -> &String {
 }
 ```
 
-This program is unsafe because the reference `&s` will be invalidated when `return_a_string` returns. And Rust will reject this program with a similar `missing lifetime specifier` error. Now you can understand that error means that `s_ref` is missing the appropriate flow permissions.
-
+Chương trình này không an toàn bởi vì tham chiếu `&s` sẽ bị mất hiệu lực khi `return_a_string` trả về. Và Rust sẽ từ chối chương trình này với một lỗi `missing lifetime specifier` tương tự. Bây giờ bạn có thể hiểu lỗi đó có nghĩa là `s_ref` đang thiếu các quyền flow thích hợp.
 
 {{#quiz ../quizzes/ch04-02-references-sec3-safety.toml}}
 
+### Tóm Tắt
 
-### Summary
+Các tham chiếu cung cấp khả năng đọc và ghi dữ liệu mà không tiêu thụ quyền sở hữu của nó. Các tham chiếu được tạo ra với các lệnh mượn (`&` và `&mut`) và được sử dụng với các giải tham chiếu (`*`), thường là ngầm định.
 
-References provide the ability to read and write data without consuming ownership of it. References are created with borrows (`&` and `&mut`) and used with dereferences (`*`), often implicitly.
+Tuy nhiên, các tham chiếu có thể dễ dàng bị sử dụng sai. Bộ kiểm tra mượn của Rust thực thi một hệ thống các quyền hạn đảm bảo các tham chiếu được sử dụng an toàn:
 
-However, references can be easily misused. Rust's borrow checker enforces a system of permissions that ensures references are used safely:
+-   Tất cả các biến có thể đọc, sở hữu, và (tùy chọn) ghi dữ liệu của chúng.
+-   Việc tạo một tham chiếu sẽ chuyển giao các quyền hạn từ place được mượn sang tham chiếu.
+-   Các quyền hạn được trả lại một khi lifetime của tham chiếu đã kết thúc.
+-   Dữ liệu phải sống lâu hơn tất cả các tham chiếu trỏ đến nó.
 
-- All variables can read, own, and (optionally) write their data.
-- Creating a reference will transfer permissions from the borrowed place to the reference.
-- Permissions are returned once the reference's lifetime has ended.
-- Data must outlive all references that point to it.
-
-In this section, it probably feels like we've described more of what Rust _cannot_ do than what Rust _can_ do. That is intentional! One of Rust's core features is allowing you to use pointers without garbage collection, while also avoiding undefined behavior. Understanding these safety rules now will help you avoid frustration with the compiler later.
+Trong mục này, có lẽ bạn cảm thấy như chúng tôi đã mô tả nhiều về những gì Rust _không thể_ làm hơn là những gì Rust _có thể_ làm. Điều đó là có chủ đích! Một trong những tính năng cốt lõi của Rust là cho phép bạn sử dụng các con trỏ mà không cần bộ thu gom rác (garbage collection), trong khi vẫn tránh được hành vi không xác định. Hiểu các quy tắc an toàn này ngay bây giờ sẽ giúp bạn tránh sự thất vọng với trình biên dịch sau này.
 
 [`String::push_str`]: https://doc.rust-lang.org/std/string/struct.String.html#method.push_str
 [`Vec`]: https://doc.rust-lang.org/std/vec/struct.Vec.html

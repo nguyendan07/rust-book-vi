@@ -1,10 +1,10 @@
-## What Is Ownership?
+## Quyền Sở Hữu Là Gì?
 
-Ownership is a discipline for ensuring the **safety** of Rust programs. To understand ownership, we first need to understand what makes a Rust program safe (or unsafe).
+Quyền sở hữu (Ownership) là một kỷ luật để đảm bảo **sự an toàn** của các chương trình Rust. Để hiểu về quyền sở hữu, trước tiên chúng ta cần hiểu điều gì làm cho một chương trình Rust an toàn (hoặc không an toàn).
 
-### Safety is the Absence of Undefined Behavior
+### An Toàn Là Sự Vắng Mặt Của Hành Vi Chưa Xác Định
 
-Let's start with an example. This program is safe to execute:
+Hãy bắt đầu với một ví dụ. Chương trình này an toàn để thực thi:
 
 ```rust
 fn read(y: bool) {
@@ -19,7 +19,7 @@ fn main() {
 }
 ```
 
-We can make this program unsafe to execute by moving the call to `read` before the definition of `x`:
+Chúng ta có thể làm cho chương trình này không an toàn để thực thi bằng cách di chuyển lời gọi hàm `read` lên trước phần định nghĩa của `x`:
 
 ```rust,ignore,does_not_compile
 fn read(y: bool) {
@@ -29,18 +29,18 @@ fn read(y: bool) {
 }
 
 fn main() {
-    read(x); // oh no! x isn't defined!
+    read(x); // ôi không! x chưa được định nghĩa!
     let x = true;
 }
 ```
 
-> *Note*: in this chapter, we will use many code examples that do not compile. Make sure to look for the question mark crab if you are not sure whether a program should compile or not.
+> _Lưu ý_: trong chương này, chúng tôi sẽ sử dụng nhiều ví dụ mã không biên dịch được. Hãy nhớ tìm kiếm chú cua dấu hỏi nếu bạn không chắc chắn liệu một chương trình có nên biên dịch hay không.
 
-This second program is unsafe because `read(x)` expects `x` to have a value of type `bool`, but `x` doesn't have a value yet.
+Chương trình thứ hai này không an toàn vì `read(x)` mong đợi `x` có một giá trị thuộc kiểu `bool`, nhưng `x` lại chưa có giá trị nào.
 
-When a program like this is executed by an interpreter, then reading `x` before it's defined would raise an exception such as Python's [`NameError`] or Javascript's [`ReferenceError`]. But exceptions come at a cost. Each time an interpreted program reads a variable, then the interpreter must check whether that variable is defined.
+Khi một chương trình như thế này được thực thi bởi một trình thông dịch, thì việc đọc `x` trước khi nó được định nghĩa sẽ gây ra một ngoại lệ (exception) như [`NameError`] của Python hay [`ReferenceError`] của Javascript. Nhưng các ngoại lệ đi kèm với một cái giá. Mỗi khi một chương trình thông dịch đọc một biến, trình thông dịch phải kiểm tra xem biến đó đã được định nghĩa hay chưa.
 
-Rust's goal is to compile programs into efficient binaries that require as few runtime checks as possible. Therefore Rust does not check at *runtime* whether a variable is defined before being used. Instead, Rust checks at *compile-time*. If you try to compile the unsafe program, you will get this error:
+Mục tiêu của Rust là biên dịch các chương trình thành các tệp nhị phân hiệu quả yêu cầu càng ít kiểm tra tại thời gian chạy (runtime) càng tốt. Do đó, Rust không kiểm tra tại _thời gian chạy_ xem một biến đã được định nghĩa hay chưa trước khi sử dụng. Thay vào đó, Rust kiểm tra tại _thời gian biên dịch_ (compile-time). Nếu bạn cố gắng biên dịch chương trình không an toàn, bạn sẽ nhận được lỗi này:
 
 ```text
 error[E0425]: cannot find value `x` in this scope
@@ -50,9 +50,9 @@ error[E0425]: cannot find value `x` in this scope
   |          ^ not found in this scope
 ```
 
-You probably have the intuition that it's good for Rust to ensure that variables are defined before they are used. But why? To justify the rule, we have to ask: **what would happen if Rust allowed a rejected program to compile?**
+Bạn có thể có trực giác rằng việc Rust đảm bảo các biến được định nghĩa trước khi chúng được sử dụng là điều tốt. Nhưng tại sao? Để biện minh cho quy tắc này, chúng ta phải đặt câu hỏi: **điều gì sẽ xảy ra nếu Rust cho phép biên dịch một chương trình bị từ chối?**
 
-Let's first consider how the safe program compiles and executes. On a computer with a processor using an [x86](https://en.wikipedia.org/wiki/X86) architecture, Rust generates the following assembly code for the `main` function in the safe program ([see the full assembly code here](https://rust.godbolt.org/z/xnT1fzsqv)):
+Trước tiên hãy xem xét cách chương trình an toàn biên dịch và thực thi. Trên một máy tính có bộ vi xử lý sử dụng kiến trúc [x86](https://en.wikipedia.org/wiki/X86), Rust tạo ra mã hợp ngữ (assembly) sau cho hàm `main` trong chương trình an toàn ([xem mã hợp ngữ đầy đủ tại đây](https://rust.godbolt.org/z/xnT1fzsqv)):
 
 ```x86asm
 main:
@@ -62,56 +62,56 @@ main:
     ; ...
 ```
 
-> _Note_: if you aren't familiar with assembly code, that's ok! This section contains a few examples of assembly just to show you how Rust actually works under the hood. You don't generally need to know assembly to understand Rust.
+> _Lưu ý_: nếu bạn không quen thuộc với mã hợp ngữ, không sao cả! Phần này chứa một vài ví dụ về hợp ngữ chỉ để cho bạn thấy cách Rust thực sự hoạt động "bên dưới mui xe". Bạn thường không cần biết về hợp ngữ để hiểu Rust.
 
-This assembly code will:
+Mã hợp ngữ này sẽ:
 
-- Move the number 1, representing `true`, into a "register" (a kind of assembly variable) called `edi`.
-- Call the `read` function, which expects its first argument `y` to be in the `edi` register.
+-   Di chuyển số 1, đại diện cho `true`, vào một "thanh ghi" (register - một loại biến của hợp ngữ) được gọi là `edi`.
+-   Gọi hàm `read`, hàm này mong đợi đối số đầu tiên `y` của nó nằm trong thanh ghi `edi`.
 
-If the unsafe function was allowed to compile, its assembly might look like this:
+Nếu hàm không an toàn được phép biên dịch, mã hợp ngữ của nó có thể trông như thế này:
 
 ```x86asm
 main:
     ; ...
     call    read
-    mov     edi, 1    ; mov is after call
+    mov     edi, 1    ; mov nằm sau call
     ; ...
 ```
 
-This program is unsafe because `read` will expect `edi` to be a boolean, which is either the number `0` or `1`. But `edi` could be anything: `2`, `100`, `0x1337BEEF`. When `read` wants to use its argument `y` for any purpose, it will immediately cause _**UNDEFINED BEHAVIOR!**_
+Chương trình này không an toàn vì `read` sẽ mong đợi `edi` là một boolean, tức là số `0` hoặc `1`. Nhưng `edi` có thể là bất cứ thứ gì: `2`, `100`, `0x1337BEEF`. Khi `read` muốn sử dụng đối số `y` của nó cho bất kỳ mục đích nào, nó sẽ ngay lập tức gây ra _**UNDEFINED BEHAVIOR (HÀNH VI CHƯA XÁC ĐỊNH)!**_
 
-Rust doesn't specify what happens if you try to run `if y { .. }` when `y` isn't `true` or `false`. That *behavior*, or what happens after executing the instruction, is *undefined*. Something will happen, for example:
+Rust không quy định điều gì xảy ra nếu bạn cố gắng chạy `if y { .. }` khi `y` không phải là `true` hay `false`. _Hành vi_ đó, hay những gì xảy ra sau khi thực thi lệnh, là _chưa xác định_. Một điều gì đó sẽ xảy ra, ví dụ:
 
-- The code executes without crashing, and no one notices a problem.
-- The code immediately crashes due to a [segmentation fault](https://en.wikipedia.org/wiki/Segmentation_fault) or another kind of operating system error.
-- The code executes without crashing, until a malicious actor creates the right input to delete your production database, overwrite your backups, and steal your lunch money.
+-   Mã thực thi mà không gặp sự cố, và không ai nhận thấy vấn đề gì.
+-   Mã ngay lập tức gặp sự cố do [lỗi phân đoạn](https://en.wikipedia.org/wiki/Segmentation_fault) (segmentation fault) hoặc một loại lỗi hệ điều hành khác.
+-   Mã thực thi mà không gặp sự cố, cho đến khi một tác nhân độc hại tạo ra đầu vào thích hợp để xóa cơ sở dữ liệu production, ghi đè các bản sao lưu và đánh cắp tiền ăn trưa của bạn.
 
-**A foundational goal of Rust is to ensure that your programs never have undefined behavior.** That is the meaning of "safety." Undefined behavior is especially dangerous for low-level programs with direct access to memory. About [70% of reported security vulnerabilities](https://msrc.microsoft.com/blog/2019/07/a-proactive-approach-to-more-secure-code/) in low-level systems are caused by memory corruption, which is one form of undefined behavior.
+**Một mục tiêu nền tảng của Rust là đảm bảo rằng các chương trình của bạn không bao giờ có hành vi chưa xác định.** Đó là ý nghĩa của "sự an toàn". Hành vi chưa xác định đặc biệt nguy hiểm đối với các chương trình cấp thấp có quyền truy cập trực tiếp vào bộ nhớ. Khoảng [70% các lỗ hổng bảo mật được báo cáo](https://msrc.microsoft.com/blog/2019/07/a-proactive-approach-to-more-secure-code/) trong các hệ thống cấp thấp là do hỏng bộ nhớ (memory corruption), đây là một dạng của hành vi chưa xác định.
 
-A secondary goal of Rust is to prevent undefined behavior at _compile-time_ instead of _run-time_. This goal has two motivations:
+Một mục tiêu thứ hai của Rust là ngăn chặn hành vi chưa xác định tại _thời gian biên dịch_ thay vì _thời gian chạy_. Mục tiêu này có hai động lực:
 
-1. Catching bugs at compile-time means avoiding those bugs in production, improving the reliability of your software.
-2. Catching bugs at compile-time means fewer runtime checks for those bugs, improving the performance of your software.
+1. Bắt lỗi tại thời gian biên dịch đồng nghĩa với việc tránh được những lỗi đó trong môi trường production, cải thiện độ tin cậy của phần mềm.
+2. Bắt lỗi tại thời gian biên dịch đồng nghĩa với việc ít phải kiểm tra lỗi đó khi chạy hơn, cải thiện hiệu suất của phần mềm.
 
-Rust cannot prevent all bugs. If an application exposes a public and unauthenticated `/delete-production-database` endpoint, then a malicious actor doesn't need a suspicious if-statement to delete the database. But Rust's protections are still likely to make programs safer versus using a language with fewer protections, e.g. as found by [Google's Android team](https://security.googleblog.com/2022/12/memory-safe-languages-in-android-13.html).
+Rust không thể ngăn chặn tất cả các lỗi. Nếu một ứng dụng để lộ công khai một endpoint `/delete-production-database` không cần xác thực, thì một tác nhân độc hại không cần một câu lệnh if đáng ngờ để xóa cơ sở dữ liệu. Nhưng các biện pháp bảo vệ của Rust vẫn có khả năng làm cho các chương trình an toàn hơn so với việc sử dụng một ngôn ngữ có ít biện pháp bảo vệ hơn, ví dụ như được tìm thấy bởi [đội ngũ Android của Google](https://security.googleblog.com/2022/12/memory-safe-languages-in-android-13.html).
 
-### Ownership as a Discipline for Memory Safety
+### Quyền Sở Hữu Như Là Một Kỷ Luật Cho An Toàn Bộ Nhớ
 
-Since safety is the absence of undefined behavior, and since ownership is about safety, then we need to understand ownership in terms of the undefined behaviors it prevents. The Rust Reference maintains a large list of ["Behavior considered undefined"](https://doc.rust-lang.org/reference/behavior-considered-undefined.html). For now, we will focus on one category: operations on memory.
+Vì an toàn là sự vắng mặt của hành vi chưa xác định, và vì quyền sở hữu nói về sự an toàn, nên chúng ta cần hiểu quyền sở hữu dưới góc độ của các hành vi chưa xác định mà nó ngăn chặn. Tài liệu tham khảo Rust (Rust Reference) duy trì một danh sách lớn các ["Hành vi được coi là chưa xác định"](https://doc.rust-lang.org/reference/behavior-considered-undefined.html). Hiện tại, chúng ta sẽ tập trung vào một danh mục: các thao tác trên bộ nhớ.
 
-Memory is the space where data is stored during the execution of a program. There are many ways to think about memory:
+Bộ nhớ là không gian nơi dữ liệu được lưu trữ trong quá trình thực thi của một chương trình. Có nhiều cách để suy nghĩ về bộ nhớ:
 
-- If you are unfamiliar with systems programming, you might think of memory at a high level like "memory is the RAM in my computer" or "memory is the thing that runs out if I load too much data".
-- If you are familiar with systems programming, you might think of memory at a low level like "memory is an array of bytes" or "memory is the pointers I get back from `malloc`".
+-   Nếu bạn chưa quen với lập trình hệ thống, bạn có thể nghĩ về bộ nhớ ở mức cao như "bộ nhớ là RAM trong máy tính của tôi" hoặc "bộ nhớ là thứ sẽ hết nếu tôi tải quá nhiều dữ liệu".
+-   Nếu bạn đã quen thuộc với lập trình hệ thống, bạn có thể nghĩ về bộ nhớ ở mức thấp như "bộ nhớ là một mảng các byte" hoặc "bộ nhớ là các con trỏ tôi nhận lại từ `malloc`".
 
-Both of these memory models are _valid_, but they are not _useful_ ways to think about how Rust works. The high-level model is too abstract to explain how Rust works. You will need to understand the concept of a pointer, for instance. The low-level model is too concrete to explain how Rust works. Rust does not allow you to interpret memory as an array of bytes, for instance.
+Cả hai mô hình bộ nhớ này đều _hợp lệ_, nhưng chúng không phải là những cách _hữu ích_ để suy nghĩ về cách Rust hoạt động. Mô hình cấp cao quá trừu tượng để giải thích cách Rust hoạt động. Ví dụ, bạn sẽ cần hiểu khái niệm về con trỏ. Mô hình cấp thấp lại quá cụ thể để giải thích cách Rust hoạt động. Ví dụ, Rust không cho phép bạn diễn giải bộ nhớ như một mảng các byte.
 
-Rust provides a particular way to think about memory. Ownership is a discipline for safely using memory within that way of thinking. The rest of this chapter will explain the Rust model of memory.
+Rust cung cấp một cách cụ thể để suy nghĩ về bộ nhớ. Quyền sở hữu là một kỷ luật để sử dụng bộ nhớ một cách an toàn theo lối suy nghĩ đó. Phần còn lại của chương này sẽ giải thích mô hình bộ nhớ của Rust.
 
 ### Variables Live in the Stack
 
-Here's a program like the one you saw in Section 3.3 that defines a number `n` and calls a function `plus_one` on `n`. Beneath the program is a new kind of diagram. This diagram visualizes the contents of memory during the program's execution at the three marked points.
+Dưới đây là một chương trình giống như chương trình bạn đã thấy trong Mục 3.3, định nghĩa một số `n` và gọi hàm `plus_one` trên `n`. Bên dưới chương trình là một loại sơ đồ mới. Sơ đồ này trực quan hóa nội dung của bộ nhớ trong quá trình thực thi chương trình tại ba điểm được đánh dấu.
 
 ```aquascope,interpreter,horizontal
 fn main() {
@@ -125,17 +125,17 @@ fn plus_one(x: i32) -> i32 {
 }
 ```
 
-Variables live in **frames**. A frame is a mapping from variables to values within a single scope, such as a function. For example:
+Các biến sống trong các **khung** (frame). Một khung là một ánh xạ từ các biến tới các giá trị trong một phạm vi (scope) duy nhất, chẳng hạn như một hàm. Ví dụ:
 
-- The frame for `main` at location L1 holds `n = 5`.
-- The frame for `plus_one` at L2 holds `x = 5`.
-- The frame for `main` at location L3 holds `n = 5; y = 6`.
+-   Khung cho `main` tại vị trí L1 chứa `n = 5`.
+-   Khung cho `plus_one` tại L2 chứa `x = 5`.
+-   Khung cho `main` tại vị trí L3 chứa `n = 5; y = 6`.
 
-Frames are organized into a **stack** of currently-called-functions. For example, at L2 the frame for `main` sits above the frame for the called function `plus_one`. After a function returns, Rust deallocates the function's frame. (Deallocation is also called **freeing** or **dropping**, and we use those terms interchangeably.) This sequence of frames is called a stack because the most recent frame added is always the next frame freed.
+Các khung được tổ chức thành một **ngăn xếp** (stack) của các hàm hiện đang được gọi. Ví dụ, tại L2, khung cho `main` nằm trên khung cho hàm được gọi `plus_one`. Sau khi một hàm trả về, Rust sẽ thu hồi khung của hàm đó. (Việc thu hồi - Deallocation còn được gọi là **giải phóng** - freeing hoặc **thả** - dropping, và chúng tôi sử dụng các thuật ngữ đó thay thế cho nhau.) Chuỗi các khung này được gọi là một ngăn xếp (stack) vì khung được thêm vào gần đây nhất luôn là khung tiếp theo được giải phóng.
 
-> _Note:_ this memory model does not fully describe how Rust actually works! As we saw earlier with the assembly code, the Rust compiler might put `n` or `x` into a register rather than a stack frame. But that distinction is an implementation detail. It shouldn't change your understanding of safety in Rust, so we can focus on the simpler case of frame-only variables.
+> _Lưu ý:_ mô hình bộ nhớ này không mô tả đầy đủ cách Rust thực sự hoạt động! Như chúng ta đã thấy trước đó với mã hợp ngữ, trình biên dịch Rust có thể đặt `n` hoặc `x` vào một thanh ghi thay vì một khung stack. Nhưng sự phân biệt đó là một chi tiết cài đặt. Nó không nên làm thay đổi hiểu biết của bạn về sự an toàn trong Rust, vì vậy chúng ta có thể tập trung vào trường hợp đơn giản hơn là các biến chỉ nằm trong khung.
 
-When an expression reads a variable, the variable's value is copied from its slot in the stack frame. For example, if we run this program:
+Khi một biểu thức đọc một biến, giá trị của biến đó được sao chép từ khe của nó trong khung stack. Ví dụ, nếu chúng ta chạy chương trình này:
 
 ```aquascope,interpreter,horizontal
 #fn main() {
@@ -145,11 +145,11 @@ b += 1;`[]`
 #}
 ```
 
-The value of `a` is copied into `b`, and `a` is left unchanged, even after changing `b`.
+Giá trị của `a` được sao chép vào `b`, và `a` vẫn không thay đổi, ngay cả sau khi thay đổi `b`.
 
 ### Boxes Live in the Heap
 
-However, copying data can take up a lot of memory. For example, here's a slightly different program. This program copies an array with 1 million elements:
+Tuy nhiên, việc sao chép dữ liệu có thể chiếm nhiều bộ nhớ. Ví dụ, đây là một chương trình hơi khác. Chương trình này sao chép một mảng có 1 triệu phần tử:
 
 ```aquascope,interpreter
 #fn main() {
@@ -158,9 +158,9 @@ let b = a;`[]`
 #}
 ```
 
-Observe that copying `a` into `b` causes the `main` frame to contain 2 million elements. 
+Hãy quan sát rằng việc sao chép `a` vào `b` khiến khung `main` chứa 2 triệu phần tử.
 
-To transfer access to data without copying it, Rust uses **pointers**. A pointer is a value that describes a location in memory. The value that a pointer points-to is called its **pointee.** One common way to make a pointer is to allocate memory in the **heap**.  The heap is a separate region of memory where data can live indefinitely. Heap data is not tied to a specific stack frame. Rust provides a construct called [`Box`](https://doc.rust-lang.org/std/boxed/index.html) for putting data on the heap. For example, we can wrap the million-element array in `Box::new` like this:
+Để chuyển quyền truy cập dữ liệu mà không cần sao chép nó, Rust sử dụng các **con trỏ** (pointer). Một con trỏ là một giá trị mô tả một vị trí trong bộ nhớ. Giá trị mà một con trỏ trỏ tới được gọi là **pointee** của nó. Một cách phổ biến để tạo con trỏ là cấp phát bộ nhớ trong **heap**. Heap là một vùng bộ nhớ riêng biệt nơi dữ liệu có thể sống vô thời hạn. Dữ liệu trên heap không gắn liền với một khung stack cụ thể nào. Rust cung cấp một cấu trúc gọi là [`Box`](https://doc.rust-lang.org/std/boxed/index.html) để đặt dữ liệu lên heap. Ví dụ, chúng ta có thể bọc mảng một triệu phần tử trong `Box::new` như thế này:
 
 ```aquascope,interpreter
 #fn main() {
@@ -169,15 +169,15 @@ let b = a;`[]`
 #}
 ```
 
-Observe that now, there is only ever a single array at a time. At L1, the value of `a` is a pointer (represented by dot with an arrow) to the array inside the heap. The statement `let b = a` copies the pointer from `a` into `b`, but the pointed-to data is not copied. Note that `a` is now grayed out because it has been *moved* &mdash; we will see what that means in a moment.
+Hãy quan sát rằng bây giờ, chỉ có duy nhất một mảng tại một thời điểm. Tại L1, giá trị của `a` là một con trỏ (được biểu diễn bằng dấu chấm với mũi tên) tới mảng bên trong heap. Câu lệnh `let b = a` sao chép con trỏ từ `a` sang `b`, nhưng dữ liệu được trỏ tới không bị sao chép. Lưu ý rằng `a` bây giờ bị làm mờ vì nó đã bị _di chuyển_ (moved) &mdash; chúng ta sẽ xem điều đó có nghĩa là gì trong chốc lát.
 
 {{#quiz ../quizzes/ch04-01-ownership-sec1-stackheap.toml}}
 
-### Rust Does Not Permit Manual Memory Management
+### Rust Không Cho Phép Quản Lý Bộ Nhớ Thủ Công
 
-Memory management is the process of allocating memory and deallocating memory. In other words, it's the process of finding unused memory and later returning that memory when it is no longer used. Stack frames are automatically managed by Rust. When a function is called, Rust allocates a stack frame for the called function. When the call ends, Rust deallocates the stack frame.
+Quản lý bộ nhớ là quá trình cấp phát bộ nhớ và thu hồi bộ nhớ. Nói cách khác, đó là quá trình tìm bộ nhớ không sử dụng và sau đó trả lại bộ nhớ đó khi nó không còn được sử dụng nữa. Các khung stack được Rust tự động quản lý. Khi một hàm được gọi, Rust cấp phát một khung stack cho hàm được gọi. Khi lời gọi kết thúc, Rust thu hồi khung stack đó.
 
-As we saw above, heap data is allocated when calling `Box::new(..)`. But when is heap data deallocated? Imagine that Rust had a `free()` function that frees a heap allocation. Imagine that Rust let a programmer call `free` whenever they wanted. This kind of "manual" memory management easily leads to bugs. For example, we could read a pointer to freed memory:
+Như chúng ta đã thấy ở trên, dữ liệu heap được cấp phát khi gọi `Box::new(..)`. Nhưng khi nào dữ liệu heap được thu hồi? Hãy tưởng tượng rằng Rust có một hàm `free()` dùng để giải phóng một cấp phát heap. Hãy tưởng tượng rằng Rust cho phép lập trình viên gọi `free` bất cứ khi nào họ muốn. Kiểu quản lý bộ nhớ "thủ công" này dễ dẫn đến lỗi. Ví dụ, chúng ta có thể đọc một con trỏ tới bộ nhớ đã được giải phóng:
 
 ```aquascope,interpreter,shouldFail
 #fn free<T>(_t: T) {}
@@ -188,21 +188,21 @@ assert!(b[0] == 0);`[]`
 #}
 ```
 
-> *Note:* you may wonder how we are executing this Rust program that doesn't compile. We use [special tools](https://github.com/cognitive-engineering-lab/aquascope) to simulate Rust as if the borrow checker were disabled, for educational purposes. That way we can answer what-if questions, like: what if Rust let this unsafe program compile?
+> _Lưu ý:_ bạn có thể thắc mắc làm thế nào chúng tôi đang thực thi chương trình Rust không biên dịch được này. Chúng tôi sử dụng [các công cụ đặc biệt](https://github.com/cognitive-engineering-lab/aquascope) để mô phỏng Rust như thể bộ kiểm tra mượn (borrow checker) đã bị tắt, cho mục đích giáo dục. Bằng cách đó, chúng ta có thể trả lời các câu hỏi giả định, như: điều gì sẽ xảy ra nếu Rust cho phép biên dịch chương trình không an toàn này?
 
-Here, we allocate an array on the heap. Then we call `free(b)`, which deallocates the heap memory of `b`. Therefore the value of `b` is a pointer to invalid memory, which we represent as the "⦻" icon. No undefined behavior has happened yet! The program is still safe at L2. It's not necessarily a problem to have an invalid pointer.
+Ở đây, chúng ta cấp phát một mảng trên heap. Sau đó chúng ta gọi `free(b)`, lệnh này thu hồi bộ nhớ heap của `b`. Do đó, giá trị của `b` là một con trỏ tới bộ nhớ không hợp lệ, thứ mà chúng ta biểu diễn bằng biểu tượng "⦻". Chưa có hành vi chưa xác định nào xảy ra! Chương trình vẫn an toàn tại L2. Việc có một con trỏ không hợp lệ không nhất thiết là một vấn đề.
 
-The undefined behavior happens when we try to *use* the pointer by reading `b[0]`. That would attempt to access invalid memory, which could cause the program to crash. Or worse, it could not crash and return arbitrary data. Therefore this program is **unsafe**.
+Hành vi chưa xác định xảy ra khi chúng ta cố gắng _sử dụng_ con trỏ bằng cách đọc `b[0]`. Điều đó sẽ cố gắng truy cập bộ nhớ không hợp lệ, có thể khiến chương trình bị crash (sự cố). Hoặc tệ hơn, nó có thể không crash và trả về dữ liệu tùy ý. Do đó chương trình này là **không an toàn**.
 
-Rust does not allow programs to manually deallocate memory. That policy avoids the kinds of undefined behaviors shown above.
+Rust không cho phép các chương trình thu hồi bộ nhớ một cách thủ công. Chính sách đó tránh được các loại hành vi chưa xác định được hiển thị ở trên.
 
-### A Box's Owner Manages Deallocation
+### Chủ Sở Hữu Của Box Quản Lý Việc Thu Hồi
 
-Instead, Rust _automatically_ frees a box's heap memory. Here is an _almost_ correct description of Rust's policy for freeing boxes:
+Thay vào đó, Rust _tự động_ giải phóng bộ nhớ heap của box. Đây là mô tả _gần_ đúng về chính sách của Rust cho việc giải phóng box:
 
-> **Box deallocation principle (almost correct):** If a variable is bound to a box, when Rust deallocates the variable's frame, then Rust deallocates the box's heap memory.
+> **Nguyên tắc thu hồi Box (gần đúng):** Nếu một biến được liên kết với một box, khi Rust thu hồi khung của biến đó, thì Rust sẽ thu hồi bộ nhớ heap của box đó.
 
-For example, let's trace through a program that allocates and frees a box:
+Ví dụ, hãy theo dõi một chương trình cấp phát và giải phóng một box:
 
 ```aquascope,interpreter,horizontal
 fn main() {
@@ -215,9 +215,9 @@ fn make_and_drop() {
 }
 ```
 
-At L1, before calling `make_and_drop`, the state of memory is just the stack frame for `main`. Then at L2, while calling `make_and_drop`, `a_box` points to `5` on the heap. Once `make_and_drop` is finished, Rust deallocates its stack frame. `make_and_drop` contains the variable `a_box`, so Rust also deallocates the heap data in `a_box`. Therefore the heap is empty at L3.
+Tại L1, trước khi gọi `make_and_drop`, trạng thái của bộ nhớ chỉ là khung stack cho `main`. Sau đó tại L2, trong khi gọi `make_and_drop`, `a_box` trỏ tới `5` trên heap. Khi `make_and_drop` kết thúc, Rust thu hồi khung stack của nó. `make_and_drop` chứa biến `a_box`, vì vậy Rust cũng thu hồi dữ liệu heap trong `a_box`. Do đó heap trống rỗng tại L3.
 
-The box's heap memory has been successfully managed. But what if we abused this system? Returning to our earlier example, what happens when we bind two variables to a box?
+Bộ nhớ heap của box đã được quản lý thành công. Nhưng điều gì sẽ xảy ra nếu chúng ta lạm dụng hệ thống này? Quay trở lại ví dụ trước đó của chúng ta, điều gì xảy ra khi chúng ta liên kết hai biến với cùng một box?
 
 ```rust,ignore
 # fn main() {
@@ -226,18 +226,17 @@ let b = a;
 # }
 ```
 
-The boxed array has now been bound to both `a` and `b`. By our "almost correct" principle, Rust would try to free the box's heap memory *twice* on behalf of both variables. That's undefined behavior too!
+Mảng trong box bây giờ đã được liên kết với cả `a` và `b`. Theo nguyên tắc "gần đúng" của chúng ta, Rust sẽ cố gắng giải phóng bộ nhớ heap của box _hai lần_ thay mặt cho cả hai biến. Đó cũng là hành vi chưa xác định!
 
-To avoid this situation, we finally arrive at ownership. When `a` is bound to `Box::new([0; 1_000_000])`, we say that `a` **owns** the box. The statement `let b = a` **moves** ownership of the box from `a` to `b`. Given these concepts, Rust's policy for freeing boxes is more accurately described as:
+Để tránh tình huống này, cuối cùng chúng ta đi đến quyền sở hữu (ownership). Khi `a` được liên kết với `Box::new([0; 1_000_000])`, chúng ta nói rằng `a` **sở hữu** box đó. Câu lệnh `let b = a` **di chuyển** (move) quyền sở hữu box từ `a` sang `b`. Với các khái niệm này, chính sách của Rust cho việc giải phóng box được mô tả chính xác hơn là:
 
-> **Box deallocation principle (fully correct):** If a variable owns a box, when Rust deallocates the variable's frame, then Rust deallocates the box's heap memory.
+> **Nguyên tắc thu hồi Box (hoàn toàn chính xác):** Nếu một biến sở hữu một box, khi Rust thu hồi khung của biến đó, thì Rust sẽ thu hồi bộ nhớ heap của box đó.
 
-In the example above, `b` owns the boxed array. Therefore when the scope ends, Rust deallocates the box only once on behalf of `b`, not `a`.
+Trong ví dụ trên, `b` sở hữu mảng trong box. Do đó khi phạm vi kết thúc, Rust chỉ thu hồi box một lần thay mặt cho `b`, không phải `a`.
 
+### Các Bộ Sưu Tập Sử Dụng Box
 
-### Collections Use Boxes
-
-Boxes are used by Rust data structures[^boxed-data-structures] like [`Vec`](https://doc.rust-lang.org/std/vec/struct.Vec.html), [`String`](https://doc.rust-lang.org/std/string/struct.String.html), and [`HashMap`](https://doc.rust-lang.org/std/collections/struct.HashMap.html) to hold a variable number of elements. For example, here's a program that creates, moves, and mutates a string:
+Các Box được sử dụng bởi các cấu trúc dữ liệu của Rust[^boxed-data-structures] như [`Vec`](https://doc.rust-lang.org/std/vec/struct.Vec.html), [`String`](https://doc.rust-lang.org/std/string/struct.String.html), và [`HashMap`](https://doc.rust-lang.org/std/collections/struct.HashMap.html) để chứa số lượng phần tử thay đổi. Ví dụ, đây là một chương trình tạo, di chuyển, và thay đổi một chuỗi (string):
 
 ```aquascope,interpreter,horizontal
 fn main() {
@@ -252,23 +251,22 @@ fn add_suffix(mut name: String) -> String {
 }
 ```
 
-This program is more involved, so make sure you follow each step:
+Chương trình này phức tạp hơn, vì vậy hãy chắc chắn bạn theo dõi từng bước:
 
-1. At L1, the string "Ferris" has been allocated on the heap. It is owned by `first`.
-2. At L2, the function `add_suffix(first)` has been called. This moves ownership of the string from `first` to `name`. The string data is not copied, but the pointer to the data is copied.
-3. At L3, the function `name.push_str(" Jr.")` resizes the string's heap allocation. This does three things. First, it creates a new larger allocation. Second, it writes "Ferris Jr." into the new allocation. Third, it frees the original heap memory. `first` now points to deallocated memory.
-4. At L4, the frame for `add_suffix` is gone. This function returned `name`, transferring ownership of the string to `full`.
+1. Tại L1, chuỗi "Ferris" đã được cấp phát trên heap. Nó được sở hữu bởi `first`.
+2. Tại L2, hàm `add_suffix(first)` đã được gọi. Điều này di chuyển quyền sở hữu của chuỗi từ `first` sang `name`. Dữ liệu chuỗi không bị sao chép, nhưng con trỏ tới dữ liệu được sao chép.
+3. Tại L3, hàm `name.push_str(" Jr.")` thay đổi kích thước cấp phát heap của chuỗi. Điều này làm ba việc. Đầu tiên, nó tạo ra một cấp phát mới lớn hơn. Thứ hai, nó ghi "Ferris Jr." vào cấp phát mới. Thứ ba, nó giải phóng bộ nhớ heap ban đầu. `first` bây giờ trỏ tới bộ nhớ đã được giải phóng.
+4. Tại L4, khung cho `add_suffix` đã biến mất. Hàm này đã trả về `name`, chuyển quyền sở hữu chuỗi cho `full`.
 
+### Các Biến Không Thể Được Sử Dụng Sau Khi Bị Di Chuyển
 
-### Variables Cannot Be Used After Being Moved
-
-The string program helps illustrate a key safety principle for ownership. Imagine that `first` were used in `main` after calling `add_suffix`. We can simulate such a program and see the undefined behavior that results:
+Chương trình chuỗi giúp minh họa một nguyên tắc an toàn chính cho quyền sở hữu. Hãy tưởng tượng rằng `first` được sử dụng trong `main` sau khi gọi `add_suffix`. Chúng ta có thể mô phỏng một chương trình như vậy và xem hành vi chưa xác định xảy ra:
 
 ```aquascope,interpreter,shouldFail
 fn main() {
     let first = String::from("Ferris");
     let full = add_suffix(first);
-    println!("{full}, originally {first}");`[]` // first is now used here
+    println!("{full}, originally {first}");`[]` // first bây giờ được sử dụng ở đây
 }
 
 fn add_suffix(mut name: String) -> String {
@@ -277,9 +275,9 @@ fn add_suffix(mut name: String) -> String {
 }
 ```
 
-`first` points to deallocated memory after calling `add_suffix`. Reading `first` in `println!` would therefore be a violation of memory safety (undefined behavior). Remember: it's not a problem that `first` points to deallocated memory. It's a problem that we tried to *use* `first` after it became invalid.
+`first` trỏ tới bộ nhớ đã được giải phóng sau khi gọi `add_suffix`. Việc đọc `first` trong `println!` do đó sẽ là một vi phạm an toàn bộ nhớ (hành vi chưa xác định). Hãy nhớ: việc `first` trỏ tới bộ nhớ đã được giải phóng không phải là vấn đề. Vấn đề là chúng ta đã cố gắng _sử dụng_ `first` sau khi nó trở nên không hợp lệ.
 
-Thankfully, Rust will refuse to compile this program, giving the following error:
+Rất may, Rust sẽ từ chối biên dịch chương trình này, đưa ra lỗi sau:
 
 ```text
 error[E0382]: borrow of moved value: `first`
@@ -293,17 +291,17 @@ error[E0382]: borrow of moved value: `first`
   |                                   ^^^^^ value borrowed here after move
 ```
 
-Let's walk through the steps of this error. Rust says that `first` is moved when we called `add_suffix(first)` on line 3. The error clarifies that `first` is moved because it has type `String`, which does not implement `Copy`. We will discuss `Copy` soon &mdash; in brief, you would not get this error if you used an `i32` instead of `String`. Finally, the error says that we use `first` after being moved (it's "borrowed", which we discuss next section).
+Hãy đi qua các bước của lỗi này. Rust nói rằng `first` bị di chuyển khi chúng ta gọi `add_suffix(first)` ở dòng 3. Lỗi làm rõ rằng `first` bị di chuyển vì nó có kiểu `String`, kiểu này không triển khai trait `Copy`. Chúng ta sẽ thảo luận về `Copy` sớm &mdash; tóm lại, bạn sẽ không gặp lỗi này nếu bạn sử dụng `i32` thay vì `String`. Cuối cùng, lỗi nói rằng chúng ta sử dụng `first` sau khi bị di chuyển (nó được "mượn" - borrowed, điều mà chúng ta sẽ thảo luận trong phần tiếp theo).
 
-So if you move a variable, Rust will stop you from using that variable later. More generally, the compiler will enforce this principle:
+Vì vậy, nếu bạn di chuyển một biến, Rust sẽ ngăn bạn sử dụng biến đó sau này. Nói rộng hơn, trình biên dịch sẽ thực thi nguyên tắc này:
 
-> **Moved heap data principle:** if a variable `x` moves ownership of heap data to another variable `y`, then `x` cannot be used after the move.
+> **Nguyên tắc dữ liệu heap bị di chuyển:** nếu một biến `x` di chuyển quyền sở hữu dữ liệu heap cho một biến `y` khác, thì `x` không thể được sử dụng sau khi di chuyển.
 
-Now you should start to see the relationship between ownership, moves, and safety. Moving ownership of heap data avoids undefined behavior from reading deallocated memory.
+Bây giờ bạn sẽ bắt đầu thấy mối quan hệ giữa quyền sở hữu, di chuyển, và sự an toàn. Việc di chuyển quyền sở hữu dữ liệu heap giúp tránh hành vi chưa xác định từ việc đọc bộ nhớ đã được giải phóng.
 
-### Cloning Avoids Moves
+### Cloning Tránh Việc Di Chuyển
 
-One way to avoid moving data is to *clone* it using the `.clone()` method. For example, we can fix the safety issue in the previous program with a clone:
+Một cách để tránh di chuyển dữ liệu là _clone_ (tạo bản sao) nó bằng cách sử dụng phương thức `.clone()`. Ví dụ, chúng ta có thể sửa vấn đề an toàn trong chương trình trước bằng một lần clone:
 
 ```aquascope,interpreter
 fn main() {
@@ -319,24 +317,23 @@ fn add_suffix(mut name: String) -> String {
 }
 ```
 
-Observe that at L1, `first_clone` did not "shallow" copy the pointer in `first`, but instead "deep" copied the string data into a new heap allocation. Therefore at L2, while `first_clone` has been moved and invalidated by `add_suffix`, the original `first` variable is unchanged. It is safe to continue using `first`.
+Hãy quan sát rằng tại L1, `first_clone` đã không sao chép "nông" (shallow copy) con trỏ trong `first`, mà thay vào đó đã sao chép "sâu" (deep copy) dữ liệu chuỗi vào một cấp phát heap mới. Do đó tại L2, trong khi `first_clone` đã bị di chuyển và vô hiệu hóa bởi `add_suffix`, biến `first` ban đầu không thay đổi. Việc tiếp tục sử dụng `first` là an toàn.
 
 {{#quiz ../quizzes/ch04-01-ownership-sec2-moves.toml}}
 
-### Summary
+### Tóm Tắt
 
-Ownership is primarily a discipline of heap management:[^pointer-management]
+Quyền sở hữu chủ yếu là một kỷ luật về quản lý heap:[^pointer-management]
 
-- All heap data must be owned by exactly one variable.
-- Rust deallocates heap data once its owner goes out of scope.
-- Ownership can be transferred by moves, which happen on assignments and function calls.
-- Heap data can only be accessed through its current owner, not a previous owner.
+-   Tất cả dữ liệu heap phải được sở hữu bởi chính xác một biến.
+-   Rust thu hồi dữ liệu heap khi chủ sở hữu của nó ra khỏi phạm vi.
+-   Quyền sở hữu có thể được chuyển giao bằng các thao tác di chuyển (moves), xảy ra khi gán và gọi hàm.
+-   Dữ liệu heap chỉ có thể được truy cập thông qua chủ sở hữu hiện tại của nó, không phải chủ sở hữu trước đó.
 
-We have emphasized not just _how_ Rust's safeguards work, but _why_ they avoid undefined behavior. When you get an error message from the Rust compiler, it's easy to get frustrated if you don't understand why Rust is complaining. These conceptual foundations should help you with interpreting Rust's error messages.  They should also help you design more Rustic APIs.
+Chúng tôi đã nhấn mạnh không chỉ _cách_ các biện pháp bảo vệ của Rust hoạt động, mà còn _lý do_ chúng tránh được hành vi chưa xác định. Khi bạn nhận được thông báo lỗi từ trình biên dịch Rust, rất dễ cảm thấy nản lòng nếu bạn không hiểu tại sao Rust lại phàn nàn. Những nền tảng khái niệm này sẽ giúp bạn diễn giải các thông báo lỗi của Rust. Chúng cũng sẽ giúp bạn thiết kế các API mang phong cách Rust hơn.
 
-[^boxed-data-structures]: These data structures don't use the literal `Box` type. For example, `String` is implemented with `Vec`, and `Vec` is implemented with [`RawVec`](https://doc.rust-lang.org/nomicon/vec/vec-raw.html) rather than `Box`. But types like `RawVec` are still box-like: they own memory in the heap.
-
-[^pointer-management]: In another sense, ownership is a discipline of *pointer* management. But we haven't described yet about how to create pointers to anywhere other than the heap. We'll get there in the next section.
+[^boxed-data-structures]: Các cấu trúc dữ liệu này không sử dụng kiểu `Box` theo nghĩa đen. Ví dụ, `String` được triển khai với `Vec`, và `Vec` được triển khai với [`RawVec`](https://doc.rust-lang.org/nomicon/vec/vec-raw.html) thay vì `Box`. Nhưng các kiểu như `RawVec` vẫn giống như box (box-like): chúng sở hữu bộ nhớ trong heap.
+[^pointer-management]: Theo một nghĩa khác, quyền sở hữu là một kỷ luật về quản lý _con trỏ_. Nhưng chúng tôi chưa mô tả cách tạo con trỏ tới bất kỳ đâu khác ngoài heap. Chúng ta sẽ đến đó trong phần tiếp theo.
 
 [`NameError`]: https://docs.python.org/3/library/exceptions.html#NameError
 [`ReferenceError`]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ReferenceError

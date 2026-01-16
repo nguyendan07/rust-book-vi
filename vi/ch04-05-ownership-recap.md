@@ -1,19 +1,17 @@
-## Ownership Recap
+## Tóm Tắt Về Quyền Sở Hữu
 
-This chapter introduced a lot of new concepts like ownership, borrowing, and slices.
-If you aren't familiar with systems programming, this chapter also introduced new concepts like memory allocation, the stack vs. the heap, pointers, and undefined behavior. Before we move on to the rest of Rust, let's first stop and take a breath. We'll review and practice with the key concepts from this chapter.
+Chương này đã giới thiệu rất nhiều khái niệm mới như quyền sở hữu, vay mượn, và slice. Nếu bạn chưa quen thuộc với lập trình hệ thống, chương này cũng giới thiệu các khái niệm mới như cấp phát bộ nhớ, stack so với heap, con trỏ, và hành vi chưa xác định. Trước khi chúng ta chuyển sang phần còn lại của Rust, trước tiên hãy dừng lại và hít thở một chút. Chúng ta sẽ ôn tập và thực hành với các khái niệm chính từ chương này.
 
-### Ownership versus Garbage Collection
+### Quyền Sở Hữu vs Thu Gom Rác
 
-To put ownership into context, we should talk about **garbage collection**.
-Most programming languages use a garbage collector to manage memory, such as in Python, Javascript, Java, and Go. A garbage collector works at runtime adjacent to a running program (a tracing collector, at least). The collector scans through memory to find data that's no longer used &mdash; that is, the running program can no longer reach that data from a function-local variable. Then the collector deallocates the unused memory for later use.
+Để đặt quyền sở hữu vào ngữ cảnh, chúng ta nên nói về **thu gom rác** (garbage collection). Hầu hết các ngôn ngữ lập trình sử dụng bộ thu gom rác để quản lý bộ nhớ, chẳng hạn như trong Python, Javascript, Java, và Go. Một bộ thu gom rác hoạt động tại thời gian chạy song song với một chương trình đang chạy (ít nhất là với một bộ thu gom theo vết - tracing collector). Bộ thu gom quét qua bộ nhớ để tìm dữ liệu không còn được sử dụng &mdash; nghĩa là, chương trình đang chạy không còn có thể tiếp cận dữ liệu đó từ một biến cục bộ của hàm. Sau đó bộ thu gom sẽ thu hồi bộ nhớ không sử dụng để dùng sau này.
 
-The key benefit of a garbage collector is that it avoids undefined behavior (such as using freed memory), as can happen in C or C++. Garbage collection also avoids the need for a complex type system to check for undefined behavior, like in Rust. However, there are a few drawbacks to garbage collection. One obvious drawback is performance, as garbage collection incurs either frequent small overheads (for reference-counting, like in Python and Swift) or infrequent large overheads (for tracing, like in all other GC'd languages). 
+Lợi ích chính của bộ thu gom rác là nó tránh được hành vi chưa xác định (chẳng hạn như sử dụng bộ nhớ đã được giải phóng), điều có thể xảy ra trong C hoặc C++. Thu gom rác cũng tránh được nhu cầu về một hệ thống kiểu phức tạp để kiểm tra hành vi chưa xác định, giống như trong Rust. Tuy nhiên, có một vài nhược điểm đối với thu gom rác. Một nhược điểm rõ ràng là hiệu suất, vì thu gom rác phát sinh chi phí nhỏ thường xuyên (đối với đếm tham chiếu - reference counting, như trong Python và Swift) hoặc chi phí lớn không thường xuyên (đối với theo vết - tracing, như trong tất cả các ngôn ngữ dùng GC khác).
 
-But another less obvious drawback is that **garbage collection can be unpredictable**. To illustrate the point, say we are implementing a `Document` type that represents a mutable list of words. We could implement `Document` in a garbage-collected language such as Python in this way:
+Nhưng một nhược điểm khác ít rõ ràng hơn là **thu gom rác có thể không đoán trước được**. Để minh họa quan điểm này, giả sử chúng ta đang triển khai một kiểu `Document` đại diện cho một danh sách các từ có thể thay đổi được (mutable). Chúng ta có thể triển khai `Document` trong một ngôn ngữ có thu gom rác như Python theo cách này:
 
 ```python
-class Document:     
+class Document:
     def __init__(self, words: List[str]):
         """Create a new document"""
         self.words = words
@@ -21,13 +19,13 @@ class Document:
     def add_word(self, word: str):
         """Add a word to the document"""
         self.words.append(word)
-        
-    def get_words(self) -> List[str]:  
+
+    def get_words(self) -> List[str]:
         """Get a list of all the words in the document"""
         return self.words
 ```
 
-Here's one way we could use this `Document` class that creates a document `d`, copies it into a new document `d2`, and then mutates `d2`.
+Đây là một cách chúng ta có thể sử dụng lớp `Document` này để tạo một tài liệu `d`, sao chép nó vào một tài liệu mới `d2`, và sau đó thay đổi `d2`.
 
 ```python
 words = ["Hello"]
@@ -37,17 +35,17 @@ d2 = Document(d.get_words())
 d2.add_word("world")
 ```
 
-Consider two key questions about this example:
+Hãy xem xét hai câu hỏi chính về ví dụ này:
 
-1. **When is the words array deallocated?** 
-This program has created three pointers to the same array. The variables `words`, `d`, and `d2` all contain a pointer to the words array allocated on the heap. Therefore Python will only deallocate the words array when all three variables are out of scope. More generally, it's often difficult to predict where data will be garbage-collected just by reading the source code.
+1. **Khi nào mảng words bị thu hồi?**
+   Chương trình này đã tạo ra ba con trỏ tới cùng một mảng. Các biến `words`, `d`, và `d2` đều chứa một con trỏ tới mảng words được cấp phát trên heap. Do đó Python sẽ chỉ thu hồi mảng words khi tất cả ba biến đều ra khỏi phạm vi. Nói chung, thường rất khó để đoán trước nơi dữ liệu sẽ được thu gom rác chỉ bằng cách đọc mã nguồn.
 
-2. **What are the contents of the document `d`?** 
-Because `d2` contains a pointer to the same words array as `d`, then `d2.add_word("world")` also mutates the document `d`. Therefore in this example, the words in `d` are `["Hello", "world"]`. This happens because `d.get_words()` returns a mutable reference to the words array in `d`. Pervasive, implicit mutable references can easily lead to unpredictable bugs when data structures can leak their internals[^ownership-originally]. Here, it is probably not intended behavior that a change to `d2` can change `d`.
+2. **Nội dung của tài liệu `d` là gì?**
+   Bởi vì `d2` chứa một con trỏ tới cùng mảng words như `d`, nên `d2.add_word("world")` cũng thay đổi tài liệu `d`. Do đó trong ví dụ này, các từ trong `d` là `["Hello", "world"]`. Điều này xảy ra vì `d.get_words()` trả về một tham chiếu khả biến tới mảng words trong `d`. Các tham chiếu khả biến ngầm định, lan tràn có thể dễ dàng dẫn đến các lỗi không đoán trước được khi các cấu trúc dữ liệu để rò rỉ nội bộ của chúng[^ownership-originally]. Ở đây, hành vi thay đổi `d2` làm thay đổi `d` có lẽ không phải là hành vi được mong đợi.
 
-This problem is not unique to Python &mdash; you can encounter similar behavior in C#, Java, Javascript, and so on. In fact, most programming languages actually have a concept of pointers. It's just a question of how the language exposes pointers to the programmer. Garbage collection makes it difficult to see which variable points to which data. For example, it wasn't obvious that `d.get_words()` produced a pointer to data within `d`. 
+Vấn đề này không phải là duy nhất đối với Python &mdash; bạn có thể gặp hành vi tương tự trong C#, Java, Javascript, v.v. Trên thực tế, hầu hết các ngôn ngữ lập trình thực sự đều có khái niệm con trỏ. Vấn đề chỉ là cách ngôn ngữ để lộ con trỏ cho lập trình viên như thế nào. Thu gom rác làm cho việc nhìn thấy biến nào trỏ tới dữ liệu nào trở nên khó khăn. Ví dụ, không rõ ràng rằng `d.get_words()` đã tạo ra một con trỏ tới dữ liệu bên trong `d`.
 
-By contrast, Rust's ownership model puts pointers front-and-center. We can see that by translating the `Document` type into a Rust data structure. Normally we would use a `struct`, but we haven't covered those yet, so we'll just use a type alias:
+Ngược lại, mô hình quyền sở hữu của Rust đặt các con trỏ lên vị trí trung tâm. Chúng ta có thể thấy điều đó bằng cách dịch kiểu `Document` thành một cấu trúc dữ liệu Rust. Thông thường chúng ta sẽ sử dụng một `struct`, nhưng chúng ta chưa đề cập đến chúng, vì vậy chúng ta sẽ chỉ sử dụng một bí danh kiểu (type alias):
 
 ```rust
 type Document = Vec<String>;
@@ -65,13 +63,13 @@ fn get_words(this: &Document) -> &[String] {
 }
 ```
 
-This Rust API differs from the Python API in a few key ways:
+API Rust này khác với API Python ở một số điểm chính:
 
-* The function `new_document` consumes ownership of the input vector `words`. That means the `Document` *owns* the word vector. The word vector will be predictably deallocated when its owning `Document` goes out of scope.
+-   Hàm `new_document` tiêu thụ quyền sở hữu của vector đầu vào `words`. Điều đó có nghĩa là `Document` _sở hữu_ vector từ ngữ đó. Vector từ ngữ sẽ được thu hồi một cách có thể đoán trước khi `Document` sở hữu nó ra khỏi phạm vi.
 
-* The function `add_word` requires a mutable reference `&mut Document` to be able to mutate a document. It also consumes ownership of the input `word`, meaning no one else can mutate the individual words of the document.
+-   Hàm `add_word` yêu cầu một tham chiếu khả biến `&mut Document` để có thể thay đổi một tài liệu. Nó cũng tiêu thụ quyền sở hữu của `word` đầu vào, nghĩa là không ai khác có thể thay đổi các từ riêng lẻ của tài liệu.
 
-* The function `get_words` returns an explicit immutable reference to strings within the document. The only way to create a new document from this word vector is to deep-copy its contents, like this:
+-   Hàm `get_words` trả về một tham chiếu bất biến tường minh tới các chuỗi bên trong tài liệu. Cách duy nhất để tạo một tài liệu mới từ vector từ ngữ này là sao chép sâu (deep-copy) nội dung của nó, như thế này:
 
 ```rust,ignore
 fn main() {
@@ -88,20 +86,21 @@ fn main() {
 }
 ```
 
-The point of this example is to say: if Rust is not your first language, then you already have experience working with memory and pointers! Rust just makes those concepts explicit. This has the dual benefit of (1) improving runtime performance by avoiding garbage collection, and (2) improving predictability by preventing accidental "leaks" of data.
+Điểm mấu chốt của ví dụ này là để nói rằng: nếu Rust không phải là ngôn ngữ đầu tiên của bạn, thì bạn đã có kinh nghiệm làm việc với bộ nhớ và con trỏ rồi! Rust chỉ làm cho những khái niệm đó trở nên tường minh. Điều này có lợi ích kép là (1) cải thiện hiệu suất thời gian chạy bằng cách tránh thu gom rác, và (2) cải thiện khả năng dự đoán bằng cách ngăn chặn việc vô tình "rò rỉ" dữ liệu.
 
-### The Concepts of Ownership
+### Các Khái Niệm Về Quyền Sở Hữu
 
-Next, let's review the concepts of ownership. This review will be quick &mdash; the goal is to remind you of the relevant concepts. If you realize you forgot or didn't understand a concept, then we will link you to the relevant chapters which you can review.
+Tiếp theo, hãy ôn tập các khái niệm về quyền sở hữu. Phần ôn tập này sẽ nhanh thôi &mdash; mục tiêu là nhắc nhở bạn về các khái niệm liên quan. Nếu bạn nhận ra mình đã quên hoặc không hiểu một khái niệm nào đó, chúng tôi sẽ liên kết bạn đến các chương liên quan mà bạn có thể xem lại.
 
-#### Ownership at Runtime
+#### Quyền Sở Hữu tại Thời Gian Chạy
 
-We'll start by reviewing how Rust uses memory at runtime: 
-* Rust allocates local variables in stack frames, which are allocated when a function is called and deallocated when the call ends. 
-* Local variables can hold either data (like numbers, booleans, tuples, etc.) or pointers. 
-* Pointers can be created either through boxes (pointers owning data on the heap) or references (non-owning pointers).
+Chúng ta sẽ bắt đầu bằng cách xem lại cách Rust sử dụng bộ nhớ tại thời gian chạy:
 
-This diagram illustrates how each concept looks at runtime:
+-   Rust cấp phát các biến cục bộ trong các khung stack (stack frames), được cấp phát khi một hàm được gọi và được thu hồi khi lời gọi kết thúc.
+-   Các biến cục bộ có thể chứa dữ liệu (như số, boolean, tuple, v.v.) hoặc các con trỏ.
+-   Các con trỏ có thể được tạo thông qua các box (con trỏ sở hữu dữ liệu trên heap) hoặc các tham chiếu (con trỏ không sở hữu).
+
+Sơ đồ này minh họa mỗi khái niệm trông như thế nào tại thời gian chạy:
 
 ```aquascope,interpreter,horizontal
 fn main() {
@@ -113,7 +112,7 @@ fn inner(x: &mut i32) {
   let another_num = 1;
   let a_stack_ref = &another_num;
 
-  let a_box = Box::new(2);  
+  let a_box = Box::new(2);
   let a_box_stack_ref = &a_box;
   let a_box_heap_ref = &*a_box;`[]`
 
@@ -121,14 +120,15 @@ fn inner(x: &mut i32) {
 }
 ```
 
-Review this diagram and make sure you understand each part. For example, you should be able to answer:
-* Why does `a_box_stack_ref` point to the stack, while `a_box_heap_ref` point to the heap? 
-* Why is the value `2` no longer on the heap at L2? 
-* Why does `a_num` have the value `5` at L2?
+Hãy xem lại sơ đồ này và đảm bảo bạn hiểu từng phần. Ví dụ, bạn nên có thể trả lời:
 
-If you want to review boxes, re-read [Chapter 4.1][ch04-01]. If you want to review references, re-read [Chapter 4.2][ch04-02]. If you want to see case studies involving boxes and references, re-read [Chapter 4.3][ch04-03].
+-   Tại sao `a_box_stack_ref` trỏ tới stack, trong khi `a_box_heap_ref` trỏ tới heap?
+-   Tại sao giá trị `2` không còn ở trên heap tại L2?
+-   Tại sao `a_num` có giá trị `5` tại L2?
 
-Slices are a special kind of reference that refer to a contiguous sequence of data in memory. This diagram illustrates how a slice refers to a subsequence of characters in a string:
+Nếu bạn muốn ôn lại về box, hãy đọc lại [Chương 4.1][ch04-01]. Nếu bạn muốn ôn lại về tham chiếu, hãy đọc lại [Chương 4.2][ch04-02]. Nếu bạn muốn xem các nghiên cứu điển hình liên quan đến box và tham chiếu, hãy đọc lại [Chương 4.3][ch04-03].
+
+Slice là một loại tham chiếu đặc biệt tham chiếu đến một chuỗi dữ liệu liên tiếp trong bộ nhớ. Sơ đồ này minh họa cách một slice tham chiếu đến một chuỗi con các ký tự trong một chuỗi (string):
 
 ```aquascope,interpreter
 fn main() {
@@ -137,12 +137,11 @@ fn main() {
 }
 ```
 
-If you want to review slices, re-read [Chapter 4.4][ch04-04].
+Nếu bạn muốn ôn lại về slice, hãy đọc lại [Chương 4.4][ch04-04].
 
+#### Quyền Sở Hữu tại Thời Gian Biên Dịch
 
-#### Ownership at Compile-time
-
-Rust tracks @Perm{read} (read), @Perm{write} (write), and @Perm{own} (own) permissions on each variable. Rust requires that a variable has appropriate permissions to perform a given operation. As a basic example, if a variable is not declared as `let mut`, then it is missing the @Perm{write} permission and cannot be mutated:
+Rust theo dõi các quyền hạn @Perm{read} (đọc), @Perm{write} (ghi), và @Perm{own} (sở hữu) trên mỗi biến. Rust yêu cầu một biến phải có các quyền hạn thích hợp để thực hiện một thao tác nhất định. Là một ví dụ cơ bản, nếu một biến không được khai báo là `let mut`, thì nó thiếu quyền @Perm{write} và không thể bị thay đổi:
 
 ```aquascope,permissions,stepper,boundaries,shouldFail
 fn main() {
@@ -151,7 +150,7 @@ fn main() {
 }
 ```
 
-A variable's permissions can be changed if it is **moved** or **borrowed**. A move of a variable with a non-copyable type (like `Box<T>` or `String`) requires the @Perm{read}@Perm{own} permissions, and the move eliminates all permissions on the variable. That rule prevents the use of moved variables:
+Quyền hạn của một biến có thể bị thay đổi nếu nó bị **di chuyển** (moved) hoặc **vay mượn** (borrowed). Một sự di chuyển của một biến với kiểu không sao chép được (như `Box<T>` hoặc `String`) yêu cầu các quyền @Perm{read}@Perm{own}, và sự di chuyển sẽ loại bỏ tất cả các quyền trên biến đó. Quy tắc đó ngăn chặn việc sử dụng các biến đã bị di chuyển:
 
 ```aquascope,permissions,stepper,boundaries,shouldFail
 fn main() {
@@ -165,9 +164,9 @@ fn consume_a_string(_s: String) {
 }
 ```
 
-If you want to review how moves work, re-read [Chapter 4.1][ch04-01].
+Nếu bạn muốn ôn lại cách di chuyển hoạt động, hãy đọc lại [Chương 4.1][ch04-01].
 
-Borrowing a variable (creating a reference to it) temporarily removes some of the variable's permissions. An immutable borrow creates an immutable reference, and also disables the borrowed data from being mutated or moved. For example, printing an immutable reference is ok:
+Việc vay mượn một biến (tạo một tham chiếu tới nó) tạm thời loại bỏ một số quyền của biến đó. Một lần mượn bất biến tạo ra một tham chiếu bất biến, và cũng vô hiệu hóa việc dữ liệu được mượn bị thay đổi hoặc di chuyển. Ví dụ, in một tham chiếu bất biến là được phép:
 
 ```aquascope,permissions,stepper,boundaries
 #fn main() {
@@ -178,7 +177,7 @@ println!("{s}");
 #}
 ```
 
-But mutating an immutable reference is not ok:
+Nhưng thay đổi một tham chiếu bất biến là không được phép:
 
 ```aquascope,permissions,stepper,boundaries,shouldFail
 #fn main() {
@@ -189,7 +188,7 @@ println!("{s}");
 #}
 ```
 
-And mutating the immutably borrowed data is not ok:
+Và thay đổi dữ liệu đang được mượn bất biến là không được phép:
 
 ```aquascope,permissions,stepper,boundaries,shouldFail
 #fn main() {
@@ -200,7 +199,7 @@ println!("{s_ref}");
 #}
 ```
 
-And moving data out of the reference is not ok:
+Và di chuyển dữ liệu ra khỏi tham chiếu là không được phép:
 
 ```aquascope,permissions,stepper,boundaries,shouldFail
 #fn main() {
@@ -211,7 +210,7 @@ println!("{s}");
 #}
 ```
 
-A mutable borrow creates a mutable reference, which disables the borrowed data from being read, written, or moved. For example, mutating a mutable reference is ok:
+Một lần mượn khả biến tạo ra một tham chiếu khả biến, điều này vô hiệu hóa việc dữ liệu được mượn bị đọc, ghi, hoặc di chuyển. Ví dụ, thay đổi một tham chiếu khả biến là được phép:
 
 ```aquascope,permissions,stepper,boundaries
 #fn main() {
@@ -222,7 +221,7 @@ println!("{s}");
 #}
 ```
 
-But accessing the mutably borrowed data is not ok:
+Nhưng truy cập dữ liệu đang được mượn khả biến là không được phép:
 
 ```aquascope,permissions,stepper,boundaries,shouldFail
 #fn main() {
@@ -233,11 +232,11 @@ s_ref.push_str(" world");
 #}
 ```
 
-If you want to review permissions and references, re-read [Chapter 4.2][ch04-02].
+Nếu bạn muốn ôn lại về quyền hạn và tham chiếu, hãy đọc lại [Chương 4.2][ch04-02].
 
-#### Connecting Ownership between Compile-time and Runtime
+#### Kết Nối Quyền Sở Hữu giữa Thời Gian Biên Dịch và Thời Gian Chạy
 
-Rust's permissions are designed to prevent undefined behavior. For example, one kind of undefined behavior is a **use-after-free** where freed memory is read or written. Immutable borrows remove the @Perm{write} permission to avoid use-after-free, like in this case:
+Các quyền hạn của Rust được thiết kế để ngăn chặn hành vi chưa xác định. Ví dụ, một loại hành vi chưa xác định là **sử dụng sau khi giải phóng** (use-after-free) nơi bộ nhớ đã giải phóng được đọc hoặc ghi. Các lần mượn bất biến loại bỏ quyền @Perm{write} để tránh sử dụng sau khi giải phóng, như trong trường hợp này:
 
 ```aquascope,interpreter,shouldFail,horizontal
 #fn main() {
@@ -248,7 +247,7 @@ println!("{n}");`[]`
 #}
 ```
 
-Another kind of undefined behavior is a **double-free** where memory is freed twice. Dereferences of references to non-copyable data do not have the @Perm{own} permission to avoid double-frees, like in this case:
+Một loại hành vi chưa xác định khác là **giải phóng kép** (double-free) nơi bộ nhớ bị giải phóng hai lần. Việc giải tham chiếu các tham chiếu tới dữ liệu không sao chép được không có quyền @Perm{own} để tránh giải phóng kép, như trong trường hợp này:
 
 ```aquascope,interpreter,shouldFail,horizontal
 #fn main() {
@@ -260,20 +259,17 @@ drop(v);`[]`
 #}
 ```
 
-If you want to review undefined behavior, re-read [Chapter 4.1][ch04-01] and [Chapter 4.3][ch04-03].
+Nếu bạn muốn ôn lại về hành vi chưa xác định, hãy đọc lại [Chương 4.1][ch04-01] và [Chương 4.3][ch04-03].
 
+### Phần Còn Lại Của Quyền Sở Hữu
 
-### The Rest of Ownership
+Khi chúng tôi giới thiệu các tính năng bổ sung như struct, enum, và trait, những tính năng đó sẽ có các tương tác cụ thể với quyền sở hữu. Chương này cung cấp nền tảng thiết yếu để hiểu những tương tác đó &mdash; các khái niệm về bộ nhớ, con trỏ, hành vi chưa xác định, và quyền hạn sẽ giúp chúng ta nói về các phần nâng cao hơn của Rust trong các chương tiếp theo.
 
-As we introduce additional features like structs, enums, and traits, those features will have specific interactions with ownership. This chapter provides the essential foundation for understanding those interactions &mdash; the concepts of memory, pointers, undefined behavior, and permissions will help us talk about the more advanced parts of Rust in future chapters.
-
-And don't forget to take the quizzes if you want to check your understanding!
+Và đừng quên làm các bài kiểm tra nếu bạn muốn kiểm tra sự hiểu biết của mình!
 
 {{#quiz ../quizzes/ch04-05-ownership-recap.toml}}
 
-
-
-[^ownership-originally]: In fact, the original invention of ownership types wasn't about memory safety at all. It was about preventing leaks of mutable references to data structure internals in Java-like languages. If you're curious to learn more about the history of ownership types, check out the paper ["Ownership Types for Flexible Alias Protection"](https://dl.acm.org/doi/abs/10.1145/286936.286947) (Clarke et al. 1998).
+[^ownership-originally]: Trên thực tế, phát minh ban đầu về các kiểu quyền sở hữu hoàn toàn không phải là về an toàn bộ nhớ. Nó là về việc ngăn chặn rò rỉ các tham chiếu khả biến tới nội bộ cấu trúc dữ liệu trong các ngôn ngữ giống Java. Nếu bạn tò mò muốn tìm hiểu thêm về lịch sử của các kiểu quyền sở hữu, hãy xem bài báo ["Ownership Types for Flexible Alias Protection"](https://dl.acm.org/doi/abs/10.1145/286936.286947) (Clarke và cộng sự, 1998).
 
 [ch04-01]: ch04-01-what-is-ownership.html
 [ch04-02]: ch04-02-references-and-borrowing.html

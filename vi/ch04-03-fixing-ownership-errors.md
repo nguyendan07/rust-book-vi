@@ -1,14 +1,14 @@
-## Fixing Ownership Errors
+## Sửa Các Lỗi Về Quyền Sở Hữu
 
-Learning how to fix an ownership error is a core Rust skill. When the borrow checker rejects your code, how should you respond? In this section, we will discuss several case studies of common ownership errors. Each case study will present a function rejected by the compiler. Then we will explain why Rust rejects the function, and show several ways to fix it.
+Học cách sửa một lỗi về quyền sở hữu (ownership error) là một kỹ năng cốt lõi trong Rust. Khi bộ kiểm tra mượn (borrow checker) từ chối code của bạn, bạn nên phản ứng như thế nào? Trong phần này, chúng ta sẽ thảo luận về một vài trường hợp nghiên cứu của các lỗi quyền sở hữu phổ biến. Mỗi trường hợp nghiên cứu sẽ trình bày một hàm bị trình biên dịch từ chối. Sau đó chúng tôi sẽ giải thích tại sao Rust từ chối hàm đó, và chỉ ra một vài cách để sửa nó.
 
-A common theme will be understanding whether a function is *actually* safe or unsafe. Rust will always reject an unsafe program[^safe-subset]. But sometimes, Rust will also reject a safe program. These case studies will show how to respond to errors in both situations.
+Một chủ đề chung sẽ là việc hiểu xem một hàm _thực sự_ an toàn hay không an toàn. Rust sẽ luôn từ chối một chương trình không an toàn[^safe-subset]. Nhưng đôi khi, Rust cũng sẽ từ chối một chương trình an toàn. Các trường hợp nghiên cứu này sẽ chỉ ra cách phản ứng với các lỗi trong cả hai tình huống.
 
 <!-- The last two sections have shown how a Rust program can be **unsafe** if it triggers undefined behavior. The ownership guarantee is that Rust will reject all unsafe programs. However, Rust will also reject *some* safe programs. Fixing an ownership error will depend on whether your program is *actually* safe or unsafe. -->
 
-### Fixing an Unsafe Program: Returning a Reference to the Stack
+### Sửa Một Chương Trình Không An Toàn: Trả Về Một Tham Chiếu Đến Stack
 
-Our first case study is about returning a reference to the stack, just like we discussed last section in ["Data Must Outlive All Of Its References"](ch04-02-references-and-borrowing.html#data-must-outlive-all-of-its-references). Here's the function we looked at:
+Trường hợp nghiên cứu đầu tiên của chúng ta là về việc trả về một tham chiếu đến stack, giống như chúng ta đã thảo luận ở phần trước trong ["Dữ Liệu Phải Sống Lâu Hơn Tất Cả Các Tham Chiếu Đến Nó"](ch04-02-references-and-borrowing.html#data-must-outlive-all-of-its-references). Đây là hàm mà chúng ta đã xem xét:
 
 ```rust,ignore,does_not_compile
 fn return_a_string() -> &String {
@@ -17,9 +17,9 @@ fn return_a_string() -> &String {
 }
 ```
 
-When thinking about how to fix this function, we need to ask: **why is this program unsafe?** Here, the issue is with the lifetime of the referred data. If you want to pass around a reference to a string, you have to make sure that the underlying string lives long enough. 
+Khi suy nghĩ về cách sửa hàm này, chúng ta cần đặt câu hỏi: **tại sao chương trình này không an toàn?** Ở đây, vấn đề nằm ở vòng đời (lifetime) của dữ liệu được tham chiếu. Nếu bạn muốn truyền đi một tham chiếu đến một chuỗi, bạn phải đảm bảo rằng chuỗi bên dưới sống đủ lâu.
 
-Depending on the situation, here are four ways you can extend the lifetime of the string. One is to move ownership of the string out of the function, changing `&String` to `String`:
+Tùy thuộc vào tình huống, đây là bốn cách bạn có thể kéo dài vòng đời của chuỗi. Một là di chuyển quyền sở hữu của chuỗi ra khỏi hàm, thay đổi `&String` thành `String`:
 
 ```rust
 fn return_a_string() -> String {
@@ -28,15 +28,15 @@ fn return_a_string() -> String {
 }
 ```
 
-Another possibility is to return a string literal, which lives forever (indicated by `'static`). This solution applies if we never intend to change the string, and then a heap allocation is unnecessary:
+Một khả năng khác là trả về một chuỗi literal (chuỗi ký tự tĩnh), thứ sống mãi mãi (được chỉ định bởi `'static`). Giải pháp này áp dụng nếu chúng ta không bao giờ có ý định thay đổi chuỗi, và khi đó việc cấp phát heap là không cần thiết:
 
 ```rust
 fn return_a_string() -> &'static str {
-    "Hello world"    
+    "Hello world"
 }
 ```
 
-Another possibility is to defer borrow-checking to runtime by using garbage collection. For example, you can use a [reference-counted pointer][rc]:
+Một khả năng khác là hoãn việc kiểm tra mượn (borrow-checking) đến thời gian chạy (runtime) bằng cách sử dụng bộ thu gom rác (garbage collection). Ví dụ, bạn có thể sử dụng một [con trỏ đếm tham chiếu (reference-counted pointer)][rc]:
 
 ```rust
 use std::rc::Rc;
@@ -46,9 +46,9 @@ fn return_a_string() -> Rc<String> {
 }
 ```
 
-We will discuss reference-counting more in Chapter 15.4 ["`Rc<T>`, the Reference Counted Smart Pointer"](ch15-04-rc.html). In short, `Rc::clone` only clones a pointer to `s` and not the data itself. At runtime, the `Rc` checks when the last `Rc` pointing to data has been dropped, and then deallocates the data.
+Chúng ta sẽ thảo luận về đếm tham chiếu kỹ hơn trong Chương 15.4 ["`Rc<T>`, Con Trỏ Thông Minh Đếm Tham Chiếu"](ch15-04-rc.html). Tóm lại, `Rc::clone` chỉ clone một con trỏ tới `s` và không phải chính dữ liệu đó. Tại runtime, `Rc` kiểm tra khi nào `Rc` cuối cùng trỏ đến dữ liệu đã bị drop, và sau đó giải phóng dữ liệu.
 
-Yet another possibility is to have the caller provide a "slot" to put the string using a mutable reference:
+Lại một khả năng nữa là để cho người gọi cung cấp một "khe chứa" (slot) để đặt chuỗi vào bằng cách sử dụng một tham chiếu khả biến:
 
 ```rust
 fn return_a_string(output: &mut String) {
@@ -56,14 +56,13 @@ fn return_a_string(output: &mut String) {
 }
 ```
 
-With this strategy, the caller is responsible for creating space for the string. This style can be verbose, but it can also be more memory-efficient if the caller needs to carefully control when allocations occur.
+Với chiến lược này, người gọi chịu trách nhiệm tạo không gian cho chuỗi. Phong cách này có thể dài dòng, nhưng nó cũng có thể hiệu quả về bộ nhớ hơn nếu người gọi cần kiểm soát cẩn thận khi nào việc cấp phát xảy ra.
 
-Which strategy is most appropriate will depend on your application. But the key idea is to recognize the root issue underlying the surface-level ownership error. How long should my string live? Who should be in charge of deallocating it? Once you have a clear answer to those questions, then it's a matter of changing your API to match.
+Chiến lược nào phù hợp nhất sẽ phụ thuộc vào ứng dụng của bạn. Nhưng ý tưởng chính là nhận ra vấn đề gốc rễ nằm dưới lỗi quyền sở hữu ở bề mặt. Chuỗi của tôi nên sống bao lâu? Ai nên chịu trách nhiệm giải phóng nó? Một khi bạn có câu trả lời rõ ràng cho những câu hỏi đó, thì vấn đề chỉ là thay đổi API của bạn cho phù hợp.
 
+### Sửa Một Chương Trình Không An Toàn: Không Đủ Quyền Hạn
 
-### Fixing an Unsafe Program: Not Enough Permissions
-
-Another common issue is trying to mutate read-only data, or trying to drop data behind a reference. For example, let's say we tried to write a function `stringify_name_with_title`. This function is supposed to create a person's full name from a vector of name parts, including an extra title.
+Một vấn đề phổ biến khác là cố gắng thay đổi dữ liệu chỉ đọc, hoặc cố gắng drop dữ liệu đằng sau một tham chiếu. Ví dụ, giả sử chúng ta cố gắng viết một hàm `stringify_name_with_title`. Hàm này được cho là tạo ra tên đầy đủ của một người từ một vector các phần của tên, bao gồm thêm một danh xưng.
 
 ```aquascope,permissions,stepper,boundaries,shouldFail
 fn stringify_name_with_title(name: &Vec<String>) -> String {
@@ -75,7 +74,7 @@ fn stringify_name_with_title(name: &Vec<String>) -> String {
 // ideally: ["Ferris", "Jr."] => "Ferris Jr. Esq."
 ```
 
-This program is rejected by the borrow checker because `name` is an immutable reference, but `name.push(..)` requires the @Perm{write} permission. This program is unsafe because `push` could invalidate other references to `name` outside of `stringify_name_with_title`, like this:
+Chương trình này bị bộ kiểm tra mượn từ chối bởi vì `name` là một tham chiếu bất biến, nhưng `name.push(..)` yêu cầu quyền @Perm{write} (ghi). Chương trình này không an toàn bởi vì `push` có thể làm mất hiệu lực các tham chiếu khác tới `name` bên ngoài `stringify_name_with_title`, như thế này:
 
 ```aquascope,interpreter,shouldFail,horizontal
 #fn stringify_name_with_title(name: &Vec<String>) -> String {
@@ -91,9 +90,9 @@ fn main() {
 }
 ```
 
-In this example, a reference `first` to `name[0]` is created before calling `stringify_name_with_title`. The function `name.push(..)` reallocates the contents of `name`, which invalidates `first`, causing the `println` to read deallocated memory.
+Trong ví dụ này, một tham chiếu `first` tới `name[0]` được tạo ra trước khi gọi `stringify_name_with_title`. Hàm `name.push(..)` tái cấp phát nội dung của `name`, điều này làm mất hiệu lực `first`, khiến cho `println` đọc bộ nhớ đã bị giải phóng.
 
-So how do we fix this API? One straightforward solution is to change the type of name from `&Vec<String>` to `&mut Vec<String>`:
+Vậy làm thế nào chúng ta sửa API này? Một giải pháp đơn giản là thay đổi kiểu của name từ `&Vec<String>` thành `&mut Vec<String>`:
 
 ```rust,ignore
 fn stringify_name_with_title(name: &mut Vec<String>) -> String {
@@ -103,9 +102,9 @@ fn stringify_name_with_title(name: &mut Vec<String>) -> String {
 }
 ```
 
-But this is not a good solution! **Functions should not mutate their inputs if the caller would not expect it.** A person calling `stringify_name_with_title` probably does not expect their vector to be modified by this function. Another function like `add_title_to_name` might be expected to mutate its input, but not our function.
+Nhưng đây không phải là một giải pháp tốt! **Các hàm không nên thay đổi đầu vào của chúng nếu người gọi không mong đợi điều đó.** Một người gọi `stringify_name_with_title` có lẽ không mong đợi vector của họ bị sửa đổi bởi hàm này. Một hàm khác như `add_title_to_name` có thể được mong đợi sẽ thay đổi đầu vào của nó, nhưng không phải hàm của chúng ta.
 
-Another option is to take ownership of the name, by changing `&Vec<String>` to `Vec<String>`:
+Một lựa chọn khác là lấy quyền sở hữu của name, bằng cách thay đổi `&Vec<String>` thành `Vec<String>`:
 
 ```rust,ignore
 fn stringify_name_with_title(mut name: Vec<String>) -> String {
@@ -115,9 +114,9 @@ fn stringify_name_with_title(mut name: Vec<String>) -> String {
 }
 ```
 
-But this is also not a good solution! **It is very rare for Rust functions to take ownership of heap-owning data structures like `Vec` and `String`.**  This version of `stringify_name_with_title` would make the input `name` unusable, which is very annoying to a caller as we discussed at the beginning of ["References and Borrowing"](ch04-02-references-and-borrowing.html).
+Nhưng đây cũng không phải là một giải pháp tốt! **Rất hiếm khi các hàm Rust lấy quyền sở hữu của các cấu trúc dữ liệu sở hữu heap như `Vec` và `String`.** Phiên bản này của `stringify_name_with_title` sẽ làm cho đầu vào `name` không thể dùng được nữa, điều này rất phiền toái cho người gọi như chúng ta đã thảo luận ở phần đầu của ["Tham Chiếu và Mượn"](ch04-02-references-and-borrowing.html).
 
-So the choice of `&Vec` is actually a good one, which we do *not* want to change. Instead, we can change the body of the function. There are many possible fixes which vary in how much memory they use. One possibility is to clone the input `name`:
+Vì vậy lựa chọn `&Vec` thực sự là một lựa chọn tốt, cái mà chúng ta _không_ muốn thay đổi. Thay vào đó, chúng ta có thể thay đổi phần thân của hàm. Có nhiều cách sửa có thể khác nhau về lượng bộ nhớ chúng sử dụng. Một khả năng là clone đầu vào `name`:
 
 ```rust,ignore
 fn stringify_name_with_title(name: &Vec<String>) -> String {
@@ -128,7 +127,7 @@ fn stringify_name_with_title(name: &Vec<String>) -> String {
 }
 ```
 
-By cloning `name`, we are allowed to mutate the local copy of the vector. However, the clone copies every string in the input. We can avoid unnecessary copies by adding the suffix later:
+Bằng cách clone `name`, chúng ta được phép thay đổi bản sao cục bộ của vector. Tuy nhiên, việc clone sao chép mọi chuỗi trong đầu vào. Chúng ta có thể tránh các sao chép không cần thiết bằng cách thêm hậu tố vào sau:
 
 ```rust,ignore
 fn stringify_name_with_title(name: &Vec<String>) -> String {
@@ -138,19 +137,19 @@ fn stringify_name_with_title(name: &Vec<String>) -> String {
 }
 ```
 
-This solution works because [`slice::join`] already copies the data in `name` into the string `full`.
+Giải pháp này hoạt động vì [`slice::join`] đã sao chép dữ liệu trong `name` vào chuỗi `full`.
 
-In general, writing Rust functions is a careful balance of asking for the *right* level of permissions. For this example, it's most idiomatic to only expect the read permission on `name`.
+Nói chung, viết các hàm Rust là một sự cân bằng cẩn thận của việc yêu cầu mức độ quyền hạn _đúng_. Đối với ví dụ này, cách đúng chuẩn (idiomatic) nhất là chỉ mong đợi quyền đọc trên `name`.
 
 {{#quiz ../quizzes/ch04-03-fixing-ownership-errors-sec1-idioms.toml}}
 
-### Fixing an Unsafe Program: Aliasing and Mutating a Data Structure
+### Sửa Một Chương Trình Không An Toàn: Aliasing và Thay Đổi Một Cấu Trúc Dữ Liệu
 
-Another unsafe operation is using a reference to heap data that gets deallocated by another alias. For example, here's a function that gets a reference to the largest string in a vector, and then uses it while mutating the vector:
+Một thao tác không an toàn khác là sử dụng một tham chiếu đến dữ liệu heap mà dữ liệu đó bị giải phóng bởi một alias khác. Ví dụ, đây là một hàm lấy một tham chiếu đến chuỗi lớn nhất trong một vector, và sau đó sử dụng nó trong khi thay đổi vector đó:
 
 ```aquascope,permissions,stepper,boundaries,shouldFail
 fn add_big_strings(dst: &mut Vec<String>, src: &[String]) {`(focus,paths:*dst)`
-    let largest: &String = 
+    let largest: &String =
       dst.iter().max_by_key(|s| s.len()).unwrap();`(focus,paths:*dst)`
     for s in src {
         if s.len() > largest.len() {
@@ -160,11 +159,11 @@ fn add_big_strings(dst: &mut Vec<String>, src: &[String]) {`(focus,paths:*dst)`
 }
 ```
 
-> *Note:* this example uses [iterators] and [closures] to succinctly find a reference to the largest string. We will discuss those features in later chapters, and for now we will provide an intuitive sense of how the features work here.
+> _Lưu ý:_ ví dụ này sử dụng [iterators] và [closures] để tìm một tham chiếu đến chuỗi lớn nhất một cách ngắn gọn. Chúng ta sẽ thảo luận về các tính năng đó trong các chương sau, và bây giờ chúng ta sẽ cung cấp một cảm nhận trực quan về cách các tính năng hoạt động ở đây.
 
-This program is rejected by the borrow checker because `let largest = ..` removes the @Perm{write} permissions on `dst`. However, `dst.push(..)` requires the @Perm{write} permission. Again, we should ask: **why is this program unsafe?** Because `dst.push(..)` could deallocate the contents of `dst`, invalidating the reference `largest`.
+Chương trình này bị bộ kiểm tra mượn từ chối bởi vì `let largest = ..` loại bỏ quyền @Perm{write} trên `dst`. Tuy nhiên, `dst.push(..)` yêu cầu quyền @Perm{write}. Một lần nữa, chúng ta nên hỏi: **tại sao chương trình này không an toàn?** Bởi vì `dst.push(..)` có thể giải phóng nội dung của `dst`, làm mất hiệu lực tham chiếu `largest`.
 
-To fix the program, the key insight is that we need to shorten the lifetime of `largest` to not overlap with `dst.push(..)`. One possibility is to clone `largest`:
+Để sửa chương trình, hiểu biết then chốt là chúng ta cần rút ngắn vòng đời của `largest` để không chồng chéo với `dst.push(..)`. Một khả năng là clone `largest`:
 
 ```rust
 fn add_big_strings(dst: &mut Vec<String>, src: &[String]) {
@@ -177,23 +176,23 @@ fn add_big_strings(dst: &mut Vec<String>, src: &[String]) {
 }
 ```
 
-However, this may cause a performance hit for allocating and copying the string data.
+Tuy nhiên, điều này có thể gây ảnh hưởng hiệu năng vì việc cấp phát và sao chép dữ liệu chuỗi.
 
-Another possibility is to perform all the length comparisons first, and then mutate `dst` afterwards:
+Một khả năng khác là thực hiện tất cả các so sánh độ dài trước, và sau đó thay đổi `dst` sau:
 
 ```rust
 fn add_big_strings(dst: &mut Vec<String>, src: &[String]) {
     let largest: &String = dst.iter().max_by_key(|s| s.len()).unwrap();
-    let to_add: Vec<String> = 
+    let to_add: Vec<String> =
         src.iter().filter(|s| s.len() > largest.len()).cloned().collect();
     dst.extend(to_add);
 }
 ```
 
-However, this also causes a performance hit for allocating the vector `to_add`.
+Tuy nhiên, điều này cũng gây ảnh hưởng hiệu năng vì việc cấp phát vector `to_add`.
 
-A final possibility is to copy out the length of `largest`, since we don't actually need the contents of `largest`, just its length. 
-This solution is arguably the most idiomatic and the most performant:
+Một khả năng cuối cùng là sao chép ra độ dài của `largest`, vì chúng ta thực sự không cần nội dung của `largest`, chỉ cần độ dài của nó.
+Giải pháp này được cho là đúng chuẩn nhất và hiệu năng cao nhất:
 
 ```rust
 fn add_big_strings(dst: &mut Vec<String>, src: &[String]) {
@@ -206,11 +205,11 @@ fn add_big_strings(dst: &mut Vec<String>, src: &[String]) {
 }
 ```
 
-These solutions all share in common the key idea: shortening the lifetime of borrows on `dst` to not overlap with a mutation to `dst`.
+Tất cả các giải pháp này đều có chung một ý tưởng chính: rút ngắn vòng đời của các lần mượn trên `dst` để không chồng chéo với một sự thay đổi tới `dst`.
 
-### Fixing an Unsafe Program: Copying vs. Moving Out of a Collection
+### Sửa Một Chương Trình Không An Toàn: Sao Chép so với Di Chuyển Ra Khỏi Một Tập Hợp
 
-A common confusion for Rust learners happens when copying data out of a collection, like a vector. For example, here's a safe program that copies a number out of a vector:
+Một sự nhầm lẫn phổ biến cho người học Rust xảy ra khi sao chép dữ liệu ra khỏi một tập hợp, như một vector. Ví dụ, đây là một chương trình an toàn sao chép một số ra khỏi một vector:
 
 ```aquascope,permissions,stepper,boundaries
 #fn main() {
@@ -220,18 +219,18 @@ let n: i32 = *n_ref;`{}`
 #}
 ```
 
-The dereference operation `*n_ref` expects just the @Perm{read} permission, which the path `*n_ref` has. But what happens if we change the type of elements in the vector from `i32` to `String`? Then it turns out we no longer have the necessary permissions:
+Thao tác giải tham chiếu `*n_ref` chỉ mong đợi quyền @Perm{read}, quyền mà đường dẫn (path) `*n_ref` có. Nhưng điều gì xảy ra nếu chúng ta thay đổi kiểu của các phần tử trong vector từ `i32` sang `String`? Khi đó hóa ra chúng ta không còn có các quyền hạn cần thiết nữa:
 
 ```aquascope,permissions,stepper,boundaries,shouldFail
 #fn main() {
-let v: Vec<String> = 
+let v: Vec<String> =
   vec![String::from("Hello world")];
 let s_ref: &String = &v[0];`(focus,paths:*s_ref)`
 let s: String = *s_ref;`[]``{}`
 #}
 ```
 
-The first program will compile, but the second program will not compile. Rust gives the following error message:
+Chương trình đầu tiên sẽ biên dịch, nhưng chương trình thứ hai sẽ không biên dịch. Rust đưa ra thông báo lỗi sau:
 
 ```text
 error[E0507]: cannot move out of `*s_ref` which is behind a shared reference
@@ -243,13 +242,13 @@ error[E0507]: cannot move out of `*s_ref` which is behind a shared reference
   |         move occurs because `*s_ref` has type `String`, which does not implement the `Copy` trait
 ```
 
-The issue is that the vector `v` owns the string "Hello world". When we dereference `s_ref`, that tries to take ownership of the string from the vector. But references are non-owning pointers &mdash; we can't take ownership *through* a reference. Therefore Rust complains that we "cannot move out of \[...\] a shared reference".
+Vấn đề là vector `v` sở hữu chuỗi "Hello world". Khi chúng ta giải tham chiếu `s_ref`, việc đó cố gắng lấy quyền sở hữu chuỗi từ vector. Nhưng các tham chiếu là các con trỏ không sở hữu &mdash; chúng ta không thể lấy quyền sở hữu _thông qua_ một tham chiếu. Do đó Rust phàn nàn rằng chúng ta "cannot move out of \[...\] a shared reference" (không thể di chuyển ra khỏi một tham chiếu chia sẻ).
 
-But why is this unsafe? We can illustrate the problem by simulating the rejected program:
+Nhưng tại sao điều này không an toàn? Chúng ta có thể minh họa vấn đề bằng cách mô phỏng chương trình bị từ chối:
 
 ```aquascope,interpreter,shouldFail,horizontal
 #fn main() {
-let v: Vec<String> = 
+let v: Vec<String> =
   vec![String::from("Hello world")];
 let s_ref: &String = &v[0];`(focus,paths:*s_ref)`
 let s: String = *s_ref;`[]``{}`
@@ -260,28 +259,30 @@ drop(v);`[]`
 #}
 ```
 
-What happens here is a **double-free.** After executing `let s = *s_ref`, both `v` and `s` think they own "Hello world". After `s` is dropped, "Hello world" is deallocated. Then `v` is dropped, and undefined behavior happens when the string is freed a second time.
+Điều xảy ra ở đây là một **double-free (giải phóng kép).** Sau khi thực thi `let s = *s_ref`, cả `v` và `s` đều nghĩ chúng sở hữu "Hello world". Sau khi `s` bị drop, "Hello world" bị giải phóng. Sau đó `v` bị drop, và hành vi không xác định xảy ra khi chuỗi được giải phóng lần thứ hai.
 
-> *Note:* after executing `s = *s_ref`, we don't even have to use `v` or `s` to cause undefined behavior through the double-free. As soon as we move the string out from `s_ref`, undefined behavior will happen once the elements are dropped.
+> _Lưu ý:_ sau khi thực thi `s = *s_ref`, chúng ta thậm chí không cần sử dụng `v` hoặc `s` để gây ra hành vi không xác định thông qua double-free. Ngay khi chúng ta di chuyển chuỗi ra khỏi `s_ref`, hành vi không xác định sẽ xảy ra một khi các phần tử bị drop.
 
-However, this undefined behavior does not happen when the vector contains `i32` elements. The difference is that copying a `String` copies a pointer to heap data. Copying an `i32` does not.
-In technical terms, Rust says that the type `i32` implements the `Copy` trait, while `String` does not implement `Copy` (we will discuss traits in a later chapter).
+Tuy nhiên, hành vi không xác định này không xảy ra khi vector chứa các phần tử `i32`. Sự khác biệt là việc sao chép một `String` sao chép một con trỏ tới dữ liệu heap. Sao chép một `i32` thì không.
+Theo thuật ngữ kỹ thuật, Rust nói rằng kiểu `i32` thực hiện `Copy` trait, trong khi `String` không thực hiện `Copy` (chúng ta sẽ thảo luận về trait trong một chương sau).
 
-In sum, **if a value does not own heap data, then it can be copied without a move.** For example:
+Tóm lại, **nếu một giá trị không sở hữu dữ liệu heap, thì nó có thể được sao chép mà không cần di chuyển (move).** Ví dụ:
 
-* An `i32` **does not** own heap data, so it **can** be copied without a move. 
-* A `String` **does** own heap data, so it **can not** be copied without a move.
-* An `&String` **does not** own heap data, so it **can** be copied without a move.
+-   Một `i32` **không** sở hữu dữ liệu heap, nên nó **có thể** được sao chép mà không cần di chuyển.
+-   Một `String` **có** sở hữu dữ liệu heap, nên nó **không thể** được sao chép mà không cần di chuyển.
+-   Một `&String` **không** sở hữu dữ liệu heap, nên nó **có thể** được sao chép mà không cần di chuyển.
 
-> *Note:* One exception to this rule is mutable references. For example, `&mut i32` is not a copyable type. So if you do something like:
+> _Lưu ý:_ Một ngoại lệ cho quy tắc này là các tham chiếu khả biến. Ví dụ, `&mut i32` không phải là một kiểu copyable (có thể sao chép). Vì vậy nếu bạn làm điều gì đó như:
+>
 > ```rust,ignore
 > let mut n = 0;
 > let a = &mut n;
 > let b = a;
 > ```
-> Then `a` cannot be used after being assigned to `b`. That prevents two mutable references to the same data from being used at the same time.
+>
+> Thì `a` không thể được sử dụng sau khi được gán cho `b`. Điều đó ngăn cản hai tham chiếu khả biến tới cùng một dữ liệu được sử dụng cùng một lúc.
 
-So if we have a vector of non-`Copy` types like `String`, then how do we safely get access to an element of the vector? Here's a few different ways to safely do so. First, you can avoid taking ownership of the string and just use an immutable reference:
+Vậy nếu chúng ta có một vector của các kiểu không `Copy` như `String`, thì làm thế nào chúng ta lấy quyền truy cập an toàn tới một phần tử của vector? Đây là một vài cách khác nhau để làm điều đó một cách an toàn. Đầu tiên, bạn có thể tránh lấy quyền sở hữu của chuỗi và chỉ sử dụng một tham chiếu bất biến:
 
 ```rust,ignore
 # fn main() {
@@ -291,7 +292,7 @@ println!("{s_ref}!");
 # }
 ```
 
-Second, you can clone the data if you want to get ownership of the string while leaving the vector alone:
+Thứ hai, bạn có thể clone dữ liệu nếu bạn muốn lấy quyền sở hữu của chuỗi trong khi để yên vector:
 
 ```rust,ignore
 # fn main() {
@@ -302,7 +303,7 @@ println!("{s}");
 # }
 ```
 
-Finally, you can use a method like [`Vec::remove`] to move the string out of the vector:
+Cuối cùng, bạn có thể sử dụng một phương thức như [`Vec::remove`] để di chuyển chuỗi ra khỏi vector:
 
 ```rust,ignore
 # fn main() {
@@ -314,17 +315,16 @@ assert!(v.len() == 0);
 # }
 ```
 
+### Sửa Một Chương Trình An Toàn: Thay Đổi Các Trường Tuple Khác Nhau
 
-### Fixing a Safe Program: Mutating Different Tuple Fields
+Các ví dụ trên là các trường hợp mà một chương trình không an toàn. Rust cũng có thể từ chối các chương trình an toàn. Một vấn đề phổ biến là Rust cố gắng theo dõi các quyền hạn ở mức độ chi tiết (fine-grained level). Tuy nhiên, Rust có thể gộp hai place (vị trí) khác nhau thành cùng một place.
 
-The above examples are cases where a program is unsafe. Rust may also reject safe programs. One common issue is that Rust tries to track permissions at a fine-grained level. However, Rust may conflate two different places as the same place. 
- 
-Let's first look at an example of fine-grained permission tracking that passes the borrow checker. This program shows how you can borrow one field of a tuple, and write to a different field of the same tuple:
+Đầu tiên hãy xem một ví dụ về theo dõi quyền hạn chi tiết mà vượt qua được bộ kiểm tra mượn. Chương trình này cho thấy cách bạn có thể mượn một trường của một tuple, và ghi vào một trường khác của cùng tuple đó:
 
 ```aquascope,permissions,stepper,boundaries
 #fn main() {
 let mut name = (
-    String::from("Ferris"), 
+    String::from("Ferris"),
     String::from("Rustacean")
 );`(focus,paths:name)`
 let first = &name.0;`(focus,paths:name)`
@@ -333,9 +333,9 @@ println!("{first} {}", name.1);
 #}
 ```
 
-The statement `let first = &name.0` borrows `name.0`. This borrow removes @Perm{write}@Perm{own} permissions from `name.0`. It also removes @Perm{write}@Perm{own} permissions from `name`. (For example, one could not pass `name` to a function that takes as input a value of type `(String, String)`.) But `name.1` still retains the @Perm{write} permission, so doing `name.1.push_str(...)` is a valid operation.
+Câu lệnh `let first = &name.0` mượn `name.0`. Việc mượn này loại bỏ quyền @Perm{write}@Perm{own} từ `name.0`. Nó cũng loại bỏ quyền @Perm{write}@Perm{own} từ `name`. (Ví dụ, người ta không thể truyền `name` cho một hàm nhận đầu vào là một giá trị kiểu `(String, String)`.) Nhưng `name.1` vẫn giữ lại quyền @Perm{write}, nên việc thực hiện `name.1.push_str(...)` là một thao tác hợp lệ.
 
-However, Rust can lose track of exactly which places are borrowed. For example, let's say we refactor the expression `&name.0` into a function `get_first`. Notice how after calling `get_first(&name)`, Rust now removes the @Perm{write} permission on `name.1`:
+Tuy nhiên, Rust có thể mất dấu chính xác những place nào được mượn. Ví dụ, giả sử chúng ta cấu trúc lại biểu thức `&name.0` vào trong một hàm `get_first`. Chú ý cách mà sau khi gọi `get_first(&name)`, Rust bây giờ loại bỏ quyền @Perm{write} trên `name.1`:
 
 ```aquascope,permissions,stepper,boundaries,shouldFail
 fn get_first(name: &(String, String)) -> &String {
@@ -344,7 +344,7 @@ fn get_first(name: &(String, String)) -> &String {
 
 fn main() {
     let mut name = (
-        String::from("Ferris"), 
+        String::from("Ferris"),
         String::from("Rustacean")
     );
     let first = get_first(&name);`(focus,paths:name)`
@@ -353,7 +353,7 @@ fn main() {
 }
 ```
 
-Now we can't do `name.1.push_str(..)`! Rust will return this error:
+Bây giờ chúng ta không thể thực hiện `name.1.push_str(..)`! Rust sẽ trả về lỗi này:
 
 ```text
 error[E0502]: cannot borrow `name.1` as mutable because it is also borrowed as immutable
@@ -367,15 +367,15 @@ error[E0502]: cannot borrow `name.1` as mutable because it is also borrowed as i
    |                ----- immutable borrow later used here
 ```
 
-That's strange, since the program was safe before we edited it. The edit we made doesn't meaningfully change the runtime behavior. So why does it matter that we put `&name.0` into a function?
+Điều đó thật lạ, vì chương trình vẫn an toàn trước khi chúng ta chỉnh sửa nó. Chỉnh sửa chúng ta đã làm không thay đổi ý nghĩa hành vi runtime. Vậy tại sao việc chúng ta đặt `&name.0` vào trong một hàm lại quan trọng?
 
-The problem is that Rust doesn't look at the implementation of `get_first` when deciding what `get_first(&name)` should borrow. Rust only looks at the type signature, which just says "some `String` in the input gets borrowed". Rust conservatively decides then that both `name.0` and `name.1` get borrowed, and eliminates write and own permissions on both. 
+Vấn đề là Rust không nhìn vào phần cài đặt của `get_first` khi quyết định `get_first(&name)` nên mượn cái gì. Rust chỉ nhìn vào chữ ký kiểu (type signature), cái mà chỉ nói rằng "một `String` nào đó trong đầu vào được mượn". Rust sau đó quyết định một cách bảo thủ rằng cả `name.0` và `name.1` đều bị mượn, và loại bỏ quyền ghi và sở hữu trên cả hai.
 
-Remember, the key idea is that **the program above is safe.** It has no undefined behavior! A future version of Rust may be smart enough to let it compile, but for today, it gets rejected. So how should we work around the borrow checker today? One possibility is to inline the expression `&name.0`, like in the original program. Another possibility is to defer borrow checking to runtime with [cells], which we will discuss in future chapters.
+Hãy nhớ, ý tưởng chính là **chương trình ở trên là an toàn.** Nó không có hành vi không xác định! Một phiên bản tương lai của Rust có thể đủ thông minh để cho phép nó biên dịch, nhưng cho hôm nay, nó bị từ chối. Vậy chúng ta nên làm việc xung quanh bộ kiểm tra mượn như thế nào hôm nay? Một khả năng là inline (viết trực tiếp) biểu thức `&name.0`, giống như trong chương trình gốc. Một khả năng khác là hoãn việc kiểm tra mượn đến runtime với [cells], cái mà chúng ta sẽ thảo luận trong các chương tương lai.
 
-### Fixing a Safe Program: Mutating Different Array Elements
+### Sửa Một Chương Trình An Toàn: Thay Đổi Các Phần Tử Mảng Khác Nhau
 
-A similar kind of problem arises when we borrow elements of an array. For example, observe what places are borrowed when we take a mutable reference to an array:
+Một loại vấn đề tương tự nảy sinh khi chúng ta mượn các phần tử của một mảng. Ví dụ, quan sát những place nào bị mượn khi chúng ta lấy một tham chiếu khả biến tới một mảng:
 
 ```aquascope,permissions,stepper,boundaries
 #fn main() {
@@ -386,14 +386,14 @@ println!("{a:?}");
 #}
 ```
 
-Rust's borrow checker does not contain different places for `a[0]`, `a[1]`, and so on. It uses a single place `a[_]` that represents *all* indexes of `a`. Rust does this because it cannot always determine the value of an index. For example, imagine a more complex scenario like this:
+Bộ kiểm tra mượn của Rust không chứa các place khác nhau cho `a[0]`, `a[1]`, và vân vân. Nó sử dụng một place đơn lẻ `a[_]` đại diện cho _tất cả_ các chỉ mục (indexes) của `a`. Rust làm điều này bởi vì nó không phải lúc nào cũng xác định được giá trị của một chỉ mục. Ví dụ, hãy tưởng tượng một kịch bản phức tạp hơn như thế này:
 
 ```rust,ignore
 let idx = a_complex_function();
 let x = &mut a[idx];
 ```
 
-What is the value of `idx`? Rust isn't going to guess, so it assumes `idx` could be anything. For example, let's say we try to read from one array index while writing to a different one:
+Giá trị của `idx` là gì? Rust sẽ không đoán, nên nó giả định `idx` có thể là bất cứ cái gì. Ví dụ, giả sử chúng ta cố gắng đọc từ một chỉ mục mảng trong khi ghi vào một chỉ mục khác:
 
 ```aquascope,permissions,boundaries,stepper,shouldFail
 #fn main() {
@@ -404,7 +404,7 @@ let y = &a[2];`{}`
 #}
 ```
 
-However, Rust will reject this program because `a` gave its read permission to `x`. The compiler's error message says the same thing:
+Tuy nhiên, Rust sẽ từ chối chương trình này bởi vì `a` đã trao quyền đọc của nó cho `x`. Thông báo lỗi của trình biên dịch cũng nói điều tương tự:
 
 ```text
 error[E0502]: cannot borrow `a[_]` as immutable because it is also borrowed as mutable
@@ -420,8 +420,7 @@ error[E0502]: cannot borrow `a[_]` as immutable because it is also borrowed as m
 
 <!-- However, Rust will reject this program because `a` gave its read permission to `x`. -->
 
-
-Again, **this program is safe.** For cases like these, Rust often provides a function in the standard library that can work around the borrow checker. For example, we could use [`slice::split_at_mut`][split_at_mut]:
+Một lần nữa, **chương trình này là an toàn.** Đối với những trường hợp như thế này, Rust thường cung cấp một hàm trong thư viện chuẩn có thể làm việc xung quanh bộ kiểm tra mượn. Ví dụ, chúng ta có thể sử dụng [`slice::split_at_mut`][split_at_mut]:
 
 ```rust,ignore
 # fn main() {
@@ -433,7 +432,7 @@ let y = &a_r[0];
 # }
 ```
 
-You might wonder, but how is `split_at_mut` implemented? In some Rust libraries, especially core types like `Vec` or `slice`, you will often find **`unsafe` blocks**. `unsafe` blocks allow the use of "raw" pointers, which are not checked for safety by the borrow checker. For example, we could use an unsafe block to accomplish our task:
+Bạn có thể tự hỏi, nhưng `split_at_mut` được cài đặt như thế nào? Trong một số thư viện Rust, đặc biệt là các kiểu cốt lõi như `Vec` hoặc `slice`, bạn sẽ thường tìm thấy các **khối `unsafe`**. Các khối `unsafe` cho phép sử dụng các con trỏ "thô" (raw pointers), thứ không được kiểm tra độ an toàn bởi bộ kiểm tra mượn. Ví dụ, chúng ta có thể sử dụng một khối unsafe để hoàn thành tác vụ của mình:
 
 ```rust,ignore
 # fn main() {
@@ -444,13 +443,13 @@ unsafe { *x += *y; } // DO NOT DO THIS unless you know what you're doing!
 # }
 ```
 
-Unsafe code is sometimes necessary to work around the limitations of the borrow checker. As a general strategy, let's say the borrow checker rejects a program you think is actually safe. Then you should look for standard library functions (like `split_at_mut`) that contain `unsafe` blocks which solve your problem. We will discuss unsafe code further in [Chapter 20][unsafe]. For now, just be aware that unsafe code is how Rust implements certain otherwise-impossible patterns.
+Code unsafe đôi khi là cần thiết để làm việc xung quanh các hạn chế của bộ kiểm tra mượn. Như một chiến lược chung, giả sử bộ kiểm tra mượn từ chối một chương trình mà bạn nghĩ là thực sự an toàn. Khi đó bạn nên tìm kiếm các hàm thư viện chuẩn (như `split_at_mut`) có chứa các khối `unsafe` giải quyết vấn đề của bạn. Chúng ta sẽ thảo luận về code unsafe xa hơn trong [Chương 20][unsafe]. Hiện tại, chỉ cần nhận thức rằng code unsafe là cách Rust cài đặt một số mẫu hình (patterns) nhất định mà nếu không có nó thì không thể thực hiện được.
 
 {{#quiz ../quizzes/ch04-03-fixing-ownership-errors-sec2-safety.toml}}
 
-### Summary
+### Tóm Tắt
 
-When fixing an ownership error, you should ask yourself: is my program actually unsafe? If yes, then you need to understand the root cause of the unsafety. If no, then you need to understand the limitations of the borrow checker to work around them.
+Khi sửa một lỗi quyền sở hữu, bạn nên tự hỏi mình: chương trình của tôi có thực sự không an toàn không? Nếu có, thì bạn cần hiểu nguyên nhân gốc rễ của sự không an toàn. Nếu không, thì bạn cần hiểu các hạn chế của bộ kiểm tra mượn để làm việc xung quanh chúng.
 
 [rc]: https://doc.rust-lang.org/std/rc/index.html
 [cells]: https://doc.rust-lang.org/std/cell/index.html
@@ -461,4 +460,4 @@ When fixing an ownership error, you should ask yourself: is my program actually 
 [iterators]: ch13-02-iterators.html
 [closures]: ch13-01-closures.html
 
-[^safe-subset]: This guarantee applies for programs written in the "safe subset" of Rust. If you use `unsafe` code or invoke unsafe components (like calling a C library), then you must take extra care to avoid undefined behavior.
+[^safe-subset]: Sự đảm bảo này áp dụng cho các chương trình được viết trong "tập con an toàn" (safe subset) của Rust. Nếu bạn sử dụng code `unsafe` hoặc gọi các thành phần không an toàn (như gọi một thư viện C), thì bạn phải cẩn thận hơn để tránh hành vi không xác định.
