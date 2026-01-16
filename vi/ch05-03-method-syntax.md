@@ -1,21 +1,20 @@
-## Method Syntax
+## Cú pháp Phương thức (Method Syntax)
 
-_Methods_ are similar to functions: we declare them with the `fn` keyword and a
-name, they can have parameters and a return value, and they contain some code
-that’s run when the method is called from somewhere else. Unlike functions,
-methods are defined within the context of a struct (or an enum or a trait
-object, which we cover in [Chapter 6][enums]<!-- ignore --> and [Chapter
-18][trait-objects]<!-- ignore -->, respectively), and their first parameter is
-always `self`, which represents the instance of the struct the method is being
-called on.
+_Phương thức_ (Methods) tương tự như hàm: chúng ta khai báo chúng bằng từ khóa `fn` và một
+cái tên, chúng có thể có tham số và một giá trị trả về, và chúng chứa một đoạn mã
+được chạy khi phương thức được gọi từ một nơi khác. Không giống như hàm,
+các phương thức được định nghĩa trong ngữ cảnh của một struct (hoặc một enum hoặc một đối tượng trait,
+mà chúng ta đề cập lần lượt trong [Chương 6][enums]<!-- ignore --> và [Chương
+18][trait-objects]<!-- ignore -->), và tham số đầu tiên của chúng
+luôn là `self`, đại diện cho chính thể hiện của struct mà phương thức đang được gọi trên đó.
 
-### Defining Methods
+### Định nghĩa các Phương thức
 
-Let’s change the `area` function that has a `Rectangle` instance as a parameter
-and instead make an `area` method defined on the `Rectangle` struct, as shown
-in Listing 5-13.
+Hãy thay đổi hàm `area` vốn có một thể hiện `Rectangle` làm tham số
+và thay vào đó hãy tạo một phương thức `area` được định nghĩa trên struct `Rectangle`, như được hiển thị
+trong Listing 5-13.
 
-<Listing number="5-13" file-name="src/main.rs" caption="Defining an `area` method on the `Rectangle` struct">
+<Listing number="5-13" file-name="src/main.rs" caption="Định nghĩa một phương thức `area` trên struct `Rectangle`">
 
 ```rust
 {{#rustdoc_include ../listings/ch05-using-structs-to-structure-related-data/listing-05-13/src/main.rs}}
@@ -23,45 +22,45 @@ in Listing 5-13.
 
 </Listing>
 
-To define the function within the context of `Rectangle`, we start an `impl`
-(implementation) block for `Rectangle`. Everything within this `impl` block
-will be associated with the `Rectangle` type. Then we move the `area` function
-within the `impl` curly brackets and change the first (and in this case, only)
-parameter to be `self` in the signature and everywhere within the body. In
-`main`, where we called the `area` function and passed `rect1` as an argument,
-we can instead use _method syntax_ to call the `area` method on our `Rectangle`
-instance. The method syntax goes after an instance: we add a dot followed by
-the method name, parentheses, and any arguments.
+Để định nghĩa hàm trong ngữ cảnh của `Rectangle`, chúng ta bắt đầu một khối `impl`
+(implementation - triển khai) cho `Rectangle`. Mọi thứ trong khối `impl` này
+sẽ được liên kết với kiểu `Rectangle`. Sau đó, chúng ta di chuyển hàm `area`
+vào bên trong các dấu ngoặc nhọn của `impl` và thay đổi tham số đầu tiên (và trong trường hợp này là duy nhất)
+thành `self` trong chữ ký hàm và mọi nơi bên trong thân hàm. Trong hàm
+`main`, nơi chúng ta đã gọi hàm `area` và truyền `rect1` như một đối số,
+thay vào đó chúng ta có thể sử dụng _cú pháp phương thức_ (method syntax) để gọi phương thức `area` trên thể hiện `Rectangle`
+của chúng ta. Cú pháp phương thức được đặt sau một thể hiện: chúng ta thêm một dấu chấm theo sau là
+tên phương thức, dấu ngoặc đơn và bất kỳ đối số nào.
 
-In the signature for `area`, we use `&self` instead of `rectangle: &Rectangle`.
-The `&self` is actually short for `self: &Self`. Within an `impl` block, the
-type `Self` is an alias for the type that the `impl` block is for. Methods must
-have a parameter named `self` of type `Self` for their first parameter, so Rust
-lets you abbreviate this with only the name `self` in the first parameter spot.
-Note that we still need to use the `&` in front of the `self` shorthand to
-indicate that this method borrows the `Self` instance, just as we did in
-`rectangle: &Rectangle`. Methods can take ownership of `self`, borrow `self`
-immutably, as we’ve done here, or borrow `self` mutably, just as they can any
-other parameter.
+Trong chữ ký của `area`, chúng ta sử dụng `&self` thay vì `rectangle: &Rectangle`.
+`&self` thực chất là cách viết tắt của `self: &Self`. Bên trong một khối `impl`,
+kiểu `Self` là một bí danh cho kiểu mà khối `impl` đó đang triển khai. Các phương thức phải
+có một tham số tên là `self` kiểu `Self` làm tham số đầu tiên của chúng, vì vậy Rust
+cho phép bạn viết tắt điều này chỉ với tên `self` ở vị trí tham số đầu tiên.
+Lưu ý rằng chúng ta vẫn cần sử dụng dấu `&` phía trước cách viết tắt `self` để
+chỉ ra rằng phương thức này vay mượn thể hiện `Self`, giống như chúng ta đã làm trong
+`rectangle: &Rectangle`. Các phương thức có thể nắm quyền sở hữu `self`, vay mượn `self`
+bất biến như chúng ta đã làm ở đây, hoặc vay mượn `self` có thể thay đổi, giống như chúng có thể với bất kỳ
+tham số nào khác.
 
-We chose `&self` here for the same reason we used `&Rectangle` in the function
-version: we don’t want to take ownership, and we just want to read the data in
-the struct, not write to it. If we wanted to change the instance that we’ve
-called the method on as part of what the method does, we’d use `&mut self` as
-the first parameter. Having a method that takes ownership of the instance by
-using just `self` as the first parameter is rare; this technique is usually
-used when the method transforms `self` into something else and you want to
-prevent the caller from using the original instance after the transformation.
+Chúng ta đã chọn `&self` ở đây vì cùng lý do chúng ta đã sử dụng `&Rectangle` trong phiên bản hàm:
+chúng ta không muốn nắm quyền sở hữu, và chúng ta chỉ muốn đọc dữ liệu trong
+struct chứ không ghi vào nó. Nếu chúng ta muốn thay đổi thể hiện mà chúng ta đã
+gọi phương thức trên đó như một phần của những gì phương thức thực hiện, chúng ta sẽ sử dụng `&mut self` làm
+tham số đầu tiên. Việc có một phương thức nắm quyền sở hữu thể hiện bằng cách chỉ
+sử dụng `self` làm tham số đầu tiên là rất hiếm; kỹ thuật này thường được sử dụng
+khi phương thức chuyển đổi `self` thành một thứ khác và bạn muốn ngăn
+người gọi sử dụng thể hiện ban đầu sau khi chuyển đổi.
 
-The main reason for using methods instead of functions, in addition to
-providing method syntax and not having to repeat the type of `self` in every
-method’s signature, is for organization. We’ve put all the things we can do
-with an instance of a type in one `impl` block rather than making future users
-of our code search for capabilities of `Rectangle` in various places in the
-library we provide.
+Lý do chính của việc sử dụng các phương thức thay vì hàm, ngoài việc
+cung cấp cú pháp phương thức và không phải lặp lại kiểu của `self` trong mọi
+chữ ký phương thức, là để tổ chức. Chúng ta đã đặt tất cả những gì chúng ta có thể làm
+với một thể hiện của một kiểu vào trong một khối `impl` thay vì bắt những người dùng tương lai
+trong mã của chúng ta phải tìm kiếm các khả năng của `Rectangle` ở nhiều nơi khác nhau trong
+thư viện mà chúng ta cung cấp.
 
-Note that we can choose to give a method the same name as one of the struct’s
-fields. For example, we can define a method on `Rectangle` that is also named
+Lưu ý rằng chúng ta có thể chọn đặt cho phương thức cùng tên với một trong các
+trường của struct. Ví dụ, chúng ta có thể định nghĩa một phương thức trên `Rectangle` cũng có tên là
 `width`:
 
 <Listing file-name="src/main.rs">
@@ -72,32 +71,32 @@ fields. For example, we can define a method on `Rectangle` that is also named
 
 </Listing>
 
-Here, we’re choosing to make the `width` method return `true` if the value in
-the instance’s `width` field is greater than `0` and `false` if the value is
-`0`: we can use a field within a method of the same name for any purpose. In
-`main`, when we follow `rect1.width` with parentheses, Rust knows we mean the
-method `width`. When we don’t use parentheses, Rust knows we mean the field
+Ở đây, chúng ta chọn làm cho phương thức `width` trả về `true` nếu giá trị trong
+trường `width` của thể hiện lớn hơn `0` và `false` nếu giá trị là
+`0`: chúng ta có thể sử dụng một trường bên trong một phương thức cùng tên cho bất kỳ mục đích nào. Trong
+hàm `main`, khi chúng ta viết `rect1.width` kèm theo dấu ngoặc đơn, Rust biết chúng ta muốn ám chỉ
+phương thức `width`. Khi chúng ta không sử dụng dấu ngoặc đơn, Rust biết chúng ta muốn ám chỉ trường
 `width`.
 
-Often, but not always, when we give a method the same name as a field we want
-it to only return the value in the field and do nothing else. Methods like this
-are called _getters_, and Rust does not implement them automatically for struct
-fields as some other languages do. Getters are useful because you can make the
-field private but the method public, and thus enable read-only access to that
-field as part of the type’s public API. We will discuss what public and private
-are and how to designate a field or method as public or private in [Chapter
+Thường thì, nhưng không phải luôn luôn, khi chúng ta đặt cho phương thức cùng tên với một trường, chúng ta muốn
+nó chỉ trả về giá trị trong trường đó và không làm gì khác. Các phương thức như thế này
+được gọi là _getters_, và Rust không tự động triển khai chúng cho các trường struct
+như một số ngôn ngữ khác thực hiện. Getters hữu ích vì bạn có thể để
+trường ở chế độ riêng tư (private) nhưng phương thức ở chế độ công khai (public), và do đó cho phép quyền truy cập chỉ đọc vào
+trường đó như một phần của API công khai của kiểu dữ liệu. Chúng ta sẽ thảo luận về public và private là gì
+và cách chỉ định một trường hoặc phương thức là public hay private trong [Chương
 7][public]<!-- ignore -->.
 
-### Methods with More Parameters
+### Các phương thức với nhiều tham số hơn
 
-Let’s practice using methods by implementing a second method on the `Rectangle`
-struct. This time we want an instance of `Rectangle` to take another instance
-of `Rectangle` and return `true` if the second `Rectangle` can fit completely
-within `self` (the first `Rectangle`); otherwise, it should return `false`.
-That is, once we’ve defined the `can_hold` method, we want to be able to write
-the program shown in Listing 5-14.
+Hãy thực hành sử dụng phương thức bằng cách triển khai một phương thức thứ hai trên struct `Rectangle`.
+Lần này chúng ta muốn một thể hiện của `Rectangle` nhận một thể hiện khác của `Rectangle`
+và trả về `true` nếu hình chữ nhật thứ hai có thể nằm hoàn toàn bên trong
+`self` (hình chữ nhật đầu tiên); nếu không, nó sẽ trả về `false`.
+Tức là, một khi chúng ta đã định nghĩa phương thức `can_hold`, chúng ta muốn có thể viết
+chương trình như trong Listing 5-14.
 
-<Listing number="5-14" file-name="src/main.rs" caption="Using the as-yet-unwritten `can_hold` method">
+<Listing number="5-14" file-name="src/main.rs" caption="Sử dụng phương thức `can_hold` chưa được viết">
 
 ```rust,ignore
 {{#rustdoc_include ../listings/ch05-using-structs-to-structure-related-data/listing-05-14/src/main.rs}}
@@ -105,8 +104,8 @@ the program shown in Listing 5-14.
 
 </Listing>
 
-The expected output would look like the following because both dimensions of
-`rect2` are smaller than the dimensions of `rect1`, but `rect3` is wider than
+Kết quả đầu ra mong đợi sẽ trông như sau vì cả hai kích thước của
+`rect2` đều nhỏ hơn kích thước của `rect1`, nhưng `rect3` lại rộng hơn
 `rect1`:
 
 ```text
@@ -114,21 +113,20 @@ Can rect1 hold rect2? true
 Can rect1 hold rect3? false
 ```
 
-We know we want to define a method, so it will be within the `impl Rectangle`
-block. The method name will be `can_hold`, and it will take an immutable borrow
-of another `Rectangle` as a parameter. We can tell what the type of the
-parameter will be by looking at the code that calls the method:
-`rect1.can_hold(&rect2)` passes in `&rect2`, which is an immutable borrow to
-`rect2`, an instance of `Rectangle`. This makes sense because we only need to
-read `rect2` (rather than write, which would mean we’d need a mutable borrow),
-and we want `main` to retain ownership of `rect2` so we can use it again after
-calling the `can_hold` method. The return value of `can_hold` will be a
-Boolean, and the implementation will check whether the width and height of
-`self` are greater than the width and height of the other `Rectangle`,
-respectively. Let’s add the new `can_hold` method to the `impl` block from
-Listing 5-13, shown in Listing 5-15.
+Chúng ta biết mình muốn định nghĩa một phương thức, vì vậy nó sẽ nằm trong khối `impl Rectangle`.
+Tên phương thức sẽ là `can_hold`, và nó sẽ nhận một phép vay mượn bất biến
+của một `Rectangle` khác làm tham số. Chúng ta có thể biết kiểu của tham số
+sẽ là gì bằng cách nhìn vào đoạn mã gọi phương thức:
+`rect1.can_hold(&rect2)` truyền vào `&rect2`, vốn là một phép vay mượn bất biến của
+`rect2`, một thể hiện của `Rectangle`. Điều này hợp lý vì chúng ta chỉ cần
+đọc `rect2` (thay vì ghi, điều này có nghĩa là chúng ta cần một phép vay mượn có thể thay đổi),
+và chúng ta muốn `main` vẫn giữ quyền sở hữu của `rect2` để chúng ta có thể sử dụng lại nó sau khi
+gọi phương thức `can_hold`. Giá trị trả về của `can_hold` sẽ là một
+kiểu Boolean, và việc triển khai sẽ kiểm tra xem chiều rộng và chiều cao của
+`self` có lần lượt lớn hơn chiều rộng và chiều cao của hình chữ nhật kia (`other`) hay không.
+Hãy thêm phương thức `can_hold` mới vào khối `impl` từ Listing 5-13, được hiển thị trong Listing 5-15.
 
-<Listing number="5-15" file-name="src/main.rs" caption="Implementing the `can_hold` method on `Rectangle` that takes another `Rectangle` instance as a parameter">
+<Listing number="5-15" file-name="src/main.rs" caption="Triển khai phương thức `can_hold` trên `Rectangle` nhận một thể hiện `Rectangle` khác làm tham số">
 
 ```rust
 {{#rustdoc_include ../listings/ch05-using-structs-to-structure-related-data/listing-05-15/src/main.rs:here}}
@@ -136,52 +134,50 @@ Listing 5-13, shown in Listing 5-15.
 
 </Listing>
 
-When we run this code with the `main` function in Listing 5-14, we’ll get our
-desired output. Methods can take multiple parameters that we add to the
-signature after the `self` parameter, and those parameters work just like
-parameters in functions.
+Khi chúng ta chạy mã này với hàm `main` ở Listing 5-14, chúng ta sẽ nhận được
+kết quả mong muốn. Các phương thức có thể nhận nhiều tham số mà chúng ta thêm vào
+chữ ký sau tham số `self`, và những tham số đó hoạt động giống như
+các tham số trong hàm.
 
+### Các hàm liên kết
 
-### Associated Functions
+Tất cả các hàm được định nghĩa bên trong một khối `impl` được gọi là _các hàm liên kết_ (associated functions)
+bởi vì chúng được liên kết với kiểu được đặt tên sau từ khóa `impl`. Chúng ta có thể định nghĩa
+các hàm liên kết như là các hàm không có `self` làm tham số đầu tiên (và do đó
+không phải là các phương thức) vì chúng không cần một thể hiện của kiểu để làm việc cùng.
+Chúng ta đã từng sử dụng một hàm như thế này rồi: hàm `String::from`
+được định nghĩa trên kiểu `String`.
 
-All functions defined within an `impl` block are called _associated functions_
-because they’re associated with the type named after the `impl`. We can define
-associated functions as functions that don’t have `self` as their first parameter (and thus
-are not methods) because they don’t need an instance of the type to work with.
-We’ve already used one function like this: the `String::from` function that’s
-defined on the `String` type.
+Các hàm liên kết không phải là phương thức thường được sử dụng cho các hàm khởi tạo (constructors)
+sẽ trả về một thể hiện mới của struct. Những hàm này thường được gọi là `new`, nhưng
+`new` không phải là một cái tên đặc biệt và không được xây dựng sẵn trong ngôn ngữ. Ví dụ, chúng ta
+có thể chọn cung cấp một hàm liên kết tên là `square` nhận vào một tham số kích thước
+và sử dụng nó làm cả chiều rộng và chiều cao, do đó giúp việc tạo một `Rectangle` hình vuông
+trở nên dễ dàng hơn thay vì phải chỉ định cùng một giá trị hai lần:
 
-Associated functions that aren’t methods are often used for constructors that
-will return a new instance of the struct. These are often called `new`, but
-`new` isn’t a special name and isn’t built into the language. For example, we
-could choose to provide an associated function named `square` that would have
-one dimension parameter and use that as both width and height, thus making it
-easier to create a square `Rectangle` rather than having to specify the same
-value twice:
-
-<span class="filename">Filename: src/main.rs</span>
+<span class="filename">Tên file: src/main.rs</span>
 
 ```rust
 {{#rustdoc_include ../listings/ch05-using-structs-to-structure-related-data/no-listing-03-associated-functions/src/main.rs:here}}
 ```
 
-The `Self` keywords in the return type and in the body of the function are
-aliases for the type that appears after the `impl` keyword, which in this case
-is `Rectangle`.
+Các từ khóa `Self` trong kiểu trả về và trong thân hàm là
+bí danh cho kiểu xuất hiện sau từ khóa `impl`, trong trường hợp này
+là `Rectangle`.
 
-To call this associated function, we use the `::` syntax with the struct name;
-`let sq = Rectangle::square(3);` is an example. This function is namespaced by
-the struct: the `::` syntax is used for both associated functions and
-namespaces created by modules. We’ll discuss modules in [Chapter
+Để gọi hàm liên kết này, chúng ta sử dụng cú pháp `::` với tên struct;
+`let sq = Rectangle::square(3);` là một ví dụ. Hàm này được phân không gian tên (namespaced) bởi
+struct: cú pháp `::` được sử dụng cho cả các hàm liên kết và các không gian tên
+được tạo ra bởi các module. Chúng ta sẽ thảo luận về module trong [Chương
 7][modules]<!-- ignore -->.
 
-### Multiple `impl` Blocks
+### Nhiều khối `impl`
 
-Each struct is allowed to have multiple `impl` blocks. For example, Listing
-5-15 is equivalent to the code shown in Listing 5-16, which has each method in
-its own `impl` block.
+Mỗi struct được phép có nhiều khối `impl`. Ví dụ, Listing
+5-15 tương đương với đoạn mã được hiển thị trong Listing 5-16, trong đó mỗi phương thức nằm trong
+khối `impl` của riêng nó.
 
-<Listing number="5-16" caption="Rewriting Listing 5-15 using multiple `impl` blocks">
+<Listing number="5-16" caption="Viết lại Listing 5-15 bằng cách sử dụng nhiều khối `impl`">
 
 ```rust
 {{#rustdoc_include ../listings/ch05-using-structs-to-structure-related-data/listing-05-16/src/main.rs:here}}
@@ -189,20 +185,20 @@ its own `impl` block.
 
 </Listing>
 
-There’s no reason to separate these methods into multiple `impl` blocks here,
-but this is valid syntax. We’ll see a case in which multiple `impl` blocks are
-useful in Chapter 10, where we discuss generic types and traits.
+Không có lý do gì để tách các phương thức này thành nhiều khối `impl` ở đây,
+nhưng đây là một cú pháp hợp lệ. Chúng ta sẽ thấy trường hợp mà việc sử dụng nhiều khối `impl` là
+hữu ích trong Chương 10, nơi chúng ta thảo luận về các kiểu generic và các trait.
 
-### Method Calls are Syntactic Sugar for Function Calls
+### Lời gọi Phương thức là Cú pháp Hình thức cho Lời gọi Hàm
 
-Using the concepts we've discussed so far, we can now see how method calls are syntactic sugar for function calls. For example, let's say we have a rectangle struct with an `area` method and a `set_width` method:
+Sử dụng các khái niệm mà chúng ta đã thảo luận cho đến nay, giờ đây chúng ta có thể thấy cách các lời gọi phương thức là cú pháp hình thức (syntactic sugar) cho các lời gọi hàm. Ví dụ, giả sử chúng ta có một struct rectangle với một phương thức `area` và một phương thức `set_width`:
 
 ```rust,ignore
 # struct Rectangle {
 #     width: u32,
 #     height: u32,
 # }
-# 
+#
 impl Rectangle {
     fn area(&self) -> u32 {
         self.width * self.height
@@ -214,26 +210,26 @@ impl Rectangle {
 }
 ```
 
-And let's say we have a rectangle `r`. Then the method calls `r.area()` and `r.set_width(2)` are equivalent to this:
+Và giả sử chúng ta có một hình chữ nhật `r`. Khi đó, các lời gọi phương thức `r.area()` và `r.set_width(2)` tương đương với điều này:
 
 ```rust
 # struct Rectangle {
 #     width: u32,
 #     height: u32,
 # }
-# 
+#
 # impl Rectangle {
 #     fn area(&self) -> u32 {
 #        self.width * self.height
 #      }
-# 
+#
 #     fn set_width(&mut self, width: u32) {
 #         self.width = width;
 #     }
 # }
-# 
+#
 # fn main() {
-    let mut r = Rectangle { 
+    let mut r = Rectangle {
         width: 1,
         height: 2
     };
@@ -246,31 +242,31 @@ And let's say we have a rectangle `r`. Then the method calls `r.area()` and `r.s
 # }
 ```
 
-The method call `r.area()` becomes `Rectangle::area(&r)`. The function name is the associated function `Rectangle::area`. The function argument is the `&self` parameter. Rust automatically inserts the borrowing operator `&`.
+Lời gọi phương thức `r.area()` trở thành `Rectangle::area(&r)`. Tên hàm là hàm liên kết `Rectangle::area`. Đối số của hàm là tham số `&self`. Rust tự động chèn toán tử vay mượn `&`.
 
-> *Note:* if you are familiar with C or C++, you are used to two different syntaxes for method calls: `r.area()` and `r->area()`. Rust does not have an equivalent to the arrow operator `->`. Rust will automatically reference and dereference the method receiver when you use the dot operator.
+> _Lưu ý:_ nếu bạn đã quen với C hoặc C++, bạn đã quen với hai cú pháp khác nhau cho các lời gọi phương thức: `r.area()` và `r->area()`. Rust không có toán tử tương đương với toán tử mũi tên `->`. Rust sẽ tự động tham chiếu (reference) và giải tham chiếu (dereference) đối tượng nhận phương thức khi bạn sử dụng toán tử dấu chấm.
 
-The method call `r.set_width(2)` similarly becomes `Rectangle::set_width(&mut r, 2)`. This method expects `&mut self`, so the first argument is a mutable borrow `&mut r`. The second argument is exactly the same, the number 2.
+Lời gọi phương thức `r.set_width(2)` tương tự trở thành `Rectangle::set_width(&mut r, 2)`. Phương thức này yêu cầu `&mut self`, vì vậy đối số đầu tiên là một phép vay mượn có thể thay đổi `&mut r`. Đối số thứ hai hoàn toàn giống nhau, là con số 2.
 
-As we described in Chapter 4.2 ["Dereferencing a Pointer Accesses Its Data"](ch04-02-references-and-borrowing.html#dereferencing-a-pointer-accesses-its-data), Rust will insert as many references and dereferences as needed to make the types match up for the `self` parameter. For example, here are two equivalent calls to `area` for a mutable reference to a boxed rectangle:
+Như chúng ta đã mô tả trong Chương 4.2 [“Giải tham chiếu một Con trỏ để Truy cập Dữ liệu của nó”](ch04-02-references-and-borrowing.html#dereferencing-a-pointer-accesses-its-data), Rust sẽ chèn bao nhiêu phép tham chiếu và giải tham chiếu cần thiết để làm cho các kiểu khớp với nhau cho tham số `self`. Ví dụ, đây là hai lời gọi tương đương đến `area` cho một tham chiếu có thể thay đổi đến một boxed rectangle:
 
 ```rust
 # struct Rectangle {
 #     width: u32,
 #     height: u32,
 # }
-# 
+#
 # impl Rectangle {
 #     fn area(&self) -> u32 {
 #        self.width * self.height
 #      }
-# 
+#
 #     fn set_width(&mut self, width: u32) {
 #         self.width = width;
 #     }
 # }
 # fn main() {
-    let r = &mut Box::new(Rectangle { 
+    let r = &mut Box::new(Rectangle {
         width: 1,
         height: 2
     });
@@ -280,17 +276,16 @@ As we described in Chapter 4.2 ["Dereferencing a Pointer Accesses Its Data"](ch0
 # }
 ```
 
-Rust will add two dereferences (once for the mutable reference, once for the box) and then one immutable borrow because `area` expects `&Rectangle`. Note that this is also a situation where a mutable reference is "downgraded" into a shared reference, like we discussed in [Chapter 4.2](ch04-02-references-and-borrowing.html#mutable-references-provide-unique-and-non-owning-access-to-data). Conversely, you would not be allowed to call `set_width` on a value of type `&Rectangle` or `&Box<Rectangle>`.
+Rust sẽ thêm hai phép giải tham chiếu (một lần cho tham chiếu có thể thay đổi, một lần cho box) và sau đó là một phép vay mượn bất biến vì `area` yêu cầu `&Rectangle`. Lưu ý rằng đây cũng là một tình huống mà một tham chiếu có thể thay đổi bị "hạ cấp" thành một tham chiếu dùng chung, như chúng ta đã thảo luận trong [Chương 4.2](ch04-02-references-and-borrowing.html#mutable-references-provide-unique-and-non-owning-access-to-data). Ngược lại, bạn sẽ không được phép gọi `set_width` trên một giá trị có kiểu `&Rectangle` hoặc `&Box<Rectangle>`.
 
 {{#quiz ../quizzes/ch05-03-method-syntax-sec1.toml}}
 
+### Phương thức và Quyền sở hữu
 
-### Methods and Ownership
-
-Like we discussed in Chapter 4.2 ["References and Borrowing"](ch04-02-references-and-borrowing.html), methods must be called on structs that have the necessary permissions. As a running example, we will use these three methods that take `&self`, `&mut self`, and `self`, respectively.
+Như chúng ta đã thảo luận trong Chương 4.2 [“Tham chiếu và Vay mượn”](ch04-02-references-and-borrowing.html), các phương thức phải được gọi trên các struct có các quyền hạn cần thiết. Như một ví dụ xuyên suốt, chúng ta sẽ sử dụng ba phương thức lần lượt nhận vào `&self`, `&mut self`, và `self`.
 
 ```rust,ignore
-impl Rectangle {    
+impl Rectangle {
     fn area(&self) -> u32 {
         self.width * self.height
     }
@@ -300,7 +295,7 @@ impl Rectangle {
     }
 
     fn max(self, other: Rectangle) -> Rectangle {
-        Rectangle { 
+        Rectangle {
             width: self.width.max(other.width),
             height: self.height.max(other.height),
         }
@@ -308,16 +303,16 @@ impl Rectangle {
 }
 ```
 
-#### Reads and Writes with `&self` and `&mut self`
+#### Đọc và Ghi với `&self` và `&mut self`
 
-If we make an owned rectangle with `let rect = Rectangle { ... }`, then `rect` has @Perm{read} and @Perm{own} permissions. With those permissions, it is permissible to call the `area` and `max` methods:
+Nếu chúng ta tạo một hình chữ nhật được sở hữu với `let rect = Rectangle { ... }`, thì `rect` có các quyền hạn @Perm{read} và @Perm{own}. Với những quyền hạn đó, việc gọi các phương thức `area` và `max` là được phép:
 
 ```aquascope,permissions,boundaries,stepper
 #struct Rectangle {
 #    width: u32,
 #    height: u32,
 #}
-#impl Rectangle {    
+#impl Rectangle {
 #  fn area(&self) -> u32 {
 #    self.width * self.height
 #  }
@@ -329,7 +324,7 @@ If we make an owned rectangle with `let rect = Rectangle { ... }`, then `rect` h
 #  fn max(self, other: Self) -> Self {
 #    let w = self.width.max(other.width);
 #    let h = self.height.max(other.height);
-#    Rectangle { 
+#    Rectangle {
 #      width: w,
 #      height: h
 #    }
@@ -347,14 +342,14 @@ let max_rect = rect.max(other_rect);`{}`
 #}
 ```
 
-However, if we try to call `set_width`, we are missing the @Perm{write} permission:
+Tuy nhiên, nếu chúng ta cố gắng gọi `set_width`, chúng ta bị thiếu quyền hạn @Perm{write}:
 
 ```aquascope,permissions,boundaries,shouldFail
 #struct Rectangle {
 #    width: u32,
 #    height: u32,
 #}
-#impl Rectangle {    
+#impl Rectangle {
 #  fn area(&self) -> u32 {
 #    self.width * self.height
 #  }
@@ -366,7 +361,7 @@ However, if we try to call `set_width`, we are missing the @Perm{write} permissi
 #  fn max(self, other: Self) -> Self {
 #    let w = self.width.max(other.width);
 #    let h = self.height.max(other.height);
-#    Rectangle { 
+#    Rectangle {
 #      width: w,
 #      height: h
 #    }
@@ -381,7 +376,7 @@ rect.set_width(0);`{}`
 #}
 ```
 
-Rust will reject this program with the corresponding error:
+Rust sẽ từ chối chương trình này với lỗi tương ứng:
 
 ```text
 error[E0596]: cannot borrow `rect` as mutable, as it is not declared as mutable
@@ -394,14 +389,14 @@ error[E0596]: cannot borrow `rect` as mutable, as it is not declared as mutable
    | ^^^^^^^^^^^^^^^^^ cannot borrow as mutable
 ```
 
-We will get a similar error if we try to call `set_width` on an immutable reference to a `Rectangle`, even if the underlying rectangle is mutable:
+Chúng ta sẽ nhận được một lỗi tương tự nếu chúng ta cố gắng gọi `set_width` trên một tham chiếu bất biến đến một `Rectangle`, ngay cả khi hình chữ nhật bên dưới là có thể thay đổi:
 
 ```aquascope,permissions,boundaries,stepper,shouldFail
 #struct Rectangle {
 #    width: u32,
 #    height: u32,
 #}
-#impl Rectangle {    
+#impl Rectangle {
 #  fn area(&self) -> u32 {
 #    self.width * self.height
 #  }
@@ -413,35 +408,35 @@ We will get a similar error if we try to call `set_width` on an immutable refere
 #  fn max(self, other: Self) -> Self {
 #    let w = self.width.max(other.width);
 #    let h = self.height.max(other.height);
-#    Rectangle { 
+#    Rectangle {
 #      width: w,
 #      height: h
 #    }
 #  }
 #}
 #fn main() {
-// Added the mut keyword to the let-binding
+// Đã thêm từ khóa mut vào let-binding
 let mut rect = Rectangle {
     width: 0,
     height: 0
 };`(focus,rxpaths:^rect$)`
-rect.set_width(1);`{}`     // this is now ok
+rect.set_width(1);`{}`     // điều này bây giờ ổn
 
 let rect_ref = &rect;`(focus,rxpaths:^\*rect_ref$)`
-rect_ref.set_width(2);`{}` // but this is still not ok
+rect_ref.set_width(2);`{}` // nhưng điều này vẫn không ổn
 #}
 ```
 
-#### Moves with `self`
+#### Di chuyển với `self`
 
-Calling a method that expects `self` will move the input struct (unless the struct implements `Copy`). For example, we cannot use a `Rectangle` after passing it to `max`:
+Gọi một phương thức yêu cầu `self` sẽ di chuyển (move) struct đầu vào (trừ khi struct đó triển khai `Copy`). Ví dụ, chúng ta không thể sử dụng một `Rectangle` sau khi truyền nó cho `max`:
 
 ```aquascope,permissions,boundaries,stepper,shouldFail
 #struct Rectangle {
 #    width: u32,
 #    height: u32,
 #}
-#impl Rectangle {    
+#impl Rectangle {
 #  fn area(&self) -> u32 {
 #    self.width * self.height
 #  }
@@ -453,7 +448,7 @@ Calling a method that expects `self` will move the input struct (unless the stru
 #  fn max(self, other: Self) -> Self {
 #    let w = self.width.max(other.width);
 #    let h = self.height.max(other.height);
-#    Rectangle { 
+#    Rectangle {
 #      width: w,
 #      height: h
 #    }
@@ -464,16 +459,16 @@ let rect = Rectangle {
     width: 0,
     height: 0
 };`(focus,rxpaths:^rect$)`
-let other_rect = Rectangle { 
-    width: 1, 
-    height: 1 
+let other_rect = Rectangle {
+    width: 1,
+    height: 1
 };
 let max_rect = rect.max(other_rect);`(focus,rxpaths:^rect$)`
 println!("{}", rect.area());`{}`
 #}
 ```
 
-Once we call `rect.max(..)`, we move `rect` and so lose all permissions on it. Trying to compile this program would give us the following error:
+Một khi chúng ta gọi `rect.max(..)`, chúng ta di chuyển `rect` và do đó mất tất cả các quyền hạn trên nó. Cố gắng biên dịch chương trình này sẽ cho chúng ta lỗi sau:
 
 ```text
 error[E0382]: borrow of moved value: `rect`
@@ -488,14 +483,14 @@ error[E0382]: borrow of moved value: `rect`
    |                ^^^^^^^^^^^ value borrowed here after move
 ```
 
-A similar situation arises if we try to call a `self` method on a reference. For instance, say we tried to make a method `set_to_max` that assigns `self` to the output of `self.max(..)`:
+Một tình huống tương tự nảy sinh nếu chúng ta cố gắng gọi một phương thức `self` trên một tham chiếu. Chẳng hạn, giả sử chúng ta cố gắng tạo một phương thức `set_to_max` gán `self` cho kết quả đầu ra của `self.max(..)`:
 
 ```aquascope,permissions,boundaries,stepper,shouldFail
 #struct Rectangle {
 #    width: u32,
 #    height: u32,
 #}
-impl Rectangle {    
+impl Rectangle {
 #  fn area(&self) -> u32 {
 #    self.width * self.height
 #  }
@@ -507,7 +502,7 @@ impl Rectangle {
 #  fn max(self, other: Self) -> Self {
 #    let w = self.width.max(other.width);
 #    let h = self.height.max(other.height);
-#    Rectangle { 
+#    Rectangle {
 #      width: w,
 #      height: h
 #    }
@@ -518,7 +513,7 @@ impl Rectangle {
 }
 ```
 
-Then we can see that `self` is missing @Perm{own} permissions in the operation `self.max(..)`. Rust therefore rejects this program with the following error:
+Khi đó chúng ta có thể thấy rằng `self` thiếu quyền hạn @Perm{own} trong phép toán `self.max(..)`. Do đó, Rust từ chối chương trình này với lỗi sau:
 
 ```text
 error[E0507]: cannot move out of `*self` which is behind a mutable reference
@@ -532,22 +527,22 @@ error[E0507]: cannot move out of `*self` which is behind a mutable reference
    |
 ```
 
-This is the same kind of error we discussed in Chapter 4.3 ["Copying vs. Moving Out of a Collection"](ch04-03-fixing-ownership-errors.html#fixing-an-unsafe-program-copying-vs-moving-out-of-a-collection).
+Đây là cùng một loại lỗi mà chúng ta đã thảo luận trong Chương 4.3 [“Sao chép và Di chuyển ra khỏi một Bộ sưu tập”](ch04-03-fixing-ownership-errors.html#fixing-an-unsafe-program-copying-vs-moving-out-of-a-collection).
 
-#### Good Moves and Bad Moves
+#### Các bước Di chuyển Tốt và Các bước Di chuyển Xấu
 
-You might wonder: why does it matter if we move out of `*self`? In fact, for the case of `Rectangle`, it actually is safe to move out of `*self`, even though Rust doesn't let you do it. For example, if we simulate a program that calls the rejected `set_to_max`, you can see how nothing unsafe occurs:
+Bạn có thể tự hỏi: tại sao việc chúng ta di chuyển ra khỏi `*self` lại quan trọng? Trên thực tế, đối với trường hợp của `Rectangle`, việc di chuyển ra khỏi `*self` thực sự là an toàn, mặc dù Rust không cho phép bạn làm điều đó. Ví dụ, nếu chúng ta mô phỏng một chương trình gọi phương thức `set_to_max` bị từ chối, bạn có thể thấy không có điều gì không an toàn xảy ra:
 
 ```aquascope,interpreter,shouldFail,horizontal
 #struct Rectangle {
 #    width: u32,
 #    height: u32,
 #}
-impl Rectangle {    
+impl Rectangle {
 #  fn max(self, other: Self) -> Self {
 #    let w = self.width.max(other.width);
 #    let h = self.height.max(other.height);
-#    Rectangle { 
+#    Rectangle {
 #      width: w,
 #      height: h
 #    }
@@ -565,8 +560,8 @@ fn main() {
 }
 ```
 
-The reason it's safe to move out of `*self` is because `Rectangle` does not own any heap data.
-In fact, we can actually get Rust to compile `set_to_max` by simply adding `#[derive(Copy, Clone)]` to the definition of `Rectangle`:
+Lý do di chuyển ra khỏi `*self` an toàn là vì `Rectangle` không sở hữu bất kỳ dữ liệu heap nào.
+Trên thực tế, chúng ta thực sự có thể làm cho Rust biên dịch `set_to_max` bằng cách đơn giản thêm `#[derive(Copy, Clone)]` vào định nghĩa của `Rectangle`:
 
 ```aquascope,permissions,boundaries,stepper
 \#[derive(Copy, Clone)]
@@ -575,11 +570,11 @@ struct Rectangle {
     height: u32,
 }
 
-impl Rectangle {    
+impl Rectangle {
 #  fn max(self, other: Self) -> Self {
 #    let w = self.width.max(other.width);
 #    let h = self.height.max(other.height);
-#    Rectangle { 
+#    Rectangle {
 #      width: w,
 #      height: h
 #    }
@@ -590,11 +585,11 @@ impl Rectangle {
 }
 ```
 
-Notice that unlike before, `self.max(other)` no longer requires the @Perm{own} permission on `*self` or `other`. Remember that `self.max(other)` desugars to `Rectangle::max(*self, other)`. The dereference `*self` does not require ownership over `*self` if `Rectangle` is copyable.
+Chú ý rằng không giống như trước đây, `self.max(other)` không còn yêu cầu quyền hạn @Perm{own} trên `*self` hoặc `other`. Hãy nhớ rằng `self.max(other)` được giải mã thành `Rectangle::max(*self, other)`. Giải tham chiếu `*self` không yêu cầu quyền sở hữu trên `*self` nếu `Rectangle` có thể copy.
 
-You might wonder: why doesn't Rust automatically derive `Copy` for `Rectangle`? Rust does not auto-derive `Copy` for stability across API changes. Imagine that the author of the `Rectangle` type decided to add a `name: String` field. Then all client code that relies on `Rectangle` being `Copy` would suddenly get rejected by the compiler. To avoid that issue, API authors must explicitly add `#[derive(Copy)]` to indicate that they expect their struct to always be `Copy`.
+Bạn có thể thắc mắc: tại sao Rust không tự động dẫn xuất (derive) `Copy` cho `Rectangle`? Rust không tự động dẫn xuất `Copy` để đảm bảo tính ổn định qua các thay đổi API. Hãy tưởng tượng rằng tác giả của kiểu `Rectangle` quyết định thêm một trường `name: String`. Khi đó tất cả mã máy khách dựa vào việc `Rectangle` là `Copy` sẽ đột ngột bị trình biên dịch từ chối. Để tránh vấn đề đó, các tác giả API phải thêm `#[derive(Copy)]` một cách rõ ràng để chỉ ra rằng họ mong đợi struct của mình luôn là `Copy`.
 
-To better understand the issue, let's run a simulation. Say we added `name: String` to `Rectangle`. What would happen if Rust allowed `set_to_max` to compile?
+Để hiểu rõ hơn vấn đề, hãy chạy một mô phỏng. Giả sử chúng ta đã thêm `name: String` vào `Rectangle`. Điều gì sẽ xảy ra nếu Rust cho phép `set_to_max` biên dịch?
 
 ```aquascope,interpreter,shouldFail,horizontal
 struct Rectangle {
@@ -603,11 +598,11 @@ struct Rectangle {
     name: String,
 }
 
-impl Rectangle {    
+impl Rectangle {
 #  fn max(self, other: Self) -> Self {
 #    let w = self.width.max(other.width);
 #    let h = self.height.max(other.height);
-#    Rectangle { 
+#    Rectangle {
 #      width: w,
 #      height: h,
 #      name: String::from("max")
@@ -615,17 +610,17 @@ impl Rectangle {
 #  }
     fn set_to_max(&mut self, other: Rectangle) {
         `[]`let max = self.max(other);`[]`
-        drop(*self);`[]` // This is usually implicit,
-                         // but added here for clarity.
+        drop(*self);`[]` // Điều này thường là ngầm định,
+                         // nhưng được thêm vào đây để rõ ràng.
         *self = max;
     }
 }
 
 fn main() {
-    let mut r1 = Rectangle { 
-        width: 9, 
-        height: 9, 
-        name: String::from("r1") 
+    let mut r1 = Rectangle {
+        width: 9,
+        height: 9,
+        name: String::from("r1")
     };
     let r2 = Rectangle {
         width: 16,
@@ -636,24 +631,23 @@ fn main() {
 }
 ```
 
-In this program, we call `set_to_max` with two rectangles `r1` and `r2`. `self` is a mutable reference to `r1` and `other` is a move of `r2`. After calling `self.max(other)`, the `max` method consumes ownership of both rectangles. When `max` returns, Rust deallocates both strings "r1" and "r2" in the heap. Notice the problem: at the location L2, `*self` is supposed to be readable and writable. However, `(*self).name` (actually `r1.name`) has been deallocated.
+Trong chương trình này, chúng ta gọi `set_to_max` với hai hình chữ nhật `r1` và `r2`. `self` là một tham chiếu có thể thay đổi đến `r1` và `other` là một bước di chuyển của `r2`. Sau khi gọi `self.max(other)`, phương thức `max` tiêu thụ quyền sở hữu của cả hai hình chữ nhật. Khi `max` trả về, Rust giải phóng cả hai chuỗi "r1" và "r2" trong heap. Lưu ý vấn đề: tại vị trí L2, `*self` được cho là có thể đọc và viết được. Tuy nhiên, `(*self).name` (thực tế là `r1.name`) đã bị giải phóng.
 
-Therefore when we do `*self = max`, we encounter undefined behavior. When we overwrite `*self`, Rust will implicitly drop the data previously in `*self`. To make that behavior explicit, we have added `drop(*self)`. After calling `drop(*self)`, Rust attempts to free `(*self).name` a second time. That action is a double-free, which is undefined behavior.
+Do đó, khi chúng ta thực hiện `*self = max`, chúng ta gặp phải hành vi không xác định (undefined behavior). Khi chúng ta ghi đè lên `*self`, Rust sẽ ngầm định drop dữ liệu trước đó trong `*self`. Để làm cho hành vi đó rõ ràng, chúng ta đã thêm `drop(*self)`. Sau khi gọi `drop(*self)`, Rust cố gắng giải phóng `(*self).name` lần thứ hai. Hành động đó là một lỗi double-free, vốn là hành vi không xác định.
 
-So remember: when you see an error like "cannot move out of `*self`", that's usually because you're trying to call a `self` method on a reference like `&self` or `&mut self`. Rust is protecting you from a double-free.
+Vì vậy, hãy nhớ: khi bạn thấy một lỗi như "cannot move out of `*self`", đó thường là vì bạn đang cố gọi một phương thức `self` trên một tham chiếu như `&self` hoặc `&mut self`. Rust đang bảo vệ bạn khỏi lỗi double-free.
 
+## Tóm tắt
 
-## Summary
+Struct cho phép bạn tạo ra các kiểu dữ liệu tùy chỉnh có ý nghĩa cho miền nghiệp vụ của mình. Bằng cách
+sử dụng struct, bạn có thể giữ các phần dữ liệu liên quan kết nối với nhau
+và đặt tên cho từng phần để làm cho mã của bạn trở nên rõ ràng. Trong các khối `impl`, bạn có thể định nghĩa
+các hàm liên kết với kiểu của mình, và các phương thức là một loại hàm
+liên kết cho phép bạn chỉ định hành vi mà các thể hiện của
+struct của bạn có.
 
-Structs let you create custom types that are meaningful for your domain. By
-using structs, you can keep associated pieces of data connected to each other
-and name each piece to make your code clear. In `impl` blocks, you can define
-functions that are associated with your type, and methods are a kind of
-associated function that let you specify the behavior that instances of your
-structs have.
-
-But structs aren’t the only way you can create custom types: let’s turn to
-Rust’s enum feature to add another tool to your toolbox.
+Nhưng struct không phải là cách duy nhất bạn có thể tạo các kiểu dữ liệu tùy chỉnh: hãy chuyển sang
+tính năng enum của Rust để thêm một công cụ khác vào hộp dụng cụ của bạn.
 
 {{#quiz ../quizzes/ch05-03-method-syntax-sec2.toml}}
 
