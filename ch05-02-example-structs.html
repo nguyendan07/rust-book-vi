@@ -175,14 +175,14 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="an-example-program-using-structs"><a class="header" href="#an-example-program-using-structs">An Example Program Using Structs</a></h2>
-<p>To understand when we might want to use structs, let’s write a program that
-calculates the area of a rectangle. We’ll start by using single variables, and
-then refactor the program until we’re using structs instead.</p>
-<p>Let’s make a new binary project with Cargo called <em>rectangles</em> that will take
-the width and height of a rectangle specified in pixels and calculate the area
-of the rectangle. Listing 5-8 shows a short program with one way of doing
-exactly that in our project’s <em>src/main.rs</em>.</p>
+                        <h2 id="chương-trình-sử-dụng-struct"><a class="header" href="#chương-trình-sử-dụng-struct">Chương trình Sử dụng Struct</a></h2>
+<p>Để hiểu khi nào chúng ta có thể muốn sử dụng struct, hãy viết một chương trình
+tính diện tích của một hình chữ nhật. Chúng ta sẽ bắt đầu bằng cách sử dụng các biến đơn lẻ, và
+sau đó cấu trúc lại (refactor) chương trình cho đến khi chúng ta sử dụng struct thay thế.</p>
+<p>Hãy tạo một dự án binary mới với Cargo tên là <em>rectangles</em> để nhận vào
+chiều rộng và chiều cao của một hình chữ nhật được chỉ định bằng pixel và tính diện tích
+của hình chữ nhật đó. Listing 5-8 hiển thị một chương trình ngắn với một cách để thực hiện
+chính xác điều đó trong file <em>src/main.rs</em> của dự án.</p>
 <figure class="listing" id="listing-5-8">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><pre class="playground"><code class="language-rust edition2024">fn main() {
@@ -198,19 +198,19 @@ exactly that in our project’s <em>src/main.rs</em>.</p>
 fn area(width: u32, height: u32) -&gt; u32 {
     width * height
 }</code></pre></pre>
-<figcaption><a href="#listing-5-8">Listing 5-8</a>: Calculating the area of a rectangle specified by separate width and height variables</figcaption>
+<figcaption><a href="#listing-5-8">Listing 5-8</a>: Tính diện tích của một hình chữ nhật được chỉ định bởi các biến chiều rộng và chiều cao riêng biệt</figcaption>
 </figure>
-<p>Now, run this program using <code>cargo run</code>:</p>
+<p>Bây giờ, hãy chạy chương trình này bằng lệnh <code>cargo run</code>:</p>
 <pre><code class="language-console">$ cargo run
    Compiling rectangles v0.1.0 (file:///projects/rectangles)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.42s
      Running `target/debug/rectangles`
 The area of the rectangle is 1500 square pixels.
 </code></pre>
-<p>This code succeeds in figuring out the area of the rectangle by calling the
-<code>area</code> function with each dimension, but we can do more to make this code clear
-and readable.</p>
-<p>The issue with this code is evident in the signature of <code>area</code>:</p>
+<p>Đoạn mã này đã thành công trong việc tính toán diện tích của hình chữ nhật bằng cách gọi
+hàm <code>area</code> với từng kích thước, nhưng chúng ta có thể làm nhiều hơn nữa để mã này trở nên rõ ràng
+và dễ đọc hơn.</p>
+<p>Vấn đề với mã này được thể hiện rõ trong chữ ký (signature) của hàm <code>area</code>:</p>
 <pre><code class="language-rust ignore"><span class="boring">fn main() {
 </span><span class="boring">    let width1 = 30;
 </span><span class="boring">    let height1 = 50;
@@ -224,14 +224,14 @@ and readable.</p>
 </span>fn area(width: u32, height: u32) -&gt; u32 {
 <span class="boring">    width * height
 </span><span class="boring">}</span></code></pre>
-<p>The <code>area</code> function is supposed to calculate the area of one rectangle, but the
-function we wrote has two parameters, and it’s not clear anywhere in our
-program that the parameters are related. It would be more readable and more
-manageable to group width and height together. We’ve already discussed one way
-we might do that in <a href="ch03-02-data-types.html#the-tuple-type">“The Tuple Type”</a><!-- ignore --> section
-of Chapter 3: by using tuples.</p>
-<h3 id="refactoring-with-tuples"><a class="header" href="#refactoring-with-tuples">Refactoring with Tuples</a></h3>
-<p>Listing 5-9 shows another version of our program that uses tuples.</p>
+<p>Hàm <code>area</code> được cho là để tính diện tích của một hình chữ nhật, nhưng hàm
+chúng ta viết lại có hai tham số, và không có chỗ nào trong chương trình thể hiện rõ
+rằng các tham số đó có liên quan với nhau. Sẽ dễ đọc hơn và dễ quản lý hơn nếu
+nhóm chiều rộng và chiều cao lại với nhau. Chúng ta đã thảo luận về một cách
+chúng ta có thể làm điều đó trong phần <a href="ch03-02-data-types.html#the-tuple-type">“Kiểu Tuple”</a><!-- ignore -->
+của Chương 3: bằng cách sử dụng các tuple.</p>
+<h3 id="cấu-trúc-lại-với-tuple"><a class="header" href="#cấu-trúc-lại-với-tuple">Cấu trúc lại với Tuple</a></h3>
+<p>Listing 5-9 cho thấy một phiên bản khác của chương trình sử dụng tuple.</p>
 <figure class="listing" id="listing-5-9">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><pre class="playground"><code class="language-rust edition2024">fn main() {
@@ -246,22 +246,22 @@ of Chapter 3: by using tuples.</p>
 fn area(dimensions: (u32, u32)) -&gt; u32 {
     dimensions.0 * dimensions.1
 }</code></pre></pre>
-<figcaption><a href="#listing-5-9">Listing 5-9</a>: Specifying the width and height of the rectangle with a tuple</figcaption>
+<figcaption><a href="#listing-5-9">Listing 5-9</a>: Chỉ định chiều rộng và chiều cao của hình chữ nhật bằng một tuple</figcaption>
 </figure>
-<p>In one way, this program is better. Tuples let us add a bit of structure, and
-we’re now passing just one argument. But in another way, this version is less
-clear: tuples don’t name their elements, so we have to index into the parts of
-the tuple, making our calculation less obvious.</p>
-<p>Mixing up the width and height wouldn’t matter for the area calculation, but if
-we want to draw the rectangle on the screen, it would matter! We would have to
-keep in mind that <code>width</code> is the tuple index <code>0</code> and <code>height</code> is the tuple
-index <code>1</code>. This would be even harder for someone else to figure out and keep in
-mind if they were to use our code. Because we haven’t conveyed the meaning of
-our data in our code, it’s now easier to introduce errors.</p>
-<h3 id="refactoring-with-structs-adding-more-meaning"><a class="header" href="#refactoring-with-structs-adding-more-meaning">Refactoring with Structs: Adding More Meaning</a></h3>
-<p>We use structs to add meaning by labeling the data. We can transform the tuple
-we’re using into a struct with a name for the whole as well as names for the
-parts, as shown in Listing 5-10.</p>
+<p>Theo một cách nào đó, chương trình này tốt hơn. Tuple cho phép chúng ta thêm một chút cấu trúc, và
+bây giờ chúng ta chỉ truyền một đối số duy nhất. Nhưng theo một cách khác, phiên bản này lại ít
+rõ ràng hơn: các tuple không đặt tên cho các thành phần của chúng, vì vậy chúng ta phải truy cập bằng chỉ số
+vào các phần của tuple, làm cho việc tính toán của chúng ta trở nên kém rõ ràng hơn.</p>
+<p>Việc nhầm lẫn giữa chiều rộng và chiều cao sẽ không quan trọng đối với việc tính toán diện tích, nhưng nếu
+chúng ta muốn vẽ hình chữ nhật lên màn hình, nó sẽ rất quan trọng! Chúng ta sẽ phải
+luôn ghi nhớ rằng <code>width</code> là chỉ số tuple <code>0</code> và <code>height</code> là chỉ số
+tuple <code>1</code>. Điều này thậm chí còn khó khăn hơn cho người khác để tìm hiểu và ghi nhớ
+nếu họ sử dụng mã của chúng ta. Bởi vì chúng ta đã không truyền đạt được ý nghĩa của
+dữ liệu trong mã nguồn, giờ đây việc dẫn đến sai sót sẽ dễ dàng hơn.</p>
+<h3 id="cấu-trúc-lại-với-struct-thêm-nhiều-ý-nghĩa-hơn"><a class="header" href="#cấu-trúc-lại-với-struct-thêm-nhiều-ý-nghĩa-hơn">Cấu trúc lại với Struct: Thêm nhiều ý nghĩa hơn</a></h3>
+<p>Chúng ta sử dụng struct để thêm ý nghĩa bằng cách dán nhãn cho dữ liệu. Chúng ta có thể chuyển đổi tuple
+chúng ta đang dùng thành một struct với tên cho toàn bộ cũng như tên cho các
+thành phần, như được hiển thị trong Listing 5-10.</p>
 <figure class="listing" id="listing-5-10">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><pre class="playground"><code class="language-rust edition2024">struct Rectangle {
@@ -284,31 +284,30 @@ fn main() {
 fn area(rectangle: &amp;Rectangle) -&gt; u32 {
     rectangle.width * rectangle.height
 }</code></pre></pre>
-<figcaption><a href="#listing-5-10">Listing 5-10</a>: Defining a <code>Rectangle</code> struct</figcaption>
+<figcaption><a href="#listing-5-10">Listing 5-10</a>: Định nghĩa một struct <code>Rectangle</code></figcaption>
 </figure>
-<p>Here, we’ve defined a struct and named it <code>Rectangle</code>. Inside the curly
-brackets, we defined the fields as <code>width</code> and <code>height</code>, both of which have
-type <code>u32</code>. Then, in <code>main</code>, we created a particular instance of <code>Rectangle</code>
-that has a width of <code>30</code> and a height of <code>50</code>.</p>
-<p>Our <code>area</code> function is now defined with one parameter, which we’ve named
-<code>rectangle</code>, whose type is an immutable borrow of a struct <code>Rectangle</code>
-instance. As mentioned in Chapter 4, we want to borrow the struct rather than
-take ownership of it. This way, <code>main</code> retains its ownership and can continue
-using <code>rect1</code>, which is the reason we use the <code>&amp;</code> in the function signature and
-where we call the function.</p>
-<p>The <code>area</code> function accesses the <code>width</code> and <code>height</code> fields of the <code>Rectangle</code>
-instance (note that accessing fields of a borrowed struct instance does not
-move the field values, which is why you often see borrows of structs). Our
-function signature for <code>area</code> now says exactly what we mean: calculate the area
-of <code>Rectangle</code>, using its <code>width</code> and <code>height</code> fields. This conveys that the
-width and height are related to each other, and it gives descriptive names to
-the values rather than using the tuple index values of <code>0</code> and <code>1</code>. This is a
-win for clarity.</p>
-<h3 id="adding-useful-functionality-with-derived-traits"><a class="header" href="#adding-useful-functionality-with-derived-traits">Adding Useful Functionality with Derived Traits</a></h3>
-<p>It’d be useful to be able to print an instance of <code>Rectangle</code> while we’re
-debugging our program and see the values for all its fields. Listing 5-11 tries
-using the <a href="https://doc.rust-lang.org/std/macro.println.html"><code>println!</code> macro</a><!-- ignore --> as we have used in
-previous chapters. This won’t work, however.</p>
+<p>Ở đây, chúng ta đã định nghĩa một struct và đặt tên cho nó là <code>Rectangle</code>. Bên trong dấu ngoặc nhọn,
+chúng ta đã định nghĩa các trường (fields) là <code>width</code> và <code>height</code>, cả hai đều có
+kiểu <code>u32</code>. Sau đó, trong hàm <code>main</code>, chúng ta đã tạo một thể hiện (instance) cụ thể của <code>Rectangle</code>
+có chiều rộng là <code>30</code> và chiều cao là <code>50</code>.</p>
+<p>Hàm <code>area</code> của chúng ta hiện được định nghĩa với một tham số, mà chúng ta đã đặt tên là
+<code>rectangle</code>, kiểu của nó là một phép vay mượn bất biến (immutable borrow) của một thể hiện struct <code>Rectangle</code>.
+Như đã đề cập trong Chương 4, chúng ta muốn vay mượn struct thay vì
+nắm quyền sở hữu nó. Bằng cách này, <code>main</code> vẫn giữ được quyền sở hữu của mình và có thể tiếp tục
+sử dụng <code>rect1</code>, đó là lý do chúng ta sử dụng dấu <code>&amp;</code> trong chữ ký hàm và
+nơi chúng ta gọi hàm.</p>
+<p>Hàm <code>area</code> truy cập các trường <code>width</code> và <code>height</code> của thể hiện <code>Rectangle</code>
+(lưu ý rằng việc truy cập các trường của một thể hiện struct được vay mượn không
+di chuyển các giá trị của trường, đó là lý do tại sao bạn thường thấy các phép vay mượn struct). Chữ ký
+hàm của chúng ta cho <code>area</code> hiện giờ đã nói chính xác những gì chúng ta muốn: tính diện tích
+của <code>Rectangle</code>, sử dụng các trường <code>width</code> và <code>height</code> của nó. Điều này truyền đạt rằng
+chiều rộng và chiều cao có liên quan đến nhau, và nó cung cấp những cái tên mô tả cho
+các giá trị thay vì sử dụng các giá trị chỉ số tuple là <code>0</code> và <code>1</code>. Đây là một điểm cộng cho sự rõ ràng.</p>
+<h3 id="thêm-các-chức-năng-hữu-ích-với-derived-traits"><a class="header" href="#thêm-các-chức-năng-hữu-ích-với-derived-traits">Thêm các chức năng hữu ích với Derived Traits</a></h3>
+<p>Sẽ rất hữu ích nếu có thể in ra một thể hiện của <code>Rectangle</code> trong khi chúng ta đang
+gỡ lỗi chương trình và xem giá trị của tất cả các trường của nó. Listing 5-11 cố gắng
+sử dụng macro <a href="https://doc.rust-lang.org/std/macro.println.html"><code>println!</code></a><!-- ignore --> như chúng ta đã sử dụng trong các
+chương trước. Tuy nhiên, việc này sẽ không hoạt động.</p>
 <figure class="listing" id="listing-5-11">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><code class="language-rust ignore does_not_compile">struct Rectangle {
@@ -324,40 +323,39 @@ fn main() {
 
     println!("rect1 is {rect1}");
 }</code></pre>
-<figcaption><a href="#listing-5-11">Listing 5-11</a>: Attempting to print a <code>Rectangle</code> instance</figcaption>
+<figcaption><a href="#listing-5-11">Listing 5-11</a>: Cố gắng in ra một thể hiện <code>Rectangle</code> thực tế</figcaption>
 </figure>
-<p>When we compile this code, we get an error with this core message:</p>
+<p>Khi chúng ta biên dịch mã này, chúng ta nhận được một lỗi với thông điệp cốt lõi sau:</p>
 <pre><code class="language-text">error[E0277]: `Rectangle` doesn't implement `std::fmt::Display`
 </code></pre>
-<p>The <code>println!</code> macro can do many kinds of formatting, and by default, the curly
-brackets tell <code>println!</code> to use formatting known as <code>Display</code>: output intended
-for direct end user consumption. The primitive types we’ve seen so far
-implement <code>Display</code> by default because there’s only one way you’d want to show
-a <code>1</code> or any other primitive type to a user. But with structs, the way
-<code>println!</code> should format the output is less clear because there are more
-display possibilities: Do you want commas or not? Do you want to print the
-curly brackets? Should all the fields be shown? Due to this ambiguity, Rust
-doesn’t try to guess what we want, and structs don’t have a provided
-implementation of <code>Display</code> to use with <code>println!</code> and the <code>{}</code> placeholder.</p>
-<p>If we continue reading the errors, we’ll find this helpful note:</p>
+<p>Macro <code>println!</code> có thể thực hiện nhiều kiểu định dạng, và theo mặc định, các dấu ngoặc nhọn
+nói với <code>println!</code> sử dụng định dạng được gọi là <code>Display</code>: đầu ra dành cho việc tiêu thụ trực tiếp
+của người dùng cuối. Các kiểu dữ liệu nguyên thủy mà chúng ta đã thấy cho đến nay
+đều triển khai <code>Display</code> theo mặc định vì chỉ có một cách duy nhất mà bạn muốn hiển thị
+số <code>1</code> hoặc bất kỳ kiểu nguyên thủy nào khác cho người dùng. Nhưng với struct, cách thức mà
+<code>println!</code> nên định dạng đầu ra lại kém rõ ràng hơn vì có nhiều khả năng hiển thị hơn:
+Bạn có muốn dấu phẩy hay không? Bạn có muốn in các dấu ngoặc nhọn không? Có nên hiển thị tất cả
+các trường không? Do sự mơ hồ này, Rust không cố gắng đoán những gì chúng ta muốn, và các struct
+không có sẵn một triển khai của <code>Display</code> để sử dụng với <code>println!</code> và trình giữ chỗ <code>{}</code>.</p>
+<p>Nếu chúng ta tiếp tục đọc các lỗi, chúng ta sẽ tìm thấy ghi chú hữu ích này:</p>
 <pre><code class="language-text">   = help: the trait `std::fmt::Display` is not implemented for `Rectangle`
    = note: in format strings you may be able to use `{:?}` (or {:#?} for pretty-print) instead
 </code></pre>
-<p>Let’s try it! The <code>println!</code> macro call will now look like <code>println!("rect1 is {rect1:?}");</code>. Putting the specifier <code>:?</code> inside the curly brackets tells
-<code>println!</code> we want to use an output format called <code>Debug</code>. The <code>Debug</code> trait
-enables us to print our struct in a way that is useful for developers so we can
-see its value while we’re debugging our code.</p>
-<p>Compile the code with this change. Drat! We still get an error:</p>
+<p>Hãy thử xem! Lời gọi macro <code>println!</code> giờ sẽ trông giống như <code>println!("rect1 is {rect1:?}");</code>. Việc đặt ký hiệu <code>:?</code> vào bên trong dấu ngoặc nhọn nói với
+<code>println!</code> rằng chúng ta muốn sử dụng một định dạng đầu ra được gọi là <code>Debug</code>. Trait <code>Debug</code>
+cho phép chúng ta in struct của mình theo cách hữu ích cho các nhà phát triển để chúng ta có thể
+thấy giá trị của nó trong khi đang gỡ lỗi mã nguồn.</p>
+<p>Biên dịch mã với thay đổi này. Chán thật! Chúng ta vẫn nhận được lỗi:</p>
 <pre><code class="language-text">error[E0277]: `Rectangle` doesn't implement `Debug`
 </code></pre>
-<p>But again, the compiler gives us a helpful note:</p>
+<p>Nhưng một lần nữa, trình biên dịch lại cho chúng ta một ghi chú hữu ích:</p>
 <pre><code class="language-text">   = help: the trait `Debug` is not implemented for `Rectangle`
    = note: add `#[derive(Debug)]` to `Rectangle` or manually `impl Debug for Rectangle`
 </code></pre>
-<p>Rust <em>does</em> include functionality to print out debugging information, but we
-have to explicitly opt in to make that functionality available for our struct.
-To do that, we add the outer attribute <code>#[derive(Debug)]</code> just before the
-struct definition, as shown in Listing 5-12.</p>
+<p>Rust <em>có</em> bao gồm chức năng để in ra thông tin gỡ lỗi, nhưng chúng ta
+phải chọn tham gia một cách rõ ràng để làm cho chức năng đó có sẵn cho struct của chúng ta.
+Để làm điều đó, chúng ta thêm thuộc tính bên ngoài (outer attribute) <code>#[derive(Debug)]</code> ngay trước
+định nghĩa struct, như được hiển thị trong Listing 5-12.</p>
 <figure class="listing" id="listing-5-12">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><pre class="playground"><code class="language-rust edition2024">#[derive(Debug)]
@@ -374,21 +372,21 @@ fn main() {
 
     println!("rect1 is {rect1:?}");
 }</code></pre></pre>
-<figcaption><a href="#listing-5-12">Listing 5-12</a>: Adding the attribute to derive the <code>Debug</code> trait and printing the <code>Rectangle</code> instance using debug formatting</figcaption>
+<figcaption><a href="#listing-5-12">Listing 5-12</a>: Thêm thuộc tính để dẫn xuất (derive) trait <code>Debug</code> và in thể hiện <code>Rectangle</code> bằng định dạng gỡ lỗi</figcaption>
 </figure>
-<p>Now when we run the program, we won’t get any errors, and we’ll see the
-following output:</p>
+<p>Bây giờ khi chúng ta chạy chương trình, chúng ta sẽ không gặp bất kỳ lỗi nào, và chúng ta sẽ thấy
+kết quả đầu ra như sau:</p>
 <pre><code class="language-console">$ cargo run
    Compiling rectangles v0.1.0 (file:///projects/rectangles)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.48s
      Running `target/debug/rectangles`
 rect1 is Rectangle { width: 30, height: 50 }
 </code></pre>
-<p>Nice! It’s not the prettiest output, but it shows the values of all the fields
-for this instance, which would definitely help during debugging. When we have
-larger structs, it’s useful to have output that’s a bit easier to read; in
-those cases, we can use <code>{:#?}</code> instead of <code>{:?}</code> in the <code>println!</code> string. In
-this example, using the <code>{:#?}</code> style will output the following:</p>
+<p>Tuyệt! Nó không phải là đầu ra đẹp nhất, nhưng nó hiển thị giá trị của tất cả các trường
+cho thể hiện này, điều này chắc chắn sẽ giúp ích trong quá trình gỡ lỗi. Khi chúng ta có
+các struct lớn hơn, việc có đầu ra dễ đọc hơn một chút sẽ hữu ích; trong
+những trường hợp đó, chúng ta có thể sử dụng <code>{:#?}</code> thay vì <code>{:?}</code> trong chuỗi <code>println!</code>. Trong
+ví dụ này, việc sử dụng kiểu <code>{:#?}</code> sẽ cho kết quả đầu ra như sau:</p>
 <pre><code class="language-console">$ cargo run
    Compiling rectangles v0.1.0 (file:///projects/rectangles)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.48s
@@ -398,20 +396,19 @@ rect1 is Rectangle {
     height: 50,
 }
 </code></pre>
-<p>Another way to print out a value using the <code>Debug</code> format is to use the <a href="https://doc.rust-lang.org/std/macro.dbg.html"><code>dbg!</code>
-macro</a><!-- ignore -->, which takes ownership of an expression (as opposed
-to <code>println!</code>, which takes a reference), prints the file and line number of
-where that <code>dbg!</code> macro call occurs in your code along with the resultant value
-of that expression, and returns ownership of the value.</p>
-<section class="note" aria-role="note">
-<p>Note: Calling the <code>dbg!</code> macro prints to the standard error console stream
-(<code>stderr</code>), as opposed to <code>println!</code>, which prints to the standard output
-console stream (<code>stdout</code>). We’ll talk more about <code>stderr</code> and <code>stdout</code> in the
-<a href="ch12-06-writing-to-stderr-instead-of-stdout.html">“Writing Error Messages to Standard Error Instead of Standard Output”
-section in Chapter 12</a><!-- ignore -->.</p>
-</section>
-<p>Here’s an example where we’re interested in the value that gets assigned to the
-<code>width</code> field, as well as the value of the whole struct in <code>rect1</code>:</p>
+<p>Một cách khác để in ra một giá trị bằng định dạng <code>Debug</code> là sử dụng macro <a href="https://doc.rust-lang.org/std/macro.dbg.html"><code>dbg!</code></a><!-- ignore -->,
+vốn nắm quyền sở hữu của một biểu thức (ngược lại với <code>println!</code>, vốn nhận một tham chiếu),
+in ra tên file và số dòng nơi lời gọi macro <code>dbg!</code> đó xảy ra trong mã của bạn cùng với giá trị
+kết quả của biểu thức đó, và trả lại quyền sở hữu của giá trị đó.</p>
+<blockquote>
+<p>Lưu ý: Gọi macro <code>dbg!</code> in ra luồng console lỗi tiêu chuẩn
+(<code>stderr</code>), ngược lại với <code>println!</code>, vốn in ra luồng console đầu ra tiêu chuẩn
+(<code>stdout</code>). Chúng ta sẽ nói nhiều hơn về <code>stderr</code> và <code>stdout</code> trong phần
+<a href="ch12-06-writing-to-stderr-instead-of-stdout.html">“Ghi Thông điệp Lỗi ra Standard Error thay vì Standard Output”
+trong Chương 12</a><!-- ignore -->.</p>
+</blockquote>
+<p>Dưới đây là một ví dụ nơi chúng ta quan tâm đến giá trị được gán cho
+trường <code>width</code>, cũng như giá trị của toàn bộ struct trong <code>rect1</code>:</p>
 <pre><pre class="playground"><code class="language-rust edition2024">#[derive(Debug)]
 struct Rectangle {
     width: u32,
@@ -427,11 +424,11 @@ fn main() {
 
     dbg!(&amp;rect1);
 }</code></pre></pre>
-<p>We can put <code>dbg!</code> around the expression <code>30 * scale</code> and, because <code>dbg!</code>
-returns ownership of the expression’s value, the <code>width</code> field will get the
-same value as if we didn’t have the <code>dbg!</code> call there. We don’t want <code>dbg!</code> to
-take ownership of <code>rect1</code>, so we use a reference to <code>rect1</code> in the next call.
-Here’s what the output of this example looks like:</p>
+<p>Chúng ta có thể đặt <code>dbg!</code> bao quanh biểu thức <code>30 * scale</code> và, bởi vì <code>dbg!</code>
+trả lại quyền sở hữu giá trị của biểu thức, trường <code>width</code> sẽ nhận được
+cùng một giá trị giống như thể chúng ta không có lời gọi <code>dbg!</code> ở đó. Chúng ta không muốn <code>dbg!</code>
+nắm quyền sở hữu của <code>rect1</code>, vì vậy chúng ta sử dụng một tham chiếu đến <code>rect1</code> trong lời gọi tiếp theo.
+Dưới đây là kết quả đầu ra của ví dụ này trông như thế nào:</p>
 <pre><code class="language-console">$ cargo run
    Compiling rectangles v0.1.0 (file:///projects/rectangles)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.61s
@@ -442,25 +439,23 @@ Here’s what the output of this example looks like:</p>
     height: 50,
 }
 </code></pre>
-<p>We can see the first bit of output came from <em>src/main.rs</em> line 10 where we’re
-debugging the expression <code>30 * scale</code>, and its resultant value is <code>60</code> (the
-<code>Debug</code> formatting implemented for integers is to print only their value). The
-<code>dbg!</code> call on line 14 of <em>src/main.rs</em> outputs the value of <code>&amp;rect1</code>, which is
-the <code>Rectangle</code> struct. This output uses the pretty <code>Debug</code> formatting of the
-<code>Rectangle</code> type. The <code>dbg!</code> macro can be really helpful when you’re trying to
-figure out what your code is doing!</p>
-<p>In addition to the <code>Debug</code> trait, Rust has provided a number of traits for us
-to use with the <code>derive</code> attribute that can add useful behavior to our custom
-types. Those traits and their behaviors are listed in <a href="appendix-03-derivable-traits.html">Appendix C</a><!--
-ignore -->. We’ll cover how to implement these traits with custom behavior as
-well as how to create your own traits in Chapter 10. There are also many
-attributes other than <code>derive</code>; for more information, see <a href="https://doc.rust-lang.org/reference/attributes.html">the “Attributes”
-section of the Rust Reference</a>.</p>
-<p>Our <code>area</code> function is very specific: it only computes the area of rectangles.
-It would be helpful to tie this behavior more closely to our <code>Rectangle</code> struct
-because it won’t work with any other type. Let’s look at how we can continue to
-refactor this code by turning the <code>area</code> function into an <code>area</code> <em>method</em>
-defined on our <code>Rectangle</code> type.</p>
+<p>Chúng ta có thể thấy phần đầu tiên của đầu ra đến từ file <em>src/main.rs</em> dòng 10 nơi chúng ta đang
+gỡ lỗi biểu thức <code>30 * scale</code>, và giá trị kết quả của nó là <code>60</code> (định dạng <code>Debug</code>
+được triển khai cho các số nguyên là chỉ in ra giá trị của chúng). Lời gọi
+<code>dbg!</code> trên dòng 14 của <em>src/main.rs</em> in ra giá trị của <code>&amp;rect1</code>, chính là
+struct <code>Rectangle</code>. Đầu ra này sử dụng định dạng <code>Debug</code> đẹp của
+kiểu <code>Rectangle</code>. Macro <code>dbg!</code> có thể thực sự hữu ích khi bạn đang cố gắng
+tìm hiểu xem mã của mình đang làm gì!</p>
+<p>Ngoài trait <code>Debug</code>, Rust đã cung cấp một số trait để chúng ta sử dụng với thuộc tính
+<code>derive</code> nhằm thêm các hành vi hữu ích vào các kiểu tùy chỉnh của mình. Những trait đó và hành vi của chúng
+được liệt kê trong <a href="appendix-03-derivable-traits.html">Phụ lục C</a><!-- ignore -->. Chúng ta sẽ tìm hiểu cách triển khai các trait này với các hành vi
+tùy chỉnh cũng như cách tạo các trait của riêng bạn trong Chương 10. Ngoài <code>derive</code>,
+cũng còn nhiều thuộc tính khác; để biết thêm thông tin, hãy xem <a href="https://doc.rust-lang.org/reference/attributes.html">phần “Attributes” của Rust Reference</a>.</p>
+<p>Hàm <code>area</code> của chúng ta rất cụ thể: nó chỉ tính diện tích của các hình chữ nhật.
+Sẽ hữu ích nếu gắn kết hành vi này chặt chẽ hơn với struct <code>Rectangle</code> của chúng ta
+vì nó sẽ không hoạt động với bất kỳ kiểu nào khác. Hãy xem cách chúng ta có thể tiếp tục
+cấu trúc lại mã này bằng cách biến hàm <code>area</code> thành một <em>phương thức</em> (method) <code>area</code>
+được định nghĩa trên kiểu <code>Rectangle</code> của chúng ta.</p>
 <div class="quiz-placeholder" data-quiz-name="&quot;ch05-02-example-structs&quot;" data-quiz-questions="{&quot;questions&quot;:[{&quot;context&quot;:&quot; \nThe `area` function takes ownership of its argument `rectangle`. Calling `area(rect1)` therefore\nmoves `rect1`, meaning it cannot be used on the next line.\n&quot;,&quot;id&quot;:&quot;f0ec64fa-262f-4819-8379-acad7aaf8be2&quot;,&quot;type&quot;:&quot;Tracing&quot;,&quot;answer&quot;:{&quot;doesCompile&quot;:false,&quot;lineNumber&quot;:14},&quot;prompt&quot;:{&quot;program&quot;:&quot;#[derive(Debug)]\nstruct Rectangle {\n  width: u32,\n  height: u32,\n}\n\nfn main() {\n  let rect1 = Rectangle {\n    width: 30,\n    height: 50,\n  };\n\n  let a = area(rect1);\n  println!(\&quot;{} * {} = {}\&quot;, rect1.width, rect1.height, a);\n}\n\nfn area(rectangle: Rectangle) -&gt; u32 {\n  rectangle.width * rectangle.height\n}\n&quot;}},{&quot;id&quot;:&quot;9ce4156e-4112-4101-a2c7-51758ceca639&quot;,&quot;type&quot;:&quot;MultipleChoice&quot;,&quot;answer&quot;:{&quot;answer&quot;:&quot;`Display` is for presenting values to an end-user, while `Debug` is for developers' internal use&quot;},&quot;prompt&quot;:{&quot;distractors&quot;:[&quot;`Display` is for printing values to the console, while `Debug` is for viewing values in a debugger&quot;,&quot;`Display` cannot be implemented for structs, while `Debug` can be implemented for structs&quot;,&quot;There is no difference, `Display` and `Debug` are aliases for the same trait.&quot;],&quot;prompt&quot;:&quot;Which statement best describes a difference between the `Display` and `Debug` traits?&quot;}}]}" data-quiz-fullscreen="true" data-quiz-cache-answers="true"></div>
 <script type="text/javascript" src="quiz/quiz-embed.iife.js"></script><link rel="stylesheet" type="text/css" href="quiz/style.css">
 
