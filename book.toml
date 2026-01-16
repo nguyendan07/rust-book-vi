@@ -5,7 +5,7 @@
 title = "The Rust Programming Language"
 authors = ["Steve Klabnik", "Carol Nichols", "Contributions from the Rust Community"]
 language = "vi"
-src = "vi/src"
+src = "vi"
 
 [output.html]
 additional-css = [
