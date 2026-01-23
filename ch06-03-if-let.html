@@ -175,12 +175,8 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="concise-control-flow-with-if-let-and-let-else"><a class="header" href="#concise-control-flow-with-if-let-and-let-else">Concise Control Flow with <code>if let</code> and <code>let else</code></a></h2>
-<p>The <code>if let</code> syntax lets you combine <code>if</code> and <code>let</code> into a less verbose way to
-handle values that match one pattern while ignoring the rest. Consider the
-program in Listing 6-6 that matches on an <code>Option&lt;u8&gt;</code> value in the
-<code>config_max</code> variable but only wants to execute code if the value is the <code>Some</code>
-variant.</p>
+                        <h2 id="Điều-khiển-luồng-súc-tích-với-if-let-và-let-else"><a class="header" href="#Điều-khiển-luồng-súc-tích-với-if-let-và-let-else">Điều khiển luồng súc tích với <code>if let</code> và <code>let else</code></a></h2>
+<p>Cú pháp <code>if let</code> cho phép bạn kết hợp <code>if</code> và <code>let</code> thành một cách ít rườm rà hơn để xử lý các giá trị khớp với một mẫu trong khi bỏ qua phần còn lại. Hãy xem xét chương trình trong Liệt kê 6-6 thực hiện khớp trên một giá trị <code>Option&lt;u8&gt;</code> trong biến <code>config_max</code> nhưng chỉ muốn thực thi mã nếu giá trị đó là biến thể <code>Some</code>.</p>
 <figure class="listing" id="listing-6-6">
 <pre><pre class="playground"><code class="language-rust edition2024"><span class="boring">fn main() {
 </span>    let config_max = Some(3u8);
@@ -189,41 +185,20 @@ variant.</p>
         _ =&gt; (),
     }
 <span class="boring">}</span></code></pre></pre>
-<figcaption><a href="#listing-6-6">Listing 6-6</a>: A <code>match</code> that only cares about executing code when the value is <code>Some</code></figcaption>
+<figcaption><a href="#listing-6-6">Listing 6-6</a>: Một <code>match</code> chỉ quan tâm đến việc thực thi mã khi giá trị là <code>Some</code></figcaption>
 </figure>
-<p>If the value is <code>Some</code>, we print out the value in the <code>Some</code> variant by binding
-the value to the variable <code>max</code> in the pattern. We don’t want to do anything
-with the <code>None</code> value. To satisfy the <code>match</code> expression, we have to add <code>_ =&gt; ()</code> after processing just one variant, which is annoying boilerplate code to
-add.</p>
-<p>Instead, we could write this in a shorter way using <code>if let</code>. The following
-code behaves the same as the <code>match</code> in Listing 6-6:</p>
+<p>Nếu giá trị là <code>Some</code>, chúng ta in ra giá trị trong biến thể <code>Some</code> bằng cách liên kết (binding) giá trị đó với biến <code>max</code> trong mẫu. Chúng ta không muốn làm gì với giá trị <code>None</code>. Để thỏa mãn biểu thức <code>match</code>, chúng ta phải thêm <code>_ =&gt; ()</code> sau khi xử lý chỉ một biến thể, đây là đoạn mã mẫu (boilerplate code) gây phiền nhiễu khi phải thêm vào.</p>
+<p>Thay vào đó, chúng ta có thể viết điều này theo cách ngắn gọn hơn bằng cách sử dụng <code>if let</code>. Đoạn mã sau đây hoạt động giống như <code>match</code> trong Liệt kê 6-6:</p>
 <pre><pre class="playground"><code class="language-rust edition2024"><span class="boring">fn main() {
 </span>    let config_max = Some(3u8);
     if let Some(max) = config_max {
         println!("The maximum is configured to be {max}");
     }
 <span class="boring">}</span></code></pre></pre>
-<p>The syntax <code>if let</code> takes a pattern and an expression separated by an equal
-sign. It works the same way as a <code>match</code>, where the expression is given to the
-<code>match</code> and the pattern is its first arm. In this case, the pattern is
-<code>Some(max)</code>, and the <code>max</code> binds to the value inside the <code>Some</code>. We can then
-use <code>max</code> in the body of the <code>if let</code> block in the same way we used <code>max</code> in
-the corresponding <code>match</code> arm. The code in the <code>if let</code> block only runs if the
-value matches the pattern.</p>
-<p>Using <code>if let</code> means less typing, less indentation, and less boilerplate code.
-However, you lose the exhaustive checking <code>match</code> enforces that ensures you
-aren’t forgetting to handle any cases. Choosing between <code>match</code> and <code>if let</code>
-depends on what you’re doing in your particular situation and whether gaining
-conciseness is an appropriate trade-off for losing exhaustive checking.</p>
-<p>In other words, you can think of <code>if let</code> as syntax sugar for a <code>match</code> that
-runs code when the value matches one pattern and then ignores all other values.</p>
-<p>We can include an <code>else</code> with an <code>if let</code>. The block of code that goes with the
-<code>else</code> is the same as the block of code that would go with the <code>_</code> case in the
-<code>match</code> expression that is equivalent to the <code>if let</code> and <code>else</code>. Recall the
-<code>Coin</code> enum definition in Listing 6-4, where the <code>Quarter</code> variant also held a
-<code>UsState</code> value. If we wanted to count all non-quarter coins we see while also
-announcing the state of the quarters, we could do that with a <code>match</code>
-expression, like this:</p>
+<p>Cú pháp <code>if let</code> nhận một mẫu và một biểu thức ngăn cách bởi một dấu bằng. Nó hoạt động giống như một <code>match</code>, trong đó biểu thức được đưa vào <code>match</code> và mẫu là nhánh đầu tiên của nó. Trong trường hợp này, mẫu là <code>Some(max)</code>, và <code>max</code> liên kết với giá trị bên trong <code>Some</code>. Sau đó, chúng ta có thể sử dụng <code>max</code> trong thân khối <code>if let</code> giống như cách chúng ta đã sử dụng <code>max</code> trong nhánh <code>match</code> tương ứng. Mã trong khối <code>if let</code> chỉ chạy nếu giá trị khớp với mẫu.</p>
+<p>Sử dụng <code>if let</code> có nghĩa là gõ ít hơn, ít thụt lề hơn và ít mã mẫu hơn. Tuy nhiên, bạn sẽ mất đi khả năng kiểm tra tính toàn diện (exhaustive checking) mà <code>match</code> bắt buộc để đảm bảo bạn không quên xử lý bất kỳ trường hợp nào. Việc lựa chọn giữa <code>match</code> và <code>if let</code> phụ thuộc vào những gì bạn đang làm trong tình huống cụ thể của mình và liệu việc đạt được sự súc tích có phải là một sự đánh đổi phù hợp cho việc mất đi kiểm tra tính toàn diện hay không.</p>
+<p>Nói cách khác, bạn có thể coi <code>if let</code> như là một cú pháp thay thế (syntax sugar) cho một <code>match</code> chạy mã khi giá trị khớp với một mẫu và sau đó bỏ qua tất cả các giá trị khác.</p>
+<p>Chúng ta có thể bao gồm một <code>else</code> với một <code>if let</code>. Khối mã đi kèm với <code>else</code> tương đương với khối mã đi kèm với trường hợp <code>_</code> trong biểu thức <code>match</code> tương ứng với <code>if let</code> và <code>else</code>. Nhớ lại định nghĩa enum <code>Coin</code> trong Liệt kê 6-4, nơi biến thể <code>Quarter</code> cũng giữ một giá trị <code>UsState</code>. Nếu chúng ta muốn đếm tất cả các đồng xu không phải quarter mà chúng ta thấy, đồng thời thông báo tiểu bang của các đồng quarter, chúng ta có thể làm điều đó với một biểu thức <code>match</code>, như thế này:</p>
 <pre><pre class="playground"><code class="language-rust edition2024"><span class="boring">#[derive(Debug)]
 </span><span class="boring">enum UsState {
 </span><span class="boring">    Alabama,
@@ -246,7 +221,7 @@ expression, like this:</p>
         _ =&gt; count += 1,
     }
 <span class="boring">}</span></code></pre></pre>
-<p>Or we could use an <code>if let</code> and <code>else</code> expression, like this:</p>
+<p>Hoặc chúng ta có thể sử dụng một biểu thức <code>if let</code> và <code>else</code>, như thế này:</p>
 <pre><pre class="playground"><code class="language-rust edition2024"><span class="boring">#[derive(Debug)]
 </span><span class="boring">enum UsState {
 </span><span class="boring">    Alabama,
@@ -270,12 +245,8 @@ expression, like this:</p>
         count += 1;
     }
 <span class="boring">}</span></code></pre></pre>
-<h2 id="staying-on-the-happy-path-with-letelse"><a class="header" href="#staying-on-the-happy-path-with-letelse">Staying on the “Happy Path” with <code>let...else</code></a></h2>
-<p>The common pattern is to perform some computation when a value is present and
-return a default value otherwise. Continuing on with our example of coins with a
-<code>UsState</code> value, if we wanted to say something funny depending on how old the
-state on the quarter was, we might introduce a method on <code>UsState</code> to check the
-age of a state, like so:</p>
+<h2 id="luôn-ở-trên-con-đường-hạnh-phúc-với-letelse"><a class="header" href="#luôn-ở-trên-con-đường-hạnh-phúc-với-letelse">Luôn ở trên “Con đường hạnh phúc” với <code>let...else</code></a></h2>
+<p>Một mẫu phổ biến là thực hiện một số tính toán khi một giá trị hiện diện và trả về một giá trị mặc định nếu ngược lại. Tiếp tục với ví dụ về các đồng xu có giá trị <code>UsState</code>, nếu chúng ta muốn nói điều gì đó thú vị tùy thuộc vào độ lâu đời của tiểu bang trên đồng quarter, chúng ta có thể giới thiệu một phương thức trên <code>UsState</code> để kiểm tra tuổi của một tiểu bang, như sau:</p>
 <pre><pre class="playground"><code class="language-rust edition2024"><span class="boring">#[derive(Debug)] // so we can inspect the state in a minute
 </span><span class="boring">enum UsState {
 </span><span class="boring">    Alabama,
@@ -317,8 +288,7 @@ age of a state, like so:</p>
 </span><span class="boring">        println!("{desc}");
 </span><span class="boring">    }
 </span><span class="boring">}</span></code></pre></pre>
-<p>Then we might use <code>if let</code> to match on the type of coin, introducing a <code>state</code>
-variable within the body of the condition, as in Listing 6-7.</p>
+<p>Sau đó, chúng ta có thể sử dụng <code>if let</code> để khớp với loại đồng xu, giới thiệu một biến <code>state</code> bên trong thân điều kiện, như trong Liệt kê 6-7.</p>
 <figure class="listing" id="listing-6-7">
 <pre><pre class="playground"><code class="language-rust edition2024"><span class="boring">#[derive(Debug)] // so we can inspect the state in a minute
 </span><span class="boring">enum UsState {
@@ -361,13 +331,9 @@ variable within the body of the condition, as in Listing 6-7.</p>
 </span><span class="boring">        println!("{desc}");
 </span><span class="boring">    }
 </span><span class="boring">}</span></code></pre></pre>
-<figcaption><a href="#listing-6-7">Listing 6-7</a>: Checking whether a state existed in 1900 by using conditionals nested inside an <code>if let</code>.</figcaption>
+<figcaption><a href="#listing-6-7">Listing 6-7</a>: Kiểm tra xem một tiểu bang có tồn tại vào năm 1900 hay không bằng cách sử dụng các điều kiện lồng nhau bên trong một <code>if let</code>.</figcaption>
 </figure>
-<p>That gets the job done, but it has pushed the work into the body of the <code>if let</code> statement, and if the work to be done is more complicated, it might be
-hard to follow exactly how the top-level branches relate. We could also take
-advantage of the fact that expressions produce a value either to produce the
-<code>state</code> from the <code>if let</code> or to return early, as in Listing 6-8. (You could do
-similar with a <code>match</code>, too.)</p>
+<p>Cách đó giải quyết được công việc, nhưng nó đã đẩy công việc vào trong thân của câu lệnh <code>if let</code>, và nếu công việc cần làm phức tạp hơn, có thể khó theo dõi chính xác cách các nhánh cấp cao nhất liên quan đến nhau. Chúng ta cũng có thể tận dụng thực tế là các biểu thức tạo ra một giá trị để tạo ra <code>state</code> từ <code>if let</code> hoặc trả về sớm, như trong Liệt kê 6-8. (Bạn cũng có thể làm điều tương tự với một <code>match</code>.)</p>
 <figure class="listing" id="listing-6-8">
 <pre><pre class="playground"><code class="language-rust edition2024"><span class="boring">#[derive(Debug)] // so we can inspect the state in a minute
 </span><span class="boring">enum UsState {
@@ -412,17 +378,11 @@ similar with a <code>match</code>, too.)</p>
 </span><span class="boring">        println!("{desc}");
 </span><span class="boring">    }
 </span><span class="boring">}</span></code></pre></pre>
-<figcaption><a href="#listing-6-8">Listing 6-8</a>: Using <code>if let</code> to produce a value or return early.</figcaption>
+<figcaption><a href="#listing-6-8">Listing 6-8</a>: Sử dụng <code>if let</code> để tạo ra một giá trị hoặc trả về sớm.</figcaption>
 </figure>
-<p>This is a bit annoying to follow in its own way, though! One branch of the <code>if let</code> produces a value, and the other one returns from the function entirely.</p>
-<p>To make this common pattern nicer to express, Rust has <code>let...else</code>. The
-<code>let...else</code> syntax takes a pattern on the left side and an expression on the
-right, very similar to <code>if let</code>, but it does not have an <code>if</code> branch, only an
-<code>else</code> branch. If the pattern matches, it will bind the value from the pattern
-in the outer scope. If the pattern does <em>not</em> match, the program will flow into
-the <code>else</code> arm, which must return from the function.</p>
-<p>In Listing 6-9, you can see how Listing 6-8 looks when using <code>let...else</code> in
-place of <code>if let</code>.</p>
+<p>Tuy nhiên, cách này cũng có điểm gây khó khăn khi theo dõi! Một nhánh của <code>if let</code> tạo ra một giá trị, và nhánh còn lại thoát khỏi hàm hoàn toàn.</p>
+<p>Để làm cho mẫu phổ biến này dễ diễn đạt hơn, Rust có <code>let...else</code>. Cú pháp <code>let...else</code> nhận một mẫu ở phía bên trái và một biểu thức ở phía bên phải, rất giống với <code>if let</code>, nhưng nó không có nhánh <code>if</code>, chỉ có nhánh <code>else</code>. Nếu mẫu khớp, nó sẽ liên kết giá trị từ mẫu trong phạm vi bên ngoài. Nếu mẫu <em>không</em> khớp, chương trình sẽ đi vào nhánh <code>else</code>, nhánh này phải trả về khỏi hàm.</p>
+<p>Trong Liệt kê 6-9, bạn có thể thấy Liệt kê 6-8 trông như thế nào khi sử dụng <code>let...else</code> thay cho <code>if let</code>.</p>
 <figure class="listing" id="listing-6-9">
 <pre><pre class="playground"><code class="language-rust edition2024"><span class="boring">#[derive(Debug)] // so we can inspect the state in a minute
 </span><span class="boring">enum UsState {
@@ -465,28 +425,15 @@ place of <code>if let</code>.</p>
 </span><span class="boring">        println!("{desc}");
 </span><span class="boring">    }
 </span><span class="boring">}</span></code></pre></pre>
-<figcaption><a href="#listing-6-9">Listing 6-9</a>: Using <code>let...else</code> to clarify the flow through the function.</figcaption>
+<figcaption><a href="#listing-6-9">Listing 6-9</a>: Sử dụng <code>let...else</code> để làm rõ luồng xử lý trong hàm.</figcaption>
 </figure>
-<p>Notice that it stays “on the happy path” in the main body of the function this
-way, without having significantly different control flow for two branches the
-way the <code>if let</code> did.</p>
-<p>If you have a situation in which your program has logic that is too verbose to
-express using a <code>match</code>, remember that <code>if let</code> and <code>let...else</code> are in your
-Rust toolbox as well.</p>
+<p>Lưu ý rằng bằng cách này, mã vẫn ở trên “con đường hạnh phúc” (happy path) trong thân chính của hàm, mà không có luồng điều khiển khác biệt đáng kể cho hai nhánh như cách <code>if let</code> đã làm.</p>
+<p>Nếu bạn gặp tình huống trong đó chương trình của bạn có logic quá dài dòng để diễn đạt bằng <code>match</code>, hãy nhớ rằng <code>if let</code> và <code>let...else</code> cũng có sẵn trong hộp công cụ Rust của bạn.</p>
 <div class="quiz-placeholder" data-quiz-name="&quot;ch06-03-if-let&quot;" data-quiz-questions="{&quot;questions&quot;:[{&quot;context&quot;:&quot;If the function only has an effect in one condition, an `if let` is most idiomatic.\n&quot;,&quot;id&quot;:&quot;b2e05b2a-1f98-4498-9a9b-e1e358adf476&quot;,&quot;type&quot;:&quot;MultipleChoice&quot;,&quot;answer&quot;:{&quot;answer&quot;:&quot;`if let`&quot;},&quot;prompt&quot;:{&quot;distractors&quot;:[&quot;`match`&quot;],&quot;prompt&quot;:&quot;Which control flow construct would be most idiomatic to use in the following function?\n\n```\nenum Location {\n  Point(i32),\n  Range(i32, i32)\n}\n\nfn print_range_max(loc: &amp;Location) {  \n  // print the second field of Range, if loc is a Range\n}\n```\n&quot;}},{&quot;context&quot;:&quot; \nIf the function needs to return a value for each condition, then a `match` is most appropriate.\n&quot;,&quot;id&quot;:&quot;fe17286b-67ed-43a7-a1df-10afee7921cc&quot;,&quot;type&quot;:&quot;MultipleChoice&quot;,&quot;answer&quot;:{&quot;answer&quot;:&quot;`match`&quot;},&quot;prompt&quot;:{&quot;distractors&quot;:[&quot;`if let`&quot;],&quot;prompt&quot;:&quot;Which control flow construct would be most idiomatic to use in the following function?\n\n```\nenum Location {\n  Point(i32),\n  Range(i32, i32)\n}\n\nfn get_start(loc: &amp;Location) -&gt; i32 { \n  // return the first field of Range or the only field of Point  \n}\n```\n&quot;}}]}" data-quiz-fullscreen="true" data-quiz-cache-answers="true"></div>
-<h2 id="summary"><a class="header" href="#summary">Summary</a></h2>
-<p>We’ve now covered how to use enums to create custom types that can be one of a
-set of enumerated values. We’ve shown how the standard library’s <code>Option&lt;T&gt;</code>
-type helps you use the type system to prevent errors. When enum values have
-data inside them, you can use <code>match</code> or <code>if let</code> to extract and use those
-values, depending on how many cases you need to handle.</p>
-<p>Your Rust programs can now express concepts in your domain using structs and
-enums. Creating custom types to use in your API ensures type safety: the
-compiler will make certain your functions only get values of the type each
-function expects.</p>
-<p>In order to provide a well-organized API to your users that is straightforward
-to use and only exposes exactly what your users will need, let’s now turn to
-Rust’s modules.</p>
+<h2 id="tóm-tắt"><a class="header" href="#tóm-tắt">Tóm tắt</a></h2>
+<p>Đến đây chúng ta đã tìm hiểu cách sử dụng enum để tạo các kiểu tùy chỉnh có thể là một trong một tập hợp các giá trị được liệt kê. Chúng ta đã chỉ ra cách kiểu <code>Option&lt;T&gt;</code> của thư viện tiêu chuẩn giúp bạn sử dụng hệ thống kiểu để ngăn ngừa lỗi. Khi các giá trị enum có dữ liệu bên trong, bạn có thể sử dụng <code>match</code> hoặc <code>if let</code> để trích xuất và sử dụng các giá trị đó, tùy thuộc vào số lượng trường hợp bạn cần xử lý.</p>
+<p>Giờ đây các chương trình Rust của bạn có thể diễn đạt các khái niệm trong lĩnh vực của mình bằng cách sử dụng struct và enum. Việc tạo các kiểu tùy chỉnh để sử dụng trong API của bạn đảm bảo tính an toàn kiểu (type safety): trình biên dịch sẽ chắc chắn rằng các hàm của bạn chỉ nhận được các giá trị thuộc kiểu mà mỗi hàm mong đợi.</p>
+<p>Để cung cấp một API được tổ chức tốt cho người dùng, dễ sử dụng và chỉ để lộ chính xác những gì người dùng của bạn sẽ cần, bây giờ chúng ta hãy chuyển sang các mô-đun của Rust.</p>
 <script type="text/javascript" src="quiz/quiz-embed.iife.js"></script><link rel="stylesheet" type="text/css" href="quiz/style.css">
                     </main>
 
