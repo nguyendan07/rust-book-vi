@@ -2,29 +2,15 @@
 
 <a id="the-match-control-flow-operator"></a>
 
-## The `match` Control Flow Construct
+## Cấu trúc điều khiển luồng `match`
 
-Rust has an extremely powerful control flow construct called `match` that
-allows you to compare a value against a series of patterns and then execute
-code based on which pattern matches. Patterns can be made up of literal values,
-variable names, wildcards, and many other things; [Chapter
-19][ch19-00-patterns]<!-- ignore --> covers all the different kinds of patterns
-and what they do. The power of `match` comes from the expressiveness of the
-patterns and the fact that the compiler confirms that all possible cases are
-handled.
+Rust có một cấu trúc điều khiển luồng cực kỳ mạnh mẽ gọi là `match`, cho phép bạn so sánh một giá trị với một loạt các mẫu (patterns) và sau đó thực thi mã dựa trên mẫu nào khớp. Các mẫu có thể được tạo thành từ các giá trị hằng (literal values), tên biến, ký tự đại diện (wildcards) và nhiều thứ khác; [Chương 19][ch19-00-patterns]<!-- ignore --> sẽ đề cập đến tất cả các loại mẫu khác nhau và chức năng của chúng. Sức mạnh của `match` đến từ tính biểu đạt của các mẫu và thực tế là trình biên dịch xác nhận rằng tất cả các trường hợp có thể xảy ra đều đã được xử lý.
 
-Think of a `match` expression as being like a coin-sorting machine: coins slide
-down a track with variously sized holes along it, and each coin falls through
-the first hole it encounters that it fits into. In the same way, values go
-through each pattern in a `match`, and at the first pattern the value “fits,”
-the value falls into the associated code block to be used during execution.
+Hãy nghĩ về một biểu thức `match` giống như một máy phân loại tiền xu: các đồng xu trượt xuống một đường ray với các lỗ có kích thước khác nhau dọc theo nó, và mỗi đồng xu sẽ rơi qua cái lỗ đầu tiên mà nó vừa vặn. Theo cách tương tự, các giá trị đi qua từng mẫu trong một `match`, và tại mẫu đầu tiên mà giá trị "khớp", giá trị đó sẽ rơi vào khối mã liên kết để được sử dụng trong quá trình thực thi.
 
-Speaking of coins, let’s use them as an example using `match`! We can write a
-function that takes an unknown US coin and, in a similar way as the counting
-machine, determines which coin it is and returns its value in cents, as shown
-in Listing 6-3.
+Nói về tiền xu, hãy sử dụng chúng làm ví dụ cho việc sử dụng `match`! Chúng ta có thể viết một hàm nhận một đồng xu Hoa Kỳ chưa biết và, theo cách tương tự như máy đếm tiền, xác định đó là đồng xu nào và trả về giá trị của nó tính bằng cent (xu), như được hiển thị trong Liệt kê 6-3.
 
-<Listing number="6-3" caption="An enum and a `match` expression that has the variants of the enum as its patterns">
+<Listing number="6-3" caption="Một enum và một biểu thức `match` có các biến thể của enum làm các mẫu của nó">
 
 ```rust
 {{#rustdoc_include ../listings/ch06-enums-and-pattern-matching/listing-06-03/src/main.rs:here}}
@@ -32,53 +18,27 @@ in Listing 6-3.
 
 </Listing>
 
-Let’s break down the `match` in the `value_in_cents` function. First we list
-the `match` keyword followed by an expression, which in this case is the value
-`coin`. This seems very similar to a conditional expression used with `if`, but
-there’s a big difference: with `if`, the condition needs to evaluate to a
-Boolean value, but here it can be any type. The type of `coin` in this example
-is the `Coin` enum that we defined on the first line.
+Hãy phân tích lệnh `match` trong hàm `value_in_cents`. Đầu tiên, chúng ta liệt kê từ khóa `match` theo sau là một biểu thức, trong trường hợp này là giá trị `coin`. Điều này có vẻ rất giống với một biểu thức điều kiện được sử dụng với `if`, nhưng có một sự khác biệt lớn: với `if`, điều kiện cần phải trả về một giá trị Boolean, nhưng ở đây nó có thể là bất kỳ kiểu dữ liệu nào. Kiểu của `coin` trong ví dụ này là enum `Coin` mà chúng ta đã định nghĩa ở dòng đầu tiên.
 
-Next are the `match` arms. An arm has two parts: a pattern and some code. The
-first arm here has a pattern that is the value `Coin::Penny` and then the `=>`
-operator that separates the pattern and the code to run. The code in this case
-is just the value `1`. Each arm is separated from the next with a comma.
+Tiếp theo là các nhánh (arms) của `match`. Một nhánh có hai phần: một mẫu và một đoạn mã. Nhánh đầu tiên ở đây có một mẫu là giá trị `Coin::Penny` và sau đó là toán tử `=>` ngăn cách mẫu và đoạn mã sẽ chạy. Đoạn mã trong trường hợp này chỉ là giá trị `1`. Mỗi nhánh được ngăn cách với nhánh tiếp theo bằng một dấu phẩy.
 
-When the `match` expression executes, it compares the resultant value against
-the pattern of each arm, in order. If a pattern matches the value, the code
-associated with that pattern is executed. If that pattern doesn’t match the
-value, execution continues to the next arm, much as in a coin-sorting machine.
-We can have as many arms as we need: in Listing 6-3, our `match` has four arms.
+Khi biểu thức `match` thực thi, nó so sánh giá trị kết quả với mẫu của từng nhánh, theo thứ tự. Nếu một mẫu khớp với giá trị, đoạn mã liên kết với mẫu đó sẽ được thực thi. Nếu mẫu đó không khớp với giá trị, quá trình thực thi sẽ tiếp tục đến nhánh tiếp theo, giống như trong máy phân loại tiền xu. Chúng ta có thể có bao nhiêu nhánh tùy thích: trong Liệt kê 6-3, biểu thức `match` của chúng ta có bốn nhánh.
 
-The code associated with each arm is an expression, and the resultant value of
-the expression in the matching arm is the value that gets returned for the
-entire `match` expression.
+Đoạn mã liên kết với mỗi nhánh là một biểu thức, và giá trị kết quả của biểu thức trong nhánh khớp là giá trị được trả về cho toàn bộ biểu thức `match`.
 
-We don’t typically use curly brackets if the match arm code is short, as it is
-in Listing 6-3 where each arm just returns a value. If you want to run multiple
-lines of code in a match arm, you must use curly brackets, and the comma
-following the arm is then optional. For example, the following code prints
-“Lucky penny!” every time the method is called with a `Coin::Penny`, but still
-returns the last value of the block, `1`:
+Chúng ta thường không sử dụng dấu ngoặc nhọn nếu mã của nhánh match ngắn, như trong Liệt kê 6-3, nơi mỗi nhánh chỉ trả về một giá trị. Nếu bạn muốn chạy nhiều dòng mã trong một nhánh match, bạn phải sử dụng dấu ngoặc nhọn, và dấu phẩy sau nhánh đó khi đó là tùy chọn. Ví dụ, đoạn mã sau sẽ in "Lucky penny!" mỗi khi phương thức được gọi với `Coin::Penny`, nhưng vẫn trả về giá trị cuối cùng của khối mã là `1`:
 
 ```rust
 {{#rustdoc_include ../listings/ch06-enums-and-pattern-matching/no-listing-08-match-arm-multiple-lines/src/main.rs:here}}
 ```
 
-### Patterns That Bind to Values
+### Các mẫu liên kết với giá trị
 
-Another useful feature of match arms is that they can bind to the parts of the
-values that match the pattern. This is how we can extract values out of enum
-variants.
+Một tính năng hữu ích khác của các nhánh match là chúng có thể liên kết (bind) với các phần của giá trị khớp với mẫu. Đây là cách chúng ta có thể trích xuất các giá trị ra khỏi các biến thể của enum.
 
-As an example, let’s change one of our enum variants to hold data inside it.
-From 1999 through 2008, the United States minted quarters with different
-designs for each of the 50 states on one side. No other coins got state
-designs, so only quarters have this extra value. We can add this information to
-our `enum` by changing the `Quarter` variant to include a `UsState` value
-stored inside it, which we’ve done in Listing 6-4.
+Ví dụ, hãy thay đổi một trong các biến thể enum của chúng ta để giữ dữ liệu bên trong nó. Từ năm 1999 đến năm 2008, Hoa Kỳ đã đúc các đồng quarter (25 xu) với các thiết kế khác nhau cho mỗi trong số 50 tiểu bang ở một mặt. Không có đồng xu nào khác có thiết kế tiểu bang, vì vậy chỉ có đồng quarter mới có giá trị bổ sung này. Chúng ta có thể thêm thông tin này vào `enum` của mình bằng cách thay đổi biến thể `Quarter` để bao gồm một giá trị `UsState` được lưu trữ bên trong nó, như chúng ta đã làm trong Liệt kê 6-4.
 
-<Listing number="6-4" caption="A `Coin` enum in which the `Quarter` variant also holds a `UsState` value">
+<Listing number="6-4" caption="Một enum `Coin` trong đó biến thể `Quarter` cũng giữ một giá trị `UsState` ">
 
 ```rust
 {{#rustdoc_include ../listings/ch06-enums-and-pattern-matching/listing-06-04/src/main.rs:here}}
@@ -86,44 +46,25 @@ stored inside it, which we’ve done in Listing 6-4.
 
 </Listing>
 
-Let’s imagine that a friend is trying to collect all 50 state quarters. While
-we sort our loose change by coin type, we’ll also call out the name of the
-state associated with each quarter so that if it’s one our friend doesn’t have,
-they can add it to their collection.
+Hãy tưởng tượng rằng một người bạn đang cố gắng thu thập tất cả 50 đồng quarter của các tiểu bang. Trong khi chúng ta phân loại tiền lẻ theo loại đồng xu, chúng ta cũng sẽ gọi tên tiểu bang liên kết với mỗi đồng quarter để nếu đó là đồng xu mà bạn của chúng ta chưa có, họ có thể thêm nó vào bộ sưu tập của mình.
 
-In the match expression for this code, we add a variable called `state` to the
-pattern that matches values of the variant `Coin::Quarter`. When a
-`Coin::Quarter` matches, the `state` variable will bind to the value of that
-quarter’s state. Then we can use `state` in the code for that arm, like so:
+Trong biểu thức match cho đoạn mã này, chúng ta thêm một biến gọi là `state` vào mẫu khớp với các giá trị của biến thể `Coin::Quarter`. Khi một `Coin::Quarter` khớp, biến `state` sẽ liên kết với giá trị tiểu bang của đồng quarter đó. Sau đó, chúng ta có thể sử dụng `state` trong mã cho nhánh đó, như sau:
 
 ```rust
 {{#rustdoc_include ../listings/ch06-enums-and-pattern-matching/no-listing-09-variable-in-pattern/src/main.rs:here}}
 ```
 
-If we were to call `value_in_cents(Coin::Quarter(UsState::Alaska))`, `coin`
-would be `Coin::Quarter(UsState::Alaska)`. When we compare that value with each
-of the match arms, none of them match until we reach `Coin::Quarter(state)`. At
-that point, the binding for `state` will be the value `UsState::Alaska`. We can
-then use that binding in the `println!` expression, thus getting the inner
-state value out of the `Coin` enum variant for `Quarter`.
- 
-### Matching with `Option<T>`
+Nếu chúng ta gọi `value_in_cents(Coin::Quarter(UsState::Alaska))`, `coin` sẽ là `Coin::Quarter(UsState::Alaska)`. Khi chúng ta so sánh giá trị đó với từng nhánh match, không có nhánh nào khớp cho đến khi chúng ta đến `Coin::Quarter(state)`. Tại thời điểm đó, liên kết cho `state` sẽ là giá trị `UsState::Alaska`. Sau đó, chúng ta có thể sử dụng liên kết đó trong biểu thức `println!`, từ đó lấy được giá trị tiểu bang bên trong từ biến thể enum `Coin` cho `Quarter`.
 
-In the previous section, we wanted to get the inner `T` value out of the `Some`
-case when using `Option<T>`; we can also handle `Option<T>` using `match`, as
-we did with the `Coin` enum! Instead of comparing coins, we’ll compare the
-variants of `Option<T>`, but the way the `match` expression works remains the
-same.
+### Khớp với `Option<T>`
 
-Let’s say we want to write a function that takes an `Option<i32>` and, if
-there’s a value inside, adds 1 to that value. If there isn’t a value inside,
-the function should return the `None` value and not attempt to perform any
-operations.
+Trong phần trước, chúng ta muốn lấy giá trị `T` bên trong ra khỏi trường hợp `Some` khi sử dụng `Option<T>`; chúng ta cũng có thể xử lý `Option<T>` bằng cách sử dụng `match`, giống như chúng ta đã làm với enum `Coin`! Thay vì so sánh các đồng xu, chúng ta sẽ so sánh các biến thể của `Option<T>`, nhưng cách biểu thức `match` hoạt động vẫn giữ nguyên.
 
-This function is very easy to write, thanks to `match`, and will look like
-Listing 6-5.
+Giả sử chúng ta muốn viết một hàm nhận một `Option<i32>` và nếu có một giá trị bên trong, nó sẽ cộng thêm 1 vào giá trị đó. Nếu không có giá trị bên trong, hàm sẽ trả về giá trị `None` và không cố gắng thực hiện bất kỳ thao tác nào.
 
-<Listing number="6-5" caption="A function that uses a `match` expression on an `Option<i32>`">
+Hàm này rất dễ viết nhờ có `match`, và sẽ trông giống như Liệt kê 6-5.
+
+<Listing number="6-5" caption="Một hàm sử dụng biểu thức `match` trên một `Option<i32>`">
 
 ```rust
 {{#rustdoc_include ../listings/ch06-enums-and-pattern-matching/listing-06-05/src/main.rs:here}}
@@ -131,136 +72,87 @@ Listing 6-5.
 
 </Listing>
 
-Let’s examine the first execution of `plus_one` in more detail. When we call
-`plus_one(five)`, the variable `x` in the body of `plus_one` will have the
-value `Some(5)`. We then compare that against each match arm:
+Hãy xem xét lần thực thi đầu tiên của `plus_one` chi tiết hơn. Khi chúng ta gọi `plus_one(five)`, biến `x` trong thân của `plus_one` sẽ có giá trị `Some(5)`. Sau đó, chúng ta so sánh giá trị đó với từng nhánh match:
 
 ```rust,ignore
 {{#rustdoc_include ../listings/ch06-enums-and-pattern-matching/listing-06-05/src/main.rs:first_arm}}
 ```
 
-The `Some(5)` value doesn’t match the pattern `None`, so we continue to the
-next arm:
+Giá trị `Some(5)` không khớp với mẫu `None`, vì vậy chúng ta tiếp tục đến nhánh tiếp theo:
 
 ```rust,ignore
 {{#rustdoc_include ../listings/ch06-enums-and-pattern-matching/listing-06-05/src/main.rs:second_arm}}
 ```
 
-Does `Some(5)` match `Some(i)`? It does! We have the same variant. The `i`
-binds to the value contained in `Some`, so `i` takes the value `5`. The code in
-the match arm is then executed, so we add 1 to the value of `i` and create a
-new `Some` value with our total `6` inside.
+`Some(5)` có khớp với `Some(i)` không? Có! Chúng ta có cùng một biến thể. Biến `i` liên kết với giá trị chứa trong `Some`, vì vậy `i` nhận giá trị `5`. Mã trong nhánh match sau đó được thực thi, vì vậy chúng ta cộng thêm 1 vào giá trị của `i` và tạo ra một giá trị `Some` mới với tổng `6` của chúng ta bên trong.
 
-Now let’s consider the second call of `plus_one` in Listing 6-5, where `x` is
-`None`. We enter the `match` and compare to the first arm:
+Bây giờ hãy xem xét lần gọi thứ hai của `plus_one` trong Liệt kê 6-5, nơi `x` là `None`. Chúng ta đi vào `match` và so sánh với nhánh đầu tiên:
 
 ```rust,ignore
 {{#rustdoc_include ../listings/ch06-enums-and-pattern-matching/listing-06-05/src/main.rs:first_arm}}
 ```
 
-It matches! There’s no value to add to, so the program stops and returns the
-`None` value on the right side of `=>`. Because the first arm matched, no other
-arms are compared.
+Nó khớp! Không có giá trị nào để cộng vào, vì vậy chương trình dừng lại và trả về giá trị `None` ở phía bên phải của `=>`. Vì nhánh đầu tiên đã khớp, không có nhánh nào khác được so sánh.
 
-Combining `match` and enums is useful in many situations. You’ll see this
-pattern a lot in Rust code: `match` against an enum, bind a variable to the
-data inside, and then execute code based on it. It’s a bit tricky at first, but
-once you get used to it, you’ll wish you had it in all languages. It’s
-consistently a user favorite.
+Kết hợp `match` và enum là hữu ích trong nhiều tình huống. Bạn sẽ thấy mẫu này rất nhiều trong mã Rust: `match` với một enum, liên kết một biến với dữ liệu bên trong, và sau đó thực thi mã dựa trên nó. Lúc đầu có thể hơi khó khăn, nhưng khi bạn đã quen với nó, bạn sẽ ước mình có nó trong tất cả các ngôn ngữ. Nó luôn là một trong những tính năng yêu thích của người dùng.
 
-### Matches Are Exhaustive
+### Các phép khớp mẫu phải mang tính toàn diện
 
-There’s one other aspect of `match` we need to discuss: the arms’ patterns must
-cover all possibilities. Consider this version of our `plus_one` function,
-which has a bug and won’t compile:
+Có một khía cạnh khác của `match` mà chúng ta cần thảo luận: các mẫu của các nhánh phải bao phủ tất cả các khả năng. Hãy xem xét phiên bản này của hàm `plus_one` của chúng ta, nó có lỗi và sẽ không biên dịch được:
 
 ```rust,ignore,does_not_compile
 {{#rustdoc_include ../listings/ch06-enums-and-pattern-matching/no-listing-10-non-exhaustive-match/src/main.rs:here}}
 ```
 
-We didn’t handle the `None` case, so this code will cause a bug. Luckily, it’s
-a bug Rust knows how to catch. If we try to compile this code, we’ll get this
-error:
+Chúng ta đã không xử lý trường hợp `None`, vì vậy đoạn mã này sẽ gây ra lỗi. May mắn thay, đó là một lỗi mà Rust biết cách bắt được. Nếu chúng ta cố gắng biên dịch đoạn mã này, chúng ta sẽ nhận được lỗi này:
 
 ```console
 {{#include ../listings/ch06-enums-and-pattern-matching/no-listing-10-non-exhaustive-match/output.txt}}
 ```
 
-Rust knows that we didn’t cover every possible case, and even knows which
-pattern we forgot! Matches in Rust are _exhaustive_: we must exhaust every last
-possibility in order for the code to be valid. Especially in the case of
-`Option<T>`, when Rust prevents us from forgetting to explicitly handle the
-`None` case, it protects us from assuming that we have a value when we might
-have null, thus making the billion-dollar mistake discussed earlier impossible.
+Rust biết rằng chúng ta đã không bao quát mọi trường hợp có thể xảy ra, và thậm chí còn biết mẫu nào chúng ta đã quên! Các phép khớp mẫu (matches) trong Rust là _toàn diện (exhaustive)_: chúng ta phải vét cạn mọi khả năng cuối cùng để mã hợp lệ. Đặc biệt trong trường hợp của `Option<T>`, khi Rust ngăn chúng ta quên xử lý rõ ràng trường hợp `None`, nó bảo vệ chúng ta khỏi việc giả định rằng chúng ta có một giá trị khi chúng ta thực sự có thể có null, do đó làm cho sai lầm tỷ đô đã thảo luận trước đó trở nên bất khả thi.
 
-### Catch-All Patterns and the `_` Placeholder
+### Các mẫu bắt-tất-cả (Catch-All) và trình giữ chỗ `_`
 
-Using enums, we can also take special actions for a few particular values, but
-for all other values take one default action. Imagine we’re implementing a game
-where, if you roll a 3 on a dice roll, your player doesn’t move, but instead
-gets a new fancy hat. If you roll a 7, your player loses a fancy hat. For all
-other values, your player moves that number of spaces on the game board. Here’s
-a `match` that implements that logic, with the result of the dice roll
-hardcoded rather than a random value, and all other logic represented by
-functions without bodies because actually implementing them is out of scope for
-this example:
+Sử dụng enum, chúng ta cũng có thể thực hiện các hành động đặc biệt cho một vài giá trị cụ thể, nhưng đối với tất cả các giá trị khác, hãy thực hiện một hành động mặc định. Hãy tưởng tượng chúng ta đang triển khai một trò chơi mà ở đó, nếu bạn tung xúc xắc được 3, người chơi của bạn sẽ không di chuyển mà thay vào đó nhận được một chiếc mũ mới lạ mắt. Nếu bạn tung được 7, người chơi của bạn sẽ mất một chiếc mũ lạ mắt. Đối với tất cả các giá trị khác, người chơi của bạn sẽ di chuyển đúng số ô đó trên bàn cờ. Đây là một `match` triển khai logic đó, với kết quả tung xúc xắc được ghi cứng (hardcoded) thay vì là một giá trị ngẫu nhiên, và tất cả các logic khác được đại diện bằng các hàm không có thân vì việc triển khai thực tế chúng nằm ngoài phạm vi của ví dụ này:
 
 ```rust
 {{#rustdoc_include ../listings/ch06-enums-and-pattern-matching/no-listing-15-binding-catchall/src/main.rs:here}}
 ```
 
-For the first two arms, the patterns are the literal values `3` and `7`. For
-the last arm that covers every other possible value, the pattern is the
-variable we’ve chosen to name `other`. The code that runs for the `other` arm
-uses the variable by passing it to the `move_player` function.
+Đối với hai nhánh đầu tiên, các mẫu là các giá trị hằng `3` và `7`. Đối với nhánh cuối cùng bao quát mọi giá trị khả thi khác, mẫu là biến mà chúng ta đã chọn đặt tên là `other`. Mã chạy cho nhánh `other` sử dụng biến đó bằng cách truyền nó vào hàm `move_player`.
 
-This code compiles, even though we haven’t listed all the possible values a
-`u8` can have, because the last pattern will match all values not specifically
-listed. This catch-all pattern meets the requirement that `match` must be
-exhaustive. Note that we have to put the catch-all arm last because the
-patterns are evaluated in order. If we put the catch-all arm earlier, the other
-arms would never run, so Rust will warn us if we add arms after a catch-all!
+Đoạn mã này biên dịch được, mặc dù chúng ta chưa liệt kê tất cả các giá trị có thể có của một `u8`, bởi vì mẫu cuối cùng sẽ khớp với tất cả các giá trị không được liệt kê cụ thể. Mẫu bắt-tất-cả (catch-all) này đáp ứng yêu cầu rằng `match` phải mang tính toàn diện. Lưu ý rằng chúng ta phải đặt nhánh bắt-tất-cả ở cuối cùng vì các mẫu được đánh giá theo thứ tự. Nếu chúng ta đặt nhánh bắt-tất-cả lên trước, các nhánh khác sẽ không bao giờ được chạy, vì vậy Rust sẽ cảnh báo chúng ta nếu chúng ta thêm các nhánh sau một nhánh bắt-tất-cả!
 
-Rust also has a pattern we can use when we want a catch-all but don’t want to
-_use_ the value in the catch-all pattern: `_` is a special pattern that matches
-any value and does not bind to that value. This tells Rust we aren’t going to
-use the value, so Rust won’t warn us about an unused variable.
+Rust cũng có một mẫu mà chúng ta có thể sử dụng khi chúng ta muốn một mẫu bắt-tất-cả nhưng không muốn _sử dụng_ giá trị trong mẫu đó: `_` là một mẫu đặc biệt khớp với bất kỳ giá trị nào và không liên kết với giá trị đó. Điều này nói với Rust rằng chúng ta sẽ không sử dụng giá trị đó, vì vậy Rust sẽ không cảnh báo chúng ta về một biến không được sử dụng.
 
-Let’s change the rules of the game: now, if you roll anything other than a 3 or
-a 7, you must roll again. We no longer need to use the catch-all value, so we
-can change our code to use `_` instead of the variable named `other`:
+Hãy thay đổi luật chơi: bây giờ, nếu bạn tung bất cứ thứ gì khác ngoài 3 hoặc 7, bạn phải tung lại. Chúng ta không còn cần sử dụng giá trị bắt-tất-cả nữa, vì vậy chúng ta có thể thay đổi mã của mình để sử dụng `_` thay vì biến có tên `other`:
 
 ```rust
 {{#rustdoc_include ../listings/ch06-enums-and-pattern-matching/no-listing-16-underscore-catchall/src/main.rs:here}}
 ```
 
-This example also meets the exhaustiveness requirement because we’re explicitly
-ignoring all other values in the last arm; we haven’t forgotten anything.
+Ví dụ này cũng đáp ứng yêu cầu về tính toàn diện vì chúng ta đang bỏ qua một cách rõ ràng tất cả các giá trị khác trong nhánh cuối cùng; chúng ta đã không bỏ quên bất cứ thứ gì.
 
-Finally, we’ll change the rules of the game one more time so that nothing else
-happens on your turn if you roll anything other than a 3 or a 7. We can express
-that by using the unit value (the empty tuple type we mentioned in [“The Tuple
-Type”][tuples]<!-- ignore --> section) as the code that goes with the `_` arm:
+Cuối cùng, chúng ta sẽ thay đổi luật chơi một lần nữa để không có gì khác xảy ra trong lượt của bạn nếu bạn tung được bất cứ thứ gì khác ngoài 3 hoặc 7. Chúng ta có thể diễn đạt điều đó bằng cách sử dụng giá trị đơn vị (unit value - kiểu tuple trống mà chúng ta đã đề cập trong phần [“Kiểu Tuple”][tuples]<!-- ignore -->) làm mã đi kèm với nhánh `_`:
 
 ```rust
 {{#rustdoc_include ../listings/ch06-enums-and-pattern-matching/no-listing-17-underscore-unit/src/main.rs:here}}
 ```
 
-Here, we’re telling Rust explicitly that we aren’t going to use any other value
-that doesn’t match a pattern in an earlier arm, and we don’t want to run any
-code in this case.
+Ở đây, chúng ta đang nói với Rust một cách rõ ràng rằng chúng ta sẽ không sử dụng bất kỳ giá trị nào khác không khớp với một mẫu trong các nhánh trước đó, và chúng ta không muốn chạy bất kỳ đoạn mã nào trong trường hợp này.
 
-There’s more about patterns and matching that we’ll cover in [Chapter
-19][ch19-00-patterns]<!-- ignore -->.
+Còn nhiều điều về các mẫu và phép khớp mẫu mà chúng ta sẽ đề cập trong [Chương 19][ch19-00-patterns]<!-- ignore -->.
 
 <!-- BEGIN INTERVENTION: 1e4f082c-ffa4-4d33-8726-2dbcd72e1aa2 -->
-### How Matches Interact with Ownership
 
-If an enum contains non-copyable data like a String, then you should be careful with whether a match will move or borrow that data. For example, this program using an `Option<String>` will compile:
+### Cách các phép khớp mẫu tương tác với Quyền sở hữu
+
+Nếu một enum chứa dữ liệu không thể sao chép (non-copyable) như một String, thì bạn nên cẩn thận với việc liệu một phép match sẽ di chuyển (move) hay mượn (borrow) dữ liệu đó. Ví dụ, chương trình sử dụng `Option<String>` này sẽ biên dịch được:
 
 ```aquascope,permissions,stepper,boundaries
 # fn main() {
-let opt: Option<String> = 
+let opt: Option<String> =
     Some(String::from("Hello world"));
 
 match opt {
@@ -272,15 +164,15 @@ println!("{:?}", opt);
 # }
 ```
 
-But if we replace the placeholder in `Some(_)` with a variable name, like `Some(s)`, then the program will NOT compile:
+Nhưng nếu chúng ta thay thế trình giữ chỗ trong `Some(_)` bằng một tên biến, như `Some(s)`, thì chương trình sẽ KHÔNG biên dịch được:
 
 ```aquascope,permissions,stepper,boundaries,shouldFail
 #fn main() {
-let opt: Option<String> = 
+let opt: Option<String> =
     Some(String::from("Hello world"));
 
 match opt {
-    // _ became s
+    // _ trở thành s
     Some(s) => println!("Some: {}", s),
     None => println!("None!")
 };
@@ -289,17 +181,16 @@ println!("{:?}", opt);`{}`
 #}
 ```
 
+`opt` là một enum thông thường — kiểu của nó là `Option<String>` chứ không phải là một tham chiếu như `&Option<String>`. Do đó, một phép match trên `opt` sẽ di chuyển các trường không bị bỏ qua như `s`. Hãy chú ý cách `opt` mất quyền đọc và quyền sở hữu sớm hơn trong chương trình thứ hai so với chương trình thứ nhất. Sau biểu thức match, dữ liệu bên trong `opt` đã bị di chuyển, vì vậy việc đọc `opt` trong lệnh `println` là không hợp lệ.
 
-`opt` is a plain enum &mdash; its type is `Option<String>` and not a reference like `&Option<String>`. Therefore a match on `opt` will move non-ignored fields like `s`. Notice how `opt` loses read and own permission sooner in the second program compared to the first. After the match expression, the data within `opt` has been moved, so it is illegal to read `opt` in the `println`.
-
-If we want to peek into `opt` without moving its contents, the idiomatic solution is to match on a reference:
+Nếu chúng ta muốn xem nội dung bên trong `opt` mà không di chuyển nội dung của nó, giải pháp theo quy ước (idiomatic) là thực hiện match trên một tham chiếu:
 
 ```aquascope,permissions,stepper,boundaries
 #fn main() {
-let opt: Option<String> = 
+let opt: Option<String> =
     Some(String::from("Hello world"));
 
-// opt became &opt
+// opt trở thành &opt
 match &opt {
     Some(s) => println!("Some: {}", s),
     None => println!("None!")
@@ -309,11 +200,11 @@ println!("{:?}", opt);
 #}
 ```
 
-Rust will “push down” the reference from the outer enum, `&Option<String>`, to the inner field, `&String`. Therefore `s` has type `&String`, and `opt` can be used after the match. To better understand this “pushing down” mechanism, see the section about [binding modes](https://doc.rust-lang.org/reference/patterns.html#binding-modes) in the Rust Reference.
+Rust sẽ “đẩy xuống” (push down) tham chiếu từ enum bên ngoài, `&Option<String>`, đến trường bên trong, `&String`. Do đó `s` có kiểu `&String`, và `opt` có thể được sử dụng sau phép match. Để hiểu rõ hơn về cơ chế “đẩy xuống” này, hãy xem phần về [chế độ liên kết (binding modes)](https://doc.rust-lang.org/reference/patterns.html#binding-modes) trong Tài liệu tham khảo Rust (Rust Reference).
+
 <!-- END INTERVENTION -->
 
 {{#quiz ../quizzes/ch06-02-match.toml}}
 
 [tuples]: ch03-02-data-types.html#the-tuple-type
-
 [ch19-00-patterns]: ch19-00-patterns.html

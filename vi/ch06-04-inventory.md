@@ -1,20 +1,21 @@
-## Ownership Inventory #1
+## Kiểm kê Quyền sở hữu #1
 
-The Ownership Inventory is a series of quizzes that check your understanding of ownership in real-world scenarios. These scenarios are inspired by common StackOverflow questions about Rust. You can use these questions to test how well you understand ownership so far.
+Kiểm kê Quyền sở hữu là một loạt các câu đố để kiểm tra mức độ hiểu biết của bạn về quyền sở hữu (ownership) trong các tình huống thực tế. Những tình huống này được lấy cảm hứng từ các câu hỏi phổ biến trên StackOverflow về Rust. Bạn có thể sử dụng các câu hỏi này để kiểm tra xem bạn hiểu về quyền sở hữu tốt đến mức nào cho đến nay.
 
-### A new technology: the in-browser IDE
+### Một công nghệ mới: IDE trong trình duyệt
 
-These questions will involve Rust programs which use functions you haven't seen before. Therefore we will use an experimental technology that supports IDE features in the browser. The IDE lets you get information about unfamiliar functions and types. For example, try doing the following actions in the program below:
+Các câu hỏi này sẽ liên quan đến các chương trình Rust sử dụng các hàm mà bạn chưa từng thấy trước đây. Do đó, chúng tôi sẽ sử dụng một công nghệ thử nghiệm hỗ trợ các tính năng IDE trong trình duyệt. IDE này cho phép bạn lấy thông tin về các hàm và kiểu dữ liệu lạ. Ví dụ, hãy thử thực hiện các hành động sau trong chương trình bên dưới:
 
-* Hover your mouse over `replace` to see its type and description.
-* Hover your mouse over `s2` to see its inferred type.
+* Di chuột qua `replace` để xem kiểu và mô tả của nó.
+* Di chuột qua `s2` để xem kiểu suy luận của nó.
 
----------
+---
 
+---
 
 <pre>
 <code class="ide">
-/// Turns a string into a far more exciting string
+/// Biến một chuỗi thành một chuỗi thú vị hơn nhiều
 fn make_exciting(s: &str) -> String {
   let s2 = s.replace(".", "!");
   let s3 = s2.replace("?", "‽");
@@ -23,18 +24,18 @@ fn make_exciting(s: &str) -> String {
 </code>
 </pre>
 
----------
+---
 
-A few important caveats about this experimental technology:
+Một vài lưu ý quan trọng về công nghệ thử nghiệm này:
 
-**PLATFORM COMPATIBILITY:** the in-browser IDE does not work on touch-screens. The in-browser IDE has only been tested to work on Google Chrome 109 and Firefox 107. It might not work in older versions of Safari.
+**TƯƠNG THÍCH NỀN TẢNG:** IDE trong trình duyệt không hoạt động trên màn hình cảm ứng. IDE trong trình duyệt chỉ mới được thử nghiệm hoạt động trên Google Chrome 109 và Firefox 107. Nó có thể không hoạt động trên các phiên bản Safari cũ hơn.
 
-**MEMORY USAGE:** the in-browser IDE uses a [WebAssembly](https://rustwasm.github.io/book/) build of [rust-analyzer](https://github.com/rust-lang/rust-analyzer), which can take up a fair amount of memory. Each instance of the IDE appears to take around ~300 MB. (Note: we have also received some reports of >10GB memory usage.)
+**SỬ DỤNG BỘ NHỚ:** IDE trong trình duyệt sử dụng bản dựng [WebAssembly](https://rustwasm.github.io/book/) của [rust-analyzer](https://github.com/rust-lang/rust-analyzer), bản dựng này có thể tốn khá nhiều bộ nhớ. Mỗi thực thể của IDE dường như chiếm khoảng ~300 MB. (Lưu ý: chúng tôi cũng nhận được một số báo cáo về mức sử dụng bộ nhớ >10GB.)
 
-**SCROLLING:** the in-browser IDE will "eat" your cursor if your cursor intersects with the editor while scrolling. If you're having trouble scrolling the page, try moving your cursor onto the rightmost scrollbar.
+**CUỘN TRANG:** IDE trong trình duyệt sẽ "ăn" con trỏ của bạn nếu con trỏ của bạn giao với trình soạn thảo trong khi cuộn. Nếu bạn gặp khó khăn khi cuộn trang, hãy thử di chuyển con trỏ sang thanh cuộn bên phải nhất.
 
-**LOAD TIMES:** the IDE may take up to 15 seconds to initialize for a new program. It will say "Loading..." as you interact with code in the editor.
+**THỜI GIAN TẢI:** IDE có thể mất tới 15 giây để khởi tạo một chương trình mới. Nó sẽ hiển thị "Loading..." khi bạn tương tác với mã trong trình soạn thảo.
 
-### The Quiz
+### Câu đố
 
 {{#quiz ../quizzes/ch06-04-inventory.toml}}
