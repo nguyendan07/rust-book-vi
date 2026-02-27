@@ -1,45 +1,44 @@
-## Packages and Crates
+## Package và Crate
 
-The first parts of the module system we’ll cover are packages and crates.
+Các phần đầu tiên của hệ thống module mà chúng ta sẽ tìm hiểu là package và crate.
 
-A _crate_ is the smallest amount of code that the Rust compiler considers at a
-time. Even if you run `rustc` rather than `cargo` and pass a single source code
-file (as we did all the way back in “Writing and Running a Rust Program” in
-Chapter 1), the compiler considers that file to be a crate. Crates can contain
-modules, and the modules may be defined in other files that get compiled with
-the crate, as we’ll see in the coming sections.
+Một _crate_ là lượng mã nhỏ nhất mà trình biên dịch Rust xem xét tại một thời điểm. Ngay cả khi bạn chạy `rustc` thay vì `cargo` và truyền một file mã nguồn duy nhất
+(như chúng ta đã làm từ “Viết và Chạy một Chương trình Rust” trong
+Chương 1), trình biên dịch vẫn coi file đó là một crate. Các crate có thể chứa
+các module, và các module có thể được định nghĩa trong các file khác được biên dịch cùng với
+crate, như chúng ta sẽ thấy trong các phần sắp tới.
 
-A crate can come in one of two forms: a binary crate or a library crate.
-_Binary crates_ are programs you can compile to an executable that you can run,
-such as a command line program or a server. Each must have a function called
-`main` that defines what happens when the executable runs. All the crates we’ve
-created so far have been binary crates.
+Một crate có thể ở một trong hai dạng: binary crate hoặc library crate.
+_Binary crates_ là các chương trình bạn có thể biên dịch thành một tệp thực thi mà bạn có thể chạy,
+chẳng hạn như một chương trình dòng lệnh hoặc một máy chủ. Mỗi binary crate phải có một hàm gọi là
+`main` để định nghĩa những gì xảy ra khi tệp thực thi chạy. Tất cả các crate chúng ta đã
+tạo cho đến nay đều là binary crate.
 
-_Library crates_ don’t have a `main` function, and they don’t compile to an
-executable. Instead, they define functionality intended to be shared with
-multiple projects. For example, the `rand` crate we used in [Chapter
-2][rand]<!-- ignore --> provides functionality that generates random numbers.
-Most of the time when Rustaceans say “crate,” they mean library crate, and they
-use “crate” interchangeably with the general programming concept of a “library.”
+_Library crates_ không có hàm `main`, và chúng không biên dịch thành một tệp thực thi.
+Thay vào đó, chúng định nghĩa các chức năng nhằm mục đích chia sẻ với
+nhiều dự án. Ví dụ, crate `rand` mà chúng ta đã sử dụng trong [Chương
+2][rand]<!-- ignore --> cung cấp chức năng tạo số ngẫu nhiên.
+Hầu hết những người dùng Rust (Rustaceans) khi nói “crate” là họ ám chỉ library crate, và họ
+sử dụng “crate” thay thế cho khái niệm lập trình chung là “thư viện” (library).
 
-The _crate root_ is a source file that the Rust compiler starts from and makes
-up the root module of your crate (we’ll explain modules in depth in [“Defining
-Modules to Control Scope and Privacy”][modules]<!-- ignore -->).
+_Crate root_ là một file nguồn mà trình biên dịch Rust bắt đầu từ đó và tạo nên
+module gốc của crate của bạn (chúng ta sẽ giải thích chi tiết về module trong [“Định nghĩa
+Module để Kiểm soát Phạm vi và Tính Riêng tư”][modules]<!-- ignore -->).
 
-A _package_ is a bundle of one or more crates that provides a set of
-functionality. A package contains a _Cargo.toml_ file that describes how to
-build those crates. Cargo is actually a package that contains the binary crate
-for the command line tool you’ve been using to build your code. The Cargo
-package also contains a library crate that the binary crate depends on. Other
-projects can depend on the Cargo library crate to use the same logic the Cargo
-command line tool uses.
+Một _package_ là một nhóm gồm một hoặc nhiều crate cung cấp một tập hợp các
+chức năng. Một package chứa một file _Cargo.toml_ mô tả cách
+xây dựng các crate đó. Cargo thực chất là một package chứa binary crate
+cho công cụ dòng lệnh mà bạn đang sử dụng để xây dựng mã nguồn của mình.
+Package Cargo cũng chứa một library crate mà binary crate phụ thuộc vào. Các
+dự án khác có thể phụ thuộc vào library crate của Cargo để sử dụng cùng một logic mà
+công cụ dòng lệnh Cargo sử dụng.
 
-A package can contain as many binary crates as you like, but at most only one
-library crate. A package must contain at least one crate, whether that’s a
-library or binary crate.
+Một package có thể chứa bao nhiêu binary crate tùy ý, nhưng tối đa chỉ có một
+library crate. Một package phải chứa ít nhất một crate, cho dù đó là
+library hay binary crate.
 
-Let’s walk through what happens when we create a package. First we enter the
-command `cargo new my-project`:
+Hãy cùng xem qua những gì xảy ra khi chúng ta tạo một package. Đầu tiên chúng ta nhập
+lệnh `cargo new my-project`:
 
 ```console
 $ cargo new my-project
@@ -51,21 +50,21 @@ $ ls my-project/src
 main.rs
 ```
 
-After we run `cargo new my-project`, we use `ls` to see what Cargo creates. In
-the project directory, there’s a _Cargo.toml_ file, giving us a package.
-There’s also a _src_ directory that contains _main.rs_. Open _Cargo.toml_ in
-your text editor, and note there’s no mention of _src/main.rs_. Cargo follows a
-convention that _src/main.rs_ is the crate root of a binary crate with the same
-name as the package. Likewise, Cargo knows that if the package directory
-contains _src/lib.rs_, the package contains a library crate with the same name
-as the package, and _src/lib.rs_ is its crate root. Cargo passes the crate root
-files to `rustc` to build the library or binary.
+Sau khi chạy `cargo new my-project`, chúng ta sử dụng `ls` để xem những gì Cargo tạo ra. Trong
+thư mục dự án, có một file _Cargo.toml_, cho chúng ta một package.
+Cũng có một thư mục _src_ chứa _main.rs_. Mở _Cargo.toml_ trong
+trình soạn thảo văn bản của bạn, và lưu ý rằng không có đề cập nào đến _src/main.rs_. Cargo tuân theo một
+quy ước rằng _src/main.rs_ là crate root của một binary crate có cùng
+tên với package. Tương tự, Cargo biết rằng nếu thư mục package
+chứa _src/lib.rs_, thì package đó chứa một library crate có cùng tên
+với package, và _src/lib.rs_ là crate root của nó. Cargo truyền các file crate root
+cho `rustc` để xây dựng thư viện hoặc tệp thực thi.
 
-Here, we have a package that only contains _src/main.rs_, meaning it only
-contains a binary crate named `my-project`. If a package contains _src/main.rs_
-and _src/lib.rs_, it has two crates: a binary and a library, both with the same
-name as the package. A package can have multiple binary crates by placing files
-in the _src/bin_ directory: each file will be a separate binary crate.
+Ở đây, chúng ta có một package chỉ chứa _src/main.rs_, nghĩa là nó chỉ
+chứa một binary crate tên là `my-project`. Nếu một package chứa _src/main.rs_
+và _src/lib.rs_, nó có hai crate: một binary và một library, cả hai đều có cùng
+tên với package. Một package có thể có nhiều binary crate bằng cách đặt
+các file trong thư mục _src/bin_: mỗi file sẽ là một binary crate riêng biệt.
 
 {{#quiz ../quizzes/ch07-01-packages-and-crates.toml}}
 
