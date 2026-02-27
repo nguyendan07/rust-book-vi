@@ -1,25 +1,25 @@
-# Common Collections
+# Các Bộ sưu tập Phổ biến
 
-Rust’s standard library includes a number of very useful data structures called
-_collections_. Most other data types represent one specific value, but
-collections can contain multiple values. Unlike the built-in array and tuple
-types, the data that these collections point to is stored on the heap, which
-means the amount of data does not need to be known at compile time and can grow
-or shrink as the program runs. Each kind of collection has different
-capabilities and costs, and choosing an appropriate one for your current
-situation is a skill you’ll develop over time. In this chapter, we’ll discuss
-three collections that are used very often in Rust programs:
+Thư viện tiêu chuẩn của Rust bao gồm một số cấu trúc dữ liệu rất hữu ích được gọi là
+_các bộ sưu tập_ (collections). Hầu hết các kiểu dữ liệu khác đại diện cho một giá trị cụ thể, nhưng
+các bộ sưu tập có thể chứa nhiều giá trị. Không giống như các kiểu mảng (array) và bộ (tuple)
+tích hợp sẵn, dữ liệu mà các bộ sưu tập này trỏ đến được lưu trữ trên heap, điều đó có
+nghĩa là lượng dữ liệu không cần phải được biết tại thời điểm biên dịch và có thể tăng lên
+hoặc thu nhỏ lại khi chương trình chạy. Mỗi loại bộ sưu tập có các khả năng
+và chi phí khác nhau, và việc chọn một loại phù hợp cho tình huống hiện tại
+của bạn là một kỹ năng bạn sẽ phát triển theo thời gian. Trong chương này, chúng ta sẽ thảo luận về
+ba bộ sưu tập được sử dụng rất thường xuyên trong các chương trình Rust:
 
-- A _vector_ allows you to store a variable number of values next to each other.
-- A _string_ is a collection of characters. We’ve mentioned the `String` type
-  previously, but in this chapter we’ll talk about it in depth.
-- A _hash map_ allows you to associate a value with a specific key. It’s a
-  particular implementation of the more general data structure called a _map_.
+- Một _vector_ cho phép bạn lưu trữ một số lượng biến đổi các giá trị cạnh nhau.
+- Một _chuỗi_ (string) là một bộ sưu tập các ký tự. Trước đây chúng ta đã đề cập đến kiểu `String`,
+  nhưng trong chương này chúng ta sẽ thảo luận sâu hơn về nó.
+- Một _bảng băm_ (hash map) cho phép bạn liên kết một giá trị với một khóa cụ thể. Nó là
+  một triển khai cụ thể của cấu trúc dữ liệu tổng quát hơn được gọi là _map_.
 
-To learn about the other kinds of collections provided by the standard library,
-see [the documentation][collections].
+Để tìm hiểu về các loại bộ sưu tập khác do thư viện tiêu chuẩn cung cấp,
+hãy xem [tài liệu][collections].
 
-We’ll discuss how to create and update vectors, strings, and hash maps, as well
-as what makes each special.
+Chúng ta sẽ thảo luận về cách tạo và cập nhật vector, chuỗi và bảng băm, cũng như
+điều gì làm cho mỗi loại trở nên đặc biệt.
 
 [collections]: https://doc.rust-lang.org/std/collections/index.html
