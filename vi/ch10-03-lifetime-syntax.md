@@ -1,34 +1,34 @@
-## Validating References with Lifetimes
+## Xác thực các Tham chiếu với Lifetimes
 
-Lifetimes are another kind of generic that we’ve already been using. Rather
-than ensuring that a type has the behavior we want, lifetimes ensure that
-references are valid as long as we need them to be.
+Lifetimes (vòng đời) là một loại generic khác mà chúng ta đã và đang sử dụng. Thay
+vì đảm bảo rằng một kiểu có hành vi mà chúng ta muốn, lifetimes đảm bảo rằng
+các tham chiếu sẽ hợp lệ trong khoảng thời gian mà chúng ta cần chúng.
 
-One detail we didn’t discuss in the [“References and
-Borrowing”][references-and-borrowing]<!-- ignore --> section in Chapter 4 is
-that every reference in Rust has a _lifetime_, which is the scope for which
-that reference is valid. Most of the time, lifetimes are implicit and inferred,
-just like most of the time, types are inferred. We are only required to
-annotate types when multiple types are possible. In a similar way, we have to
-annotate lifetimes when the lifetimes of references could be related in a few
-different ways. Rust requires us to annotate the relationships using generic
-lifetime parameters to ensure the actual references used at runtime will
-definitely be valid.
+Một chi tiết mà chúng ta đã không thảo luận trong phần [“Tham chiếu và
+Mượn”][references-and-borrowing]<!-- ignore --> ở Chương 4 là
+mọi tham chiếu trong Rust đều có một _lifetime_, đó là phạm vi (scope) mà
+tham chiếu đó hợp lệ. Hầu hết thời gian, lifetimes là ngầm định và được suy luận,
+giống như hầu hết thời gian, các kiểu dữ liệu được suy luận. Chúng ta chỉ bắt buộc phải
+chú thích kiểu khi có thể có nhiều kiểu dữ liệu khác nhau. Theo cách tương tự, chúng ta phải
+chú thích lifetimes khi các lifetimes của các tham chiếu có thể liên quan đến nhau theo một vài
+cách khác nhau. Rust yêu cầu chúng ta chú thích các mối quan hệ này bằng cách sử dụng các tham số
+vòng đời generic (generic lifetime parameters) để đảm bảo các tham chiếu thực tế được sử dụng khi chạy chương trình chắc chắn
+sẽ hợp lệ.
 
-Annotating lifetimes is not a concept most other programming languages have, so
-this is going to feel unfamiliar. Although we won’t cover lifetimes in their
-entirety in this chapter, we’ll discuss common ways you might encounter
-lifetime syntax so you can get comfortable with the concept.
+Chú thích lifetimes không phải là một khái niệm mà hầu hết các ngôn ngữ lập trình khác có, vì vậy
+điều này sẽ mang lại cảm giác lạ lẫm. Mặc dù chúng ta sẽ không trình bày toàn bộ về lifetimes
+trong chương này, chúng ta sẽ thảo luận về các cách phổ biến mà bạn có thể gặp
+cú pháp lifetime để bạn có thể làm quen với khái niệm này.
 
-### Preventing Dangling References with Lifetimes
+### Ngăn chặn các Tham chiếu lơ lửng với Lifetimes
 
-The main aim of lifetimes is to prevent _dangling references_, which cause a
-program to reference data other than the data it’s intended to reference.
-Consider the unsafe program in Listing 10-16, which has an outer scope and an inner
-scope.
+Mục tiêu chính của lifetimes là ngăn chặn _tham chiếu lơ lửng_ (dangling references), thứ khiến một
+chương trình tham chiếu đến dữ liệu không phải là dữ liệu mà nó định tham chiếu.
+Hãy xem xét chương trình không an toàn trong Liệt kê 10-16, chương trình này có một phạm vi bên ngoài và một
+phạm vi bên trong.
 
 <!-- TODO(aquascope): support for nested scopes -->
-<Listing number="10-16" caption="An attempt to use a reference whose value has gone out of scope">
+<Listing number="10-16" caption="Một nỗ lực sử dụng một tham chiếu mà giá trị của nó đã nằm ngoài phạm vi">
 
 ```rust,ignore,does_not_compile
 fn main() {
@@ -45,39 +45,39 @@ fn main() {
 
 </Listing>
 
-> Note: The examples in Listings 10-16, 10-17, and 10-23 declare variables
-> without giving them an initial value, so the variable name exists in the outer
-> scope. At first glance, this might appear to be in conflict with Rust’s having
-> no null values. However, if we try to use a variable before giving it a value,
-> we’ll get a compile-time error, which shows that Rust indeed does not allow
-> null values.
+> Lưu ý: Các ví dụ trong Liệt kê 10-16, 10-17, và 10-23 khai báo các biến
+> mà không cấp cho chúng một giá trị ban đầu, vì vậy tên biến tồn tại trong phạm vi
+> bên ngoài. Thoạt nhìn, điều này có vẻ mâu thuẫn với việc Rust không có
+> giá trị null. Tuy nhiên, nếu chúng ta cố gắng sử dụng một biến trước khi cấp cho nó một giá trị,
+> chúng ta sẽ nhận được lỗi lúc biên dịch, điều này cho thấy Rust thực sự không cho phép
+> các giá trị null.
 
-The outer scope declares a variable named `r` with no initial value, and the
-inner scope declares a variable named `x` with the initial value of `5`. Inside
-the inner scope, we attempt to set the value of `r` as a reference to `x`. Then
-the inner scope ends, and we attempt to print the value in `r`. This code won’t
-compile because the value that `r` is referring to has gone out of scope before
-we try to use it. Here is the error message:
+Phạm vi bên ngoài khai báo một biến tên là `r` không có giá trị ban đầu, và
+phạm vi bên trong khai báo một biến tên là `x` với giá trị ban đầu là `5`. Bên trong
+phạm vi bên trong, chúng ta cố gắng đặt giá trị của `r` làm tham chiếu đến `x`. Sau đó
+phạm vi bên trong kết thúc, và chúng ta cố gắng in giá trị trong `r`. Mã này sẽ không
+biên dịch được vì giá trị mà `r` đang tham chiếu đến đã nằm ngoài phạm vi trước khi
+chúng ta cố gắng sử dụng nó. Đây là thông báo lỗi:
 
 ```console
 {{#include ../listings/ch10-generic-types-traits-and-lifetimes/listing-10-16/output.txt}}
 ```
 
-The error message says that the variable `x` “does not live long enough.” The
-reason is that `x` will be out of scope when the inner scope ends on line 7.
-But `r` is still valid for the outer scope; because its scope is larger, we say
-that it “lives longer.” If Rust allowed this code to work, `r` would be
-referencing memory that was deallocated when `x` went out of scope, and
-anything we tried to do with `r` wouldn’t work correctly. So how does Rust
-determine that this code is invalid? It uses a borrow checker.
+Thông báo lỗi nói rằng biến `x` “không sống đủ lâu” (does not live long enough).
+Lý do là `x` sẽ nằm ngoài phạm vi khi phạm vi bên trong kết thúc ở dòng 7.
+Nhưng `r` vẫn hợp lệ đối với phạm vi bên ngoài; vì phạm vi của nó lớn hơn, chúng ta nói
+rằng nó “sống lâu hơn”. Nếu Rust cho phép mã này hoạt động, `r` sẽ
+tham chiếu đến vùng nhớ đã được giải phóng khi `x` nằm ngoài phạm vi, và
+bất cứ điều gì chúng ta cố gắng làm với `r` sẽ không hoạt động chính xác. Vậy làm thế nào để Rust
+xác định rằng mã này không hợp lệ? Nó sử dụng một bộ kiểm tra mượn (borrow checker).
 
-### The Borrow Checker Ensures Data Outlives Its References
+### Bộ kiểm tra mượn đảm bảo dữ liệu sống lâu hơn các tham chiếu của nó
 
-The Rust compiler has a _borrow checker_ that compares scopes to determine
-whether all borrows are valid. Listing 10-17 shows the same code as Listing
-10-16 but with annotations showing the lifetimes of the variables.
+Trình biên dịch Rust có một _bộ kiểm tra mượn_ (borrow checker) để so sánh các phạm vi nhằm xác định
+liệu tất cả các lần mượn có hợp lệ hay không. Liệt kê 10-17 hiển thị cùng mã nguồn như Liệt kê
+10-16 nhưng có các chú thích hiển thị lifetimes của các biến.
 
-<Listing number="10-17" caption="Annotations of the lifetimes of `r` and `x`, named `'a` and `'b`, respectively">
+<Listing number="10-17" caption="Các chú thích về lifetimes của r và x, lần lượt được đặt tên là 'a và 'b">
 
 ```rust,ignore,does_not_compile
 {{#rustdoc_include ../listings/ch10-generic-types-traits-and-lifetimes/listing-10-17/src/main.rs}}
@@ -85,17 +85,17 @@ whether all borrows are valid. Listing 10-17 shows the same code as Listing
 
 </Listing>
 
-Here, we’ve annotated the lifetime of `r` with `'a` and the lifetime of `x`
-with `'b`. As you can see, the inner `'b` block is much smaller than the outer
-`'a` lifetime block. At compile time, Rust compares the size of the two
-lifetimes and sees that `r` has a lifetime of `'a` but that it refers to memory
-with a lifetime of `'b`. The program is rejected because `'b` is shorter than
-`'a`: the subject of the reference doesn’t live as long as the reference.
+Ở đây, chúng ta đã chú thích lifetime của `r` là `'a` và lifetime của `x`
+là `'b`. Như bạn có thể thấy, khối `'b` bên trong nhỏ hơn nhiều so với khối
+lifetime `'a` bên ngoài. Tại thời điểm biên dịch, Rust so sánh kích thước của hai
+lifetimes và thấy rằng `r` có lifetime là `'a` nhưng nó lại tham chiếu đến vùng nhớ
+có lifetime là `'b`. Chương trình bị từ chối vì `'b` ngắn hơn
+`'a`: đối tượng của tham chiếu không sống lâu bằng tham chiếu đó.
 
-Listing 10-18 fixes the code so it doesn’t have a dangling reference and it
-compiles without any errors.
+Liệt kê 10-18 sửa lại mã nguồn để nó không có tham chiếu lơ lửng và nó
+biên dịch mà không có bất kỳ lỗi nào.
 
-<Listing number="10-18" caption="A valid reference because the data has a longer lifetime than the reference">
+<Listing number="10-18" caption="Một tham chiếu hợp lệ vì dữ liệu có lifetime dài hơn tham chiếu">
 
 ```rust
 {{#rustdoc_include ../listings/ch10-generic-types-traits-and-lifetimes/listing-10-18/src/main.rs}}
@@ -103,22 +103,22 @@ compiles without any errors.
 
 </Listing>
 
-Here, `x` has the lifetime `'b`, which in this case is larger than `'a`. This
-means `r` can reference `x` because Rust knows that the reference in `r` will
-always be valid while `x` is valid.
+Ở đây, `x` có lifetime `'b`, trong trường hợp này lớn hơn `'a`. Điều này
+nghĩa là `r` có thể tham chiếu đến `x` vì Rust biết rằng tham chiếu trong `r` sẽ
+luôn hợp lệ trong khi `x` còn hợp lệ.
 
-Now that you know what the lifetimes of references are and how Rust analyzes
-lifetimes to ensure references will always be valid, let’s explore generic
-lifetimes of parameters and return values in the context of functions.
+Bây giờ bạn đã biết lifetimes của các tham chiếu là gì và cách Rust phân tích
+lifetimes để đảm bảo các tham chiếu sẽ luôn hợp lệ, hãy cùng khám phá
+generic lifetimes của các tham số và giá trị trả về trong ngữ cảnh của các hàm.
 
-### Generic Lifetimes in Functions
+### Generic Lifetimes trong các Hàm
 
-We’ll write a function that returns the longer of two string slices. This
-function will take two string slices and return a single string slice. After
-we’ve implemented the `longest` function, the code in Listing 10-19 should
-print `The longest string is abcd`.
+Chúng ta sẽ viết một hàm trả về chuỗi dài hơn trong hai string slices. Hàm
+này sẽ nhận vào hai string slices và trả về một string slice duy nhất. Sau khi
+chúng ta triển khai hàm `longest`, mã nguồn trong Liệt kê 10-19 sẽ
+in ra `The longest string is abcd`.
 
-<Listing number="10-19" file-name="src/main.rs" caption="A `main` function that calls the `longest` function to find the longer of two string slices">
+<Listing number="10-19" file-name="src/main.rs" caption="Một hàm main gọi hàm longest để tìm chuỗi dài hơn trong hai string slices">
 
 ```rust,ignore
 {{#rustdoc_include ../listings/ch10-generic-types-traits-and-lifetimes/listing-10-19/src/main.rs}}
@@ -126,17 +126,17 @@ print `The longest string is abcd`.
 
 </Listing>
 
-Note that we want the function to take string slices, which are references,
-rather than strings, because we don’t want the `longest` function to take
-ownership of its parameters. Refer to [“String Slices as
-Parameters”][string-slices-as-parameters]<!-- ignore --> in Chapter 4 for more
-discussion about why the parameters we use in Listing 10-19 are the ones we
-want.
+Lưu ý rằng chúng ta muốn hàm nhận vào các string slices, vốn là các tham chiếu,
+thay vì các strings, bởi vì chúng ta không muốn hàm `longest` chiếm
+quyền sở hữu (ownership) các tham số của nó. Tham khảo phần [“String Slices làm
+Tham số”][string-slices-as-parameters]<!-- ignore --> trong Chương 4 để thảo luận
+thêm về lý do tại sao các tham số chúng ta sử dụng trong Liệt kê 10-19 là những thứ chúng ta
+muốn.
 
-If we try to implement the `longest` function as shown in Listing 10-20, it
-won’t compile.
+Nếu chúng ta cố gắng triển khai hàm `longest` như hiển thị trong Liệt kê 10-20, nó
+sẽ không biên dịch được.
 
-<Listing number="10-20" file-name="src/main.rs" caption="An implementation of the `longest` function that returns the longer of two string slices but does not yet compile">
+<Listing number="10-20" file-name="src/main.rs" caption="Một bản triển khai của hàm longest trả về chuỗi dài hơn trong hai string slices nhưng vẫn chưa thể biên dịch">
 
 ```rust,ignore,does_not_compile
 {{#rustdoc_include ../listings/ch10-generic-types-traits-and-lifetimes/listing-10-20/src/main.rs:here}}
@@ -144,71 +144,71 @@ won’t compile.
 
 </Listing>
 
-Instead, we get the following error that talks about lifetimes:
+Thay vào đó, chúng ta nhận được lỗi sau đây nói về lifetimes:
 
 ```console
 {{#include ../listings/ch10-generic-types-traits-and-lifetimes/listing-10-20/output.txt}}
 ```
 
-The help text reveals that the return type needs a generic lifetime parameter
-on it because Rust can’t tell whether the reference being returned refers to
-`x` or `y`. Actually, we don’t know either, because the `if` block in the body
-of this function returns a reference to `x` and the `else` block returns a
-reference to `y`!
+Văn bản trợ giúp tiết lộ rằng kiểu trả về cần một tham số lifetime generic
+trên đó vì Rust không thể biết tham chiếu được trả về đang tham chiếu đến
+`x` hay `y`. Thực tế, chính chúng ta cũng không biết, vì khối `if` trong thân
+hàm này trả về một tham chiếu đến `x` và khối `else` trả về một
+tham chiếu đến `y`!
 
-When we’re defining this function, we don’t know the concrete values that will
-be passed into this function, so we don’t know whether the `if` case or the
-`else` case will execute. We also don’t know the concrete lifetimes of the
-references that will be passed in, so we can’t look at the scopes as we did in
-Listings 10-17 and 10-18 to determine whether the reference we return will
-always be valid. The borrow checker can’t determine this either, because it
-doesn’t know how the lifetimes of `x` and `y` relate to the lifetime of the
-return value. To fix this error, we’ll add generic lifetime parameters that
-define the relationship between the references so the borrow checker can
-perform its analysis.
+Khi chúng ta định nghĩa hàm này, chúng ta không biết các giá trị cụ thể sẽ
+được truyền vào hàm này, vì vậy chúng ta không biết trường hợp `if` hay trường hợp
+`else` sẽ thực thi. Chúng ta cũng không biết lifetimes cụ thể của các
+tham chiếu sẽ được truyền vào, vì vậy chúng ta không thể xem xét các phạm vi như chúng ta đã làm trong
+Liệt kê 10-17 và 10-18 để xác định liệu tham chiếu chúng ta trả về sẽ
+luôn hợp lệ hay không. Bộ kiểm tra mượn cũng không thể xác định điều này, vì nó
+không biết lifetimes của `x` và `y` liên quan như thế nào đến lifetime của
+giá trị trả về. Để khắc phục lỗi này, chúng ta sẽ thêm các tham số lifetime generic
+định nghĩa mối quan hệ giữa các tham chiếu để bộ kiểm tra mượn có thể
+thực hiện phân tích của nó.
 
-### Lifetime Annotation Syntax
+### Cú pháp Chú thích Lifetime
 
-Lifetime annotations don’t change how long any of the references live. Rather,
-they describe the relationships of the lifetimes of multiple references to each
-other without affecting the lifetimes. Just as functions can accept any type
-when the signature specifies a generic type parameter, functions can accept
-references with any lifetime by specifying a generic lifetime parameter.
+Các chú thích lifetime không làm thay đổi thời gian sống của bất kỳ tham chiếu nào. Thay vào đó,
+chúng mô tả các mối quan hệ về lifetimes của nhiều tham chiếu với nhau
+mà không ảnh hưởng đến các lifetimes đó. Giống như các hàm có thể chấp nhận bất kỳ kiểu nào
+khi chữ ký chỉ định một tham số kiểu generic, các hàm có thể chấp nhận các
+tham chiếu với bất kỳ lifetime nào bằng cách chỉ định một tham số lifetime generic.
 
-Lifetime annotations have a slightly unusual syntax: the names of lifetime
-parameters must start with an apostrophe (`'`) and are usually all lowercase
-and very short, like generic types. Most people use the name `'a` for the first
-lifetime annotation. We place lifetime parameter annotations after the `&` of a
-reference, using a space to separate the annotation from the reference’s type.
+Các chú thích lifetime có một cú pháp hơi lạ: tên của các tham số lifetime
+phải bắt đầu bằng một dấu nháy đơn (`'`) và thường là tất cả các chữ cái thường
+và rất ngắn, giống như các kiểu generic. Hầu hết mọi người sử dụng tên `'a` cho chú thích
+lifetime đầu tiên. Chúng ta đặt các chú thích tham số lifetime sau ký tự `&` của một
+tham chiếu, sử dụng một khoảng trắng để phân tách chú thích với kiểu của tham chiếu.
 
-Here are some examples: a reference to an `i32` without a lifetime parameter, a
-reference to an `i32` that has a lifetime parameter named `'a`, and a mutable
-reference to an `i32` that also has the lifetime `'a`.
+Dưới đây là một số ví dụ: một tham chiếu đến một `i32` không có tham số lifetime, một
+tham chiếu đến một `i32` có tham số lifetime tên là `'a`, và một
+tham chiếu có thể thay đổi (mutable reference) đến một `i32` cũng có lifetime là `'a`.
 
 ```rust,ignore
-&i32        // a reference
-&'a i32     // a reference with an explicit lifetime
-&'a mut i32 // a mutable reference with an explicit lifetime
+&i32        // một tham chiếu
+&'a i32     // một tham chiếu với một lifetime rõ ràng
+&'a mut i32 // một tham chiếu có thể thay đổi với một lifetime rõ ràng
 ```
 
-One lifetime annotation by itself doesn’t have much meaning because the
-annotations are meant to tell Rust how generic lifetime parameters of multiple
-references relate to each other. Let’s examine how the lifetime annotations
-relate to each other in the context of the `longest` function.
+Một chú thích lifetime đứng một mình thì không có nhiều ý nghĩa vì các
+chú thích này nhằm mục đích cho Rust biết cách các tham số lifetime generic của nhiều
+tham chiếu liên quan đến nhau. Hãy cùng kiểm tra cách các chú thích lifetime
+liên quan đến nhau trong ngữ cảnh của hàm `longest`.
 
-### Lifetime Annotations in Function Signatures
+### Chú thích Lifetime trong Chữ ký Hàm
 
-To use lifetime annotations in function signatures, we need to declare the
-generic _lifetime_ parameters inside angle brackets between the function name
-and the parameter list, just as we did with generic _type_ parameters.
+Để sử dụng các chú thích lifetime trong các chữ ký hàm, chúng ta cần khai báo các tham số
+_lifetime_ generic bên trong dấu ngoặc nhọn giữa tên hàm
+và danh sách tham số, giống như cách chúng ta đã làm với các tham số _kiểu_ generic.
 
-We want the signature to express the following constraint: the returned
-reference will be valid as long as both the parameters are valid. This is the
-relationship between lifetimes of the parameters and the return value. We’ll
-name the lifetime `'a` and then add it to each reference, as shown in Listing
+Chúng ta muốn chữ ký thể hiện ràng buộc sau: tham chiếu được trả về
+sẽ hợp lệ chừng nào cả hai tham số đều hợp lệ. Đây là mối
+quan hệ giữa lifetimes của các tham số và giá trị trả về. Chúng ta sẽ
+đặt tên cho lifetime là `'a` và sau đó thêm nó vào mỗi tham chiếu, như được hiển thị trong Liệt kê
 10-21.
 
-<Listing number="10-21" file-name="src/main.rs" caption="The `longest` function definition specifying that all the references in the signature must have the same lifetime `'a`">
+<Listing number="10-21" file-name="src/main.rs" caption="Định nghĩa hàm longest chỉ định rằng tất cả các tham chiếu trong chữ ký phải có cùng lifetime 'a">
 
 ```rust
 {{#rustdoc_include ../listings/ch10-generic-types-traits-and-lifetimes/listing-10-21/src/main.rs:here}}
@@ -216,49 +216,49 @@ name the lifetime `'a` and then add it to each reference, as shown in Listing
 
 </Listing>
 
-This code should compile and produce the result we want when we use it with the
-`main` function in Listing 10-19.
+Mã nguồn này sẽ biên dịch được và tạo ra kết quả chúng ta muốn khi chúng ta sử dụng nó với
+hàm `main` trong Liệt kê 10-19.
 
-The function signature now tells Rust that for some lifetime `'a`, the function
-takes two parameters, both of which are string slices that live at least as
-long as lifetime `'a`. The function signature also tells Rust that the string
-slice returned from the function will live at least as long as lifetime `'a`.
-In practice, it means that the lifetime of the reference returned by the
-`longest` function is the same as the smaller of the lifetimes of the values
-referred to by the function arguments. These relationships are what we want
-Rust to use when analyzing this code.
+Chữ ký hàm giờ đây cho Rust biết rằng đối với một lifetime `'a` nào đó, hàm
+nhận vào hai tham số, cả hai đều là string slices sống ít nhất là
+bằng lifetime `'a`. Chữ ký hàm cũng cho Rust biết rằng string slice
+được trả về từ hàm sẽ sống ít nhất là bằng lifetime `'a`.
+Trong thực tế, nó có nghĩa là lifetime của tham chiếu được trả về bởi hàm
+`longest` giống với lifetime nhỏ hơn trong số các lifetimes của các giá trị
+được tham chiếu bởi các đối số của hàm. Những mối quan hệ này là những gì chúng ta muốn
+Rust sử dụng khi phân tích mã nguồn này.
 
-Remember, when we specify the lifetime parameters in this function signature,
-we’re not changing the lifetimes of any values passed in or returned. Rather,
-we’re specifying that the borrow checker should reject any values that don’t
-adhere to these constraints. Note that the `longest` function doesn’t need to
-know exactly how long `x` and `y` will live, only that some scope can be
-substituted for `'a` that will satisfy this signature.
+Hãy nhớ rằng, khi chúng ta chỉ định các tham số lifetime trong chữ ký hàm này,
+chúng ta không làm thay đổi lifetimes của bất kỳ giá trị nào được truyền vào hoặc trả về. Thay vào đó,
+chúng ta đang chỉ định rằng bộ kiểm tra mượn nên từ chối bất kỳ giá trị nào không
+tuân thủ các ràng buộc này. Lưu ý rằng hàm `longest` không cần phải
+biết chính xác `x` và `y` sẽ sống trong bao lâu, chỉ cần biết rằng một phạm vi nào đó có thể được
+thay thế cho `'a` mà sẽ thỏa mãn chữ ký này.
 
-When annotating lifetimes in functions, the annotations go in the function
-signature, not in the function body. The lifetime annotations become part of
-the contract of the function, much like the types in the signature. Having
-function signatures contain the lifetime contract means the analysis the Rust
-compiler does can be simpler. If there’s a problem with the way a function is
-annotated or the way it is called, the compiler errors can point to the part of
-our code and the constraints more precisely. If, instead, the Rust compiler
-made more inferences about what we intended the relationships of the lifetimes
-to be, the compiler might only be able to point to a use of our code many steps
-away from the cause of the problem.
+Khi chú thích lifetimes trong các hàm, các chú thích sẽ nằm trong chữ ký hàm,
+chứ không phải trong thân hàm. Các chú thích lifetime trở thành một phần của
+hợp đồng của hàm, giống như các kiểu dữ liệu trong chữ ký. Việc để
+các chữ ký hàm chứa hợp đồng lifetime có nghĩa là quá trình phân tích mà trình biên dịch Rust thực hiện
+có thể đơn giản hơn. Nếu có vấn đề với cách một hàm được chú thích
+hoặc cách nó được gọi, các lỗi trình biên dịch có thể chỉ ra phần mã nguồn
+của chúng ta và các ràng buộc một cách chính xác hơn. Nếu, thay vào đó, trình biên dịch Rust
+thực hiện nhiều suy luận hơn về những gì chúng ta dự định về mối quan hệ của các lifetimes,
+trình biên dịch có thể chỉ có thể chỉ ra một lần sử dụng mã nguồn của chúng ta cách xa nhiều bước
+so với nguyên nhân của vấn đề.
 
-When we pass concrete references to `longest`, the concrete lifetime that is
-substituted for `'a` is the part of the scope of `x` that overlaps with the
-scope of `y`. In other words, the generic lifetime `'a` will get the concrete
-lifetime that is equal to the smaller of the lifetimes of `x` and `y`. Because
-we’ve annotated the returned reference with the same lifetime parameter `'a`,
-the returned reference will also be valid for the length of the smaller of the
-lifetimes of `x` and `y`.
+Khi chúng ta truyền các tham chiếu cụ thể cho `longest`, lifetime cụ thể được
+thay thế cho `'a` là phần phạm vi của `x` trùng lặp với
+phạm vi của `y`. Nói cách khác, lifetime generic `'a` sẽ nhận được lifetime cụ thể
+bằng với lifetime nhỏ hơn trong số các lifetimes của `x` và `y`. Bởi vì
+chúng ta đã chú thích tham chiếu được trả về với cùng một tham số lifetime `'a`,
+tham chiếu được trả về cũng sẽ hợp lệ trong khoảng thời gian bằng với lifetime nhỏ hơn trong số
+các lifetimes của `x` và `y`.
 
-Let’s look at how the lifetime annotations restrict the `longest` function by
-passing in references that have different concrete lifetimes. Listing 10-22 is
-a straightforward example.
+Hãy xem cách các chú thích lifetime hạn chế hàm `longest` bằng cách
+truyền vào các tham chiếu có lifetimes cụ thể khác nhau. Liệt kê 10-22 là
+một ví dụ đơn giản.
 
-<Listing number="10-22" file-name="src/main.rs" caption="Using the `longest` function with references to `String` values that have different concrete lifetimes">
+<Listing number="10-22" file-name="src/main.rs" caption="Sử dụng hàm longest với các tham chiếu đến các giá trị String có lifetimes cụ thể khác nhau">
 
 ```rust
 {{#rustdoc_include ../listings/ch10-generic-types-traits-and-lifetimes/listing-10-22/src/main.rs:here}}
@@ -266,21 +266,21 @@ a straightforward example.
 
 </Listing>
 
-In this example, `string1` is valid until the end of the outer scope, `string2`
-is valid until the end of the inner scope, and `result` references something
-that is valid until the end of the inner scope. Run this code and you’ll see
-that the borrow checker approves; it will compile and print `The longest string
+Trong ví dụ này, `string1` hợp lệ cho đến khi kết thúc phạm vi bên ngoài, `string2`
+hợp lệ cho đến khi kết thúc phạm vi bên trong, và `result` tham chiếu đến một thứ
+hợp lệ cho đến khi kết thúc phạm vi bên trong. Chạy mã này và bạn sẽ thấy
+rằng bộ kiểm tra mượn chấp thuận; nó sẽ biên dịch và in ra `The longest string
 is long string is long`.
 
-Next, let’s try an example that shows that the lifetime of the reference in
-`result` must be the smaller lifetime of the two arguments. We’ll move the
-declaration of the `result` variable outside the inner scope but leave the
-assignment of the value to the `result` variable inside the scope with
-`string2`. Then we’ll move the `println!` that uses `result` to outside the
-inner scope, after the inner scope has ended. The code in Listing 10-23 will
-not compile.
+Tiếp theo, hãy thử một ví dụ cho thấy lifetime của tham chiếu trong
+`result` phải là lifetime nhỏ hơn trong hai đối số. Chúng ta sẽ di chuyển
+khai báo của biến `result` ra bên ngoài phạm vi bên trong nhưng để lại việc
+gán giá trị cho biến `result` bên trong phạm vi cùng với
+`string2`. Sau đó chúng ta sẽ di chuyển `println!` sử dụng `result` ra bên ngoài
+phạm vi bên trong, sau khi phạm vi bên trong đã kết thúc. Mã nguồn trong Liệt kê 10-23 sẽ
+không biên dịch được.
 
-<Listing number="10-23" file-name="src/main.rs" caption="Attempting to use `result` after `string2` has gone out of scope">
+<Listing number="10-23" file-name="src/main.rs" caption="Cố gắng sử dụng result sau khi string2 đã nằm ngoài phạm vi">
 
 ```rust,ignore,does_not_compile
 {{#rustdoc_include ../listings/ch10-generic-types-traits-and-lifetimes/listing-10-23/src/main.rs:here}}
@@ -288,40 +288,40 @@ not compile.
 
 </Listing>
 
-When we try to compile this code, we get this error:
+Khi chúng ta cố gắng biên dịch mã nguồn này, chúng ta nhận được lỗi này:
 
 ```console
 {{#include ../listings/ch10-generic-types-traits-and-lifetimes/listing-10-23/output.txt}}
 ```
 
-The error shows that for `result` to be valid for the `println!` statement,
-`string2` would need to be valid until the end of the outer scope. Rust knows
-this because we annotated the lifetimes of the function parameters and return
-values using the same lifetime parameter `'a`.
+Lỗi cho thấy để `result` hợp lệ cho câu lệnh `println!`,
+`string2` sẽ cần phải hợp lệ cho đến khi kết thúc phạm vi bên ngoài. Rust biết
+điều này bởi vì chúng ta đã chú thích lifetimes của các tham số hàm và các giá trị
+trả về bằng cách sử dụng cùng một tham số lifetime `'a`.
 
-As humans, we can look at this code and see that `string1` is longer than
-`string2`, and therefore, `result` will contain a reference to `string1`.
-Because `string1` has not gone out of scope yet, a reference to `string1` will
-still be valid for the `println!` statement. However, the compiler can’t see
-that the reference is valid in this case. We’ve told Rust that the lifetime of
-the reference returned by the `longest` function is the same as the smaller of
-the lifetimes of the references passed in. Therefore, the borrow checker
-disallows the code in Listing 10-23 as possibly having an invalid reference.
+Với tư cách là con người, chúng ta có thể nhìn vào mã nguồn này và thấy rằng `string1` dài hơn
+`string2`, và do đó, `result` sẽ chứa một tham chiếu đến `string1`.
+Bởi vì `string1` chưa nằm ngoài phạm vi, một tham chiếu đến `string1` sẽ
+vẫn hợp lệ cho câu lệnh `println!`. Tuy nhiên, trình biên dịch không thể thấy
+rằng tham chiếu đó là hợp lệ trong trường hợp này. Chúng ta đã nói với Rust rằng lifetime của
+tham chiếu được trả về bởi hàm `longest` giống với lifetime nhỏ hơn trong số
+các lifetimes của các tham chiếu được truyền vào. Do đó, bộ kiểm tra mượn
+không cho phép mã nguồn trong Liệt kê 10-23 vì có khả năng có một tham chiếu không hợp lệ.
 
-Try designing more experiments that vary the values and lifetimes of the
-references passed in to the `longest` function and how the returned reference
-is used. Make hypotheses about whether or not your experiments will pass the
-borrow checker before you compile; then check to see if you’re right!
+Hãy thử thiết kế thêm các thử nghiệm thay đổi các giá trị và lifetimes của các
+tham chiếu được truyền vào hàm `longest` và cách tham chiếu được trả về
+được sử dụng. Đưa ra các giả thuyết về việc liệu các thử nghiệm của bạn có vượt qua được
+bộ kiểm tra mượn hay không trước khi bạn biên dịch; sau đó kiểm tra xem bạn có đúng không!
 
 {{#quiz ../quizzes/ch10-03-lifetimes-sec1.toml}}
 
-### Thinking in Terms of Lifetimes
+### Suy nghĩ dưới góc độ Lifetimes
 
-The way in which you need to specify lifetime parameters depends on what your
-function is doing. For example, if we changed the implementation of the
-`longest` function to always return the first parameter rather than the longest
-string slice, we wouldn’t need to specify a lifetime on the `y` parameter. The
-following code will compile:
+Cách mà bạn cần chỉ định các tham số lifetime phụ thuộc vào những gì
+hàm của bạn đang làm. Ví dụ, nếu chúng ta thay đổi bản triển khai của hàm
+`longest` để luôn trả về tham số đầu tiên thay vì string slice dài nhất,
+chúng ta sẽ không cần chỉ định một lifetime cho tham số `y`.
+Mã nguồn sau đây sẽ biên dịch được:
 
 <Listing file-name="src/main.rs">
 
@@ -331,17 +331,17 @@ following code will compile:
 
 </Listing>
 
-We’ve specified a lifetime parameter `'a` for the parameter `x` and the return
-type, but not for the parameter `y`, because the lifetime of `y` does not have
-any relationship with the lifetime of `x` or the return value.
+Chúng ta đã chỉ định một tham số lifetime `'a` cho tham số `x` và kiểu
+trả về, nhưng không chỉ định cho tham số `y`, vì lifetime của `y` không có
+bất kỳ mối quan hệ nào với lifetime của `x` hoặc giá trị trả về.
 
-When returning a reference from a function, the lifetime parameter for the
-return type needs to match the lifetime parameter for one of the parameters. If
-the reference returned does _not_ refer to one of the parameters, it must refer
-to a value created within this function. However, this would be a dangling
-reference because the value will go out of scope at the end of the function.
-Consider this attempted implementation of the `longest` function that won’t
-compile:
+Khi trả về một tham chiếu từ một hàm, tham số lifetime cho
+kiểu trả về cần phải khớp với tham số lifetime của một trong các tham số. Nếu
+tham chiếu được trả về _không_ tham chiếu đến một trong các tham số, nó phải tham chiếu
+đến một giá trị được tạo ra bên trong hàm này. Tuy nhiên, đây sẽ là một tham chiếu
+lơ lửng vì giá trị đó sẽ nằm ngoài phạm vi khi kết thúc hàm.
+Hãy xem xét nỗ lực triển khai hàm `longest` này, nó sẽ không
+biên dịch được:
 
 <Listing file-name="src/main.rs">
 
@@ -351,36 +351,35 @@ compile:
 
 </Listing>
 
-Here, even though we’ve specified a lifetime parameter `'a` for the return
-type, this implementation will fail to compile because the return value
-lifetime is not related to the lifetime of the parameters at all. Here is the
-error message we get:
+Ở đây, mặc dù chúng ta đã chỉ định một tham số lifetime `'a` cho kiểu
+trả về, bản triển khai này sẽ không biên dịch được vì lifetime của giá trị trả về
+không liên quan chút nào đến lifetime của các tham số. Đây là thông báo
+lỗi chúng ta nhận được:
 
 ```console
 {{#include ../listings/ch10-generic-types-traits-and-lifetimes/no-listing-09-unrelated-lifetime/output.txt}}
 ```
 
-The problem is that `result` goes out of scope and gets cleaned up at the end
-of the `longest` function. We’re also trying to return a reference to `result`
-from the function. There is no way we can specify lifetime parameters that
-would change the dangling reference, and Rust won’t let us create a dangling
-reference. In this case, the best fix would be to return an owned data type
-rather than a reference so the calling function is then responsible for
-cleaning up the value.
+Vấn đề là `result` nằm ngoài phạm vi và bị dọn dẹp khi kết thúc hàm
+`longest`. Chúng ta cũng đang cố gắng trả về một tham chiếu đến `result`
+từ hàm. Không có cách nào chúng ta có thể chỉ định các tham số lifetime để có thể
+thay đổi được tham chiếu lơ lửng đó, và Rust sẽ không để chúng ta tạo ra một tham chiếu lơ lửng. Trong trường hợp này, cách khắc phục tốt nhất là trả về một kiểu dữ liệu sở hữu (owned data type)
+thay vì một tham chiếu để hàm gọi sau đó chịu trách nhiệm
+dọn dẹp giá trị đó.
 
-Ultimately, lifetime syntax is about connecting the lifetimes of various
-parameters and return values of functions. Once they’re connected, Rust has
-enough information to allow memory-safe operations and disallow operations that
-would create dangling pointers or otherwise violate memory safety.
+Cuối cùng, cú pháp lifetime là về việc kết nối lifetimes của các
+tham số khác nhau và các giá trị trả về của hàm. Khi chúng đã được kết nối, Rust có
+đủ thông tin để cho phép các thao tác an toàn về bộ nhớ và không cho phép các thao tác
+có thể tạo ra các con trỏ lơ lửng hoặc vi phạm an toàn bộ nhớ theo cách khác.
 
-### Lifetime Annotations in Struct Definitions
+### Chú thích Lifetime trong các Định nghĩa Struct
 
-So far, the structs we’ve defined all hold owned types. We can define structs
-to hold references, but in that case we would need to add a lifetime annotation
-on every reference in the struct’s definition. Listing 10-24 has a struct named
-`ImportantExcerpt` that holds a string slice.
+Cho đến nay, các struct chúng ta đã định nghĩa đều giữ các kiểu sở hữu (owned types). Chúng ta có thể định nghĩa các struct
+để giữ các tham chiếu, nhưng trong trường hợp đó chúng ta sẽ cần thêm một chú thích lifetime
+trên mỗi tham chiếu trong định nghĩa của struct. Liệt kê 10-24 có một struct tên là
+`ImportantExcerpt` giữ một string slice.
 
-<Listing number="10-24" file-name="src/main.rs" caption="A struct that holds a reference, requiring a lifetime annotation">
+<Listing number="10-24" file-name="src/main.rs" caption="Một struct giữ một tham chiếu, yêu cầu một chú thích lifetime">
 
 ```rust
 {{#rustdoc_include ../listings/ch10-generic-types-traits-and-lifetimes/listing-10-24/src/main.rs}}
@@ -388,28 +387,28 @@ on every reference in the struct’s definition. Listing 10-24 has a struct name
 
 </Listing>
 
-This struct has the single field `part` that holds a string slice, which is a
-reference. As with generic data types, we declare the name of the generic
-lifetime parameter inside angle brackets after the name of the struct so we can
-use the lifetime parameter in the body of the struct definition. This
-annotation means an instance of `ImportantExcerpt` can’t outlive the reference
-it holds in its `part` field.
+Struct này có trường duy nhất `part` giữ một string slice, vốn là một
+tham chiếu. Giống như với các kiểu dữ liệu generic, chúng ta khai báo tên của tham số
+lifetime generic bên trong dấu ngoặc nhọn sau tên của struct để chúng ta có thể
+sử dụng tham số lifetime trong thân của định nghĩa struct. Chú thích
+này có nghĩa là một instance của `ImportantExcerpt` không thể sống lâu hơn tham chiếu
+mà nó nắm giữ trong trường `part` của nó.
 
-The `main` function here creates an instance of the `ImportantExcerpt` struct
-that holds a reference to the first sentence of the `String` owned by the
-variable `novel`. The data in `novel` exists before the `ImportantExcerpt`
-instance is created. In addition, `novel` doesn’t go out of scope until after
-the `ImportantExcerpt` goes out of scope, so the reference in the
-`ImportantExcerpt` instance is valid.
+Hàm `main` ở đây tạo ra một instance của struct `ImportantExcerpt`
+giữ một tham chiếu đến câu đầu tiên của `String` được sở hữu bởi
+biến `novel`. Dữ liệu trong `novel` tồn tại trước khi instance
+`ImportantExcerpt` được tạo ra. Ngoài ra, `novel` không nằm ngoài phạm vi cho đến sau khi
+`ImportantExcerpt` nằm ngoài phạm vi, vì vậy tham chiếu trong
+instance `ImportantExcerpt` là hợp lệ.
 
-### Lifetime Elision
+### Lifetime Elision (Lược bỏ Lifetime)
 
-You’ve learned that every reference has a lifetime and that you need to specify
-lifetime parameters for functions or structs that use references. However, we
-had a function in Listing 4-9, shown again in Listing 10-25, that compiled
-without lifetime annotations.
+Bạn đã học được rằng mọi tham chiếu đều có một lifetime và bạn cần chỉ định
+các tham số lifetime cho các hàm hoặc struct sử dụng các tham chiếu. Tuy nhiên, chúng ta
+đã có một hàm trong Liệt kê 4-9, được hiển thị lại trong Liệt kê 10-25, đã biên dịch được
+mà không cần chú thích lifetime.
 
-<Listing number="10-25" file-name="src/lib.rs" caption="A function we defined in Listing 4-9 that compiled without lifetime annotations, even though the parameter and return type are references">
+<Listing number="10-25" file-name="src/lib.rs" caption="Một hàm chúng ta đã định nghĩa trong Liệt kê 4-9 đã biên dịch được mà không cần các chú thích lifetime, mặc dù tham số và kiểu trả về là các tham chiếu">
 
 ```rust
 {{#rustdoc_include ../listings/ch10-generic-types-traits-and-lifetimes/listing-10-25/src/main.rs:here}}
@@ -417,215 +416,217 @@ without lifetime annotations.
 
 </Listing>
 
-The reason this function compiles without lifetime annotations is historical:
-in early versions (pre-1.0) of Rust, this code wouldn’t have compiled because
-every reference needed an explicit lifetime. At that time, the function
-signature would have been written like this:
+Lý do hàm này biên dịch được mà không cần các chú thích lifetime là do lịch sử:
+trong các phiên bản đầu tiên (trước 1.0) của Rust, mã nguồn này sẽ không biên dịch được vì
+mọi tham chiếu đều cần một lifetime rõ ràng. Vào thời điểm đó, chữ ký
+hàm sẽ được viết như thế này:
 
 ```rust,ignore
 fn first_word<'a>(s: &'a str) -> &'a str {
 ```
 
-After writing a lot of Rust code, the Rust team found that Rust programmers
-were entering the same lifetime annotations over and over in particular
-situations. These situations were predictable and followed a few deterministic
-patterns. The developers programmed these patterns into the compiler’s code so
-the borrow checker could infer the lifetimes in these situations and wouldn’t
-need explicit annotations.
+Sau khi viết rất nhiều mã nguồn Rust, đội ngũ phát triển Rust nhận thấy rằng các lập trình viên Rust
+đã nhập đi nhập lại cùng một loại chú thích lifetime trong các tình huống
+cụ thể. Những tình huống này có thể dự đoán được và tuân theo một vài
+mẫu xác định. Các nhà phát triển đã lập trình các mẫu này vào mã nguồn của trình biên dịch để
+bộ kiểm tra mượn có thể suy luận lifetimes trong những tình huống này và sẽ
+không cần các chú thích rõ ràng.
 
-This piece of Rust history is relevant because it’s possible that more
-deterministic patterns will emerge and be added to the compiler. In the future,
-even fewer lifetime annotations might be required.
+Phần lịch sử này của Rust có liên quan vì có khả năng nhiều
+mẫu xác định hơn sẽ xuất hiện và được thêm vào trình biên dịch. Trong tương lai,
+có thể thậm chí còn ít chú thích lifetime được yêu cầu hơn.
 
-The patterns programmed into Rust’s analysis of references are called the
-_lifetime elision rules_. These aren’t rules for programmers to follow; they’re
-a set of particular cases that the compiler will consider, and if your code
-fits these cases, you don’t need to write the lifetimes explicitly.
+Các mẫu được lập trình vào quá trình phân tích các tham chiếu của Rust được gọi là các
+_quy tắc lược bỏ lifetime_ (lifetime elision rules). Đây không phải là các quy tắc để các lập trình viên tuân theo; chúng
+là một tập hợp các trường hợp cụ thể mà trình biên dịch sẽ xem xét, và nếu mã nguồn của bạn
+khớp với những trường hợp này, bạn không cần phải viết các lifetimes một cách rõ ràng.
 
-The elision rules don’t provide full inference. If there is still ambiguity
-about what lifetimes the references have after Rust applies the rules, the
-compiler won’t guess what the lifetime of the remaining references should be.
-Instead of guessing, the compiler will give you an error that you can resolve by
-adding the lifetime annotations.
+Các quy tắc lược bỏ không cung cấp khả năng suy luận đầy đủ. Nếu vẫn còn sự mơ hồ
+về việc các tham chiếu có lifetimes nào sau khi Rust áp dụng các quy tắc,
+trình biên dịch sẽ không đoán xem lifetime của các tham chiếu còn lại nên là gì.
+Thay vì đoán, trình biên dịch sẽ gửi cho bạn một lỗi mà bạn có thể giải quyết bằng cách
+thêm các chú thích lifetime.
 
-Lifetimes on function or method parameters are called _input lifetimes_, and
-lifetimes on return values are called _output lifetimes_.
+Lifetimes trên các tham số của hàm hoặc phương thức được gọi là _input lifetimes_ (vòng đời đầu vào), và
+lifetimes trên các giá trị trả về được gọi là _output lifetimes_ (vòng đời đầu ra).
 
-The compiler uses three rules to figure out the lifetimes of the references
-when there aren’t explicit annotations. The first rule applies to input
-lifetimes, and the second and third rules apply to output lifetimes. If the
-compiler gets to the end of the three rules and there are still references for
-which it can’t figure out lifetimes, the compiler will stop with an error.
-These rules apply to `fn` definitions as well as `impl` blocks.
+Trình biên dịch sử dụng ba quy tắc để tìm ra lifetimes của các tham chiếu
+khi không có các chú thích rõ ràng. Quy tắc đầu tiên áp dụng cho input
+lifetimes, và quy tắc thứ hai và thứ ba áp dụng cho output lifetimes. Nếu
+trình biên dịch đi đến cuối ba quy tắc mà vẫn còn các tham chiếu mà
+nó không thể tìm ra lifetimes, trình biên dịch sẽ dừng lại với một lỗi.
+Các quy tắc này áp dụng cho các định nghĩa `fn` cũng như các khối `impl`.
 
 <!-- BEGIN INTERVENTION: d03748df-8dcf-4ec8-bd30-341927544665 -->
-The first rule is that the compiler assigns a different lifetime parameter to each lifetime in each input type. References like `&'_ i32` need a lifetime parameter, and structures like `ImportantExcerpt<'_>` need a lifetime parameter. For example:
-* The function `fn foo(x: &i32)` would get one lifetime parameter and become `fn foo<'a>(x: &'a i32)`. 
-* The function `fn foo(x: &i32, y: &i32)` would get two lifetime parameters and become `fn foo<'a, 'b>(x: &'a i32, y: &'b i32)`.
-* The function `fn foo(x: &ImportantExcerpt)` would get two lifetime parameters and become `fn foo<'a, 'b>(x: &'a ImportantExcerpt<'b>)`.
+
+Quy tắc đầu tiên là trình biên dịch gán một tham số vòng đời khác nhau cho mỗi vòng đời trong mỗi kiểu đầu vào. Các tham chiếu như `&'_ i32` cần một tham số vòng đời, và các cấu trúc như `ImportantExcerpt<'_>` cũng cần một tham số vòng đời. Ví dụ:
+
+- Hàm `fn foo(x: &i32)` sẽ nhận được một tham số vòng đời và trở thành `fn foo<'a>(x: &'a i32)`.
+- Hàm `fn foo(x: &i32, y: &i32)` sẽ nhận được hai tham số vòng đời và trở thành `fn foo<'a, 'b>(x: &'a i32, y: &'b i32)`.
+- Hàm `fn foo(x: &ImportantExcerpt)` sẽ nhận được hai tham số vòng đời và trở thành `fn foo<'a, 'b>(x: &'a ImportantExcerpt<'b>)`.
 <!-- END INTERVENTION -->
 
-The second rule is that, if there is exactly one input lifetime parameter, that
-lifetime is assigned to all output lifetime parameters: `fn foo<'a>(x: &'a i32)
+Quy tắc thứ hai là, nếu có chính xác một tham số input lifetime,
+lifetime đó được gán cho tất cả các tham số output lifetime: `fn foo<'a>(x: &'a i32)
 -> &'a i32`.
 
-The third rule is that, if there are multiple input lifetime parameters, but
-one of them is `&self` or `&mut self` because this is a method, the lifetime of
-`self` is assigned to all output lifetime parameters. This third rule makes
-methods much nicer to read and write because fewer symbols are necessary.
+Quy tắc thứ ba là, nếu có nhiều tham số input lifetime, nhưng
+một trong số đó là `&self` hoặc `&mut self` vì đây là một phương thức, lifetime của
+`self` được gán cho tất cả các tham số output lifetime. Quy tắc thứ ba này giúp
+các phương thức trở nên dễ đọc và dễ viết hơn nhiều vì cần ít biểu tượng hơn.
 
-Let’s pretend we’re the compiler. We’ll apply these rules to figure out the
-lifetimes of the references in the signature of the `first_word` function in
-Listing 10-25. The signature starts without any lifetimes associated with the
-references:
+Hãy giả vờ chúng ta là trình biên dịch. Chúng ta sẽ áp dụng các quy tắc này để tìm ra
+lifetimes của các tham chiếu trong chữ ký của hàm `first_word` trong
+Liệt kê 10-25. Chữ ký bắt đầu mà không có bất kỳ lifetimes nào liên kết với
+các tham chiếu:
 
 ```rust,ignore
 fn first_word(s: &str) -> &str {
 ```
 
-Then the compiler applies the first rule, which specifies that each parameter
-gets its own lifetime. We’ll call it `'a` as usual, so now the signature is
-this:
+Sau đó trình biên dịch áp dụng quy tắc đầu tiên, quy định rằng mỗi tham số
+nhận được lifetime của riêng nó. Chúng ta sẽ gọi nó là `'a` như thường lệ, vì vậy bây giờ chữ ký là
+thế này:
 
 ```rust,ignore
 fn first_word<'a>(s: &'a str) -> &str {
 ```
 
-The second rule applies because there is exactly one input lifetime. The second
-rule specifies that the lifetime of the one input parameter gets assigned to
-the output lifetime, so the signature is now this:
+Quy tắc thứ hai được áp dụng vì có chính xác một input lifetime. Quy tắc
+thứ hai quy định rằng lifetime của một tham số đầu vào đó được gán cho
+output lifetime, vì vậy chữ ký bây giờ là thế này:
 
 ```rust,ignore
 fn first_word<'a>(s: &'a str) -> &'a str {
 ```
 
-Now all the references in this function signature have lifetimes, and the
-compiler can continue its analysis without needing the programmer to annotate
-the lifetimes in this function signature.
+Bây giờ tất cả các tham chiếu trong chữ ký hàm này đều có lifetimes, và
+trình biên dịch có thể tiếp tục phân tích mà không cần lập trình viên chú thích
+lifetimes trong chữ ký hàm này.
 
-Let’s look at another example, this time using the `longest` function that had
-no lifetime parameters when we started working with it in Listing 10-20:
+Hãy xem một ví dụ khác, lần này sử dụng hàm `longest` mà không có
+tham số lifetime nào khi chúng ta bắt đầu làm việc với nó trong Liệt kê 10-20:
 
 ```rust,ignore
 fn longest(x: &str, y: &str) -> &str {
 ```
 
-Let’s apply the first rule: each parameter gets its own lifetime. This time we
-have two parameters instead of one, so we have two lifetimes:
+Hãy áp dụng quy tắc đầu tiên: mỗi tham số nhận được lifetime của riêng nó. Lần này chúng ta
+có hai tham số thay vì một, vì vậy chúng ta có hai lifetimes:
 
 ```rust,ignore
 fn longest<'a, 'b>(x: &'a str, y: &'b str) -> &str {
 ```
 
-You can see that the second rule doesn’t apply because there is more than one
-input lifetime. The third rule doesn’t apply either, because `longest` is a
-function rather than a method, so none of the parameters are `self`. After
-working through all three rules, we still haven’t figured out what the return
-type’s lifetime is. This is why we got an error trying to compile the code in
-Listing 10-20: the compiler worked through the lifetime elision rules but still
-couldn’t figure out all the lifetimes of the references in the signature.
+Bạn có thể thấy rằng quy tắc thứ hai không được áp dụng vì có nhiều hơn một
+input lifetime. Quy tắc thứ ba cũng không áp dụng, vì `longest` là một
+hàm chứ không phải là một phương thức, vì vậy không có tham số nào là `self`. Sau khi
+làm việc qua cả ba quy tắc, chúng ta vẫn chưa tìm ra được lifetime của kiểu trả về
+là gì. Đây là lý do tại sao chúng ta gặp lỗi khi cố gắng biên dịch mã nguồn trong
+Liệt kê 10-20: trình biên dịch đã làm việc qua các quy tắc lược bỏ lifetime nhưng vẫn
+không thể tìm ra tất cả các lifetimes của các tham chiếu trong chữ ký.
 
-Because the third rule really only applies in method signatures, we’ll look at
-lifetimes in that context next to see why the third rule means we don’t have to
-annotate lifetimes in method signatures very often.
+Bởi vì quy tắc thứ ba thực sự chỉ áp dụng trong các chữ ký phương thức, chúng ta sẽ xem xét
+lifetimes trong ngữ cảnh đó tiếp theo để thấy tại sao quy tắc thứ ba có nghĩa là chúng ta không phải
+chú thích lifetimes trong các chữ ký phương thức rất thường xuyên.
 
-### Lifetime Annotations in Method Definitions
+### Chú thích Lifetime trong các Định nghĩa Phương thức
 
-When we implement methods on a struct with lifetimes, we use the same syntax as
-that of generic type parameters, as shown in Listing 10-11. Where we declare and
-use the lifetime parameters depends on whether they’re related to the struct
-fields or the method parameters and return values.
+Khi chúng ta triển khai các phương thức trên một struct có lifetimes, chúng ta sử dụng cùng một cú pháp như
+của các tham số kiểu generic, như được hiển thị trong Liệt kê 10-11. Nơi chúng ta khai báo và
+sử dụng các tham số lifetime phụ thuộc vào việc liệu chúng có liên quan đến các trường của struct
+hay các tham số của phương thức và các giá trị trả về.
 
-Lifetime names for struct fields always need to be declared after the `impl`
-keyword and then used after the struct’s name because those lifetimes are part
-of the struct’s type.
+Tên lifetime cho các trường của struct luôn cần được khai báo sau từ khóa
+`impl` và sau đó được sử dụng sau tên của struct vì những lifetimes đó là một phần
+của kiểu của struct.
 
-In method signatures inside the `impl` block, references might be tied to the
-lifetime of references in the struct’s fields, or they might be independent. In
-addition, the lifetime elision rules often make it so that lifetime annotations
-aren’t necessary in method signatures. Let’s look at some examples using the
-struct named `ImportantExcerpt` that we defined in Listing 10-24.
+Trong các chữ ký phương thức bên trong khối `impl`, các tham chiếu có thể được gắn liền với
+lifetime của các tham chiếu trong các trường của struct, hoặc chúng có thể độc lập. Thêm
+vào đó, các quy tắc lược bỏ lifetime thường làm cho các chú thích lifetime
+không cần thiết trong các chữ ký phương thức. Hãy xem một số ví dụ sử dụng
+struct tên là `ImportantExcerpt` mà chúng ta đã định nghĩa trong Liệt kê 10-24.
 
-First we’ll use a method named `level` whose only parameter is a reference to
-`self` and whose return value is an `i32`, which is not a reference to anything:
+Đầu tiên chúng ta sẽ sử dụng một phương thức tên là `level` có tham số duy nhất là một tham chiếu đến
+`self` và có giá trị trả về là một `i32`, vốn không phải là một tham chiếu đến bất cứ thứ gì:
 
 ```rust
 {{#rustdoc_include ../listings/ch10-generic-types-traits-and-lifetimes/no-listing-10-lifetimes-on-methods/src/main.rs:1st}}
 ```
 
-The lifetime parameter declaration after `impl` and its use after the type name
-are required, but we’re not required to annotate the lifetime of the reference
-to `self` because of the first elision rule.
+Việc khai báo tham số lifetime sau `impl` và việc sử dụng nó sau tên kiểu
+là bắt buộc, nhưng chúng ta không bắt buộc phải chú thích lifetime của tham chiếu
+đến `self` vì quy tắc lược bỏ đầu tiên.
 
-Here is an example where the third lifetime elision rule applies:
+Dưới đây là một ví dụ mà quy tắc lược bỏ lifetime thứ ba được áp dụng:
 
 ```rust
 {{#rustdoc_include ../listings/ch10-generic-types-traits-and-lifetimes/no-listing-10-lifetimes-on-methods/src/main.rs:3rd}}
 ```
 
-There are two input lifetimes, so Rust applies the first lifetime elision rule
-and gives both `&self` and `announcement` their own lifetimes. Then, because
-one of the parameters is `&self`, the return type gets the lifetime of `&self`,
-and all lifetimes have been accounted for.
+Có hai input lifetimes, vì vậy Rust áp dụng quy tắc lược bỏ lifetime đầu tiên
+và cấp cho cả `&self` và `announcement` lifetimes riêng của chúng. Sau đó, bởi vì
+một trong các tham số là `&self`, kiểu trả về nhận được lifetime của `&self`,
+và tất cả các lifetimes đã được tính toán xong.
 
-### The Static Lifetime
+### Vòng đời Tĩnh (The Static Lifetime)
 
-One special lifetime we need to discuss is `'static`, which denotes that the
-affected reference _can_ live for the entire duration of the program. All
-string literals have the `'static` lifetime, which we can annotate as follows:
+Một lifetime đặc biệt mà chúng ta cần thảo luận là `'static`, biểu thị rằng
+tham chiếu bị ảnh hưởng _có thể_ sống trong toàn bộ thời gian của chương trình. Tất cả
+các string literals đều có lifetime là `'static`, chúng ta có thể chú thích như sau:
 
 ```rust
 let s: &'static str = "I have a static lifetime.";
 ```
 
-The text of this string is stored directly in the program’s binary, which is
-always available. Therefore, the lifetime of all string literals is `'static`.
+Văn bản của chuỗi này được lưu trữ trực tiếp trong mã nhị phân của chương trình, vốn
+luôn có sẵn. Do đó, lifetime của tất cả các string literals là `'static`.
 
-You might see suggestions in error messages to use the `'static` lifetime. But
-before specifying `'static` as the lifetime for a reference, think about
-whether the reference you have actually lives the entire lifetime of your
-program or not, and whether you want it to. Most of the time, an error message
-suggesting the `'static` lifetime results from attempting to create a dangling
-reference or a mismatch of the available lifetimes. In such cases, the solution
-is to fix those problems, not to specify the `'static` lifetime.
+Bạn có thể thấy các đề xuất trong thông báo lỗi về việc sử dụng lifetime `'static`. Nhưng
+trước khi chỉ định `'static` làm lifetime cho một tham chiếu, hãy nghĩ về việc
+liệu tham chiếu bạn có thực sự sống trong toàn bộ lifetime của chương trình của bạn
+hay không, và liệu bạn có muốn nó như vậy không. Hầu hết thời gian, một thông báo lỗi
+đề xuất lifetime `'static` là kết quả của việc cố gắng tạo ra một tham chiếu lơ lửng
+hoặc sự không khớp giữa các lifetimes có sẵn. Trong những trường hợp như vậy, giải pháp
+là khắc phục những vấn đề đó, chứ không phải là chỉ định lifetime `'static`.
 
-### Generic Type Parameters, Trait Bounds, and Lifetimes Together
+### Tham số Kiểu Generic, Trait Bounds, và Lifetimes Cùng Nhau
 
-Let’s briefly look at the syntax of specifying generic type parameters, trait
-bounds, and lifetimes all in one function!
+Hãy cùng xem nhanh cú pháp chỉ định các tham số kiểu generic, trait
+bounds, và lifetimes tất cả trong một hàm!
 
 ```rust
 {{#rustdoc_include ../listings/ch10-generic-types-traits-and-lifetimes/no-listing-11-generics-traits-and-lifetimes/src/main.rs:here}}
 ```
 
-This is the `longest` function from Listing 10-21 that returns the longer of
-two string slices. But now it has an extra parameter named `ann` of the generic
-type `T`, which can be filled in by any type that implements the `Display`
-trait as specified by the `where` clause. This extra parameter will be printed
-using `{}`, which is why the `Display` trait bound is necessary. Because
-lifetimes are a type of generic, the declarations of the lifetime parameter
-`'a` and the generic type parameter `T` go in the same list inside the angle
-brackets after the function name.
+Đây là hàm `longest` từ Liệt kê 10-21 trả về chuỗi dài hơn trong
+hai string slices. Nhưng bây giờ nó có thêm một tham số tên là `ann` thuộc kiểu
+generic `T`, kiểu này có thể được lấp đầy bởi bất kỳ kiểu nào có triển khai trait `Display`
+như được chỉ định bởi câu lệnh `where`. Tham số bổ sung này sẽ được in ra
+bằng cách sử dụng `{}`, đó là lý do tại sao trait bound `Display` là cần thiết. Bởi vì
+lifetimes là một loại generic, các khai báo của tham số lifetime
+`'a` và tham số kiểu generic `T` nằm trong cùng một danh sách bên trong dấu ngoặc nhọn
+sau tên hàm.
 
 {{#quiz ../quizzes/ch10-03-lifetimes-sec2.toml}}
 
-### Summary
+### Tóm tắt
 
-We covered a lot in this chapter! Now that you know about generic type
-parameters, traits and trait bounds, and generic lifetime parameters, you’re
-ready to write code without repetition that works in many different situations.
-Generic type parameters let you apply the code to different types. Traits and
-trait bounds ensure that even though the types are generic, they’ll have the
-behavior the code needs. You learned how to use lifetime annotations to ensure
-that this flexible code won’t have any dangling references. And all of this
-analysis happens at compile time, which doesn’t affect runtime performance!
+Chúng ta đã trình bày rất nhiều điều trong chương này! Bây giờ bạn đã biết về các tham số kiểu
+generic, traits và trait bounds, và các tham số lifetime generic, bạn đã
+sẵn sàng để viết mã nguồn không lặp lại hoạt động trong nhiều tình huống khác nhau.
+Các tham số kiểu generic cho phép bạn áp dụng mã nguồn cho các kiểu khác nhau. Traits và
+trait bounds đảm bảo rằng mặc dù các kiểu là generic, chúng sẽ có các
+hành vi mà mã nguồn cần. Bạn đã học cách sử dụng các chú thích lifetime để đảm bảo
+rằng mã nguồn linh hoạt này sẽ không có bất kỳ tham chiếu lơ lửng nào. Và tất cả những
+phân tích này diễn ra tại thời điểm biên dịch, điều này không ảnh hưởng đến hiệu suất lúc chạy!
 
-Believe it or not, there is much more to learn on the topics we discussed in
-this chapter: Chapter 18 discusses trait objects, which are another way to use
-traits. There are also more complex scenarios involving lifetime annotations
-that you will only need in very advanced scenarios; for those, you should read
-the [Rust Reference][reference]. But next, you’ll learn how to write tests in
-Rust so you can make sure your code is working the way it should.
+Tin hay không tùy bạn, còn rất nhiều điều để học về các chủ đề chúng ta đã thảo luận trong
+chương này: Chương 18 thảo luận về trait objects, vốn là một cách khác để sử dụng
+traits. Cũng có những tình huống phức tạp hơn liên quan đến các chú thích lifetime
+mà bạn sẽ chỉ cần trong những tình huống rất nâng cao; đối với những tình huống đó, bạn nên đọc
+[Tài liệu tham khảo Rust (Rust Reference)][reference]. Nhưng tiếp theo, bạn sẽ học cách viết các bài kiểm tra (tests) trong
+Rust để bạn có thể đảm bảo mã nguồn của mình đang hoạt động theo cách nó nên hoạt động.
 
 [references-and-borrowing]: ch04-02-references-and-borrowing.html#references-and-borrowing
 [string-slices-as-parameters]: ch04-04-slices.html#string-slices-as-parameters
