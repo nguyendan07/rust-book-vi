@@ -175,19 +175,19 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="generic-data-types"><a class="header" href="#generic-data-types">Generic Data Types</a></h2>
-<p>We use generics to create definitions for items like function signatures or
-structs, which we can then use with many different concrete data types. Let’s
-first look at how to define functions, structs, enums, and methods using
-generics. Then we’ll discuss how generics affect code performance.</p>
-<h3 id="in-function-definitions"><a class="header" href="#in-function-definitions">In Function Definitions</a></h3>
-<p>When defining a function that uses generics, we place the generics in the
-signature of the function where we would usually specify the data types of the
-parameters and return value. Doing so makes our code more flexible and provides
-more functionality to callers of our function while preventing code duplication.</p>
-<p>Continuing with our <code>largest</code> function, Listing 10-4 shows two functions that
-both find the largest value in a slice. We’ll then combine these into a single
-function that uses generics.</p>
+                        <h2 id="các-kiểu-dữ-liệu-generic"><a class="header" href="#các-kiểu-dữ-liệu-generic">Các kiểu dữ liệu Generic</a></h2>
+<p>Chúng ta sử dụng generics để tạo ra các định nghĩa cho các mục như chữ ký hàm hoặc
+struct, những thứ mà sau đó chúng ta có thể sử dụng với nhiều kiểu dữ liệu cụ thể khác nhau. Trước
+tiên hãy xem cách định nghĩa các hàm, struct, enum và phương thức bằng cách
+sử dụng generics. Sau đó, chúng ta sẽ thảo luận về cách generics ảnh hưởng đến hiệu suất mã nguồn.</p>
+<h3 id="trong-các-định-nghĩa-hàm"><a class="header" href="#trong-các-định-nghĩa-hàm">Trong các định nghĩa hàm</a></h3>
+<p>Khi định nghĩa một hàm sử dụng generics, chúng ta đặt các generics vào
+chữ ký của hàm tại nơi mà chúng ta thường chỉ định kiểu dữ liệu của các
+tham số và giá trị trả về. Làm như vậy giúp mã nguồn của chúng ta linh hoạt hơn và cung cấp
+nhiều chức năng hơn cho những người gọi hàm của chúng ta trong khi ngăn chặn việc trùng lặp mã nguồn.</p>
+<p>Tiếp tục với hàm <code>largest</code> của chúng ta, Liệt kê 10-4 hiển thị hai hàm mà
+cả hai đều tìm giá trị lớn nhất trong một slice. Sau đó, chúng ta sẽ kết hợp chúng thành một
+hàm duy nhất sử dụng generics.</p>
 <figure class="listing" id="listing-10-4">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><pre class="playground"><code class="language-rust edition2024">fn largest_i32(list: &amp;[i32]) -&gt; &amp;i32 {
@@ -227,33 +227,33 @@ fn main() {
     println!("The largest char is {result}");
 <span class="boring">    assert_eq!(*result, 'y');
 </span>}</code></pre></pre>
-<figcaption><a href="#listing-10-4">Listing 10-4</a>: Two functions that differ only in their names and in the types in their signatures</figcaption>
+<figcaption><a href="#listing-10-4">Listing 10-4</a>: Hai hàm chỉ khác nhau về tên và kiểu dữ liệu trong chữ ký của chúng</figcaption>
 </figure>
-<p>The <code>largest_i32</code> function is the one we extracted in Listing 10-3 that finds
-the largest <code>i32</code> in a slice. The <code>largest_char</code> function finds the largest
-<code>char</code> in a slice. The function bodies have the same code, so let’s eliminate
-the duplication by introducing a generic type parameter in a single function.</p>
-<p>To parameterize the types in a new single function, we need to name the type
-parameter, just as we do for the value parameters to a function. You can use
-any identifier as a type parameter name. But we’ll use <code>T</code> because, by
-convention, type parameter names in Rust are short, often just one letter, and
-Rust’s type-naming convention is CamelCase. Short for <em>type</em>, <code>T</code> is the default
-choice of most Rust programmers.</p>
-<p>When we use a parameter in the body of the function, we have to declare the
-parameter name in the signature so the compiler knows what that name means.
-Similarly, when we use a type parameter name in a function signature, we have
-to declare the type parameter name before we use it. To define the generic
-<code>largest</code> function, we place type name declarations inside angle brackets,
-<code>&lt;&gt;</code>, between the name of the function and the parameter list, like this:</p>
+<p>Hàm <code>largest_i32</code> là hàm chúng ta đã trích xuất trong Liệt kê 10-3 để tìm
+số <code>i32</code> lớn nhất trong một slice. Hàm <code>largest_char</code> tìm
+<code>char</code> lớn nhất trong một slice. Thân các hàm có cùng mã nguồn, vì vậy hãy loại bỏ
+sự trùng lặp bằng cách giới thiệu một tham số kiểu generic trong một hàm duy nhất.</p>
+<p>Để tham số hóa các kiểu trong một hàm duy nhất mới, chúng ta cần đặt tên cho
+tham số kiểu, giống như cách chúng ta làm với các tham số giá trị cho một hàm. Bạn có thể sử dụng
+bất kỳ tên định danh nào làm tên tham số kiểu. Nhưng chúng ta sẽ sử dụng <code>T</code> vì, theo
+quy ước, tên tham số kiểu trong Rust thường ngắn, thường chỉ một chữ cái, và
+quy ước đặt tên kiểu của Rust là CamelCase. Viết tắt của <em>type</em>, <code>T</code> là lựa chọn mặc định
+của hầu hết các lập trình viên Rust.</p>
+<p>Khi chúng ta sử dụng một tham số trong thân hàm, chúng ta phải khai báo
+tên tham số đó trong chữ ký để trình biên dịch biết tên đó có ý nghĩa gì.
+Tương tự, khi chúng ta sử dụng một tên tham số kiểu trong một chữ ký hàm, chúng ta
+phải khai báo tên tham số kiểu đó trước khi sử dụng nó. Để định nghĩa hàm
+<code>largest</code> generic, chúng ta đặt các khai báo tên kiểu bên trong dấu ngoặc nhọn,
+<code>&lt;&gt;</code>, giữa tên của hàm và danh sách tham số, như thế này:</p>
 <pre><code class="language-rust ignore">fn largest&lt;T&gt;(list: &amp;[T]) -&gt; &amp;T {</code></pre>
-<p>We read this definition as: the function <code>largest</code> is generic over some type
-<code>T</code>. This function has one parameter named <code>list</code>, which is a slice of values
-of type <code>T</code>. The <code>largest</code> function will return a reference to a value of the
-same type <code>T</code>.</p>
-<p>Listing 10-5 shows the combined <code>largest</code> function definition using the generic
-data type in its signature. The listing also shows how we can call the function
-with either a slice of <code>i32</code> values or <code>char</code> values. Note that this code won’t
-compile yet.</p>
+<p>Chúng ta đọc định nghĩa này là: hàm <code>largest</code> là generic trên một kiểu
+<code>T</code> nào đó. Hàm này có một tham số tên là <code>list</code>, đó là một slice của các giá trị
+thuộc kiểu <code>T</code>. Hàm <code>largest</code> sẽ trả về một tham chiếu đến một giá trị có
+cùng kiểu <code>T</code> đó.</p>
+<p>Liệt kê 10-5 hiển thị định nghĩa hàm <code>largest</code> kết hợp sử dụng kiểu
+dữ liệu generic trong chữ ký của nó. Liệt kê này cũng cho thấy cách chúng ta có thể gọi hàm
+với một slice gồm các giá trị <code>i32</code> hoặc các giá trị <code>char</code>. Lưu ý rằng mã nguồn này sẽ
+chưa thể biên dịch được.</p>
 <figure class="listing" id="listing-10-5">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><code class="language-rust ignore does_not_compile">fn largest&lt;T&gt;(list: &amp;[T]) -&gt; &amp;T {
@@ -279,9 +279,9 @@ fn main() {
     let result = largest(&amp;char_list);
     println!("The largest char is {result}");
 }</code></pre>
-<figcaption><a href="#listing-10-5">Listing 10-5</a>: The <code>largest</code> function using generic type parameters; this doesn’t compile yet</figcaption>
+<figcaption><a href="#listing-10-5">Listing 10-5</a>: Hàm <code>largest</code> sử dụng các tham số kiểu generic; mã này chưa thể biên dịch</figcaption>
 </figure>
-<p>If we compile this code right now, we’ll get this error:</p>
+<p>Nếu chúng ta biên dịch mã này ngay bây giờ, chúng ta sẽ nhận được lỗi này:</p>
 <pre><code class="language-console">$ cargo run
    Compiling chapter10 v0.1.0 (file:///projects/chapter10)
 error[E0369]: binary operation `&gt;` cannot be applied to type `&amp;T`
@@ -301,14 +301,14 @@ For more information about this error, try `rustc --explain E0369`.
 error: could not compile `chapter10` (bin "chapter10") due to 1 previous error
 </code></pre>
 <!-- BEGIN INTERVENTION: 0aad53ff-89d7-4d14-8e3d-c17809220252 -->
-<p>The issue above is that when <code>largest</code> takes a slice <code>&amp;[T]</code> as input, the function cannot assume <em>anything</em> about the type <code>T</code>. It could be <code>i32</code>, it could be <code>String</code>, it could be <a href="https://doc.rust-lang.org/std/fs/struct.File.html"><code>File</code></a>. However, <code>largest</code> requires that <code>T</code> is something you can compare with <code>&gt;</code> (i.e. that <code>T</code> implements <code>PartialOrd</code>, a trait which we will discuss in the next section). Some types like <code>i32</code> and <code>String</code> are comparable, but other types like <code>File</code> are not comparable.</p>
-<p>In a language like C++ with <a href="https://en.cppreference.com/w/cpp/language/templates">templates</a>, the compiler would not complain about the implementation of <code>largest</code>, but instead it would complain about trying to call <code>largest</code> on e.g. a file slice <code>&amp;[File]</code>. Rust instead requires you to state the expected capabilities of generic types up front. If <code>T</code> needs to be comparable, then <code>largest</code> must say so. Therefore this compiler error says <code>largest</code> will not compile until <code>T</code> is restricted.</p>
-<p>Additionally, unlike languages like Java where all objects have a set of core methods like <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html#toString()"><code>Object.toString()</code></a>, there are no core methods in Rust. Without restrictions, a generic type <code>T</code> has no capabilities: it cannot be printed, cloned, or mutated (although it can be dropped).</p>
+<p>Vấn đề ở trên là khi <code>largest</code> nhận một slice <code>&amp;[T]</code> làm đầu vào, hàm này không thể giả định <em>bất cứ điều gì</em> về kiểu <code>T</code>. Nó có thể là <code>i32</code>, nó có thể là <code>String</code>, nó có thể là <a href="https://doc.rust-lang.org/std/fs/struct.File.html"><code>File</code></a>. Tuy nhiên, <code>largest</code> yêu cầu <code>T</code> phải là thứ mà bạn có thể so sánh bằng <code>&gt;</code> (tức là <code>T</code> triển khai <code>PartialOrd</code>, một trait mà chúng ta sẽ thảo luận trong phần tiếp theo). Một số kiểu như <code>i32</code> và <code>String</code> có thể so sánh được, nhưng các kiểu khác như <code>File</code> thì không thể so sánh được.</p>
+<p>Trong một ngôn ngữ như C++ với <a href="https://en.cppreference.com/w/cpp/language/templates">templates</a>, trình biên dịch sẽ không phàn nàn về việc triển khai <code>largest</code>, thay vào đó nó sẽ phàn nàn khi cố gắng gọi <code>largest</code> trên ví dụ như một slice file <code>&amp;[File]</code>. Thay vào đó, Rust yêu cầu bạn tuyên bố các khả năng mong đợi của các kiểu generic ngay từ đầu. Nếu <code>T</code> cần phải so sánh được, thì <code>largest</code> phải nói rõ như vậy. Do đó, lỗi trình biên dịch này cho biết <code>largest</code> sẽ không được biên dịch cho đến khi <code>T</code> bị hạn chế.</p>
+<p>Ngoài ra, không giống như các ngôn ngữ như Java nơi tất cả các đối tượng đều có một tập hợp các phương thức cốt lõi như <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html#toString()"><code>Object.toString()</code></a>, không có phương thức cốt lõi nào trong Rust. Không có các hạn chế, một kiểu generic <code>T</code> không có khả năng nào: nó không thể được in ra, nhân bản (clone), hoặc thay đổi (mutated) (mặc dù nó có thể bị hủy - dropped).</p>
 <!-- END INTERVENTION -->
-<h3 id="in-struct-definitions"><a class="header" href="#in-struct-definitions">In Struct Definitions</a></h3>
-<p>We can also define structs to use a generic type parameter in one or more
-fields using the <code>&lt;&gt;</code> syntax. Listing 10-6 defines a <code>Point&lt;T&gt;</code> struct to hold
-<code>x</code> and <code>y</code> coordinate values of any type.</p>
+<h3 id="trong-các-định-nghĩa-struct"><a class="header" href="#trong-các-định-nghĩa-struct">Trong các định nghĩa Struct</a></h3>
+<p>Chúng ta cũng có thể định nghĩa các struct để sử dụng một tham số kiểu generic trong một hoặc
+nhiều trường bằng cách sử dụng cú pháp <code>&lt;&gt;</code>. Liệt kê 10-6 định nghĩa một struct <code>Point&lt;T&gt;</code> để giữ
+các giá trị tọa độ <code>x</code> và <code>y</code> thuộc bất kỳ kiểu nào.</p>
 <figure class="listing" id="listing-10-6">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><pre class="playground"><code class="language-rust edition2024">struct Point&lt;T&gt; {
@@ -320,18 +320,18 @@ fn main() {
     let integer = Point { x: 5, y: 10 };
     let float = Point { x: 1.0, y: 4.0 };
 }</code></pre></pre>
-<figcaption><a href="#listing-10-6">Listing 10-6</a>: A <code>Point&lt;T&gt;</code> struct that holds <code>x</code> and <code>y</code> values of type <code>T</code></figcaption>
+<figcaption><a href="#listing-10-6">Listing 10-6</a>: Một struct <code>Point&lt;T&gt;</code> giữ các giá trị <code>x</code> và <code>y</code> thuộc kiểu <code>T</code></figcaption>
 </figure>
-<p>The syntax for using generics in struct definitions is similar to that used in
-function definitions. First we declare the name of the type parameter inside
-angle brackets just after the name of the struct. Then we use the generic
-type in the struct definition where we would otherwise specify concrete data
-types.</p>
-<p>Note that because we’ve used only one generic type to define <code>Point&lt;T&gt;</code>, this
-definition says that the <code>Point&lt;T&gt;</code> struct is generic over some type <code>T</code>, and
-the fields <code>x</code> and <code>y</code> are <em>both</em> that same type, whatever that type may be. If
-we create an instance of a <code>Point&lt;T&gt;</code> that has values of different types, as in
-Listing 10-7, our code won’t compile.</p>
+<p>Cú pháp để sử dụng generics trong các định nghĩa struct tương tự như cú pháp được sử dụng trong
+các định nghĩa hàm. Đầu tiên chúng ta khai báo tên của tham số kiểu bên trong
+dấu ngoặc nhọn ngay sau tên của struct. Sau đó, chúng ta sử dụng kiểu
+generic trong định nghĩa struct tại nơi mà lẽ ra chúng ta sẽ chỉ định các kiểu dữ liệu
+cụ thể.</p>
+<p>Lưu ý rằng vì chúng ta chỉ sử dụng một kiểu generic để định nghĩa <code>Point&lt;T&gt;</code>,
+định nghĩa này nói rằng struct <code>Point&lt;T&gt;</code> là generic trên một kiểu <code>T</code> nào đó, và
+các trường <code>x</code> và <code>y</code> <em>cả hai</em> đều thuộc cùng kiểu đó, bất kể kiểu đó là gì. Nếu
+chúng ta tạo một phiên bản của một <code>Point&lt;T&gt;</code> có các giá trị thuộc các kiểu khác nhau, như trong
+Liệt kê 10-7, mã nguồn của chúng ta sẽ không biên dịch được.</p>
 <figure class="listing" id="listing-10-7">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><code class="language-rust ignore does_not_compile">struct Point&lt;T&gt; {
@@ -342,12 +342,12 @@ Listing 10-7, our code won’t compile.</p>
 fn main() {
     let wont_work = Point { x: 5, y: 4.0 };
 }</code></pre>
-<figcaption><a href="#listing-10-7">Listing 10-7</a>: The fields <code>x</code> and <code>y</code> must be the same type because both have the same generic data type <code>T</code>.</figcaption>
+<figcaption><a href="#listing-10-7">Listing 10-7</a>: Các trường <code>x</code> và <code>y</code> phải cùng kiểu vì cả hai đều có cùng kiểu dữ liệu generic <code>T</code>.</figcaption>
 </figure>
-<p>In this example, when we assign the integer value <code>5</code> to <code>x</code>, we let the
-compiler know that the generic type <code>T</code> will be an integer for this instance of
-<code>Point&lt;T&gt;</code>. Then when we specify <code>4.0</code> for <code>y</code>, which we’ve defined to have the
-same type as <code>x</code>, we’ll get a type mismatch error like this:</p>
+<p>Trong ví dụ này, khi chúng ta gán giá trị số nguyên <code>5</code> cho <code>x</code>, chúng ta cho
+trình biên dịch biết rằng kiểu generic <code>T</code> sẽ là một số nguyên cho instance này của
+<code>Point&lt;T&gt;</code>. Sau đó, khi chúng ta chỉ định <code>4.0</code> cho <code>y</code>, thứ mà chúng ta đã định nghĩa là có
+cùng kiểu với <code>x</code>, chúng ta sẽ nhận được một lỗi không khớp kiểu như thế này:</p>
 <pre><code class="language-console">$ cargo run
    Compiling chapter10 v0.1.0 (file:///projects/chapter10)
 error[E0308]: mismatched types
@@ -359,10 +359,10 @@ error[E0308]: mismatched types
 For more information about this error, try `rustc --explain E0308`.
 error: could not compile `chapter10` (bin "chapter10") due to 1 previous error
 </code></pre>
-<p>To define a <code>Point</code> struct where <code>x</code> and <code>y</code> are both generics but could have
-different types, we can use multiple generic type parameters. For example, in
-Listing 10-8, we change the definition of <code>Point</code> to be generic over types <code>T</code>
-and <code>U</code> where <code>x</code> is of type <code>T</code> and <code>y</code> is of type <code>U</code>.</p>
+<p>Để định nghĩa một struct <code>Point</code> mà <code>x</code> và <code>y</code> đều là generics nhưng có thể có
+các kiểu khác nhau, chúng ta có thể sử dụng nhiều tham số kiểu generic. Ví dụ, trong
+Liệt kê 10-8, chúng ta thay đổi định nghĩa của <code>Point</code> thành generic trên các kiểu <code>T</code>
+và <code>U</code> trong đó <code>x</code> thuộc kiểu <code>T</code> và <code>y</code> thuộc kiểu <code>U</code>.</p>
 <figure class="listing" id="listing-10-8">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><pre class="playground"><code class="language-rust edition2024">struct Point&lt;T, U&gt; {
@@ -375,17 +375,17 @@ fn main() {
     let both_float = Point { x: 1.0, y: 4.0 };
     let integer_and_float = Point { x: 5, y: 4.0 };
 }</code></pre></pre>
-<figcaption><a href="#listing-10-8">Listing 10-8</a>: A <code>Point&lt;T, U&gt;</code> generic over two types so that <code>x</code> and <code>y</code> can be values of different types</figcaption>
+<figcaption><a href="#listing-10-8">Listing 10-8</a>: Một struct <code>Point&lt;T, U&gt;</code> generic trên hai kiểu để <code>x</code> và <code>y</code> có thể là các giá trị thuộc các kiểu khác nhau</figcaption>
 </figure>
-<p>Now all the instances of <code>Point</code> shown are allowed! You can use as many generic
-type parameters in a definition as you want, but using more than a few makes
-your code hard to read. If you’re finding you need lots of generic types in
-your code, it could indicate that your code needs restructuring into smaller
-pieces.</p>
-<h3 id="in-enum-definitions"><a class="header" href="#in-enum-definitions">In Enum Definitions</a></h3>
-<p>As we did with structs, we can define enums to hold generic data types in their
-variants. Let’s take another look at the <code>Option&lt;T&gt;</code> enum that the standard
-library provides, which we used in Chapter 6:</p>
+<p>Bây giờ tất cả các instance của <code>Point</code> được hiển thị đều được cho phép! Bạn có thể sử dụng bao nhiêu tham số
+kiểu generic trong một định nghĩa tùy thích, nhưng sử dụng nhiều hơn một vài tham số sẽ làm cho
+mã nguồn của bạn khó đọc. Nếu bạn thấy mình cần rất nhiều kiểu generic trong
+mã nguồn của mình, điều đó có thể chỉ ra rằng mã nguồn của bạn cần được cấu trúc lại thành các phần
+nhỏ hơn.</p>
+<h3 id="trong-các-định-nghĩa-enum"><a class="header" href="#trong-các-định-nghĩa-enum">Trong các định nghĩa Enum</a></h3>
+<p>Giống như chúng ta đã làm với các struct, chúng ta có thể định nghĩa các enum để giữ các kiểu dữ liệu generic trong các
+biến thể của chúng. Hãy xem lại enum <code>Option&lt;T&gt;</code> mà thư viện
+chuẩn cung cấp, thứ mà chúng ta đã sử dụng trong Chương 6:</p>
 <pre><pre class="playground"><code class="language-rust edition2024"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>enum Option&lt;T&gt; {
@@ -393,14 +393,14 @@ library provides, which we used in Chapter 6:</p>
     None,
 }
 <span class="boring">}</span></code></pre></pre>
-<p>This definition should now make more sense to you. As you can see, the
-<code>Option&lt;T&gt;</code> enum is generic over type <code>T</code> and has two variants: <code>Some</code>, which
-holds one value of type <code>T</code>, and a <code>None</code> variant that doesn’t hold any value.
-By using the <code>Option&lt;T&gt;</code> enum, we can express the abstract concept of an
-optional value, and because <code>Option&lt;T&gt;</code> is generic, we can use this abstraction
-no matter what the type of the optional value is.</p>
-<p>Enums can use multiple generic types as well. The definition of the <code>Result</code>
-enum that we used in Chapter 9 is one example:</p>
+<p>Định nghĩa này bây giờ sẽ có ý nghĩa hơn đối với bạn. Như bạn có thể thấy,
+enum <code>Option&lt;T&gt;</code> là generic trên kiểu <code>T</code> và có hai biến thể: <code>Some</code>,
+giữ một giá trị thuộc kiểu <code>T</code>, và một biến thể <code>None</code> không giữ bất kỳ giá trị nào.
+Bằng cách sử dụng enum <code>Option&lt;T&gt;</code>, chúng ta có thể diễn đạt khái niệm trừu tượng về một
+giá trị tùy chọn, và vì <code>Option&lt;T&gt;</code> là generic, chúng ta có thể sử dụng sự trừu tượng này
+bất kể kiểu của giá trị tùy chọn đó là gì.</p>
+<p>Các enum cũng có thể sử dụng nhiều kiểu generic. Định nghĩa của enum <code>Result</code>
+mà chúng ta đã sử dụng trong Chương 9 là một ví dụ:</p>
 <pre><pre class="playground"><code class="language-rust edition2024"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>enum Result&lt;T, E&gt; {
@@ -408,21 +408,21 @@ enum that we used in Chapter 9 is one example:</p>
     Err(E),
 }
 <span class="boring">}</span></code></pre></pre>
-<p>The <code>Result</code> enum is generic over two types, <code>T</code> and <code>E</code>, and has two variants:
-<code>Ok</code>, which holds a value of type <code>T</code>, and <code>Err</code>, which holds a value of type
-<code>E</code>. This definition makes it convenient to use the <code>Result</code> enum anywhere we
-have an operation that might succeed (return a value of some type <code>T</code>) or fail
-(return an error of some type <code>E</code>). In fact, this is what we used to open a
-file in Listing 9-3, where <code>T</code> was filled in with the type <code>std::fs::File</code> when
-the file was opened successfully and <code>E</code> was filled in with the type
-<code>std::io::Error</code> when there were problems opening the file.</p>
-<p>When you recognize situations in your code with multiple struct or enum
-definitions that differ only in the types of the values they hold, you can
-avoid duplication by using generic types instead.</p>
-<h3 id="in-method-definitions"><a class="header" href="#in-method-definitions">In Method Definitions</a></h3>
-<p>We can implement methods on structs and enums (as we did in Chapter 5) and use
-generic types in their definitions too. Listing 10-9 shows the <code>Point&lt;T&gt;</code>
-struct we defined in Listing 10-6 with a method named <code>x</code> implemented on it.</p>
+<p>Enum <code>Result</code> là generic trên hai kiểu, <code>T</code> và <code>E</code>, và có hai biến thể:
+<code>Ok</code>, giữ một giá trị thuộc kiểu <code>T</code>, và <code>Err</code>, giữ một giá trị thuộc kiểu
+<code>E</code>. Định nghĩa này giúp thuận tiện khi sử dụng enum <code>Result</code> ở bất cứ đâu chúng ta
+có một thao tác có thể thành công (trả về một giá trị thuộc kiểu <code>T</code> nào đó) hoặc thất bại
+(trả về một lỗi thuộc kiểu <code>E</code> nào đó). Thực tế, đây là những gì chúng ta đã sử dụng để mở một
+tệp trong Liệt kê 9-3, trong đó <code>T</code> được điền vào với kiểu <code>std::fs::File</code> khi
+tệp được mở thành công và <code>E</code> được điền vào với kiểu
+<code>std::io::Error</code> khi có vấn đề khi mở tệp.</p>
+<p>Khi bạn nhận thấy các tình huống trong mã nguồn của mình với nhiều định nghĩa struct hoặc enum
+chỉ khác nhau ở kiểu của các giá trị mà chúng nắm giữ, bạn có thể
+tránh sự trùng lặp bằng cách sử dụng các kiểu generic thay thế.</p>
+<h3 id="trong-các-định-nghĩa-phương-thức"><a class="header" href="#trong-các-định-nghĩa-phương-thức">Trong các định nghĩa phương thức</a></h3>
+<p>Chúng ta có thể triển khai các phương thức trên struct và enum (như chúng ta đã làm trong Chương 5) và sử dụng
+các kiểu generic trong các định nghĩa của chúng nữa. Liệt kê 10-9 hiển thị struct <code>Point&lt;T&gt;</code>
+chúng ta đã định nghĩa trong Liệt kê 10-6 với một phương thức tên là <code>x</code> được triển khai trên đó.</p>
 <figure class="listing" id="listing-10-9">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><pre class="playground"><code class="language-rust edition2024">struct Point&lt;T&gt; {
@@ -441,23 +441,23 @@ fn main() {
 
     println!("p.x = {}", p.x());
 }</code></pre></pre>
-<figcaption><a href="#listing-10-9">Listing 10-9</a>: Implementing a method named <code>x</code> on the <code>Point&lt;T&gt;</code> struct that will return a reference to the <code>x</code> field of type <code>T</code></figcaption>
+<figcaption><a href="#listing-10-9">Listing 10-9</a>: Triển khai một phương thức tên là <code>x</code> trên struct <code>Point&lt;T&gt;</code> sẽ trả về một tham chiếu đến trường <code>x</code> thuộc kiểu <code>T</code></figcaption>
 </figure>
-<p>Here, we’ve defined a method named <code>x</code> on <code>Point&lt;T&gt;</code> that returns a reference
-to the data in the field <code>x</code>.</p>
-<p>Note that we have to declare <code>T</code> just after <code>impl</code> so we can use <code>T</code> to specify
-that we’re implementing methods on the type <code>Point&lt;T&gt;</code>. By declaring <code>T</code> as a
-generic type after <code>impl</code>, Rust can identify that the type in the angle
-brackets in <code>Point</code> is a generic type rather than a concrete type. We could
-have chosen a different name for this generic parameter than the generic
-parameter declared in the struct definition, but using the same name is
-conventional. If you write a method within an <code>impl</code> that declares a generic
-type, that method will be defined on any instance of the type, no matter what
-concrete type ends up substituting for the generic type.</p>
-<p>We can also specify constraints on generic types when defining methods on the
-type. We could, for example, implement methods only on <code>Point&lt;f32&gt;</code> instances
-rather than on <code>Point&lt;T&gt;</code> instances with any generic type. In Listing 10-10 we
-use the concrete type <code>f32</code>, meaning we don’t declare any types after <code>impl</code>.</p>
+<p>Ở đây, chúng ta đã định nghĩa một phương thức tên là <code>x</code> trên <code>Point&lt;T&gt;</code> để trả về một tham chiếu
+đến dữ liệu trong trường <code>x</code>.</p>
+<p>Lưu ý rằng chúng ta phải khai báo <code>T</code> ngay sau <code>impl</code> để chúng ta có thể sử dụng <code>T</code> nhằm chỉ định
+rằng chúng ta đang triển khai các phương thức trên kiểu <code>Point&lt;T&gt;</code>. Bằng cách khai báo <code>T</code> như một
+kiểu generic sau <code>impl</code>, Rust có thể xác định rằng kiểu trong dấu ngoặc
+nhọn trong <code>Point</code> là một kiểu generic thay vì một kiểu cụ thể. Chúng ta
+có thể đã chọn một tên khác cho tham số generic này so với tham số generic
+đã khai báo trong định nghĩa struct, nhưng sử dụng cùng một tên là theo quy ước.
+Nếu bạn viết một phương thức trong một <code>impl</code> có khai báo một kiểu generic,
+phương thức đó sẽ được định nghĩa trên bất kỳ instance nào của kiểu đó, bất kể kiểu
+cụ thể nào cuối cùng được thay thế cho kiểu generic.</p>
+<p>Chúng ta cũng có thể chỉ định các ràng buộc trên các kiểu generic khi định nghĩa các phương thức trên
+kiểu đó. Ví dụ, chúng ta có thể chỉ triển khai các phương thức trên các instance <code>Point&lt;f32&gt;</code>
+thay vì trên các instance <code>Point&lt;T&gt;</code> với bất kỳ kiểu generic nào. Trong Liệt kê 10-10, chúng ta
+sử dụng kiểu cụ thể <code>f32</code>, nghĩa là chúng ta không khai báo bất kỳ kiểu nào sau <code>impl</code>.</p>
 <figure class="listing" id="listing-10-10">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><pre class="playground"><code class="language-rust edition2024"><span class="boring">struct Point&lt;T&gt; {
@@ -482,22 +482,22 @@ use the concrete type <code>f32</code>, meaning we don’t declare any types aft
 </span><span class="boring">
 </span><span class="boring">    println!("p.x = {}", p.x());
 </span><span class="boring">}</span></code></pre></pre>
-<figcaption><a href="#listing-10-10">Listing 10-10</a>: An <code>impl</code> block that only applies to a struct with a particular concrete type for the generic type parameter <code>T</code></figcaption>
+<figcaption><a href="#listing-10-10">Listing 10-10</a>: Một khối <code>impl</code> chỉ áp dụng cho một struct với một kiểu cụ thể cho tham số kiểu generic <code>T</code></figcaption>
 </figure>
-<p>This code means the type <code>Point&lt;f32&gt;</code> will have a <code>distance_from_origin</code>
-method; other instances of <code>Point&lt;T&gt;</code> where <code>T</code> is not of type <code>f32</code> will not
-have this method defined. The method measures how far our point is from the
-point at coordinates (0.0, 0.0) and uses mathematical operations that are
-available only for floating-point types.</p>
+<p>Mã nguồn này có nghĩa là kiểu <code>Point&lt;f32&gt;</code> sẽ có một phương thức <code>distance_from_origin</code>;
+các instance khác của <code>Point&lt;T&gt;</code> trong đó <code>T</code> không thuộc kiểu <code>f32</code> sẽ không
+có phương thức này được định nghĩa. Phương thức này đo khoảng cách từ điểm của chúng ta đến
+điểm tại tọa độ (0.0, 0.0) và sử dụng các phép toán toán học chỉ có
+sẵn cho các kiểu số thực dấu phẩy động.</p>
 <!-- BEGIN INTERVENTION: 694bb2d0-f2e6-4b0b-a3e7-2d9f9e8b3d09 -->
-<p>You cannot simultaneously implement specific <em>and</em> generic methods of the same name this way. For example, if you implemented a general <code>distance_from_origin</code> for all types <code>T</code> and a specific <code>distance_from_origin</code> for <code>f32</code>, then the compiler will reject your program: Rust does not know which implementation to use when you call <code>Point&lt;f32&gt;::distance_from_origin</code>. More generally, Rust does not have inheritance-like mechanisms for specializing methods as you might find in an object-oriented language, with one exception (default trait methods) discussed in the next section.</p>
+<p>Bạn không thể triển khai đồng thời các phương thức cụ thể <em>và</em> generic có cùng tên theo cách này. Ví dụ, nếu bạn triển khai một <code>distance_from_origin</code> chung cho tất cả các kiểu <code>T</code> và một <code>distance_from_origin</code> cụ thể cho <code>f32</code>, thì trình biên dịch sẽ từ chối chương trình của bạn: Rust không biết nên sử dụng bản triển khai nào khi bạn gọi <code>Point&lt;f32&gt;::distance_from_origin</code>. Tổng quát hơn, Rust không có các cơ chế giống như kế thừa (inheritance) để chuyên biệt hóa các phương thức như bạn có thể thấy trong một ngôn ngữ hướng đối tượng, ngoại trừ một trường hợp (các phương thức trait mặc định) sẽ được thảo luận trong phần tiếp theo.</p>
 <!-- END INTERVENTION -->
-<p>Generic type parameters in a struct definition aren’t always the same as those
-you use in that same struct’s method signatures. Listing 10-11 uses the generic
-types <code>X1</code> and <code>Y1</code> for the <code>Point</code> struct and <code>X2</code> <code>Y2</code> for the <code>mixup</code> method
-signature to make the example clearer. The method creates a new <code>Point</code>
-instance with the <code>x</code> value from the <code>self</code> <code>Point</code> (of type <code>X1</code>) and the <code>y</code>
-value from the passed-in <code>Point</code> (of type <code>Y2</code>).</p>
+<p>Các tham số kiểu generic trong một định nghĩa struct không phải lúc nào cũng giống với những tham số
+bạn sử dụng trong các chữ ký phương thức của cùng struct đó. Liệt kê 10-11 sử dụng các kiểu generic
+<code>X1</code> và <code>Y1</code> cho struct <code>Point</code> và <code>X2</code> <code>Y2</code> cho chữ ký phương thức <code>mixup</code>
+để làm cho ví dụ rõ ràng hơn. Phương thức này tạo ra một instance <code>Point</code> mới
+với giá trị <code>x</code> từ <code>Point</code> <code>self</code> (thuộc kiểu <code>X1</code>) và giá trị <code>y</code> từ
+<code>Point</code> được truyền vào (thuộc kiểu <code>Y2</code>).</p>
 <figure class="listing" id="listing-10-11">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><pre class="playground"><code class="language-rust edition2024">struct Point&lt;X1, Y1&gt; {
@@ -522,47 +522,47 @@ fn main() {
 
     println!("p3.x = {}, p3.y = {}", p3.x, p3.y);
 }</code></pre></pre>
-<figcaption><a href="#listing-10-11">Listing 10-11</a>: A method that uses generic types different from its struct’s definition</figcaption>
+<figcaption><a href="#listing-10-11">Listing 10-11</a>: Một phương thức sử dụng các kiểu generic khác với định nghĩa struct của nó</figcaption>
 </figure>
-<p>In <code>main</code>, we’ve defined a <code>Point</code> that has an <code>i32</code> for <code>x</code> (with value <code>5</code>)
-and an <code>f64</code> for <code>y</code> (with value <code>10.4</code>). The <code>p2</code> variable is a <code>Point</code> struct
-that has a string slice for <code>x</code> (with value <code>"Hello"</code>) and a <code>char</code> for <code>y</code>
-(with value <code>c</code>). Calling <code>mixup</code> on <code>p1</code> with the argument <code>p2</code> gives us <code>p3</code>,
-which will have an <code>i32</code> for <code>x</code> because <code>x</code> came from <code>p1</code>. The <code>p3</code> variable
-will have a <code>char</code> for <code>y</code> because <code>y</code> came from <code>p2</code>. The <code>println!</code> macro
-call will print <code>p3.x = 5, p3.y = c</code>.</p>
-<p>The purpose of this example is to demonstrate a situation in which some generic
-parameters are declared with <code>impl</code> and some are declared with the method
-definition. Here, the generic parameters <code>X1</code> and <code>Y1</code> are declared after
-<code>impl</code> because they go with the struct definition. The generic parameters <code>X2</code>
-and <code>Y2</code> are declared after <code>fn mixup</code> because they’re only relevant to the
-method.</p>
-<h3 id="performance-of-code-using-generics"><a class="header" href="#performance-of-code-using-generics">Performance of Code Using Generics</a></h3>
-<p>You might be wondering whether there is a runtime cost when using generic type
-parameters. The good news is that using generic types won’t make your program
-run any slower than it would with concrete types.</p>
-<p>Rust accomplishes this by performing monomorphization of the code using
-generics at compile time. <em>Monomorphization</em> is the process of turning generic
-code into specific code by filling in the concrete types that are used when
-compiled. In this process, the compiler does the opposite of the steps we used
-to create the generic function in Listing 10-5: the compiler looks at all the
-places where generic code is called and generates code for the concrete types
-the generic code is called with.</p>
-<p>Let’s look at how this works by using the standard library’s generic
-<code>Option&lt;T&gt;</code> enum:</p>
+<p>Trong <code>main</code>, chúng ta đã định nghĩa một <code>Point</code> có một <code>i32</code> cho <code>x</code> (với giá trị <code>5</code>)
+và một <code>f64</code> for <code>y</code> (với giá trị <code>10.4</code>). Biến <code>p2</code> là một struct <code>Point</code>
+có một string slice cho <code>x</code> (với giá trị <code>"Hello"</code>) và một <code>char</code> cho <code>y</code>
+(với giá trị <code>c</code>). Việc gọi <code>mixup</code> trên <code>p1</code> với đối số <code>p2</code> cho chúng ta <code>p3</code>,
+thứ sẽ có một <code>i32</code> cho <code>x</code> vì <code>x</code> đến từ <code>p1</code>. Biến <code>p3</code>
+sẽ có một <code>char</code> cho <code>y</code> vì <code>y</code> đến từ <code>p2</code>. Lời gọi macro <code>println!</code>
+sẽ in ra <code>p3.x = 5, p3.y = c</code>.</p>
+<p>Mục đích của ví dụ này là để chứng minh một tình huống trong đó một số tham số generic
+được khai báo với <code>impl</code> và một số được khai báo với định nghĩa
+phương thức. Ở đây, các tham số generic <code>X1</code> và <code>Y1</code> được khai báo sau
+<code>impl</code> vì chúng đi cùng với định nghĩa struct. Các tham số generic <code>X2</code>
+và <code>Y2</code> được khai báo sau <code>fn mixup</code> vì chúng chỉ liên quan đến
+phương thức.</p>
+<h3 id="hiệu-suất-của-mã-nguồn-sử-dụng-generics"><a class="header" href="#hiệu-suất-của-mã-nguồn-sử-dụng-generics">Hiệu suất của mã nguồn sử dụng Generics</a></h3>
+<p>Bạn có thể thắc mắc liệu có chi phí thời gian chạy (runtime cost) nào khi sử dụng các tham số kiểu
+generic hay không. Tin tốt là việc sử dụng các kiểu generic sẽ không làm chương trình của bạn
+chạy chậm hơn so với khi sử dụng các kiểu cụ thể.</p>
+<p>Rust đạt được điều này bằng cách thực hiện monomorphization (đơn hình hóa) mã nguồn sử dụng
+generics tại thời điểm biên dịch. <em>Monomorphization</em> là quá trình chuyển đổi mã nguồn
+generic thành mã nguồn cụ thể bằng cách điền vào các kiểu cụ thể được sử dụng khi
+biên dịch. Trong quá trình này, trình biên dịch thực hiện ngược lại các bước chúng ta đã sử dụng
+để tạo hàm generic trong Liệt kê 10-5: trình biên dịch xem xét tất cả các nơi
+mà mã nguồn generic được gọi và tạo ra mã nguồn cho các kiểu cụ thể mà
+mã nguồn generic được gọi với chúng.</p>
+<p>Hãy xem cách điều này hoạt động bằng cách sử dụng enum generic <code>Option&lt;T&gt;</code>
+của thư viện chuẩn:</p>
 <pre><pre class="playground"><code class="language-rust edition2024"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>let integer = Some(5);
 let float = Some(5.0);
 <span class="boring">}</span></code></pre></pre>
-<p>When Rust compiles this code, it performs monomorphization. During that
-process, the compiler reads the values that have been used in <code>Option&lt;T&gt;</code>
-instances and identifies two kinds of <code>Option&lt;T&gt;</code>: one is <code>i32</code> and the other
-is <code>f64</code>. As such, it expands the generic definition of <code>Option&lt;T&gt;</code> into two
-definitions specialized to <code>i32</code> and <code>f64</code>, thereby replacing the generic
-definition with the specific ones.</p>
-<p>The monomorphized version of the code looks similar to the following (the
-compiler uses different names than what we’re using here for illustration):</p>
+<p>Khi Rust biên dịch mã nguồn này, nó thực hiện monomorphization. Trong suốt quá trình
+đó, trình biên dịch đọc các giá trị đã được sử dụng trong các instance <code>Option&lt;T&gt;</code>
+và xác định hai loại <code>Option&lt;T&gt;</code>: một là <code>i32</code> và loại còn lại
+là <code>f64</code>. Như vậy, nó mở rộng định nghĩa generic của <code>Option&lt;T&gt;</code> thành hai
+định nghĩa được chuyên biệt hóa cho <code>i32</code> và <code>f64</code>, từ đó thay thế định nghĩa
+generic bằng các định nghĩa cụ thể.</p>
+<p>Phiên bản monomorphized của mã nguồn trông tương tự như sau (trình biên dịch
+sử dụng các tên khác với những gì chúng ta đang sử dụng ở đây để minh họa):</p>
 <figure class="listing">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><pre class="playground"><code class="language-rust edition2024">enum Option_i32 {
@@ -580,12 +580,12 @@ fn main() {
     let float = Option_f64::Some(5.0);
 }</code></pre></pre>
 </figure>
-<p>The generic <code>Option&lt;T&gt;</code> is replaced with the specific definitions created by
-the compiler. Because Rust compiles generic code into code that specifies the
-type in each instance, we pay no runtime cost for using generics. When the code
-runs, it performs just as it would if we had duplicated each definition by
-hand. The process of monomorphization makes Rust’s generics extremely efficient
-at runtime.</p>
+<p>Enum generic <code>Option&lt;T&gt;</code> được thay thế bằng các định nghĩa cụ thể được tạo ra bởi
+trình biên dịch. Bởi vì Rust biên dịch mã nguồn generic thành mã nguồn chỉ định
+kiểu trong mỗi instance, chúng ta không phải trả chi phí thời gian chạy cho việc sử dụng generics. Khi mã nguồn
+chạy, nó hoạt động giống như khi chúng ta sao chép từng định nghĩa bằng
+tay. Quá trình monomorphization làm cho generics của Rust cực kỳ hiệu quả
+tại thời điểm thực thi.</p>
 <div class="quiz-placeholder" data-quiz-name="&quot;ch10-01-generics&quot;" data-quiz-questions="{&quot;questions&quot;:[{&quot;context&quot;:&quot;The only possible function (without unsafe code) that has the signature `T -&gt; T` is the identity function:\n\n```\nfn mystery&lt;T&gt;(x: T) -&gt; T {\n  x\n}\n```\n\nThe function could of course panic or print, but the return value can only be the input. `mystery` does not know\nwhat type `T` is, so there is no way for `mystery` to generate or mutate a value of `T`.\nSee [Theorems for free!](https://dl.acm.org/doi/pdf/10.1145/99370.99404) for more examples of this idea.\n\n**3 really is the correct answer! If you disagree with the answer, please don't submit a bug report!**\n&quot;,&quot;id&quot;:&quot;0aad53ff-89d7-4d14-8e3d-c17809220252&quot;,&quot;type&quot;:&quot;ShortAnswer&quot;,&quot;answer&quot;:{&quot;answer&quot;:&quot;3&quot;},&quot;prompt&quot;:{&quot;prompt&quot;:&quot;Imagine using a third-party function whose implementation you don't know, but whose type signature is this:\n\n```\nfn mystery&lt;T&gt;(x: T) -&gt; T {\n  // ????\n}\n```\n\nThen you call `mystery` like this:\n\n```\nlet y = mystery(3);\n```\n\nAssuming `mystery` uses no unsafe code, then the value of `y` must be :\n&quot;}},{&quot;context&quot;:&quot;If a type is generic (like `T`), we cannot assume anything about it, including the ability to turn it into a string. Therefore `println!(\&quot;{x}\&quot;)` is invalid\nbecause `x: &amp;T`.\n&quot;,&quot;id&quot;:&quot;40ae0cfe-3567-4d05-b0d9-54d612a2d654&quot;,&quot;type&quot;:&quot;Tracing&quot;,&quot;answer&quot;:{&quot;doesCompile&quot;:false,&quot;lineNumber&quot;:3},&quot;prompt&quot;:{&quot;program&quot;:&quot;fn print_slice&lt;T&gt;(v: &amp;[T]) {\n  for x in v {\n    println!(\&quot;{x}\&quot;);\n  }\n}\n\nfn main() {\n  print_slice(&amp;[1, 2, 3]);\n}\n&quot;}},{&quot;context&quot;:&quot;These definitions of `f` conflict, and there is no way for Rust to determine which `f` should be used when `p.f()` is called. Therefore this is a compiler error.\n&quot;,&quot;id&quot;:&quot;694bb2d0-f2e6-4b0b-a3e7-2d9f9e8b3d09&quot;,&quot;type&quot;:&quot;Tracing&quot;,&quot;answer&quot;:{&quot;doesCompile&quot;:false,&quot;lineNumber&quot;:8},&quot;prompt&quot;:{&quot;program&quot;:&quot;struct Point&lt;T&gt; { x: T, y: T }\n\nimpl Point&lt;i32&gt; {\n  fn f(&amp;self) -&gt; &amp;i32 { &amp;self.y }\n}\n\nimpl&lt;T&gt; Point&lt;T&gt; {\n  fn f(&amp;self) -&gt; &amp;T { &amp;self.x }\n}\n\nfn main() {\n  let p: Point&lt;i32&gt; = Point { x: 1, y: 2 };\n  println!(\&quot;{}\&quot;, p.f());\n}\n&quot;}}]}" data-quiz-fullscreen="true" data-quiz-cache-answers="true"></div>
 <script type="text/javascript" src="quiz/quiz-embed.iife.js"></script><link rel="stylesheet" type="text/css" href="quiz/style.css">
                     </main>
