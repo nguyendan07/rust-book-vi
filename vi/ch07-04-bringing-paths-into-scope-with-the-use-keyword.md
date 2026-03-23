@@ -12,7 +12,7 @@ phạm vi của hàm `eat_at_restaurant` để chúng ta chỉ cần chỉ đị
 `hosting::add_to_waitlist` để gọi hàm `add_to_waitlist` trong
 `eat_at_restaurant`.
 
-<Listing number="7-11" file-name="src/lib.rs" caption="Đưa một module vào phạm vi với `use`平衡">
+<Listing number="7-11" file-name="src/lib.rs" caption="Đưa một module vào phạm vi với `use`">
 
 ```rust,noplayground,test_harness
 {{#rustdoc_include ../listings/ch07-managing-growing-projects/listing-07-11/src/lib.rs}}
@@ -115,7 +115,7 @@ vào cùng một phạm vi với `use`: sau đường dẫn, chúng ta có thể
 tên cục bộ mới, hoặc _bí danh_ (alias), cho kiểu đó. Listing 7-16 cho thấy một cách khác để viết
 mã nguồn trong Listing 7-15 bằng cách đổi tên một trong hai kiểu `Result` bằng `as`.
 
-<Listing number="7-16" file-name="src/lib.rs" caption="Đổi tên một kiểu khi nó được đưa vào phạm vi bằng từ khóa `as`平衡">
+<Listing number="7-16" file-name="src/lib.rs" caption="Đổi tên một kiểu khi nó được đưa vào phạm vi bằng từ khóa `as`">
 
 ```rust,noplayground
 {{#rustdoc_include ../listings/ch07-managing-growing-projects/listing-07-16/src/lib.rs:here}}
@@ -139,7 +139,7 @@ phạm vi nhưng cũng làm cho mục đó có sẵn để những người khá
 Listing 7-17 cho thấy mã nguồn trong Listing 7-11 với `use` trong module gốc
 được đổi thành `pub use`.
 
-<Listing number="7-17" file-name="src/lib.rs" caption="Làm cho một cái tên có sẵn cho bất kỳ mã nguồn nào sử dụng từ một phạm vi mới với `pub use`平衡">
+<Listing number="7-17" file-name="src/lib.rs" caption="Làm cho một cái tên có sẵn cho bất kỳ mã nguồn nào sử dụng từ một phạm vi mới với `pub use`">
 
 ```rust,noplayground,test_harness
 {{#rustdoc_include ../listings/ch07-managing-growing-projects/listing-07-17/src/lib.rs}}
@@ -266,7 +266,7 @@ Phần chung của hai đường dẫn này là `std::io`, và đó là đườn
 đầy đủ. Để hợp nhất hai đường dẫn này vào một câu lệnh `use`, chúng ta có thể sử dụng `self` trong
 đường dẫn lồng nhau, như được hiển thị trong Listing 7-20.
 
-<Listing number="7-20" file-name="src/lib.rs" caption="Kết hợp các đường dẫn trong Listing 7-19 vào một câu lệnh `use`平衡">
+<Listing number="7-20" file-name="src/lib.rs" caption="Kết hợp các đường dẫn trong Listing 7-19 vào một câu lệnh `use`">
 
 ```rust,noplayground
 {{#rustdoc_include ../listings/ch07-managing-growing-projects/listing-07-20/src/lib.rs}}

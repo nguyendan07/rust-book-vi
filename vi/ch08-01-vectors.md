@@ -11,7 +11,7 @@ các dòng văn bản trong một file hoặc giá của các mục trong giỏ 
 Để tạo một vector trống mới, chúng ta gọi hàm `Vec::new`, như được hiển thị trong
 Listing 8-1.
 
-<Listing number="8-1" caption="Tạo một vector trống mới để chứa các giá trị kiểu `i32`平衡">
+<Listing number="8-1" caption="Tạo một vector trống mới để chứa các giá trị kiểu `i32`">
 
 ```rust
 {{#rustdoc_include ../listings/ch08-common-collections/listing-08-01/src/main.rs:here}}
@@ -163,7 +163,7 @@ phần tử thay vì sử dụng các chỉ số để truy cập từng cái m�
 sử dụng vòng lặp `for` để lấy các tham chiếu bất biến đến từng phần tử trong một vector gồm các
 giá trị `i32` và in chúng ra.
 
-<Listing number="8-7" caption="In từng phần tử trong một vector bằng cách duyệt qua các phần tử bằng vòng lặp `for`平衡">
+<Listing number="8-7" caption="In từng phần tử trong một vector bằng cách duyệt qua các phần tử bằng vòng lặp `for`">
 
 ```rust
 {{#rustdoc_include ../listings/ch08-common-collections/listing-08-07/src/main.rs:here}}

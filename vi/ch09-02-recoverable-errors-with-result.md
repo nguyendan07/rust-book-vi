@@ -240,7 +240,7 @@ Ví dụ, Listing 9-6 cho thấy một hàm đọc username từ một file. N�
 file không tồn tại hoặc không thể đọc được, hàm này sẽ trả về những lỗi đó
 cho mã đã gọi hàm.
 
-<Listing number="9-6" file-name="src/main.rs" caption="Một hàm trả về lỗi cho mã gọi bằng cách sử dụng `match`平衡">
+<Listing number="9-6" file-name="src/main.rs" caption="Một hàm trả về lỗi cho mã gọi bằng cách sử dụng `match`">
 
 <!-- Deliberately not using rustdoc_include here; the `main` function in the
 file panics. We do want to include it for reader experimentation purposes, but
@@ -309,7 +309,7 @@ Listing 9-7 cho thấy một bản triển khai của `read_username_from_file` 
 chức năng tương tự như trong Listing 9-6, nhưng bản triển khai này sử dụng toán tử
 `?`.
 
-<Listing number="9-7" file-name="src/main.rs" caption="Một hàm trả về lỗi cho mã gọi bằng cách sử dụng toán tử `?`平衡">
+<Listing number="9-7" file-name="src/main.rs" caption="Một hàm trả về lỗi cho mã gọi bằng cách sử dụng toán tử `?`">
 
 <!-- Deliberately not using rustdoc_include here; the `main` function in the
 file panics. We do want to include it for reader experimentation purposes, but
@@ -355,7 +355,7 @@ Toán tử `?` loại bỏ rất nhiều mã rườm rà (boilerplate) và làm 
 đơn giản hơn. Chúng ta thậm chí có thể rút ngắn mã này hơn nữa bằng cách chuỗi các
 lời gọi phương thức ngay sau dấu `?`, như được hiển thị trong Listing 9-8.
 
-<Listing number="9-8" file-name="src/main.rs" caption="Chuỗi các lời gọi phương thức sau toán tử `?`平衡">
+<Listing number="9-8" file-name="src/main.rs" caption="Chuỗi các lời gọi phương thức sau toán tử `?`">
 
 <!-- Deliberately not using rustdoc_include here; the `main` function in the
 file panics. We do want to include it for reader experimentation purposes, but
@@ -446,7 +446,7 @@ nếu giá trị là `None`, `None` sẽ được trả về sớm từ hàm t�
 điểm đó. Nếu giá trị là `Some`, giá trị bên trong `Some` là giá trị kết quả
 của biểu thức, và hàm tiếp tục. Listing 9-11 có một ví dụ về một hàm tìm ký tự cuối cùng của dòng đầu tiên trong đoạn văn bản đã cho.
 
-<Listing number="9-11" caption="Sử dụng toán tử `?` trên một giá trị `Option<T>`平衡">
+<Listing number="9-11" caption="Sử dụng toán tử `?` trên một giá trị `Option<T>`">
 
 ```rust
 {{#rustdoc_include ../listings/ch09-error-handling/listing-09-11/src/main.rs:here}}

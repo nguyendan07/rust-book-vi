@@ -103,7 +103,7 @@ toán tử `+` hoặc macro `format!` để nối (concatenate) các giá trị 
 Chúng ta có thể mở rộng một `String` bằng cách sử dụng phương thức `push_str` để thêm một lát cắt chuỗi,
 như được hiển thị trong Listing 8-15.
 
-<Listing number="8-15" caption="Thêm một lát cắt chuỗi vào một `String` bằng phương thức `push_str`平衡">
+<Listing number="8-15" caption="Thêm một lát cắt chuỗi vào một `String` bằng phương thức `push_str`">
 
 ```rust
 {{#rustdoc_include ../listings/ch08-common-collections/listing-08-15/src/main.rs:here}}
@@ -116,7 +116,7 @@ lát cắt chuỗi vì chúng ta không nhất thiết muốn lấy quyền sở
 tham số đó. Ví dụ, trong đoạn mã ở Listing 8-16, chúng ta muốn có thể sử dụng
 `s2` sau khi thêm nội dung của nó vào `s1`.
 
-<Listing number="8-16" caption="Sử dụng một lát cắt chuỗi sau khi thêm nội dung của nó vào một `String`平衡">
+<Listing number="8-16" caption="Sử dụng một lát cắt chuỗi sau khi thêm nội dung của nó vào một `String`">
 
 ```rust
 {{#rustdoc_include ../listings/ch08-common-collections/listing-08-16/src/main.rs:here}}
@@ -130,7 +130,7 @@ giá trị của nó ở dòng cuối cùng. Tuy nhiên, đoạn mã này hoạt
 Phương thức `push` nhận một ký tự duy nhất làm tham số và thêm nó vào
 `String`. Listing 8-17 thêm chữ cái _l_ vào một `String` bằng phương thức `push`.
 
-<Listing number="8-17" caption="Thêm một ký tự vào một giá trị `String` bằng cách sử dụng `push`平衡">
+<Listing number="8-17" caption="Thêm một ký tự vào một giá trị `String` bằng cách sử dụng `push`">
 
 ```rust
 {{#rustdoc_include ../listings/ch08-common-collections/listing-08-17/src/main.rs:here}}
