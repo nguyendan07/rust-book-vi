@@ -199,7 +199,7 @@ use crate::front_of_house::hosting;
 pub fn eat_at_restaurant() {
     hosting::add_to_waitlist();
 }</code></pre>
-<figcaption><a href="#listing-7-11">Listing 7-11</a>: Đưa một module vào phạm vi với <code>use</code>平衡</figcaption>
+<figcaption><a href="#listing-7-11">Listing 7-11</a>: Đưa một module vào phạm vi với <code>use</code></figcaption>
 </figure>
 <p>Thêm <code>use</code> và một đường dẫn trong một phạm vi tương tự như việc tạo một liên kết biểu tượng (symbolic link) trong
 hệ thống tệp. Bằng cách thêm <code>use crate::front_of_house::hosting</code> vào crate
@@ -343,7 +343,7 @@ fn function2() -&gt; IoResult&lt;()&gt; {
     // --snip--
 <span class="boring">    Ok(())
 </span>}</code></pre>
-<figcaption><a href="#listing-7-16">Listing 7-16</a>: Đổi tên một kiểu khi nó được đưa vào phạm vi bằng từ khóa <code>as</code>平衡</figcaption>
+<figcaption><a href="#listing-7-16">Listing 7-16</a>: Đổi tên một kiểu khi nó được đưa vào phạm vi bằng từ khóa <code>as</code></figcaption>
 </figure>
 <p>Trong câu lệnh <code>use</code> thứ hai, chúng ta đã chọn tên mới <code>IoResult</code> cho
 kiểu <code>std::io::Result</code>, tên này sẽ không xung đột với <code>Result</code> từ <code>std::fmt</code>
@@ -370,7 +370,7 @@ pub use crate::front_of_house::hosting;
 pub fn eat_at_restaurant() {
     hosting::add_to_waitlist();
 }</code></pre>
-<figcaption><a href="#listing-7-17">Listing 7-17</a>: Làm cho một cái tên có sẵn cho bất kỳ mã nguồn nào sử dụng từ một phạm vi mới với <code>pub use</code>平衡</figcaption>
+<figcaption><a href="#listing-7-17">Listing 7-17</a>: Làm cho một cái tên có sẵn cho bất kỳ mã nguồn nào sử dụng từ một phạm vi mới với <code>pub use</code></figcaption>
 </figure>
 <p>Trước thay đổi này, mã nguồn bên ngoài sẽ phải gọi hàm <code>add_to_waitlist</code>
 bằng cách sử dụng đường dẫn
@@ -538,7 +538,7 @@ use std::io::Write;</code></pre>
 <figure class="listing" id="listing-7-20">
 <span class="file-name">Filename: src/lib.rs</span>
 <pre><code class="language-rust noplayground">use std::io::{self, Write};</code></pre>
-<figcaption><a href="#listing-7-20">Listing 7-20</a>: Kết hợp các đường dẫn trong Listing 7-19 vào một câu lệnh <code>use</code>平衡</figcaption>
+<figcaption><a href="#listing-7-20">Listing 7-20</a>: Kết hợp các đường dẫn trong Listing 7-19 vào một câu lệnh <code>use</code></figcaption>
 </figure>
 <p>Dòng này đưa cả <code>std::io</code> và <code>std::io::Write</code> vào phạm vi.</p>
 <h3 id="toán-tử-glob"><a class="header" href="#toán-tử-glob">Toán tử Glob</a></h3>

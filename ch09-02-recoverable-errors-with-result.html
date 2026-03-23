@@ -432,7 +432,7 @@ fn read_username_from_file() -&gt; Result&lt;String, io::Error&gt; {
     }
 }
 <span class="boring">}</span></code></pre></pre>
-<figcaption><a href="#listing-9-6">Listing 9-6</a>: Một hàm trả về lỗi cho mã gọi bằng cách sử dụng <code>match</code>平衡</figcaption>
+<figcaption><a href="#listing-9-6">Listing 9-6</a>: Một hàm trả về lỗi cho mã gọi bằng cách sử dụng <code>match</code></figcaption>
 </figure>
 <p>Hàm này có thể được viết theo cách ngắn hơn nhiều, nhưng chúng ta sẽ bắt đầu bằng
 cách thực hiện thủ công để khám phá việc xử lý lỗi; ở phần cuối,
@@ -500,7 +500,7 @@ fn read_username_from_file() -&gt; Result&lt;String, io::Error&gt; {
     Ok(username)
 }
 <span class="boring">}</span></code></pre></pre>
-<figcaption><a href="#listing-9-7">Listing 9-7</a>: Một hàm trả về lỗi cho mã gọi bằng cách sử dụng toán tử <code>?</code>平衡</figcaption>
+<figcaption><a href="#listing-9-7">Listing 9-7</a>: Một hàm trả về lỗi cho mã gọi bằng cách sử dụng toán tử <code>?</code></figcaption>
 </figure>
 <p>Dấu <code>?</code> đặt sau một giá trị <code>Result</code> được định nghĩa để hoạt động gần như cùng cách
 với các biểu thức <code>match</code> mà chúng ta đã định nghĩa để xử lý các giá trị <code>Result</code> trong Listing
@@ -549,7 +549,7 @@ fn read_username_from_file() -&gt; Result&lt;String, io::Error&gt; {
     Ok(username)
 }
 <span class="boring">}</span></code></pre></pre>
-<figcaption><a href="#listing-9-8">Listing 9-8</a>: Chuỗi các lời gọi phương thức sau toán tử <code>?</code>平衡</figcaption>
+<figcaption><a href="#listing-9-8">Listing 9-8</a>: Chuỗi các lời gọi phương thức sau toán tử <code>?</code></figcaption>
 </figure>
 <p>Chúng ta đã di chuyển việc tạo <code>String</code> mới trong <code>username</code> lên đầu
 hàm; phần đó không thay đổi. Thay vì tạo một biến
@@ -656,7 +656,7 @@ của biểu thức, và hàm tiếp tục. Listing 9-11 có một ví dụ về
 </span><span class="boring">    assert_eq!(last_char_of_first_line(""), None);
 </span><span class="boring">    assert_eq!(last_char_of_first_line("\nhi"), None);
 </span><span class="boring">}</span></code></pre></pre>
-<figcaption><a href="#listing-9-11">Listing 9-11</a>: Sử dụng toán tử <code>?</code> trên một giá trị <code>Option&lt;T&gt;</code>平衡</figcaption>
+<figcaption><a href="#listing-9-11">Listing 9-11</a>: Sử dụng toán tử <code>?</code> trên một giá trị <code>Option&lt;T&gt;</code></figcaption>
 </figure>
 <p>Hàm này trả về <code>Option&lt;char&gt;</code> vì có khả năng là có một
 ký tự ở đó, nhưng cũng có khả năng là không có. Mã này lấy đối số lát cắt chuỗi

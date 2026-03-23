@@ -274,7 +274,7 @@ như được hiển thị trong Listing 8-15.</p>
 </span>    let mut s = String::from("foo");
     s.push_str("bar");
 <span class="boring">}</span></code></pre></pre>
-<figcaption><a href="#listing-8-15">Listing 8-15</a>: Thêm một lát cắt chuỗi vào một <code>String</code> bằng phương thức <code>push_str</code>平衡</figcaption>
+<figcaption><a href="#listing-8-15">Listing 8-15</a>: Thêm một lát cắt chuỗi vào một <code>String</code> bằng phương thức <code>push_str</code></figcaption>
 </figure>
 <p>Sau hai dòng này, <code>s</code> sẽ chứa <code>foobar</code>. Phương thức <code>push_str</code> nhận vào một
 lát cắt chuỗi vì chúng ta không nhất thiết muốn lấy quyền sở hữu của
@@ -287,7 +287,7 @@ tham số đó. Ví dụ, trong đoạn mã ở Listing 8-16, chúng ta muốn c
     s1.push_str(s2);
     println!("s2 is {s2}");
 <span class="boring">}</span></code></pre></pre>
-<figcaption><a href="#listing-8-16">Listing 8-16</a>: Sử dụng một lát cắt chuỗi sau khi thêm nội dung của nó vào một <code>String</code>平衡</figcaption>
+<figcaption><a href="#listing-8-16">Listing 8-16</a>: Sử dụng một lát cắt chuỗi sau khi thêm nội dung của nó vào một <code>String</code></figcaption>
 </figure>
 <p>Nếu phương thức <code>push_str</code> lấy quyền sở hữu của <code>s2</code>, chúng ta sẽ không thể in
 giá trị của nó ở dòng cuối cùng. Tuy nhiên, đoạn mã này hoạt động như chúng ta mong đợi!</p>
@@ -298,7 +298,7 @@ giá trị của nó ở dòng cuối cùng. Tuy nhiên, đoạn mã này hoạt
 </span>    let mut s = String::from("lo");
     s.push('l');
 <span class="boring">}</span></code></pre></pre>
-<figcaption><a href="#listing-8-17">Listing 8-17</a>: Thêm một ký tự vào một giá trị <code>String</code> bằng cách sử dụng <code>push</code>平衡</figcaption>
+<figcaption><a href="#listing-8-17">Listing 8-17</a>: Thêm một ký tự vào một giá trị <code>String</code> bằng cách sử dụng <code>push</code></figcaption>
 </figure>
 <p>Kết quả là, <code>s</code> sẽ chứa <code>lol</code>.</p>
 <h4 id="nối-chuỗi-với-toán-tử--hoặc-macro-format"><a class="header" href="#nối-chuỗi-với-toán-tử--hoặc-macro-format">Nối chuỗi với Toán tử <code>+</code> hoặc Macro <code>format!</code></a></h4>
