@@ -1,33 +1,33 @@
-# Writing Automated Tests
+# Viết các Bài kiểm tra Tự động
 
-In his 1972 essay “The Humble Programmer,” Edsger W. Dijkstra said that “program
-testing can be a very effective way to show the presence of bugs, but it is
-hopelessly inadequate for showing their absence.” That doesn’t mean we shouldn’t
-try to test as much as we can!
+Trong bài tiểu luận năm 1972 “The Humble Programmer,” Edsger W. Dijkstra đã nói rằng “kiểm thử chương trình
+có thể là một cách rất hiệu quả để chỉ ra sự hiện diện của lỗi, nhưng nó
+hoàn toàn không đủ để chỉ ra sự vắng mặt của chúng.” Điều đó không có nghĩa là chúng ta không nên
+cố gắng kiểm thử nhiều nhất có thể!
 
-Correctness in our programs is the extent to which our code does what we intend
-it to do. Rust is designed with a high degree of concern about the correctness
-of programs, but correctness is complex and not easy to prove. Rust’s type
-system shoulders a huge part of this burden, but the type system cannot catch
-everything. As such, Rust includes support for writing automated software tests.
+Tính đúng đắn trong các chương trình của chúng ta là mức độ mà mã của chúng ta thực hiện những gì chúng ta muốn
+nó làm. Rust được thiết kế với mức độ quan tâm cao về tính đúng đắn
+của các chương trình, nhưng tính đúng đắn rất phức tạp và không dễ chứng minh. Hệ thống type của Rust
+gánh vác một phần lớn gánh nặng này, nhưng hệ thống type không thể bắt được
+mọi thứ. Do đó, Rust bao gồm hỗ trợ viết các bài kiểm tra phần mềm tự động.
 
-Say we write a function `add_two` that adds 2 to whatever number is passed to
-it. This function’s signature accepts an integer as a parameter and returns an
-integer as a result. When we implement and compile that function, Rust does all
-the type checking and borrow checking that you’ve learned so far to ensure
-that, for instance, we aren’t passing a `String` value or an invalid reference
-to this function. But Rust _can’t_ check that this function will do precisely
-what we intend, which is return the parameter plus 2 rather than, say, the
-parameter plus 10 or the parameter minus 50! That’s where tests come in.
+Giả sử chúng ta viết một hàm `add_two` để cộng 2 vào bất kỳ số nào được truyền cho
+nó. Chữ ký của hàm này chấp nhận một số nguyên làm tham số và trả về một
+số nguyên làm kết quả. Khi chúng ta triển khai và biên dịch hàm đó, Rust thực hiện tất cả
+việc kiểm tra type và borrow checking mà bạn đã học cho đến nay để đảm bảo
+rằng, ví dụ, chúng ta không truyền một giá trị `String` hoặc một reference không hợp lệ
+cho hàm này. Nhưng Rust _không thể_ kiểm tra rằng hàm này sẽ làm chính xác
+những gì chúng ta muốn, đó là trả về tham số cộng 2 thay vì, chẳng hạn,
+tham số cộng 10 hoặc tham số trừ 50! Đó là lúc các bài kiểm tra phát huy tác dụng.
 
-We can write tests that assert, for example, that when we pass `3` to the
-`add_two` function, the returned value is `5`. We can run these tests whenever
-we make changes to our code to make sure any existing correct behavior has not
-changed.
+Chúng ta có thể viết các bài kiểm tra khẳng định, ví dụ, rằng khi chúng ta truyền `3` cho
+hàm `add_two`, giá trị trả về là `5`. Chúng ta có thể chạy các bài kiểm tra này bất cứ khi nào
+chúng ta thực hiện thay đổi đối với mã của mình để đảm bảo bất kỳ hành vi đúng đắn hiện có nào
+chưa thay đổi.
 
-Testing is a complex skill: although we can’t cover in one chapter every detail
-about how to write good tests, in this chapter we will discuss the mechanics of
-Rust’s testing facilities. We’ll talk about the annotations and macros
-available to you when writing your tests, the default behavior and options
-provided for running your tests, and how to organize tests into unit tests and
+Kiểm thử là một kỹ năng phức tạp: mặc dù chúng ta không thể trình bày trong một chương mọi chi tiết
+về cách viết các bài kiểm tra tốt, trong chương này chúng ta sẽ thảo luận về cơ chế
+của các tiện ích kiểm thử của Rust. Chúng ta sẽ nói về các annotation và macro
+có sẵn cho bạn khi viết các bài kiểm tra của mình, hành vi mặc định và các tùy chọn
+được cung cấp để chạy các bài kiểm tra của bạn, và cách tổ chức các bài kiểm tra thành unit tests và
 integration tests.

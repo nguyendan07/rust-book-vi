@@ -1,38 +1,39 @@
-## How to Write Tests
+## Cách Viết Các Bài Kiểm Thử (Test)
 
-Tests are Rust functions that verify that the non-test code is functioning in
-the expected manner. The bodies of test functions typically perform these three
-actions:
+Các bài kiểm thử là các hàm Rust dùng để xác minh rằng mã nguồn đang hoạt động theo
+cách mong đợi. Thân của các hàm thường được thực hiện với ba
+hành động sau:
 
-- Set up any needed data or state.
-- Run the code you want to test.
-- Assert that the results are what you expect.
+- Thiết lập bất kỳ dữ liệu hoặc trạng thái cần thiết nào.
+- Chạy mã bạn muốn kiểm thử.
+- Khẳng định (Assert) rằng kết quả đúng như những gì bạn mong đợi.
 
-Let’s look at the features Rust provides specifically for writing tests that
-take these actions, which include the `test` attribute, a few macros, and the
-`should_panic` attribute.
+Hãy cùng xem các tính năng mà Rust cung cấp đặc biệt cho việc viết test để
+thực hiện các hành động này, bao gồm thuộc tính (attribute) `test`, một vài macro, và
+thuộc tính `should_panic`.
 
-### The Anatomy of a Test Function
+### Giải phẫu một hàm Test
 
-At its simplest, a test in Rust is a function that’s annotated with the `test`
-attribute. Attributes are metadata about pieces of Rust code; one example is
-the `derive` attribute we used with structs in Chapter 5. To change a function
-into a test function, add `#[test]` on the line before `fn`. When you run your
-tests with the `cargo test` command, Rust builds a test runner binary that runs
-the annotated functions and reports on whether each test function passes or
-fails.
+Ở mức đơn giản nhất, một test trong Rust là một hàm được đánh dấu bằng thuộc tính
+`test`. Các thuộc tính là siêu dữ liệu (metadata) về các đoạn mã Rust; một ví dụ là
+thuộc tính `derive` mà chúng ta đã sử dụng với các struct trong Chương 5. Để chuyển một hàm
+thành một hàm test, hãy thêm `#[test]` vào dòng trước `fn`. Khi bạn chạy các
+test của mình bằng lệnh `cargo test`, Rust sẽ xây dựng một bản thực thi test runner
+để chạy các hàm được đánh dấu và báo cáo về việc mỗi hàm test
+vượt qua hay thất bại.
 
-Whenever we make a new library project with Cargo, a test module with a test
-function in it is automatically generated for us. This module gives you a
-template for writing your tests so you don’t have to look up the exact
-structure and syntax every time you start a new project. You can add as many
-additional test functions and as many test modules as you want!
+Bất cứ khi nào chúng ta tạo một dự án thư viện mới với Cargo, một module test với một hàm
+test bên trong sẽ được tự động tạo cho chúng ta. Module này cung cấp cho bạn một
+mẫu để viết các test để bạn không phải tra cứu cấu trúc và
+cú pháp chính xác mỗi khi bắt đầu một dự án mới. Bạn có thể thêm bao nhiêu
+hàm test bổ sung và bao nhiêu module test tùy thích!
 
-We’ll explore some aspects of how tests work by experimenting with the template
-test before we actually test any code. Then we’ll write some real-world tests
-that call some code that we’ve written and assert that its behavior is correct.
+Chúng ta sẽ khám phá một số khía cạnh về cách các test hoạt động bằng cách thử nghiệm với
+test mẫu trước khi chúng ta thực sự test bất kỳ mã nào. Sau đó chúng ta sẽ viết một số
+test thực tế gọi một số mã mà chúng ta đã viết và khẳng định rằng
+hành vi của nó là chính xác.
 
-Let’s create a new library project called `adder` that will add two numbers:
+Hãy tạo một dự án thư viện mới tên là `adder` để cộng hai số:
 
 ```console
 $ cargo new adder --lib
@@ -40,10 +41,10 @@ $ cargo new adder --lib
 $ cd adder
 ```
 
-The contents of the _src/lib.rs_ file in your `adder` library should look like
-Listing 11-1.
+Nội dung của tệp _src/lib.rs_ trong thư viện `adder` của bạn sẽ trông giống như
+Liệt kê 11-1.
 
-<Listing number="11-1" file-name="src/lib.rs" caption="The code generated automatically by `cargo new`">
+<Listing number="11-1" file-name="src/lib.rs" caption="Mã được tạo tự động bởi `cargo new` house">
 
 <!-- manual-regeneration
 cd listings/ch11-writing-automated-tests
@@ -62,24 +63,24 @@ cd ../../..
 
 </Listing>
 
-The file starts with an example `add` function, so that we have something
-to test.
+Tệp bắt đầu với một hàm `add` ví dụ, để chúng ta có cái gì đó
+để test.
 
-For now, let’s focus solely on the `it_works` function. Note the `#[test]`
-annotation: this attribute indicates this is a test function, so the test
-runner knows to treat this function as a test. We might also have non-test
-functions in the `tests` module to help set up common scenarios or perform
-common operations, so we always need to indicate which functions are tests.
+Hiện tại, hãy chỉ tập trung vào hàm `it_works`. Lưu ý chú thích `#[test]`
+: thuộc tính này chỉ ra đây là một hàm test, vì vậy test
+runner biết để xử lý hàm này như một test. Chúng ta cũng có thể có các hàm không phải
+test trong module `tests` để giúp thiết lập các kịch bản chung hoặc thực hiện các
+thao tác chung, vì vậy chúng ta luôn cần chỉ định hàm nào là test.
 
-The example function body uses the `assert_eq!` macro to assert that `result`,
-which contains the result of calling `add` with 2 and 2, equals 4. This
-assertion serves as an example of the format for a typical test. Let’s run it
-to see that this test passes.
+Thân hàm ví dụ sử dụng macro `assert_eq!` để khẳng định rằng `result`,
+cái chứa kết quả của việc gọi `add` với 2 và 2, bằng 4. Khẳng định
+này đóng vai trò như một ví dụ về định dạng cho một test điển hình. Hãy chạy nó
+để thấy rằng test này vượt qua.
 
-The `cargo test` command runs all tests in our project, as shown in Listing
+Lệnh `cargo test` chạy tất cả các test trong dự án của chúng ta, như được hiển thị trong Liệt kê
 11-2.
 
-<Listing number="11-2" caption="The output from running the automatically generated test">
+<Listing number="11-2" caption="Đầu ra từ việc chạy test được tạo tự động">
 
 ```console
 {{#include ../listings/ch11-writing-automated-tests/listing-11-01/output.txt}}
@@ -87,41 +88,41 @@ The `cargo test` command runs all tests in our project, as shown in Listing
 
 </Listing>
 
-Cargo compiled and ran the test. We see the line `running 1 test`. The next
-line shows the name of the generated test function, called `tests::it_works`,
-and that the result of running that test is `ok`. The overall summary `test
-result: ok.` means that all the tests passed, and the portion that reads `1
-passed; 0 failed` totals the number of tests that passed or failed.
+Cargo đã biên dịch và chạy test. Chúng ta thấy dòng `running 1 test`. Dòng tiếp
+theo hiển thị tên của hàm test được tạo, gọi là `tests::it_works`,
+và kết quả của việc chạy test đó là `ok`. Tóm tắt tổng thể `test
+result: ok.` có nghĩa là tất cả các test đã vượt qua, và phần ghi `1
+passed; 0 failed` tổng hợp số lượng test đã vượt qua hoặc thất bại.
 
-It’s possible to mark a test as ignored so it doesn’t run in a particular
-instance; we’ll cover that in the [“Ignoring Some Tests Unless Specifically
-Requested”][ignoring]<!-- ignore --> section later in this chapter. Because we
-haven’t done that here, the summary shows `0 ignored`. We can also pass an
-argument to the `cargo test` command to run only tests whose name matches a
-string; this is called _filtering_ and we’ll cover that in the [“Running a
-Subset of Tests by Name”][subset]<!-- ignore --> section. Here we haven’t
-filtered the tests being run, so the end of the summary shows `0 filtered out`.
+Có thể đánh dấu một test là bị bỏ qua (ignored) để nó không chạy trong một
+trường hợp cụ thể; chúng ta sẽ đề cập đến điều đó trong phần [“Bỏ qua một số test trừ khi được
+yêu cầu cụ thể”][ignoring]<!-- ignore --> sau này trong chương này. Bởi vì chúng ta
+chưa làm điều đó ở đây, bản tóm tắt hiển thị `0 ignored`. Chúng ta cũng có thể truyền một
+đối số cho lệnh `cargo test` để chỉ chạy các test có tên khớp với một
+chuỗi; điều này được gọi là _lọc_ (filtering) và chúng ta sẽ đề cập đến điều đó trong phần [“Chạy một
+tập hợp con các test theo tên”][subset]<!-- ignore -->. Ở đây chúng ta chưa lọc các
+test đang chạy, vì vậy phần cuối của bản tóm tắt hiển thị `0 filtered out`.
 
-The `0 measured` statistic is for benchmark tests that measure performance.
-Benchmark tests are, as of this writing, only available in nightly Rust. See
-[the documentation about benchmark tests][bench] to learn more.
+Thống kê `0 measured` dành cho các bài test hiệu năng (benchmark tests) dùng để đo lường hiệu suất.
+Các bài test benchmark, tại thời điểm viết bài này, chỉ có sẵn trong Rust nightly. Xem
+[tài liệu về benchmark tests][bench] để tìm hiểu thêm.
 
-We can pass an argument to the `cargo test` command to run only tests whose
-name matches a string; this is called *filtering* and we’ll cover that in the
-[“Running a Subset of Tests by Name”][subset]<!-- ignore --> section. Here we
-haven’t filtered the tests being run, so the end of the summary shows `0
+Chúng ta có thể truyền một đối số cho lệnh `cargo test` để chỉ chạy các test có
+tên khớp với một chuỗi; điều này được gọi là _lọc_ và chúng ta sẽ đề cập đến điều đó trong
+phần [“Chạy một tập hợp con các test theo tên”][subset]<!-- ignore -->. Ở đây chúng
+ta không lọc các test đang chạy, vì vậy phần cuối của bản tóm tắt hiển thị `0
 filtered out`.
 
-The next part of the test output starting at `Doc-tests adder` is for the
-results of any documentation tests. We don’t have any documentation tests yet,
-but Rust can compile any code examples that appear in our API documentation.
-This feature helps keep your docs and your code in sync! We’ll discuss how to
-write documentation tests in the [“Documentation Comments as
-Tests”][doc-comments]<!-- ignore --> section of Chapter 14. For now, we’ll
-ignore the `Doc-tests` output.
+Phần tiếp theo của đầu ra test bắt đầu bằng `Doc-tests adder` là dành cho
+kết quả của bất kỳ test tài liệu (documentation tests) nào. Chúng ta chưa có bất kỳ test tài liệu nào,
+nhưng Rust có thể biên dịch bất kỳ ví dụ mã nào xuất hiện trong tài liệu API của chúng ta.
+Tính năng này giúp giữ cho tài liệu và mã của bạn luôn đồng bộ! Chúng ta sẽ thảo luận về cách
+viết test tài liệu trong phần [“Các bình luận tài liệu dưới dạng
+Test”][doc-comments]<!-- ignore --> của Chương 14. Hiện tại, chúng ta sẽ
+bỏ qua đầu ra `Doc-tests`.
 
-Let’s start to customize the test to our own needs. First, change the name of
-the `it_works` function to a different name, such as `exploration`, like so:
+Hãy bắt đầu tùy chỉnh test theo nhu cầu của chúng ta. Đầu tiên, hãy đổi tên của
+hàm `it_works` thành một tên khác, chẳng hạn như `exploration`, như sau:
 
 <span class="filename">Filename: src/lib.rs</span>
 
@@ -129,21 +130,21 @@ the `it_works` function to a different name, such as `exploration`, like so:
 {{#rustdoc_include ../listings/ch11-writing-automated-tests/no-listing-01-changing-test-name/src/lib.rs}}
 ```
 
-Then run `cargo test` again. The output now shows `exploration` instead of
+Sau đó chạy lại `cargo test`. Đầu ra bây giờ hiển thị `exploration` thay vì
 `it_works`:
 
 ```console
 {{#include ../listings/ch11-writing-automated-tests/no-listing-01-changing-test-name/output.txt}}
 ```
 
-Now we’ll add another test, but this time we’ll make a test that fails! Tests
-fail when something in the test function panics. Each test is run in a new
-thread, and when the main thread sees that a test thread has died, the test is
-marked as failed. In Chapter 9, we talked about how the simplest way to panic
-is to call the `panic!` macro. Enter the new test as a function named
-`another`, so your _src/lib.rs_ file looks like Listing 11-3.
+Bây giờ chúng ta sẽ thêm một test khác, nhưng lần này chúng ta sẽ tạo một test bị thất bại! Các
+test thất bại khi một cái gì đó trong hàm test gây ra panic. Mỗi test được chạy trong một
+luồng mới, và khi luồng chính thấy rằng một luồng test đã chết,
+test đó được đánh dấu là thất bại. Trong Chương 9, chúng ta đã nói về cách đơn giản nhất để gây ra
+panic là gọi macro `panic!`. Nhập test mới dưới dạng một hàm tên là
+`another`, để tệp _src/lib.rs_ của bạn trông giống như Liệt kê 11-3.
 
-<Listing number="11-3" file-name="src/lib.rs" caption="Adding a second test that will fail because we call the `panic!` macro">
+<Listing number="11-3" file-name="src/lib.rs" caption="Thêm một test thứ hai sẽ thất bại vì chúng ta gọi macro `panic!`">
 
 ```rust,panics,noplayground
 {{#rustdoc_include ../listings/ch11-writing-automated-tests/listing-11-03/src/lib.rs}}
@@ -151,10 +152,10 @@ is to call the `panic!` macro. Enter the new test as a function named
 
 </Listing>
 
-Run the tests again using `cargo test`. The output should look like Listing
-11-4, which shows that our `exploration` test passed and `another` failed.
+Chạy lại các test bằng `cargo test`. Đầu ra sẽ trông giống như Liệt kê 11-4,
+cho thấy rằng test `exploration` của chúng ta đã vượt qua và `another` đã thất bại.
 
-<Listing number="11-4" caption="Test results when one test passes and one test fails">
+<Listing number="11-4" caption="Kết quả test khi một test vượt qua và một test thất bại">
 
 ```console
 {{#include ../listings/ch11-writing-automated-tests/listing-11-03/output.txt}}
@@ -167,37 +168,37 @@ rg panicked listings/ch11-writing-automated-tests/listing-11-03/output.txt
 check the line number of the panic matches the line number in the following paragraph
  -->
 
-Instead of `ok`, the line `test tests::another` shows `FAILED`. Two new
-sections appear between the individual results and the summary: the first
-displays the detailed reason for each test failure. In this case, we get the
-details that `another` failed because it `panicked at 'Make this test fail'` on
-line 17 in the _src/lib.rs_ file. The next section lists just the names of all
-the failing tests, which is useful when there are lots of tests and lots of
-detailed failing test output. We can use the name of a failing test to run just
-that test to more easily debug it; we’ll talk more about ways to run tests in
-the [“Controlling How Tests Are Run”][controlling-how-tests-are-run]<!-- ignore
---> section.
+Thay vì `ok`, dòng `test tests::another` hiển thị `FAILED`. Hai
+phần mới xuất hiện giữa các kết quả riêng lẻ và bản tóm tắt: phần đầu tiên
+hiển thị lý do chi tiết cho mỗi lần thất bại của test. Trong trường hợp này, chúng ta nhận được
+thông tin chi tiết rằng `another` thất bại vì nó `panicked at 'Make this test fail'` trên
+dòng 17 trong tệp _src/lib.rs_. Phần tiếp theo liệt kê chỉ tên của tất cả
+các test bị thất bại, điều này hữu ích khi có nhiều test và nhiều đầu ra
+test thất bại chi tiết. Chúng ta có thể sử dụng tên của một test bị thất bại để chạy chỉ
+test đó nhằm debug nó dễ dàng hơn; chúng ta sẽ nói nhiều hơn về các cách chạy test trong
+phần [“Kiểm soát cách chạy các Test”][controlling-how-tests-are-run]<!-- ignore
+-->.
 
-The summary line displays at the end: overall, our test result is `FAILED`. We
-had one test pass and one test fail.
+Dòng tóm tắt hiển thị ở cuối: nhìn chung, kết quả test của chúng ta là `FAILED`. Chúng
+ta đã có một test vượt qua và một test thất bại.
 
-Now that you’ve seen what the test results look like in different scenarios,
-let’s look at some macros other than `panic!` that are useful in tests.
+Bây giờ bạn đã thấy kết quả test trông như thế nào trong các tình huống khác nhau,
+hãy cùng xem một số macro khác ngoài `panic!` hữu ích trong các test.
 
-### Checking Results with the `assert!` Macro
+### Kiểm tra kết quả với Macro `assert!`
 
-The `assert!` macro, provided by the standard library, is useful when you want
-to ensure that some condition in a test evaluates to `true`. We give the
-`assert!` macro an argument that evaluates to a Boolean. If the value is
-`true`, nothing happens and the test passes. If the value is `false`, the
-`assert!` macro calls `panic!` to cause the test to fail. Using the `assert!`
-macro helps us check that our code is functioning in the way we intend.
+Macro `assert!`, được cung cấp bởi thư viện chuẩn, hữu ích khi bạn muốn
+đảm bảo rằng một điều kiện nào đó trong một test được đánh giá là `true`. Chúng ta đưa cho
+macro `assert!` một đối số được đánh giá thành một giá trị Boolean. Nếu giá trị là
+`true`, không có gì xảy ra và test vượt qua. Nếu giá trị là `false`, macro
+`assert!` gọi `panic!` để làm cho test thất bại. Sử dụng macro `assert!`
+giúp chúng ta kiểm tra xem mã của mình có hoạt động theo cách chúng ta dự định hay không.
 
-In Chapter 5, Listing 5-15, we used a `Rectangle` struct and a `can_hold`
-method, which are repeated here in Listing 11-5. Let’s put this code in the
-_src/lib.rs_ file, then write some tests for it using the `assert!` macro.
+Trong Chương 5, Liệt kê 5-15, chúng ta đã sử dụng một struct `Rectangle` và một phương thức
+`can_hold`, chúng được lặp lại ở đây trong Liệt kê 11-5. Hãy đặt mã này vào
+tệp _src/lib.rs_, sau đó viết một số test cho nó bằng macro `assert!`.
 
-<Listing number="11-5" file-name="src/lib.rs" caption="The `Rectangle` struct and its `can_hold` method from Chapter 5">
+<Listing number="11-5" file-name="src/lib.rs" caption="Struct `Rectangle` và phương thức `can_hold` của nó từ Chương 5">
 
 ```rust,noplayground
 {{#rustdoc_include ../listings/ch11-writing-automated-tests/listing-11-05/src/lib.rs}}
@@ -205,13 +206,13 @@ _src/lib.rs_ file, then write some tests for it using the `assert!` macro.
 
 </Listing>
 
-The `can_hold` method returns a Boolean, which means it’s a perfect use case
-for the `assert!` macro. In Listing 11-6, we write a test that exercises the
-`can_hold` method by creating a `Rectangle` instance that has a width of 8 and
-a height of 7 and asserting that it can hold another `Rectangle` instance that
-has a width of 5 and a height of 1.
+Phương thức `can_hold` trả về một giá trị Boolean, điều này có nghĩa là nó là một trường hợp sử dụng hoàn hảo
+cho macro `assert!`. Trong Liệt kê 11-6, chúng ta viết một test thực thi phương thức
+`can_hold` bằng cách tạo một instance `Rectangle` có chiều rộng là 8 và
+chiều cao là 7 và khẳng định rằng nó có thể chứa một instance `Rectangle` khác
+có chiều rộng là 5 và chiều cao là 1.
 
-<Listing number="11-6" file-name="src/lib.rs" caption="A test for `can_hold` that checks whether a larger rectangle can indeed hold a smaller rectangle">
+<Listing number="11-6" file-name="src/lib.rs" caption="Một test cho `can_hold` kiểm tra xem một hình chữ nhật lớn hơn có thực sự có thể chứa một hình chữ nhật nhỏ hơn hay không">
 
 ```rust,noplayground
 {{#rustdoc_include ../listings/ch11-writing-automated-tests/listing-11-06/src/lib.rs:here}}
@@ -219,26 +220,26 @@ has a width of 5 and a height of 1.
 
 </Listing>
 
-Note the `use super::*;` line inside the `tests` module. The `tests` module is
-a regular module that follows the usual visibility rules we covered in Chapter
-7 in the [“Paths for Referring to an Item in the Module
-Tree”][paths-for-referring-to-an-item-in-the-module-tree]<!-- ignore -->
-section. Because the `tests` module is an inner module, we need to bring the
-code under test in the outer module into the scope of the inner module. We use
-a glob here, so anything we define in the outer module is available to this
-`tests` module.
+Lưu ý dòng `use super::*;` bên trong module `tests`. Module `tests` là
+một module thông thường tuân theo các quy tắc hiển thị thông thường mà chúng ta đã đề cập trong Chương
+7 trong phần [“Đường dẫn để tham chiếu đến một Item trong
+cây Module”][paths-for-referring-to-an-item-in-the-module-tree]<!-- ignore -->.
+Bởi vì module `tests` là một module con, chúng ta cần đưa
+mã đang được test trong module cha vào phạm vi của module con. Chúng ta sử dụng
+một glob ở đây, vì vậy bất cứ thứ gì chúng ta định nghĩa trong module cha đều có sẵn cho
+module `tests` này.
 
-We’ve named our test `larger_can_hold_smaller`, and we’ve created the two
-`Rectangle` instances that we need. Then we called the `assert!` macro and
-passed it the result of calling `larger.can_hold(&smaller)`. This expression is
-supposed to return `true`, so our test should pass. Let’s find out!
+Chúng ta đã đặt tên cho test là `larger_can_hold_smaller`, và chúng ta đã tạo hai
+instance `Rectangle` mà chúng ta cần. Sau đó chúng ta gọi macro `assert!` và
+truyền cho nó kết quả của việc gọi `larger.can_hold(&smaller)`. Biểu thức này
+được cho là sẽ trả về `true`, vì vậy test của chúng ta sẽ vượt qua. Hãy cùng tìm hiểu!
 
 ```console
 {{#include ../listings/ch11-writing-automated-tests/listing-11-06/output.txt}}
 ```
 
-It does pass! Let’s add another test, this time asserting that a smaller
-rectangle cannot hold a larger rectangle:
+Nó thực sự vượt qua! Hãy thêm một test khác, lần này khẳng định rằng một
+hình chữ nhật nhỏ hơn không thể chứa một hình chữ nhật lớn hơn:
 
 <span class="filename">Filename: src/lib.rs</span>
 
@@ -246,50 +247,50 @@ rectangle cannot hold a larger rectangle:
 {{#rustdoc_include ../listings/ch11-writing-automated-tests/no-listing-02-adding-another-rectangle-test/src/lib.rs:here}}
 ```
 
-Because the correct result of the `can_hold` function in this case is `false`,
-we need to negate that result before we pass it to the `assert!` macro. As a
-result, our test will pass if `can_hold` returns `false`:
+Bởi vì kết quả đúng của hàm `can_hold` trong trường hợp này là `false`,
+chúng ta cần phủ định kết quả đó trước khi truyền nó vào macro `assert!`. Kết
+quả là, test của chúng ta sẽ vượt qua nếu `can_hold` trả về `false`:
 
 ```console
 {{#include ../listings/ch11-writing-automated-tests/no-listing-02-adding-another-rectangle-test/output.txt}}
 ```
 
-Two tests that pass! Now let’s see what happens to our test results when we
-introduce a bug in our code. We’ll change the implementation of the `can_hold`
-method by replacing the greater-than sign with a less-than sign when it
-compares the widths:
+Hai test đã vượt qua! Bây giờ hãy xem điều gì xảy ra với kết quả test của chúng ta khi chúng ta
+đưa một lỗi vào mã nguồn. Chúng ta sẽ thay đổi việc triển khai phương thức `can_hold`
+bằng cách thay thế dấu lớn hơn bằng dấu nhỏ hơn khi nó
+so sánh các chiều rộng:
 
 ```rust,not_desired_behavior,noplayground
 {{#rustdoc_include ../listings/ch11-writing-automated-tests/no-listing-03-introducing-a-bug/src/lib.rs:here}}
 ```
 
-Running the tests now produces the following:
+Chạy các test bây giờ sẽ tạo ra kết quả sau:
 
 ```console
 {{#include ../listings/ch11-writing-automated-tests/no-listing-03-introducing-a-bug/output.txt}}
 ```
 
-Our tests caught the bug! Because `larger.width` is `8` and `smaller.width` is
-`5`, the comparison of the widths in `can_hold` now returns `false`: 8 is not
-less than 5.
+Các test của chúng ta đã bắt được lỗi! Bởi vì `larger.width` là `8` và `smaller.width` là
+`5`, việc so sánh các chiều rộng trong `can_hold` bây giờ trả về `false`: 8 không
+nhỏ hơn 5.
 
-### Testing Equality with the `assert_eq!` and `assert_ne!` Macros
+### Kiểm tra sự bằng nhau với các Macro `assert_eq!` và `assert_ne!`
 
-A common way to verify functionality is to test for equality between the result
-of the code under test and the value you expect the code to return. You could
-do this by using the `assert!` macro and passing it an expression using the
-`==` operator. However, this is such a common test that the standard library
-provides a pair of macros—`assert_eq!` and `assert_ne!`—to perform this test
-more conveniently. These macros compare two arguments for equality or
-inequality, respectively. They’ll also print the two values if the assertion
-fails, which makes it easier to see _why_ the test failed; conversely, the
-`assert!` macro only indicates that it got a `false` value for the `==`
-expression, without printing the values that led to the `false` value.
+Một cách phổ biến để xác minh chức năng là kiểm tra sự bằng nhau giữa kết quả
+của mã đang được test và giá trị bạn mong đợi mã đó trả về. Bạn có thể
+làm điều này bằng cách sử dụng macro `assert!` và truyền cho nó một biểu thức sử dụng
+toán tử `==`. Tuy nhiên, đây là một kiểu test phổ biến đến mức thư viện chuẩn
+cung cấp một cặp macro—`assert_eq!` và `assert_ne!`—để thực hiện việc kiểm tra
+này thuận tiện hơn. Các macro này so sánh hai đối số để xem chúng bằng nhau hoặc
+không bằng nhau, tương ứng. Chúng cũng sẽ in hai giá trị nếu khẳng định
+thất bại, điều này giúp dễ dàng thấy _tại sao_ test thất bại; ngược lại,
+macro `assert!` chỉ chỉ ra rằng nó nhận được giá trị `false` cho
+biểu thức `==`, mà không in các giá trị dẫn đến giá trị `false`.
 
-In Listing 11-7, we write a function named `add_two` that adds `2` to its
-parameter, then we test this function using the `assert_eq!` macro.
+Trong Liệt kê 11-7, chúng ta viết một hàm tên là `add_two` cộng
+`2` vào tham số của nó, sau đó chúng ta test hàm này bằng macro `assert_eq!`.
 
-<Listing number="11-7" file-name="src/lib.rs" caption="Testing the function `add_two` using the `assert_eq!` macro">
+<Listing number="11-7" file-name="src/lib.rs" caption="Test hàm `add_two` bằng macro `assert_eq!`">
 
 ```rust,noplayground
 {{#rustdoc_include ../listings/ch11-writing-automated-tests/listing-11-07/src/lib.rs}}
@@ -297,142 +298,143 @@ parameter, then we test this function using the `assert_eq!` macro.
 
 </Listing>
 
-Let’s check that it passes!
+Hãy kiểm tra xem nó có vượt qua không!
 
 ```console
 {{#include ../listings/ch11-writing-automated-tests/listing-11-07/output.txt}}
 ```
 
-We create a variable named `result` that holds the result of calling
-`add_two(2)`. Then we pass `result` and `4` as the arguments to `assert_eq!`.
-The output line for this test is `test tests::it_adds_two ... ok`, and the `ok`
-text indicates that our test passed!
+Chúng ta tạo một biến tên là `result` chứa kết quả của việc gọi
+`add_two(2)`. Sau đó chúng ta truyền `result` và `4` làm các đối số cho `assert_eq!`.
+Dòng đầu ra cho test này là `test tests::it_adds_two ... ok`, và văn bản `ok`
+cho biết rằng test của chúng ta đã vượt qua!
 
-Let’s introduce a bug into our code to see what `assert_eq!` looks like when it
-fails. Change the implementation of the `add_two` function to instead add `3`:
+Hãy đưa một lỗi vào mã của chúng ta để xem `assert_eq!` trông như thế nào khi nó
+thất bại. Thay đổi việc triển khai hàm `add_two` để thay vào đó cộng thêm `3`:
 
 ```rust,not_desired_behavior,noplayground
 {{#rustdoc_include ../listings/ch11-writing-automated-tests/no-listing-04-bug-in-add-two/src/lib.rs:here}}
 ```
 
-Run the tests again:
+Chạy lại các test:
 
 ```console
 {{#include ../listings/ch11-writing-automated-tests/no-listing-04-bug-in-add-two/output.txt}}
 ```
 
-Our test caught the bug! The `it_adds_two` test failed, and the message tells us
-that the assertion that failed was ``assertion `left == right` failed`` and what
-the `left` and `right` values are. This message helps us start debugging: the
-`left` argument, where we had the result of calling `add_two(2)`, was `5` but
-the `right` argument was `4`. You can imagine that this would be especially
-helpful when we have a lot of tests going on.
+Test của chúng ta đã bắt được lỗi! Test `it_adds_two` đã thất bại, và thông báo cho chúng ta
+biết rằng khẳng định bị thất bại là ``assertion `left == right` failed`` và các giá trị
+`left` và `right` là gì. Thông báo này giúp chúng ta bắt đầu debug: đối số
+`left`, nơi chúng ta có kết quả của việc gọi `add_two(2)`, là `5` nhưng
+đối số `right` là `4`. Bạn có thể tưởng tượng rằng điều này sẽ
+đặc biệt hữu ích khi chúng ta có nhiều test đang diễn ra.
 
-Note that in some languages and test frameworks, the parameters to equality
-assertion functions are called `expected` and `actual`, and the order in which
-we specify the arguments matters. However, in Rust, they’re called `left` and
-`right`, and the order in which we specify the value we expect and the value the
-code produces doesn’t matter. We could write the assertion in this test as
-`assert_eq!(add_two(2), result)`, which would result in the same failure message
-that displays `` assertion failed: `(left == right)` ``.
+Lưu ý rằng trong một số ngôn ngữ và khung kiểm thử, các tham số cho các hàm khẳng định
+bằng nhau được gọi là `expected` và `actual`, và thứ tự mà
+chúng ta chỉ định các đối số là quan trọng. Tuy nhiên, trong Rust, chúng được gọi là `left` và
+`right`, và thứ tự mà chúng ta chỉ định giá trị chúng ta mong đợi và giá trị mà
+mã tạo ra không quan trọng. Chúng ta có thể viết khẳng định trong test này là
+`assert_eq!(add_two(2), result)`, điều này sẽ dẫn đến cùng một thông báo thất bại
+hiển thị `` assertion failed: `(left == right)` ``.
 
-The `assert_ne!` macro will pass if the two values we give it are not equal and
-fail if they’re equal. This macro is most useful for cases when we’re not sure
-what a value _will_ be, but we know what the value definitely _shouldn’t_ be.
-For example, if we’re testing a function that is guaranteed to change its input
-in some way, but the way in which the input is changed depends on the day of
-the week that we run our tests, the best thing to assert might be that the
-output of the function is not equal to the input.
+Macro `assert_ne!` sẽ vượt qua nếu hai giá trị chúng ta đưa cho nó không bằng nhau và
+thất bại nếu chúng bằng nhau. Macro này hữu ích nhất cho các trường hợp khi chúng ta không chắc chắn
+một giá trị _sẽ_ là gì, nhưng chúng ta biết giá trị đó chắc chắn _không nên_ là gì.
+Ví dụ, nếu chúng ta đang test một hàm được đảm bảo sẽ thay đổi đầu vào
+của nó theo một cách nào đó, nhưng cách thức mà đầu vào được thay đổi phụ thuộc vào
+ngày trong tuần mà chúng ta chạy các test, thì điều tốt nhất nên khẳng định có thể là
+đầu ra của hàm không bằng đầu vào.
 
-Under the surface, the `assert_eq!` and `assert_ne!` macros use the operators
-`==` and `!=`, respectively. When the assertions fail, these macros print their
-arguments using debug formatting, which means the values being compared must
-implement the `PartialEq` and `Debug` traits. All primitive types and most of
-the standard library types implement these traits. For structs and enums that
-you define yourself, you’ll need to implement `PartialEq` to assert equality of
-those types. You’ll also need to implement `Debug` to print the values when the
-assertion fails. Because both traits are derivable traits, as mentioned in
-Listing 5-12 in Chapter 5, this is usually as straightforward as adding the
-`#[derive(PartialEq, Debug)]` annotation to your struct or enum definition. See
-Appendix C, [“Derivable Traits,”][derivable-traits]<!-- ignore --> for more
-details about these and other derivable traits.
+Bên dưới bề mặt, các macro `assert_eq!` và `assert_ne!` sử dụng các toán tử
+`==` và `!=`, tương ứng. Khi các khẳng định thất bại, các macro này in
+các đối số của chúng bằng cách sử dụng định dạng debug, điều này có nghĩa là các giá trị
+được so sánh phải triển khai các trait `PartialEq` và `Debug`. Tất cả các kiểu nguyên thủy
+và hầu hết các kiểu thư viện chuẩn đều triển khai các trait này. Đối với các struct và
+enum mà bạn tự định nghĩa, bạn sẽ cần triển khai `PartialEq` để khẳng định sự bằng nhau
+của các kiểu đó. Bạn cũng sẽ cần triển khai `Debug` để in các giá trị khi
+khẳng định thất bại. Bởi vì cả hai trait đều là các trait có thể dẫn xuất, như đã đề cập trong
+Liệt kê 5-12 trong Chương 5, việc này thường đơn giản như thêm
+chú thích `#[derive(PartialEq, Debug)]` vào định nghĩa struct hoặc enum của bạn. Xem
+Phụ lục C, [“Các Trait có thể dẫn xuất,”][derivable-traits]<!-- ignore --> để biết thêm
+chi tiết về các trait này và các trait có thể dẫn xuất khác.
 
-### Adding Custom Failure Messages
+### Thêm các thông báo thất bại tùy chỉnh
 
-You can also add a custom message to be printed with the failure message as
-optional arguments to the `assert!`, `assert_eq!`, and `assert_ne!` macros. Any
-arguments specified after the required arguments are passed along to the
-`format!` macro (discussed in [“Concatenation with the `+` Operator or the
-`format!` Macro”][concatenation-with-the--operator-or-the-format-macro]<!--
-ignore --> in Chapter 8), so you can pass a format string that contains `{}`
-placeholders and values to go in those placeholders. Custom messages are useful
-for documenting what an assertion means; when a test fails, you’ll have a better
-idea of what the problem is with the code.
+Bạn cũng có thể thêm một thông báo tùy chỉnh để in cùng với thông báo thất bại dưới dạng các
+đối số tùy chọn cho các macro `assert!`, `assert_eq!`, và `assert_ne!`. Bất kỳ
+đối số nào được chỉ định sau các đối số bắt buộc đều được chuyển tiếp đến macro
+`format!` (được thảo luận trong [“Nối chuỗi với Toán tử `+` hoặc
+Macro `format!`”][concatenation-with-the--operator-or-the-format-macro]<!--
+ignore --> ở Chương 8), vì vậy bạn có thể truyền một chuỗi định dạng chứa các
+trình giữ chỗ `{}` và các giá trị để đưa vào các trình giữ chỗ đó. Các thông báo tùy chỉnh hữu ích
+cho việc ghi lại ý nghĩa của một khẳng định; khi một test thất bại, bạn sẽ có một ý tưởng tốt hơn
+về vấn đề nằm ở đâu trong mã.
 
-For example, let’s say we have a function that greets people by name and we
-want to test that the name we pass into the function appears in the output:
+Ví dụ, giả sử chúng ta có một hàm chào hỏi mọi người bằng tên và chúng ta
+muốn test rằng cái tên chúng ta truyền vào hàm xuất hiện trong đầu ra:
 
 <span class="filename">Filename: src/lib.rs</span>
+
 ```rust,noplayground
 {{#rustdoc_include ../listings/ch11-writing-automated-tests/no-listing-05-greeter/src/lib.rs}}
 ```
 
-The requirements for this program haven’t been agreed upon yet, and we’re
-pretty sure the `Hello` text at the beginning of the greeting will change. We
-decided we don’t want to have to update the test when the requirements change,
-so instead of checking for exact equality to the value returned from the
-`greeting` function, we’ll just assert that the output contains the text of the
-input parameter.
+Các yêu cầu cho chương trình này vẫn chưa được thống nhất, và chúng ta
+khá chắc chắn rằng văn bản `Hello` ở đầu lời chào sẽ thay đổi. Chúng ta
+quyết định không muốn phải cập nhật test khi các yêu cầu thay đổi,
+vì vậy thay vì kiểm tra sự bằng nhau chính xác với giá trị được trả về từ
+hàm `greeting`, chúng ta sẽ chỉ khẳng định rằng đầu ra chứa văn bản của
+tham số đầu vào.
 
-Now let’s introduce a bug into this code by changing `greeting` to exclude
-`name` to see what the default test failure looks like:
+Bây giờ hãy đưa một lỗi vào mã này bằng cách thay đổi `greeting` để loại trừ
+`name` nhằm xem lỗi test mặc định trông như thế nào:
 
 ```rust,not_desired_behavior,noplayground
 {{#rustdoc_include ../listings/ch11-writing-automated-tests/no-listing-06-greeter-with-bug/src/lib.rs:here}}
 ```
 
-Running this test produces the following:
+Chạy test này tạo ra kết quả sau:
 
 ```console
 {{#include ../listings/ch11-writing-automated-tests/no-listing-06-greeter-with-bug/output.txt}}
 ```
 
-This result just indicates that the assertion failed and which line the
-assertion is on. A more useful failure message would print the value from the
-`greeting` function. Let’s add a custom failure message composed of a format
-string with a placeholder filled in with the actual value we got from the
-`greeting` function:
+Kết quả này chỉ cho biết rằng khẳng định đã thất bại và khẳng định đó nằm ở dòng nào.
+Một thông báo thất bại hữu ích hơn sẽ in giá trị từ
+hàm `greeting`. Hãy thêm một thông báo thất bại tùy chỉnh bao gồm một chuỗi định dạng
+với một trình giữ chỗ được điền bằng giá trị thực tế mà chúng ta nhận được từ
+hàm `greeting`:
 
 ```rust,ignore
 {{#rustdoc_include ../listings/ch11-writing-automated-tests/no-listing-07-custom-failure-message/src/lib.rs:here}}
 ```
 
-Now when we run the test, we’ll get a more informative error message:
+Bây giờ khi chúng ta chạy test, chúng ta sẽ nhận được một thông báo lỗi đầy đủ thông tin hơn:
 
 ```console
 {{#include ../listings/ch11-writing-automated-tests/no-listing-07-custom-failure-message/output.txt}}
 ```
 
-We can see the value we actually got in the test output, which would help us
-debug what happened instead of what we were expecting to happen.
+Chúng ta có thể thấy giá trị mà chúng ta thực sự nhận được trong đầu ra test, điều này sẽ giúp chúng ta
+debug những gì đã xảy ra thay vì những gì chúng ta mong đợi xảy ra.
 
-### Checking for Panics with `should_panic`
+### Kiểm tra Panic với `should_panic`
 
-In addition to checking return values, it’s important to check that our code
-handles error conditions as we expect. For example, consider the `Guess` type
-that we created in Chapter 9, Listing 9-13. Other code that uses `Guess`
-depends on the guarantee that `Guess` instances will contain only values
-between 1 and 100. We can write a test that ensures that attempting to create a
-`Guess` instance with a value outside that range panics.
+Ngoài việc kiểm tra các giá trị trả về, việc kiểm tra xem mã của chúng ta có xử lý
+các điều kiện lỗi như chúng ta mong đợi hay không cũng rất quan trọng. Ví dụ, hãy xem xét kiểu `Guess`
+mà chúng ta đã tạo trong Chương 9, Liệt kê 9-13. Mã khác sử dụng `Guess`
+phụ thuộc vào sự đảm bảo rằng các instance `Guess` sẽ chỉ chứa các giá trị
+từ 1 đến 100. Chúng ta có thể viết một test đảm bảo rằng việc cố gắng tạo một
+instance `Guess` với giá trị nằm ngoài phạm vi đó sẽ gây ra panic.
 
-We do this by adding the attribute `should_panic` to our test function. The
-test passes if the code inside the function panics; the test fails if the code
-inside the function doesn’t panic.
+Chúng ta thực hiện việc này bằng cách thêm thuộc tính `should_panic` vào hàm test của mình.
+Test sẽ vượt qua nếu mã bên trong hàm gây ra panic; test sẽ thất bại nếu mã
+bên trong hàm không gây ra panic.
 
-Listing 11-8 shows a test that checks that the error conditions of `Guess::new`
-happen when we expect them to.
+Liệt kê 11-8 hiển thị một test kiểm tra xem các điều kiện lỗi của `Guess::new`
+có xảy ra khi chúng ta mong đợi hay không.
 
-<Listing number="11-8" file-name="src/lib.rs" caption="Testing that a condition will cause a `panic!`">
+<Listing number="11-8" file-name="src/lib.rs" caption="Test rằng một điều kiện sẽ gây ra một `panic!`">
 
 ```rust,noplayground
 {{#rustdoc_include ../listings/ch11-writing-automated-tests/listing-11-08/src/lib.rs}}
@@ -440,41 +442,40 @@ happen when we expect them to.
 
 </Listing>
 
-We place the `#[should_panic]` attribute after the `#[test]` attribute and
-before the test function it applies to. Let’s look at the result when this test
-passes:
+Chúng ta đặt thuộc tính `#[should_panic]` sau thuộc tính `#[test]` và
+trước hàm test mà nó áp dụng. Hãy xem kết quả khi test này
+vượt qua:
 
 ```console
 {{#include ../listings/ch11-writing-automated-tests/listing-11-08/output.txt}}
 ```
 
-Looks good! Now let’s introduce a bug in our code by removing the condition
-that the `new` function will panic if the value is greater than 100:
+Trông ổn đấy! Bây giờ hãy đưa một lỗi vào mã của chúng ta bằng cách xóa điều kiện
+rằng hàm `new` sẽ panic nếu giá trị lớn hơn 100:
 
 ```rust,not_desired_behavior,noplayground
 {{#rustdoc_include ../listings/ch11-writing-automated-tests/no-listing-08-guess-with-bug/src/lib.rs:here}}
 ```
 
-When we run the test in Listing 11-8, it will fail:
+Khi chúng ta chạy test trong Liệt kê 11-8, nó sẽ thất bại:
 
 ```console
 {{#include ../listings/ch11-writing-automated-tests/no-listing-08-guess-with-bug/output.txt}}
 ```
 
-We don’t get a very helpful message in this case, but when we look at the test
-function, we see that it’s annotated with `#[should_panic]`. The failure we got
-means that the code in the test function did not cause a panic.
+Chúng ta không nhận được một thông báo hữu ích lắm trong trường hợp này, nhưng khi chúng ta nhìn vào
+hàm test, chúng ta thấy rằng nó được chú thích bằng `#[should_panic]`. Sự thất bại mà chúng ta
+nhận được có nghĩa là mã trong hàm test đã không gây ra panic.
 
-Tests that use `should_panic` can be imprecise. A `should_panic` test would
-pass even if the test panics for a different reason from the one we were
-expecting. To make `should_panic` tests more precise, we can add an optional
-`expected` parameter to the `should_panic` attribute. The test harness will
-make sure that the failure message contains the provided text. For example,
-consider the modified code for `Guess` in Listing 11-9 where the `new` function
-panics with different messages depending on whether the value is too small or
-too large.
+Các test sử dụng `should_panic` có thể không chính xác. Một test `should_panic` sẽ
+vượt qua ngay cả khi test đó panic vì một lý do khác với lý do chúng ta
+mong đợi. Để làm cho các test `should_panic` chính xác hơn, chúng ta có thể thêm một tham số
+`expected` tùy chọn vào thuộc tính `should_panic`. Test harness sẽ
+đảm bảo rằng thông báo thất bại chứa văn bản được cung cấp. Ví dụ,
+hãy xem xét mã đã sửa đổi cho `Guess` trong Liệt kê 11-9 nơi hàm `new`
+gây ra panic với các thông báo khác nhau tùy thuộc vào việc giá trị quá nhỏ hoặc quá lớn.
 
-<Listing number="11-9" file-name="src/lib.rs" caption="Testing for a `panic!` with a panic message containing a specified substring">
+<Listing number="11-9" file-name="src/lib.rs" caption="Test một `panic!` với thông báo panic chứa một chuỗi con được chỉ định">
 
 ```rust,noplayground
 {{#rustdoc_include ../listings/ch11-writing-automated-tests/listing-11-09/src/lib.rs:here}}
@@ -482,65 +483,64 @@ too large.
 
 </Listing>
 
-This test will pass because the value we put in the `should_panic` attribute’s
-`expected` parameter is a substring of the message that the `Guess::new`
-function panics with. We could have specified the entire panic message that we
-expect, which in this case would be `Guess value must be less than or equal to
-100, got 200`. What you choose to specify depends on how much of the panic
-message is unique or dynamic and how precise you want your test to be. In this
-case, a substring of the panic message is enough to ensure that the code in the
-test function executes the `else if value > 100` case.
+Test này sẽ vượt qua vì giá trị chúng ta đặt trong tham số `expected` của thuộc tính
+`should_panic` là một chuỗi con của thông báo mà hàm `Guess::new`
+gây ra panic. Chúng ta có thể đã chỉ định toàn bộ thông báo panic mà chúng ta
+mong đợi, trong trường hợp này sẽ là `Guess value must be less than or equal to
+100, got 200`. Những gì bạn chọn để chỉ định phụ thuộc vào việc bao nhiêu phần của thông báo
+panic là duy nhất hoặc động và mức độ chính xác mà bạn muốn test của mình đạt được. Trong
+trường hợp này, một chuỗi con của thông báo panic là đủ để đảm bảo rằng mã trong
+hàm test thực thi trường hợp `else if value > 100`.
 
-To see what happens when a `should_panic` test with an `expected` message
-fails, let’s again introduce a bug into our code by swapping the bodies of the
-`if value < 1` and the `else if value > 100` blocks:
+Để xem điều gì xảy ra khi một test `should_panic` với thông báo `expected`
+thất bại, hãy một lần nữa đưa một lỗi vào mã của chúng ta bằng cách hoán đổi thân của
+các khối `if value < 1` và `else if value > 100`:
 
 ```rust,ignore,not_desired_behavior
 {{#rustdoc_include ../listings/ch11-writing-automated-tests/no-listing-09-guess-with-panic-msg-bug/src/lib.rs:here}}
 ```
 
-This time when we run the `should_panic` test, it will fail:
+Lần này khi chúng ta chạy test `should_panic`, nó sẽ thất bại:
 
 ```console
 {{#include ../listings/ch11-writing-automated-tests/no-listing-09-guess-with-panic-msg-bug/output.txt}}
 ```
 
-The failure message indicates that this test did indeed panic as we expected,
-but the panic message did not include the expected string `less than or equal
-to 100`. The panic message that we did get in this case was `Guess value must
-be greater than or equal to 1, got 200.` Now we can start figuring out where
-our bug is!
+Thông báo thất bại cho biết rằng test này thực sự đã panic như chúng ta mong đợi,
+nhưng thông báo panic không bao gồm chuỗi mong đợi `less than or equal
+to 100`. Thông báo panic mà chúng ta nhận được trong trường hợp này là `Guess value must
+be greater than or equal to 1, got 200.` Bây giờ chúng ta có thể bắt đầu tìm ra lỗi
+của mình nằm ở đâu!
 
-### Using `Result<T, E>` in Tests
+### Sử dụng `Result<T, E>` trong các Test
 
-Our tests so far all panic when they fail. We can also write tests that use
-`Result<T, E>`! Here’s the test from Listing 11-1, rewritten to use `Result<T,
-E>` and return an `Err` instead of panicking:
+Các test của chúng ta từ đầu đến giờ đều panic khi chúng thất bại. Chúng ta cũng có thể viết các test sử dụng
+`Result<T, E>`! Đây là test từ Liệt kê 11-1, được viết lại để sử dụng `Result<T,
+E>` và trả về một `Err` thay vì gây ra panic:
 
 ```rust,noplayground
 {{#rustdoc_include ../listings/ch11-writing-automated-tests/no-listing-10-result-in-tests/src/lib.rs:here}}
 ```
 
-The `it_works` function now has the `Result<(), String>` return type. In the
-body of the function, rather than calling the `assert_eq!` macro, we return
-`Ok(())` when the test passes and an `Err` with a `String` inside when the test
-fails.
+Hàm `it_works` bây giờ có kiểu trả về `Result<(), String>`. Trong
+thân hàm, thay vì gọi macro `assert_eq!`, chúng ta trả về
+`Ok(())` khi test vượt qua và một `Err` với một `String` bên trong khi test
+thất bại.
 
-Writing tests so they return a `Result<T, E>` enables you to use the question
-mark operator in the body of tests, which can be a convenient way to write
-tests that should fail if any operation within them returns an `Err` variant.
+Viết các test để chúng trả về một `Result<T, E>` cho phép bạn sử dụng toán tử dấu hỏi
+chấm trong thân của các test, đây có thể là một cách thuận tiện để viết
+các test nên thất bại nếu bất kỳ thao tác nào bên trong chúng trả về một biến thể `Err`.
 
-You can’t use the `#[should_panic]` annotation on tests that use `Result<T,
-E>`. To assert that an operation returns an `Err` variant, _don’t_ use the
-question mark operator on the `Result<T, E>` value. Instead, use
+Bạn không thể sử dụng chú thích `#[should_panic]` trên các test sử dụng `Result<T,
+E>`. Để khẳng định rằng một thao tác trả về một biến thể `Err`, _đừng_ sử dụng
+toán tử dấu hỏi chấm trên giá trị `Result<T, E>`. Thay vào đó, hãy sử dụng
 `assert!(value.is_err())`.
 
-Now that you know several ways to write tests, let’s look at what is happening
-when we run our tests and explore the different options we can use with `cargo
+Bây giờ bạn đã biết một vài cách để viết test, hãy cùng xem điều gì đang xảy ra
+khi chúng ta chạy các test và khám phá các tùy chọn khác nhau mà chúng ta có thể sử dụng với `cargo
 test`.
 
 {{#quiz ../quizzes/ch11-01-writing-tests.toml}}
-
 
 [concatenation-with-the--operator-or-the-format-macro]: ch08-02-strings.html#concatenation-with-the--operator-or-the-format-macro
 [bench]: ../unstable-book/library-features/test.html
