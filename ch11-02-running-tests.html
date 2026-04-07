@@ -175,54 +175,54 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="controlling-how-tests-are-run"><a class="header" href="#controlling-how-tests-are-run">Controlling How Tests Are Run</a></h2>
-<p>Just as <code>cargo run</code> compiles your code and then runs the resultant binary,
-<code>cargo test</code> compiles your code in test mode and runs the resultant test
-binary. The default behavior of the binary produced by <code>cargo test</code> is to run
-all the tests in parallel and capture output generated during test runs,
-preventing the output from being displayed and making it easier to read the
-output related to the test results. You can, however, specify command line
-options to change this default behavior.</p>
-<p>Some command line options go to <code>cargo test</code>, and some go to the resultant test
-binary. To separate these two types of arguments, you list the arguments that
-go to <code>cargo test</code> followed by the separator <code>--</code> and then the ones that go to
-the test binary. Running <code>cargo test --help</code> displays the options you can use
-with <code>cargo test</code>, and running <code>cargo test -- --help</code> displays the options you
-can use after the separator. Those options are also documented in <a href="https://doc.rust-lang.org/rustc/tests/index.html">the “Tests”
-section</a> of the <a href="https://doc.rust-lang.org/rustc/index.html">the rustc book</a>.</p>
-<h3 id="running-tests-in-parallel-or-consecutively"><a class="header" href="#running-tests-in-parallel-or-consecutively">Running Tests in Parallel or Consecutively</a></h3>
-<p>When you run multiple tests, by default they run in parallel using threads,
-meaning they finish running faster and you get feedback quicker. Because the
-tests are running at the same time, you must make sure your tests don’t depend
-on each other or on any shared state, including a shared environment, such as
-the current working directory or environment variables.</p>
-<p>For example, say each of your tests runs some code that creates a file on disk
-named <em>test-output.txt</em> and writes some data to that file. Then each test reads
-the data in that file and asserts that the file contains a particular value,
-which is different in each test. Because the tests run at the same time, one
-test might overwrite the file in the time between another test writing and
-reading the file. The second test will then fail, not because the code is
-incorrect but because the tests have interfered with each other while running
-in parallel. One solution is to make sure each test writes to a different file;
-another solution is to run the tests one at a time.</p>
-<p>If you don’t want to run the tests in parallel or if you want more fine-grained
-control over the number of threads used, you can send the <code>--test-threads</code> flag
-and the number of threads you want to use to the test binary. Take a look at
-the following example:</p>
+                        <h2 id="kiểm-soát-cách-chạy-các-test"><a class="header" href="#kiểm-soát-cách-chạy-các-test">Kiểm soát cách chạy các Test</a></h2>
+<p>Giống như <code>cargo run</code> biên dịch mã của bạn và sau đó chạy bản thực thi kết quả,
+<code>cargo test</code> biên dịch mã của bạn ở chế độ test và chạy bản thực thi test
+kết quả. Hành vi mặc định của bản thực thi được tạo bởi <code>cargo test</code> là chạy
+tất cả các test song song và thu thập đầu ra (capture output) được tạo ra trong quá trình chạy test,
+ngăn chặn đầu ra hiển thị và giúp dễ dàng đọc đầu ra liên quan đến
+kết quả test hơn. Tuy nhiên, bạn có thể chỉ định các tùy chọn dòng lệnh
+để thay đổi hành vi mặc định này.</p>
+<p>Một số tùy chọn dòng lệnh dành cho <code>cargo test</code>, và một số dành cho bản thực thi
+test kết quả. Để phân tách hai loại đối số này, bạn liệt kê các đối số dành
+cho <code>cargo test</code> theo sau là dấu phân cách <code>--</code> và sau đó là những đối số dành cho
+bản thực thi test. Chạy <code>cargo test --help</code> hiển thị các tùy chọn bạn có thể sử dụng
+với <code>cargo test</code>, và chạy <code>cargo test -- --help</code> hiển thị các tùy chọn bạn
+có thể sử dụng sau dấu phân cách. Các tùy chọn đó cũng được ghi lại trong
+<a href="https://doc.rust-lang.org/rustc/tests/index.html">phần “Tests”</a> của <a href="https://doc.rust-lang.org/rustc/index.html">cuốn sách rustc</a>.</p>
+<h3 id="chạy-các-test-song-song-hoặc-tuần-tự"><a class="header" href="#chạy-các-test-song-song-hoặc-tuần-tự">Chạy các Test song song hoặc tuần tự</a></h3>
+<p>Khi bạn chạy nhiều test, theo mặc định chúng chạy song song bằng cách sử dụng các luồng (threads),
+nghĩa là chúng kết thúc việc chạy nhanh hơn và bạn nhận được phản hồi sớm hơn. Bởi vì các
+test đang chạy cùng một lúc, bạn phải đảm bảo các test của mình không phụ thuộc
+vào nhau hoặc vào bất kỳ trạng thái chia sẻ nào, bao gồm cả môi trường chia sẻ, chẳng hạn
+như thư mục làm việc hiện tại hoặc các biến môi trường.</p>
+<p>Ví dụ, giả sử mỗi test của bạn chạy một đoạn mã tạo ra một tệp trên đĩa
+tên là <em>test-output.txt</em> và ghi một số dữ liệu vào tệp đó. Sau đó, mỗi test đọc
+dữ liệu trong tệp đó và khẳng định rằng tệp chứa một giá trị cụ thể,
+giá trị này khác nhau trong mỗi test. Bởi vì các test chạy cùng lúc, một
+test có thể ghi đè lên tệp trong khoảng thời gian giữa lúc một test khác đang ghi và
+đang đọc tệp. Test thứ hai sau đó sẽ thất bại, không phải vì mã
+sai mà vì các test đã can thiệp lẫn nhau khi chạy
+song song. Một giải pháp là đảm bảo mỗi test ghi vào một tệp khác nhau;
+một giải pháp khác là chạy các test từng cái một.</p>
+<p>Nếu bạn không muốn chạy các test song song hoặc nếu bạn muốn kiểm soát chi tiết
+hơn về số lượng luồng được sử dụng, bạn có thể gửi cờ <code>--test-threads</code>
+và số lượng luồng bạn muốn sử dụng cho bản thực thi test. Hãy xem
+ví dụ sau:</p>
 <pre><code class="language-console">$ cargo test -- --test-threads=1
 </code></pre>
-<p>We set the number of test threads to <code>1</code>, telling the program not to use any
-parallelism. Running the tests using one thread will take longer than running
-them in parallel, but the tests won’t interfere with each other if they share
-state.</p>
-<h3 id="showing-function-output"><a class="header" href="#showing-function-output">Showing Function Output</a></h3>
-<p>By default, if a test passes, Rust’s test library captures anything printed to
-standard output. For example, if we call <code>println!</code> in a test and the test
-passes, we won’t see the <code>println!</code> output in the terminal; we’ll see only the
-line that indicates the test passed. If a test fails, we’ll see whatever was
-printed to standard output with the rest of the failure message.</p>
-<p>As an example, Listing 11-10 has a silly function that prints the value of its
-parameter and returns 10, as well as a test that passes and a test that fails.</p>
+<p>Chúng ta đặt số lượng luồng test thành <code>1</code>, yêu cầu chương trình không sử dụng bất kỳ
+sự song song nào. Chạy các test bằng một luồng sẽ mất nhiều thời gian hơn chạy
+song song, nhưng các test sẽ không can thiệp lẫn nhau nếu chúng chia sẻ
+trạng thái.</p>
+<h3 id="hiển-thị-đầu-ra-của-hàm"><a class="header" href="#hiển-thị-đầu-ra-của-hàm">Hiển thị đầu ra của hàm</a></h3>
+<p>Theo mặc định, nếu một test vượt qua, thư viện test của Rust sẽ thu thập bất cứ thứ gì được in ra
+đầu ra tiêu chuẩn (standard output). Ví dụ, nếu chúng ta gọi <code>println!</code> trong một test và test đó
+vượt qua, chúng ta sẽ không thấy đầu ra của <code>println!</code> trong terminal; chúng ta sẽ chỉ thấy
+dòng cho biết test đã vượt qua. Nếu một test thất bại, chúng ta sẽ thấy bất cứ điều gì đã được
+in ra đầu ra tiêu chuẩn cùng với phần còn lại của thông báo thất bại.</p>
+<p>Ví dụ, Liệt kê 11-10 có một hàm ngớ ngẩn in ra giá trị tham số của nó
+và trả về 10, cũng như một test vượt qua và một test thất bại.</p>
 <figure class="listing" id="listing-11-10">
 <span class="file-name">Filename: src/lib.rs</span>
 <pre><code class="language-rust panics noplayground">fn prints_and_returns_10(a: i32) -&gt; i32 {
@@ -246,9 +246,9 @@ mod tests {
         assert_eq!(value, 5);
     }
 }</code></pre>
-<figcaption><a href="#listing-11-10">Listing 11-10</a>: Tests for a function that calls <code>println!</code></figcaption>
+<figcaption><a href="#listing-11-10">Listing 11-10</a>: Các test cho một hàm gọi <code>println!</code></figcaption>
 </figure>
-<p>When we run these tests with <code>cargo test</code>, we’ll see the following output:</p>
+<p>Khi chúng ta chạy các test này với <code>cargo test</code>, chúng ta sẽ thấy đầu ra sau:</p>
 <pre><code class="language-console">$ cargo test
    Compiling silly-function v0.1.0 (file:///projects/silly-function)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.58s
@@ -277,16 +277,16 @@ test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; 
 
 error: test failed, to rerun pass `--lib`
 </code></pre>
-<p>Note that nowhere in this output do we see <code>I got the value 4</code>, which is
-printed when the test that passes runs. That output has been captured. The
-output from the test that failed, <code>I got the value 8</code>, appears in the section
-of the test summary output, which also shows the cause of the test failure.</p>
-<p>If we want to see printed values for passing tests as well, we can tell Rust to
-also show the output of successful tests with <code>--show-output</code>:</p>
+<p>Lưu ý rằng không có chỗ nào trong đầu ra này chúng ta thấy <code>I got the value 4</code>,
+vốn được in khi test vượt qua chạy. Đầu ra đó đã bị thu thập. Đầu
+ra từ test bị thất bại, <code>I got the value 8</code>, xuất hiện trong phần
+tóm tắt đầu ra test, phần này cũng hiển thị nguyên nhân gây ra thất bại của test.</p>
+<p>Nếu chúng ta cũng muốn xem các giá trị được in cho các test vượt qua, chúng ta có thể yêu cầu Rust
+hiển thị cả đầu ra của các test thành công bằng <code>--show-output</code>:</p>
 <pre><code class="language-console">$ cargo test -- --show-output
 </code></pre>
-<p>When we run the tests in Listing 11-10 again with the <code>--show-output</code> flag, we
-see the following output:</p>
+<p>Khi chúng ta chạy lại các test trong Liệt kê 11-10 với cờ <code>--show-output</code>, chúng ta
+thấy đầu ra sau:</p>
 <pre><code class="language-console">$ cargo test -- --show-output
    Compiling silly-function v0.1.0 (file:///projects/silly-function)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.60s
@@ -324,13 +324,13 @@ test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; 
 
 error: test failed, to rerun pass `--lib`
 </code></pre>
-<h3 id="running-a-subset-of-tests-by-name"><a class="header" href="#running-a-subset-of-tests-by-name">Running a Subset of Tests by Name</a></h3>
-<p>Sometimes, running a full test suite can take a long time. If you’re working on
-code in a particular area, you might want to run only the tests pertaining to
-that code. You can choose which tests to run by passing <code>cargo test</code> the name
-or names of the test(s) you want to run as an argument.</p>
-<p>To demonstrate how to run a subset of tests, we’ll first create three tests for
-our <code>add_two</code> function, as shown in Listing 11-11, and choose which ones to run.</p>
+<h3 id="chạy-một-tập-hợp-con-các-test-theo-tên"><a class="header" href="#chạy-một-tập-hợp-con-các-test-theo-tên">Chạy một tập hợp con các Test theo tên</a></h3>
+<p>Đôi khi, việc chạy toàn bộ bộ test (test suite) có thể mất nhiều thời gian. Nếu bạn đang làm việc trên
+mã ở một khu vực cụ thể, bạn có thể chỉ muốn chạy các test liên quan đến
+đoạn mã đó. Bạn có thể chọn test nào để chạy bằng cách truyền cho <code>cargo test</code> tên
+hoặc các tên của (các) test bạn muốn chạy dưới dạng một đối số.</p>
+<p>Để minh họa cách chạy một tập hợp con các test, trước tiên chúng ta sẽ tạo ba test cho
+hàm <code>add_two</code> của mình, như được hiển thị trong Liệt kê 11-11, và chọn cái nào để chạy.</p>
 <figure class="listing" id="listing-11-11">
 <span class="file-name">Filename: src/lib.rs</span>
 <pre><code class="language-rust noplayground">pub fn add_two(a: usize) -&gt; usize {
@@ -359,10 +359,10 @@ mod tests {
         assert_eq!(result, 102);
     }
 }</code></pre>
-<figcaption><a href="#listing-11-11">Listing 11-11</a>: Three tests with three different names</figcaption>
+<figcaption><a href="#listing-11-11">Listing 11-11</a>: Ba test với ba cái tên khác nhau</figcaption>
 </figure>
-<p>If we run the tests without passing any arguments, as we saw earlier, all the
-tests will run in parallel:</p>
+<p>Nếu chúng ta chạy các test mà không truyền bất kỳ đối số nào, như chúng ta đã thấy trước đó, tất cả các
+test sẽ chạy song song:</p>
 <pre><code class="language-console">$ cargo test
    Compiling adder v0.1.0 (file:///projects/adder)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.62s
@@ -382,8 +382,8 @@ running 0 tests
 test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
 </code></pre>
-<h4 id="running-single-tests"><a class="header" href="#running-single-tests">Running Single Tests</a></h4>
-<p>We can pass the name of any test function to <code>cargo test</code> to run only that test:</p>
+<h4 id="chạy-các-test-đơn-lẻ"><a class="header" href="#chạy-các-test-đơn-lẻ">Chạy các Test đơn lẻ</a></h4>
+<p>Chúng ta có thể truyền tên của bất kỳ hàm test nào cho <code>cargo test</code> để chỉ chạy test đó:</p>
 <pre><code class="language-console">$ cargo test one_hundred
    Compiling adder v0.1.0 (file:///projects/adder)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.69s
@@ -395,15 +395,15 @@ test tests::one_hundred ... ok
 test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 2 filtered out; finished in 0.00s
 
 </code></pre>
-<p>Only the test with the name <code>one_hundred</code> ran; the other two tests didn’t match
-that name. The test output lets us know we had more tests that didn’t run by
-displaying <code>2 filtered out</code> at the end.</p>
-<p>We can’t specify the names of multiple tests in this way; only the first value
-given to <code>cargo test</code> will be used. But there is a way to run multiple tests.</p>
-<h4 id="filtering-to-run-multiple-tests"><a class="header" href="#filtering-to-run-multiple-tests">Filtering to Run Multiple Tests</a></h4>
-<p>We can specify part of a test name, and any test whose name matches that value
-will be run. For example, because two of our tests’ names contain <code>add</code>, we can
-run those two by running <code>cargo test add</code>:</p>
+<p>Chỉ có test có tên <code>one_hundred</code> đã chạy; hai test còn lại không khớp
+với tên đó. Đầu ra test cho chúng ta biết rằng chúng ta còn nhiều test khác không chạy bằng cách
+hiển thị <code>2 filtered out</code> ở cuối.</p>
+<p>Chúng ta không thể chỉ định tên của nhiều test theo cách này; chỉ giá trị đầu tiên
+được đưa cho <code>cargo test</code> sẽ được sử dụng. Nhưng có một cách để chạy nhiều test.</p>
+<h4 id="lọc-để-chạy-nhiều-test"><a class="header" href="#lọc-để-chạy-nhiều-test">Lọc để chạy nhiều Test</a></h4>
+<p>Chúng ta có thể chỉ định một phần của tên test, và bất kỳ test nào có tên khớp với giá trị đó
+sẽ được chạy. Ví dụ, vì hai trong số các tên test của chúng ta chứa <code>add</code>, chúng ta có thể
+chạy hai test đó bằng cách chạy <code>cargo test add</code>:</p>
 <pre><code class="language-console">$ cargo test add
    Compiling adder v0.1.0 (file:///projects/adder)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.61s
@@ -416,16 +416,16 @@ test tests::add_two_and_two ... ok
 test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.00s
 
 </code></pre>
-<p>This command ran all tests with <code>add</code> in the name and filtered out the test
-named <code>one_hundred</code>. Also note that the module in which a test appears becomes
-part of the test’s name, so we can run all the tests in a module by filtering
-on the module’s name.</p>
-<h3 id="ignoring-some-tests-unless-specifically-requested"><a class="header" href="#ignoring-some-tests-unless-specifically-requested">Ignoring Some Tests Unless Specifically Requested</a></h3>
-<p>Sometimes a few specific tests can be very time-consuming to execute, so you
-might want to exclude them during most runs of <code>cargo test</code>. Rather than
-listing as arguments all tests you do want to run, you can instead annotate the
-time-consuming tests using the <code>ignore</code> attribute to exclude them, as shown
-here:</p>
+<p>Lệnh này đã chạy tất cả các test có <code>add</code> trong tên và lọc bỏ test
+tên là <code>one_hundred</code>. Cũng lưu ý rằng module mà một test xuất hiện trở thành
+một phần tên của test, vì vậy chúng ta có thể chạy tất cả các test trong một module bằng cách lọc
+theo tên của module đó.</p>
+<h3 id="bỏ-qua-một-số-test-trừ-khi-được-yêu-cầu-cụ-thể"><a class="header" href="#bỏ-qua-một-số-test-trừ-khi-được-yêu-cầu-cụ-thể">Bỏ qua một số Test trừ khi được yêu cầu cụ thể</a></h3>
+<p>Đôi khi một vài test cụ thể có thể rất tốn thời gian để thực thi, vì vậy bạn
+có thể muốn loại trừ chúng trong hầu hết các lần chạy <code>cargo test</code>. Thay vì
+liệt kê dưới dạng đối số tất cả các test bạn muốn chạy, thay vào đó bạn có thể chú thích các
+test tốn thời gian bằng cách sử dụng thuộc tính <code>ignore</code> để loại trừ chúng, như được hiển thị
+ở đây:</p>
 <p><span class="filename">Filename: src/lib.rs</span></p>
 <pre><code class="language-rust noplayground"><span class="boring">pub fn add(left: u64, right: u64) -&gt; u64 {
 </span><span class="boring">    left + right
@@ -447,8 +447,8 @@ mod tests {
         // code that takes an hour to run
     }
 }</code></pre>
-<p>After <code>#[test]</code>, we add the <code>#[ignore]</code> line to the test we want to exclude.
-Now when we run our tests, <code>it_works</code> runs, but <code>expensive_test</code> doesn’t:</p>
+<p>Sau <code>#[test]</code>, chúng ta thêm dòng <code>#[ignore]</code> vào test mà chúng ta muốn loại trừ.
+Bây giờ khi chúng ta chạy các test của mình, <code>it_works</code> chạy, nhưng <code>expensive_test</code> thì không:</p>
 <pre><code class="language-console">$ cargo test
    Compiling adder v0.1.0 (file:///projects/adder)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.60s
@@ -467,8 +467,8 @@ running 0 tests
 test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
 </code></pre>
-<p>The <code>expensive_test</code> function is listed as <code>ignored</code>. If we want to run only
-the ignored tests, we can use <code>cargo test -- --ignored</code>:</p>
+<p>Hàm <code>expensive_test</code> được liệt kê là <code>ignored</code>. Nếu chúng ta chỉ muốn chạy
+các test bị bỏ qua, chúng ta có thể sử dụng <code>cargo test -- --ignored</code>:</p>
 <pre><code class="language-console">$ cargo test -- --ignored
    Compiling adder v0.1.0 (file:///projects/adder)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.61s
@@ -486,11 +486,11 @@ running 0 tests
 test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
 </code></pre>
-<p>By controlling which tests run, you can make sure your <code>cargo test</code> results
-will be returned quickly. When you’re at a point where it makes sense to check
-the results of the <code>ignored</code> tests and you have time to wait for the results,
-you can run <code>cargo test -- --ignored</code> instead. If you want to run all tests
-whether they’re ignored or not, you can run <code>cargo test -- --include-ignored</code>.</p>
+<p>Bằng cách kiểm soát test nào được chạy, bạn có thể đảm bảo kết quả <code>cargo test</code> của mình
+sẽ được trả về nhanh chóng. Khi bạn ở thời điểm mà việc kiểm tra
+kết quả của các test <code>ignored</code> là hợp lý và bạn có thời gian để chờ kết quả,
+bạn có thể chạy <code>cargo test -- --ignored</code> thay thế. Nếu bạn muốn chạy tất cả các test
+cho dù chúng có bị bỏ qua hay không, bạn có thể chạy <code>cargo test -- --include-ignored</code>.</p>
 <div class="quiz-placeholder" data-quiz-name="&quot;ch11-02-running-tests&quot;" data-quiz-questions="{&quot;questions&quot;:[{&quot;context&quot;:&quot;Tests are run in parallel by default, so actions which are not thread-safe (like writing to a single file) may cause a race condition.\n&quot;,&quot;id&quot;:&quot;affe428d-0a8e-430b-9567-99e6b7563c0f&quot;,&quot;type&quot;:&quot;MultipleChoice&quot;,&quot;answer&quot;:{&quot;answer&quot;:&quot;Writing text to a single file&quot;},&quot;prompt&quot;:{&quot;distractors&quot;:[&quot;Logging strings to stdout&quot;,&quot;Failing via panics&quot;,&quot;Reading data from a single database&quot;],&quot;prompt&quot;:&quot;When running `cargo test` with no additional configuration, which of the following actions may not work correctly if done by multiple tests?\n&quot;}},{&quot;context&quot;:&quot;The shortest substring string that is not contained in `test_logger_and_database` but is contained in `test_the_logger` and `test_the_database`\nis \&quot;h\&quot; (the middle character of \&quot;the\&quot;).\n&quot;,&quot;id&quot;:&quot;19e292f4-4bc4-4868-a58a-edf62c3e3b2a&quot;,&quot;type&quot;:&quot;ShortAnswer&quot;,&quot;answer&quot;:{&quot;answer&quot;:&quot;h&quot;},&quot;prompt&quot;:{&quot;prompt&quot;:&quot;Consider a program with the following unit test:\n\n```\n#[test]\nfn test_the_logger() { /* ... */ }\n\n#[test]\nfn test_the_database() { /* ... */ }\n\n#[test]\nfn test_logger_and_database() { /* ... */ }\n```\n\nWhat is the *shortest* string you can pass to `cargo test &lt;the_string&gt;` such that *only* `test_the_logger` and `test_the_database` are executed?\n&quot;}}]}" data-quiz-fullscreen="true" data-quiz-cache-answers="true"></div>
 <script type="text/javascript" src="quiz/quiz-embed.iife.js"></script><link rel="stylesheet" type="text/css" href="quiz/style.css">
 
