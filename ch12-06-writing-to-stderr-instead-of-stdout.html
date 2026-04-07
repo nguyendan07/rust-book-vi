@@ -175,47 +175,46 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="writing-error-messages-to-standard-error-instead-of-standard-output"><a class="header" href="#writing-error-messages-to-standard-error-instead-of-standard-output">Writing Error Messages to Standard Error Instead of Standard Output</a></h2>
-<p>At the moment, we’re writing all of our output to the terminal using the
-<code>println!</code> macro. In most terminals, there are two kinds of output: <em>standard
-output</em> (<code>stdout</code>) for general information and <em>standard error</em> (<code>stderr</code>) for
-error messages. This distinction enables users to choose to direct the
-successful output of a program to a file but still print error messages to the
-screen.</p>
-<p>The <code>println!</code> macro is only capable of printing to standard output, so we have
-to use something else to print to standard error.</p>
-<h3 id="checking-where-errors-are-written"><a class="header" href="#checking-where-errors-are-written">Checking Where Errors Are Written</a></h3>
-<p>First let’s observe how the content printed by <code>minigrep</code> is currently being
-written to standard output, including any error messages we want to write to
-standard error instead. We’ll do that by redirecting the standard output stream
-to a file while intentionally causing an error. We won’t redirect the standard
-error stream, so any content sent to standard error will continue to display on
-the screen.</p>
-<p>Command line programs are expected to send error messages to the standard error
-stream so we can still see error messages on the screen even if we redirect the
-standard output stream to a file. Our program is not currently well behaved:
-we’re about to see that it saves the error message output to a file instead!</p>
-<p>To demonstrate this behavior, we’ll run the program with <code>&gt;</code> and the file path,
-<em>output.txt</em>, that we want to redirect the standard output stream to. We won’t
-pass any arguments, which should cause an error:</p>
+                        <h2 id="ghi-các-thông-báo-lỗi-ra-standard-error-thay-vì-standard-output"><a class="header" href="#ghi-các-thông-báo-lỗi-ra-standard-error-thay-vì-standard-output">Ghi các Thông báo Lỗi ra Standard Error thay vì Standard Output</a></h2>
+<p>Tại thời điểm này, chúng ta đang ghi tất cả đầu ra của mình vào terminal bằng cách sử dụng
+macro <code>println!</code>. Trong hầu hết các terminal, có hai loại đầu ra: <em>đầu ra tiêu chuẩn</em>
+(<code>stdout</code>) cho thông tin chung và <em>lỗi tiêu chuẩn</em> (<code>stderr</code>) cho
+các thông báo lỗi. Sự phân biệt này cho phép người dùng chọn hướng đầu ra thành công
+của một chương trình vào một tệp nhưng vẫn in các thông báo lỗi ra màn hình.</p>
+<p>Macro <code>println!</code> chỉ có khả năng in ra đầu ra tiêu chuẩn, vì vậy chúng ta phải
+sử dụng thứ khác để in ra lỗi tiêu chuẩn.</p>
+<h3 id="kiểm-tra-xem-các-lỗi-đang-được-ghi-vào-đâu"><a class="header" href="#kiểm-tra-xem-các-lỗi-đang-được-ghi-vào-đâu">Kiểm tra xem các Lỗi đang được ghi vào đâu</a></h3>
+<p>Đầu tiên, hãy quan sát cách nội dung được in bởi <code>minigrep</code> hiện đang được
+ghi vào đầu ra tiêu chuẩn, bao gồm bất kỳ thông báo lỗi nào mà chúng ta muốn ghi vào
+lỗi tiêu chuẩn thay thế. Chúng ta sẽ làm điều đó bằng cách chuyển hướng luồng đầu ra tiêu chuẩn
+vào một tệp trong khi cố ý gây ra lỗi. Chúng ta sẽ không chuyển hướng luồng
+lỗi tiêu chuẩn, vì vậy bất kỳ nội dung nào được gửi đến lỗi tiêu chuẩn sẽ tiếp tục hiển thị trên
+màn hình.</p>
+<p>Các chương trình dòng lệnh được mong đợi sẽ gửi các thông báo lỗi đến luồng lỗi tiêu chuẩn
+để chúng ta vẫn có thể thấy các thông báo lỗi trên màn hình ngay cả khi chúng ta chuyển hướng
+luồng đầu ra tiêu chuẩn vào một tệp. Chương trình của chúng ta hiện tại chưa thực hiện tốt điều này:
+chúng ta sắp thấy rằng nó lưu thông báo lỗi vào một tệp thay thế!</p>
+<p>Để chứng minh hành vi này, chúng ta sẽ chạy chương trình với <code>&gt;</code> và đường dẫn tệp,
+<em>output.txt</em>, mà chúng ta muốn chuyển hướng luồng đầu ra tiêu chuẩn vào. Chúng ta sẽ
+không truyền bất kỳ đối số nào, điều này sẽ gây ra lỗi:</p>
 <pre><code class="language-console">$ cargo run &gt; output.txt
 </code></pre>
-<p>The <code>&gt;</code> syntax tells the shell to write the contents of standard output to
-<em>output.txt</em> instead of the screen. We didn’t see the error message we were
-expecting printed to the screen, so that means it must have ended up in the
-file. This is what <em>output.txt</em> contains:</p>
+<p>Cú pháp <code>&gt;</code> nói với shell ghi nội dung của đầu ra tiêu chuẩn vào
+<em>output.txt</em> thay vì màn hình. Chúng ta không thấy thông báo lỗi mà chúng ta đã
+mong đợi được in ra màn hình, vì vậy điều đó có nghĩa là nó chắc chắn đã nằm trong
+tệp. Đây là những gì <em>output.txt</em> chứa:</p>
 <pre><code class="language-text">Problem parsing arguments: not enough arguments
 </code></pre>
-<p>Yup, our error message is being printed to standard output. It’s much more
-useful for error messages like this to be printed to standard error so only
-data from a successful run ends up in the file. We’ll change that.</p>
-<h3 id="printing-errors-to-standard-error"><a class="header" href="#printing-errors-to-standard-error">Printing Errors to Standard Error</a></h3>
-<p>We’ll use the code in Listing 12-24 to change how error messages are printed.
-Because of the refactoring we did earlier in this chapter, all the code that
-prints error messages is in one function, <code>main</code>. The standard library provides
-the <code>eprintln!</code> macro that prints to the standard error stream, so let’s change
-the two places we were calling <code>println!</code> to print errors to use <code>eprintln!</code>
-instead.</p>
+<p>Đúng vậy, thông báo lỗi của chúng ta đang được in ra đầu ra tiêu chuẩn. Sẽ hữu ích hơn nhiều
+nếu các thông báo lỗi như thế này được in ra lỗi tiêu chuẩn để chỉ
+dữ liệu từ một lần chạy thành công mới nằm trong tệp. Chúng ta sẽ thay đổi điều đó.</p>
+<h3 id="in-các-lỗi-ra-standard-error"><a class="header" href="#in-các-lỗi-ra-standard-error">In các Lỗi ra Standard Error</a></h3>
+<p>Chúng ta sẽ sử dụng mã trong Liệt kê 12-24 để thay đổi cách in các thông báo lỗi.
+Do việc tái cấu trúc mà chúng ta đã thực hiện trước đó trong chương này, tất cả mã
+in thông báo lỗi đều nằm trong một hàm, <code>main</code>. Thư viện tiêu chuẩn cung cấp
+macro <code>eprintln!</code> in ra luồng lỗi tiêu chuẩn, vì vậy hãy thay đổi
+hai nơi chúng ta đang gọi <code>println!</code> để in lỗi thành sử dụng <code>eprintln!</code>
+thay thế.</p>
 <figure class="listing" id="listing-12-24">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><code class="language-rust ignore"><span class="boring">use std::env;
@@ -236,37 +235,37 @@ instead.</p>
         process::exit(1);
     }
 }</code></pre>
-<figcaption><a href="#listing-12-24">Listing 12-24</a>: Writing error messages to standard error instead of standard output using <code>eprintln!</code></figcaption>
+<figcaption><a href="#listing-12-24">Listing 12-24</a>: Ghi các thông báo lỗi ra lỗi tiêu chuẩn thay vì đầu ra tiêu chuẩn bằng cách sử dụng <code>eprintln!</code> house</figcaption>
 </figure>
-<p>Let’s now run the program again in the same way, without any arguments and
-redirecting standard output with <code>&gt;</code>:</p>
+<p>Bây giờ hãy chạy lại chương trình theo cùng một cách, không có bất kỳ đối số nào và
+chuyển hướng đầu ra tiêu chuẩn bằng <code>&gt;</code>:</p>
 <pre><code class="language-console">$ cargo run &gt; output.txt
 Problem parsing arguments: not enough arguments
 </code></pre>
-<p>Now we see the error onscreen and <em>output.txt</em> contains nothing, which is the
-behavior we expect of command line programs.</p>
-<p>Let’s run the program again with arguments that don’t cause an error but still
-redirect standard output to a file, like so:</p>
+<p>Bây giờ chúng ta thấy lỗi trên màn hình và <em>output.txt</em> không chứa gì, đó là
+hành vi mà chúng ta mong đợi ở các chương trình dòng lệnh.</p>
+<p>Hãy chạy lại chương trình với các đối số không gây ra lỗi nhưng vẫn
+chuyển hướng đầu ra tiêu chuẩn vào một tệp, như sau:</p>
 <pre><code class="language-console">$ cargo run -- to poem.txt &gt; output.txt
 </code></pre>
-<p>We won’t see any output to the terminal, and <em>output.txt</em> will contain our
-results:</p>
+<p>Chúng ta sẽ không thấy bất kỳ đầu ra nào trên terminal, và <em>output.txt</em> sẽ chứa
+kết quả của chúng ta:</p>
 <p><span class="filename">Filename: output.txt</span></p>
 <pre><code class="language-text">Are you nobody, too?
 How dreary to be somebody!
 </code></pre>
-<p>This demonstrates that we’re now using standard output for successful output
-and standard error for error output as appropriate.</p>
-<h2 id="summary"><a class="header" href="#summary">Summary</a></h2>
-<p>This chapter recapped some of the major concepts you’ve learned so far and
-covered how to perform common I/O operations in Rust. By using command line
-arguments, files, environment variables, and the <code>eprintln!</code> macro for printing
-errors, you’re now prepared to write command line applications. Combined with
-the concepts in previous chapters, your code will be well organized, store data
-effectively in the appropriate data structures, handle errors nicely, and be
-well tested.</p>
-<p>Next, we’ll explore some Rust features that were influenced by functional
-languages: closures and iterators.</p>
+<p>Điều này chứng minh rằng bây giờ chúng ta đang sử dụng đầu ra tiêu chuẩn cho đầu ra thành công
+và lỗi tiêu chuẩn cho đầu ra lỗi một cách thích hợp.</p>
+<h2 id="tổng-kết"><a class="header" href="#tổng-kết">Tổng kết</a></h2>
+<p>Chương này đã tóm tắt một số khái niệm chính mà bạn đã học cho đến nay và
+đề cập đến cách thực hiện các thao tác I/O phổ biến trong Rust. Bằng cách sử dụng các đối số
+dòng lệnh, tệp, biến môi trường và macro <code>eprintln!</code> để in
+lỗi, giờ đây bạn đã sẵn sàng để viết các ứng dụng dòng lệnh. Kết hợp với
+các khái niệm trong các chương trước, mã của bạn sẽ được tổ chức tốt, lưu trữ dữ liệu
+hiệu quả trong các cấu trúc dữ liệu thích hợp, xử lý lỗi tốt và được
+kiểm thử kỹ lưỡng.</p>
+<p>Tiếp theo, chúng ta sẽ khám phá một số tính năng của Rust chịu ảnh hưởng bởi các ngôn ngữ
+lập trình hàm: closure và iterator.</p>
 
                     </main>
 

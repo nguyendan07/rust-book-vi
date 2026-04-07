@@ -175,20 +175,20 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="working-with-environment-variables"><a class="header" href="#working-with-environment-variables">Working with Environment Variables</a></h2>
-<p>We’ll improve <code>minigrep</code> by adding an extra feature: an option for
-case-insensitive searching that the user can turn on via an environment
-variable. We could make this feature a command line option and require that
-users enter it each time they want it to apply, but by instead making it an
-environment variable, we allow our users to set the environment variable once
-and have all their searches be case insensitive in that terminal session.</p>
-<h3 id="writing-a-failing-test-for-the-case-insensitive-search-function"><a class="header" href="#writing-a-failing-test-for-the-case-insensitive-search-function">Writing a Failing Test for the Case-Insensitive <code>search</code> Function</a></h3>
-<p>We first add a new <code>search_case_insensitive</code> function that will be called when
-the environment variable has a value. We’ll continue to follow the TDD process,
-so the first step is again to write a failing test. We’ll add a new test for
-the new <code>search_case_insensitive</code> function and rename our old test from
-<code>one_result</code> to <code>case_sensitive</code> to clarify the differences between the two
-tests, as shown in Listing 12-20.</p>
+                        <h2 id="làm-việc-với-các-biến-môi-trường"><a class="header" href="#làm-việc-với-các-biến-môi-trường">Làm việc với các Biến môi trường</a></h2>
+<p>Chúng ta sẽ cải thiện <code>minigrep</code> bằng cách thêm một tính năng bổ sung: một tùy chọn cho
+việc tìm kiếm không phân biệt hoa thường (case-insensitive) mà người dùng có thể bật thông qua một biến
+môi trường (environment variable). Chúng ta có thể biến tính năng này thành một tùy chọn dòng lệnh và yêu cầu
+người dùng nhập nó mỗi khi họ muốn áp dụng, nhưng thay vào đó, bằng cách biến nó thành một
+biến môi trường, chúng ta cho phép người dùng thiết lập biến môi trường một lần
+và tất cả các tìm kiếm của họ sẽ không phân biệt hoa thường trong phiên làm việc đó của terminal.</p>
+<h3 id="viết-một-kiểm-thử-thất-bại-cho-hàm-search_case_insensitive"><a class="header" href="#viết-một-kiểm-thử-thất-bại-cho-hàm-search_case_insensitive">Viết một Kiểm thử Thất bại cho Hàm <code>search_case_insensitive</code></a></h3>
+<p>Đầu tiên, chúng ta thêm một hàm <code>search_case_insensitive</code> mới, hàm này sẽ được gọi khi
+biến môi trường có giá trị. Chúng ta sẽ tiếp tục tuân theo quy trình TDD,
+vì vậy bước đầu tiên một lần nữa là viết một bài kiểm thử thất bại. Chúng ta sẽ thêm một bài kiểm thử mới cho
+hàm <code>search_case_insensitive</code> mới và đổi tên bài kiểm thử cũ từ
+<code>one_result</code> thành <code>case_sensitive</code> để làm rõ sự khác biệt giữa hai
+bài kiểm thử, như được hiển thị trong Liệt kê 12-20.</p>
 <figure class="listing" id="listing-12-20">
 <span class="file-name">Filename: src/lib.rs</span>
 <pre><code class="language-rust ignore does_not_compile"><span class="boring">use std::error::Error;
@@ -265,27 +265,27 @@ Trust me.";
         );
     }
 }</code></pre>
-<figcaption><a href="#listing-12-20">Listing 12-20</a>: Adding a new failing test for the case-insensitive function we’re about to add</figcaption>
+<figcaption><a href="#listing-12-20">Listing 12-20</a>: Thêm một bài kiểm thử thất bại mới cho hàm không phân biệt hoa thường mà chúng ta sắp thêm vào</figcaption>
 </figure>
-<p>Note that we’ve edited the old test’s <code>contents</code> too. We’ve added a new line
-with the text <code>"Duct tape."</code> using a capital <em>D</em> that shouldn’t match the query
-<code>"duct"</code> when we’re searching in a case-sensitive manner. Changing the old test
-in this way helps ensure that we don’t accidentally break the case-sensitive
-search functionality that we’ve already implemented. This test should pass now
-and should continue to pass as we work on the case-insensitive search.</p>
-<p>The new test for the case-<em>insensitive</em> search uses <code>"rUsT"</code> as its query. In
-the <code>search_case_insensitive</code> function we’re about to add, the query <code>"rUsT"</code>
-should match the line containing <code>"Rust:"</code> with a capital <em>R</em> and match the
-line <code>"Trust me."</code> even though both have different casing from the query. This
-is our failing test, and it will fail to compile because we haven’t yet defined
-the <code>search_case_insensitive</code> function. Feel free to add a skeleton
-implementation that always returns an empty vector, similar to the way we did
-for the <code>search</code> function in Listing 12-16 to see the test compile and fail.</p>
-<h3 id="implementing-the-search_case_insensitive-function"><a class="header" href="#implementing-the-search_case_insensitive-function">Implementing the <code>search_case_insensitive</code> Function</a></h3>
-<p>The <code>search_case_insensitive</code> function, shown in Listing 12-21, will be almost
-the same as the <code>search</code> function. The only difference is that we’ll lowercase
-the <code>query</code> and each <code>line</code> so that whatever the case of the input arguments,
-they’ll be the same case when we check whether the line contains the query.</p>
+<p>Lưu ý rằng chúng ta cũng đã chỉnh sửa <code>contents</code> của bài kiểm thử cũ. Chúng ta đã thêm một dòng mới
+với văn bản <code>"Duct tape."</code> sử dụng chữ <em>D</em> viết hoa, dòng này sẽ không khớp với truy vấn
+<code>"duct"</code> khi chúng ta tìm kiếm theo cách có phân biệt hoa thường (case-sensitive). Việc thay đổi bài kiểm thử cũ
+theo cách này giúp đảm bảo rằng chúng ta không vô tình làm hỏng chức năng tìm kiếm
+có phân biệt hoa thường mà chúng ta đã triển khai. Bài kiểm thử này bây giờ sẽ vượt qua
+và sẽ tiếp tục vượt qua khi chúng ta làm việc trên tính năng tìm kiếm không phân biệt hoa thường.</p>
+<p>Bài kiểm thử mới cho việc tìm kiếm <em>không</em> phân biệt hoa thường sử dụng <code>"rUsT"</code> làm truy vấn của nó. Trong
+hàm <code>search_case_insensitive</code> mà chúng ta sắp thêm vào, truy vấn <code>"rUsT"</code>
+nên khớp với dòng chứa <code>"Rust:"</code> với chữ <em>R</em> viết hoa và khớp với
+dòng <code>"Trust me."</code> mặc dù cả hai đều có cách viết hoa khác với truy vấn. Đây
+là bài kiểm thử thất bại của chúng ta, và nó sẽ không thể biên dịch được vì chúng ta chưa định nghĩa
+hàm <code>search_case_insensitive</code>. Bạn có thể thêm một triển khai khung (skeleton)
+luôn trả về một vector trống, tương tự như cách chúng ta đã làm cho
+hàm <code>search</code> trong Liệt kê 12-16 để thấy bài kiểm thử được biên dịch và thất bại.</p>
+<h3 id="triển-khai-hàm-search_case_insensitive"><a class="header" href="#triển-khai-hàm-search_case_insensitive">Triển khai Hàm <code>search_case_insensitive</code></a></h3>
+<p>Hàm <code>search_case_insensitive</code>, được hiển thị trong Liệt kê 12-21, sẽ gần như
+giống với hàm <code>search</code>. Sự khác biệt duy nhất là chúng ta sẽ chuyển <code>query</code> và mỗi
+<code>line</code> thành chữ thường để bất kể kiểu chữ của các đối số đầu vào là gì,
+chúng sẽ có cùng kiểu chữ khi chúng ta kiểm tra xem dòng đó có chứa truy vấn hay không.</p>
 <figure class="listing" id="listing-12-21">
 <span class="file-name">Filename: src/lib.rs</span>
 <pre><code class="language-rust noplayground"><span class="boring">use std::error::Error;
@@ -378,27 +378,27 @@ they’ll be the same case when we check whether the line contains the query.</p
 </span><span class="boring">        );
 </span><span class="boring">    }
 </span><span class="boring">}</span></code></pre>
-<figcaption><a href="#listing-12-21">Listing 12-21</a>: Defining the <code>search_case_insensitive</code> function to lowercase the query and the line before comparing them</figcaption>
+<figcaption><a href="#listing-12-21">Listing 12-21</a>: Định nghĩa hàm <code>search_case_insensitive</code> để chuyển truy vấn và dòng thành chữ thường trước khi so sánh chúng</figcaption>
 </figure>
-<p>First we lowercase the <code>query</code> string and store it in a new variable with the
-same name, shadowing the original <code>query</code>. Calling <code>to_lowercase</code> on the query
-is necessary so that no matter whether the user’s query is <code>"rust"</code>, <code>"RUST"</code>,
-<code>"Rust"</code>, or <code>"rUsT"</code>, we’ll treat the query as if it were <code>"rust"</code> and be
-insensitive to the case. While <code>to_lowercase</code> will handle basic Unicode, it
-won’t be 100% accurate. If we were writing a real application, we’d want to do a
-bit more work here, but this section is about environment variables, not
-Unicode, so we’ll leave it at that here.</p>
-<p>Note that <code>query</code> is now a <code>String</code> rather than a string slice because calling
-<code>to_lowercase</code> creates new data rather than referencing existing data. Say the
-query is <code>"rUsT"</code>, as an example: that string slice doesn’t contain a lowercase
-<code>u</code> or <code>t</code> for us to use, so we have to allocate a new <code>String</code> containing
-<code>"rust"</code>. When we pass <code>query</code> as an argument to the <code>contains</code> method now, we
-need to add an ampersand because the signature of <code>contains</code> is defined to take
-a string slice.</p>
-<p>Next, we add a call to <code>to_lowercase</code> on each <code>line</code> to lowercase all
-characters. Now that we’ve converted <code>line</code> and <code>query</code> to lowercase, we’ll
-find matches no matter what the case of the query is.</p>
-<p>Let’s see if this implementation passes the tests:</p>
+<p>Đầu tiên, chúng ta chuyển chuỗi <code>query</code> thành chữ thường và lưu trữ nó trong một biến mới có
+cùng tên, che bóng (shadowing) <code>query</code> ban đầu. Việc gọi <code>to_lowercase</code> trên truy vấn
+là cần thiết để bất kể truy vấn của người dùng là <code>"rust"</code>, <code>"RUST"</code>,
+<code>"Rust"</code>, hay <code>"rUsT"</code>, chúng ta sẽ coi truy vấn như thể nó là <code>"rust"</code> và
+không phân biệt hoa thường. Mặc dù <code>to_lowercase</code> sẽ xử lý Unicode cơ bản, nhưng nó
+sẽ không chính xác 100%. Nếu chúng ta đang viết một ứng dụng thực tế, chúng ta sẽ muốn thực hiện
+nhiều công việc hơn ở đây, nhưng phần này là về các biến môi trường, không phải
+Unicode, vì vậy chúng ta sẽ dừng lại ở đó.</p>
+<p>Lưu ý rằng <code>query</code> bây giờ là một <code>String</code> thay vì một lát cắt chuỗi (string slice) vì việc gọi
+<code>to_lowercase</code> tạo ra dữ liệu mới thay vì tham chiếu đến dữ liệu hiện có. Ví dụ, giả sử
+truy vấn là <code>"rUsT"</code>: lát cắt chuỗi đó không chứa chữ <code>u</code> hoặc <code>t</code> viết thường
+để chúng ta sử dụng, vì vậy chúng ta phải cấp phát một <code>String</code> mới chứa
+<code>"rust"</code>. Khi chúng ta truyền <code>query</code> làm đối số cho phương thức <code>contains</code> bây giờ, chúng ta
+cần thêm một dấu và (<code>&amp;</code>) vì chữ ký của <code>contains</code> được định nghĩa để nhận
+một lát cắt chuỗi.</p>
+<p>Tiếp theo, chúng ta thêm một lời gọi đến <code>to_lowercase</code> trên mỗi <code>line</code> để chuyển tất cả
+các ký tự thành chữ thường. Bây giờ chúng ta đã chuyển đổi <code>line</code> và <code>query</code> thành chữ thường, chúng ta sẽ
+tìm thấy các kết quả khớp bất kể kiểu chữ của truy vấn là gì.</p>
+<p>Hãy xem liệu triển khai này có vượt qua các bài kiểm thử không:</p>
 <pre><code class="language-console">$ cargo test
    Compiling minigrep v0.1.0 (file:///projects/minigrep)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 1.33s
@@ -423,11 +423,11 @@ running 0 tests
 test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
 </code></pre>
-<p>Great! They passed. Now, let’s call the new <code>search_case_insensitive</code> function
-from the <code>run</code> function. First we’ll add a configuration option to the <code>Config</code>
-struct to switch between case-sensitive and case-insensitive search. Adding
-this field will cause compiler errors because we aren’t initializing this field
-anywhere yet:</p>
+<p>Tuyệt vời! Chúng đã vượt qua. Bây giờ, hãy gọi hàm <code>search_case_insensitive</code> mới
+từ hàm <code>run</code>. Đầu tiên, chúng ta sẽ thêm một tùy chọn cấu hình vào struct <code>Config</code>
+để chuyển đổi giữa tìm kiếm có phân biệt hoa thường và không phân biệt hoa thường. Việc thêm
+trường này sẽ gây ra lỗi trình biên dịch vì chúng ta chưa khởi tạo trường này
+ở bất kỳ đâu:</p>
 <p><span class="filename">Filename: src/lib.rs</span></p>
 <pre><code class="language-rust ignore does_not_compile"><span class="boring">use std::error::Error;
 </span><span class="boring">use std::fs;
@@ -526,10 +526,10 @@ anywhere yet:</p>
 </span><span class="boring">        );
 </span><span class="boring">    }
 </span><span class="boring">}</span></code></pre>
-<p>We added the <code>ignore_case</code> field that holds a Boolean. Next, we need the <code>run</code>
-function to check the <code>ignore_case</code> field’s value and use that to decide
-whether to call the <code>search</code> function or the <code>search_case_insensitive</code>
-function, as shown in Listing 12-22. This still won’t compile yet.</p>
+<p>Chúng ta đã thêm trường <code>ignore_case</code> để giữ một giá trị Boolean. Tiếp theo, chúng ta cần hàm <code>run</code>
+kiểm tra giá trị của trường <code>ignore_case</code> và sử dụng giá trị đó để quyết định
+nên gọi hàm <code>search</code> hay hàm <code>search_case_insensitive</code>,
+như được hiển thị trong Liệt kê 12-22. Đoạn mã này vẫn chưa thể biên dịch được.</p>
 <figure class="listing" id="listing-12-22">
 <span class="file-name">Filename: src/lib.rs</span>
 <pre><code class="language-rust ignore does_not_compile"><span class="boring">use std::error::Error;
@@ -629,14 +629,13 @@ function, as shown in Listing 12-22. This still won’t compile yet.</p>
 </span><span class="boring">        );
 </span><span class="boring">    }
 </span><span class="boring">}</span></code></pre>
-<figcaption><a href="#listing-12-22">Listing 12-22</a>: Calling either <code>search</code> or <code>search_case_insensitive</code> based on the value in <code>config.ignore_case</code></figcaption>
+<figcaption><a href="#listing-12-22">Listing 12-22</a>: Gọi <code>search</code> hoặc <code>search_case_insensitive</code> dựa trên giá trị trong <code>config.ignore_case</code> house</figcaption>
 </figure>
-<p>Finally, we need to check for the environment variable. The functions for
-working with environment variables are in the <code>env</code> module in the standard
-library, so we bring that module into scope at the top of <em>src/lib.rs</em>. Then
-we’ll use the <code>var</code> function from the <code>env</code> module to check to see if any value
-has been set for an environment variable named <code>IGNORE_CASE</code>, as shown in
-Listing 12-23.</p>
+<p>Cuối cùng, chúng ta cần kiểm tra biến môi trường. Các hàm để làm việc với
+biến môi trường nằm trong module <code>env</code> trong thư viện tiêu chuẩn (standard library), vì vậy chúng ta đưa
+module đó vào phạm vi (scope) ở đầu tệp <em>src/lib.rs</em>. Sau đó, chúng ta sẽ sử dụng hàm <code>var</code>
+từ module <code>env</code> để kiểm tra xem có bất kỳ giá trị nào được thiết lập cho một biến
+môi trường có tên là <code>IGNORE_CASE</code> hay không, như được hiển thị trong Liệt kê 12-23.</p>
 <figure class="listing" id="listing-12-23">
 <span class="file-name">Filename: src/lib.rs</span>
 <pre><code class="language-rust noplayground">use std::env;
@@ -745,27 +744,26 @@ Listing 12-23.</p>
 </span><span class="boring">        );
 </span><span class="boring">    }
 </span><span class="boring">}</span></code></pre>
-<figcaption><a href="#listing-12-23">Listing 12-23</a>: Checking for any value in an environment variable named <code>IGNORE_CASE</code></figcaption>
+<figcaption><a href="#listing-12-23">Listing 12-23</a>: Kiểm tra bất kỳ giá trị nào trong một biến môi trường có tên là <code>IGNORE_CASE</code> house</figcaption>
 </figure>
-<p>Here, we create a new variable, <code>ignore_case</code>. To set its value, we call the
-<code>env::var</code> function and pass it the name of the <code>IGNORE_CASE</code> environment
-variable. The <code>env::var</code> function returns a <code>Result</code> that will be the
-successful <code>Ok</code> variant that contains the value of the environment variable if
-the environment variable is set to any value. It will return the <code>Err</code> variant
-if the environment variable is not set.</p>
-<p>We’re using the <code>is_ok</code> method on the <code>Result</code> to check whether the environment
-variable is set, which means the program should do a case-insensitive search.
-If the <code>IGNORE_CASE</code> environment variable isn’t set to anything, <code>is_ok</code> will
-return <code>false</code> and the program will perform a case-sensitive search. We don’t
-care about the <em>value</em> of the environment variable, just whether it’s set or
-unset, so we’re checking <code>is_ok</code> rather than using <code>unwrap</code>, <code>expect</code>, or any
-of the other methods we’ve seen on <code>Result</code>.</p>
-<p>We pass the value in the <code>ignore_case</code> variable to the <code>Config</code> instance so the
-<code>run</code> function can read that value and decide whether to call
-<code>search_case_insensitive</code> or <code>search</code>, as we implemented in Listing 12-22.</p>
-<p>Let’s give it a try! First we’ll run our program without the environment
-variable set and with the query <code>to</code>, which should match any line that contains
-the word <em>to</em> in all lowercase:</p>
+<p>Ở đây, chúng ta tạo một biến mới, <code>ignore_case</code>. Để thiết lập giá trị của nó, chúng ta gọi hàm
+<code>env::var</code> và truyền cho nó tên của biến môi trường <code>IGNORE_CASE</code>. Hàm
+<code>env::var</code> trả về một <code>Result</code>, nó sẽ là biến thể <code>Ok</code> thành công
+chứa giá trị của biến môi trường nếu biến môi trường đó
+được thiết lập với bất kỳ giá trị nào. Nó sẽ trả về biến thể <code>Err</code> nếu biến môi trường không được thiết lập.</p>
+<p>Chúng ta đang sử dụng phương thức <code>is_ok</code> trên <code>Result</code> để kiểm tra xem biến môi trường
+có được thiết lập hay không, điều đó có nghĩa là chương trình nên thực hiện tìm kiếm không phân biệt hoa thường.
+Nếu biến môi trường <code>IGNORE_CASE</code> không được thiết lập cho bất kỳ thứ gì, <code>is_ok</code> sẽ
+trả về <code>false</code> và chương trình sẽ thực hiện tìm kiếm có phân biệt hoa thường. Chúng ta không
+quan tâm đến <em>giá trị</em> của biến môi trường, chỉ cần biết nó được thiết lập hay chưa được thiết lập,
+vì vậy chúng ta đang kiểm tra <code>is_ok</code> thay vì sử dụng <code>unwrap</code>, <code>expect</code>, hoặc bất kỳ
+phương thức nào khác mà chúng ta đã thấy trên <code>Result</code>.</p>
+<p>Chúng ta truyền giá trị trong biến <code>ignore_case</code> cho instance <code>Config</code> để hàm
+<code>run</code> có thể đọc giá trị đó và quyết định nên gọi
+<code>search_case_insensitive</code> hay <code>search</code>, như chúng ta đã triển khai trong Liệt kê 12-22.</p>
+<p>Hãy thử một lần xem sao! Đầu tiên, chúng ta sẽ chạy chương trình của mình mà không thiết lập biến môi trường
+và với truy vấn <code>to</code>, truy vấn này sẽ khớp với bất kỳ dòng nào chứa từ
+<em>to</em> ở dạng chữ thường:</p>
 <pre><code class="language-console">$ cargo run -- to poem.txt
    Compiling minigrep v0.1.0 (file:///projects/minigrep)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.0s
@@ -773,19 +771,19 @@ the word <em>to</em> in all lowercase:</p>
 Are you nobody, too?
 How dreary to be somebody!
 </code></pre>
-<p>Looks like that still works! Now let’s run the program with <code>IGNORE_CASE</code> set
-to <code>1</code> but with the same query <em>to</em>:</p>
+<p>Có vẻ như nó vẫn hoạt động! Bây giờ hãy chạy chương trình với <code>IGNORE_CASE</code> được thiết lập
+thành <code>1</code> nhưng với cùng truy vấn <em>to</em>:</p>
 <pre><code class="language-console">$ IGNORE_CASE=1 cargo run -- to poem.txt
 </code></pre>
-<p>If you’re using PowerShell, you will need to set the environment variable and
-run the program as separate commands:</p>
+<p>Nếu bạn đang sử dụng PowerShell, bạn sẽ cần thiết lập biến môi trường và
+chạy chương trình dưới dạng các lệnh riêng biệt:</p>
 <pre><code class="language-console">PS&gt; $Env:IGNORE_CASE=1; cargo run -- to poem.txt
 </code></pre>
-<p>This will make <code>IGNORE_CASE</code> persist for the remainder of your shell session.
-It can be unset with the <code>Remove-Item</code> cmdlet:</p>
+<p>Điều này sẽ làm cho <code>IGNORE_CASE</code> tồn tại trong phần còn lại của phiên làm việc shell của bạn.
+Nó có thể được hủy bỏ bằng cmdlet <code>Remove-Item</code>:</p>
 <pre><code class="language-console">PS&gt; Remove-Item Env:IGNORE_CASE
 </code></pre>
-<p>We should get lines that contain <em>to</em> that might have uppercase letters:</p>
+<p>Chúng ta sẽ nhận được các dòng chứa <em>to</em> có thể có các chữ cái viết hoa:</p>
 <!-- manual-regeneration
 cd listings/ch12-an-io-project/listing-12-23
 IGNORE_CASE=1 cargo run -- to poem.txt
@@ -796,19 +794,18 @@ How dreary to be somebody!
 To tell your name the livelong day
 To an admiring bog!
 </code></pre>
-<p>Excellent, we also got lines containing <em>To</em>! Our <code>minigrep</code> program can now do
-case-insensitive searching controlled by an environment variable. Now you know
-how to manage options set using either command line arguments or environment
-variables.</p>
-<p>Some programs allow arguments <em>and</em> environment variables for the same
-configuration. In those cases, the programs decide that one or the other takes
-precedence. For another exercise on your own, try controlling case sensitivity
-through either a command line argument or an environment variable. Decide
-whether the command line argument or the environment variable should take
-precedence if the program is run with one set to case sensitive and one set to
-ignore case.</p>
-<p>The <code>std::env</code> module contains many more useful features for dealing with
-environment variables: check out its documentation to see what is available.</p>
+<p>Tuyệt vời, chúng ta cũng nhận được các dòng chứa <em>To</em>! Chương trình <code>minigrep</code> của chúng ta bây giờ có thể
+thực hiện tìm kiếm không phân biệt hoa thường được điều khiển bởi một biến môi trường. Bây giờ bạn đã biết
+cách quản lý các tùy chọn được thiết lập bằng cách sử dụng các đối số dòng lệnh hoặc các biến môi trường.</p>
+<p>Một số chương trình cho phép các đối số <em>và</em> các biến môi trường cho cùng một
+cấu hình. Trong những trường hợp đó, các chương trình quyết định rằng cái này hoặc cái kia sẽ được ưu tiên.
+Để thực hiện một bài tập khác cho riêng mình, hãy thử kiểm soát tính phân biệt hoa thường
+thông qua đối số dòng lệnh hoặc biến môi trường. Hãy quyết định
+xem đối số dòng lệnh hay biến môi trường nên được ưu tiên
+nếu chương trình được chạy với một cái được thiết lập là có phân biệt hoa thường và một cái được thiết lập là
+bỏ qua kiểu chữ.</p>
+<p>Module <code>std::env</code> chứa nhiều tính năng hữu ích hơn để xử lý các
+biến môi trường: hãy xem tài liệu của nó để biết những gì có sẵn.</p>
 
                     </main>
 

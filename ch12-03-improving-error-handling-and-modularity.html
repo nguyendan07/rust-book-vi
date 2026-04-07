@@ -175,67 +175,67 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="refactoring-to-improve-modularity-and-error-handling"><a class="header" href="#refactoring-to-improve-modularity-and-error-handling">Refactoring to Improve Modularity and Error Handling</a></h2>
-<p>To improve our program, we’ll fix four problems that have to do with the
-program’s structure and how it’s handling potential errors. First, our <code>main</code>
-function now performs two tasks: it parses arguments and reads files. As our
-program grows, the number of separate tasks the <code>main</code> function handles will
-increase. As a function gains responsibilities, it becomes more difficult to
-reason about, harder to test, and harder to change without breaking one of its
-parts. It’s best to separate functionality so each function is responsible for
-one task.</p>
-<p>This issue also ties into the second problem: although <code>query</code> and <code>file_path</code>
-are configuration variables to our program, variables like <code>contents</code> are used
-to perform the program’s logic. The longer <code>main</code> becomes, the more variables
-we’ll need to bring into scope; the more variables we have in scope, the harder
-it will be to keep track of the purpose of each. It’s best to group the
-configuration variables into one structure to make their purpose clear.</p>
-<p>The third problem is that we’ve used <code>expect</code> to print an error message when
-reading the file fails, but the error message just prints <code>Should have been able to read the file</code>. Reading a file can fail in a number of ways: for
-example, the file could be missing, or we might not have permission to open it.
-Right now, regardless of the situation, we’d print the same error message for
-everything, which wouldn’t give the user any information!</p>
-<p>Fourth, we use <code>expect</code> to handle an error, and if the user runs our program
-without specifying enough arguments, they’ll get an <code>index out of bounds</code> error
-from Rust that doesn’t clearly explain the problem. It would be best if all the
-error-handling code were in one place so future maintainers had only one place
-to consult the code if the error-handling logic needed to change. Having all the
-error-handling code in one place will also ensure that we’re printing messages
-that will be meaningful to our end users.</p>
-<p>Let’s address these four problems by refactoring our project.</p>
-<h3 id="separation-of-concerns-for-binary-projects"><a class="header" href="#separation-of-concerns-for-binary-projects">Separation of Concerns for Binary Projects</a></h3>
-<p>The organizational problem of allocating responsibility for multiple tasks to
-the <code>main</code> function is common to many binary projects. As a result, the Rust
-community has developed guidelines for splitting the separate concerns of a
-binary program when <code>main</code> starts getting large. This process has the following
-steps:</p>
+                        <h2 id="tái-cấu-trúc-để-cải-thiện-tính-module-và-xử-lý-lỗi"><a class="header" href="#tái-cấu-trúc-để-cải-thiện-tính-module-và-xử-lý-lỗi">Tái Cấu Trúc để Cải Thiện Tính Module và Xử Lý Lỗi</a></h2>
+<p>Để cải thiện chương trình của mình, chúng ta sẽ khắc phục bốn vấn đề liên quan đến
+cấu trúc của chương trình và cách nó xử lý các lỗi tiềm ẩn. Đầu tiên, hàm <code>main</code>
+của chúng ta hiện thực hiện hai nhiệm vụ: phân tích cú pháp các đối số và đọc các tệp. Khi
+chương trình của chúng ta phát triển, số lượng các nhiệm vụ riêng biệt mà hàm <code>main</code> xử lý sẽ
+tăng lên. Khi một hàm đảm nhận thêm nhiều trách nhiệm, nó trở nên khó suy luận hơn,
+khó kiểm thử hơn và khó thay đổi hơn mà không làm hỏng một trong các
+phần của nó. Tốt nhất là nên tách biệt chức năng để mỗi hàm chịu trách nhiệm cho
+một nhiệm vụ.</p>
+<p>Vấn đề này cũng liên quan đến vấn đề thứ hai: mặc dù <code>query</code> và <code>file_path</code>
+là các biến cấu hình cho chương trình của chúng ta, các biến như <code>contents</code> lại được sử dụng
+để thực hiện logic của chương trình. <code>main</code> càng dài, chúng ta càng cần đưa nhiều biến
+vào phạm vi; chúng ta càng có nhiều biến trong phạm vi, thì càng khó để
+theo dõi mục đích của từng biến. Tốt nhất là nhóm các
+biến cấu hình vào một cấu trúc để làm rõ mục đích của chúng.</p>
+<p>Vấn đề thứ ba là chúng ta đã sử dụng <code>expect</code> để in một thông báo lỗi khi
+việc đọc tệp thất bại, nhưng thông báo lỗi chỉ in ra <code>Should have been able to read the file</code>. Việc đọc một tệp có thể thất bại theo nhiều cách: ví
+dụ, tệp có thể bị thiếu, hoặc chúng ta có thể không có quyền để mở nó.
+Hiện tại, bất kể tình huống nào, chúng ta đều in cùng một thông báo lỗi cho
+mọi thứ, điều này sẽ không cung cấp cho người dùng bất kỳ thông tin nào!</p>
+<p>Thứ tư, chúng ta sử dụng <code>expect</code> để xử lý một lỗi, và nếu người dùng chạy chương trình của chúng ta
+mà không chỉ định đủ các đối số, họ sẽ nhận được một lỗi <code>index out of bounds</code>
+từ Rust mà không giải thích rõ ràng vấn đề. Sẽ tốt nhất nếu tất cả các
+mã xử lý lỗi nằm ở một nơi để những người bảo trì trong tương lai chỉ cần một nơi
+để tham khảo mã nếu logic xử lý lỗi cần thay đổi. Việc có tất cả các
+mã xử lý lỗi ở một nơi cũng sẽ đảm bảo rằng chúng ta đang in các thông báo
+có ý nghĩa đối với người dùng cuối của mình.</p>
+<p>Hãy giải quyết bốn vấn đề này bằng cách tái cấu trúc (refactoring) dự án của chúng ta.</p>
+<h3 id="phân-tách-các-mối-bận-tâm-cho-các-dự-Án-nhị-phân"><a class="header" href="#phân-tách-các-mối-bận-tâm-cho-các-dự-Án-nhị-phân">Phân Tách các Mối Bận Tâm cho Các Dự Án Nhị Phân</a></h3>
+<p>Vấn đề tổ chức về việc phân bổ trách nhiệm cho nhiều nhiệm vụ cho
+hàm <code>main</code> là phổ biến đối với nhiều dự án nhị phân (binary projects). Do đó, cộng đồng Rust
+đã phát triển các hướng dẫn để phân tách các mối bận tâm (separation of concerns) riêng biệt của một
+chương trình nhị phân khi <code>main</code> bắt đầu trở nên lớn. Quá trình này có các
+bước sau:</p>
 <ul>
-<li>Split your program into a <em>main.rs</em> file and a <em>lib.rs</em> file and move your
-program’s logic to <em>lib.rs</em>.</li>
-<li>As long as your command line parsing logic is small, it can remain in
+<li>Chia chương trình của bạn thành một tệp <em>main.rs</em> và một tệp <em>lib.rs</em> và chuyển
+logic chương trình của bạn sang <em>lib.rs</em>.</li>
+<li>Miễn là logic phân tích cú pháp dòng lệnh của bạn còn nhỏ, nó có thể vẫn nằm trong
 <em>main.rs</em>.</li>
-<li>When the command line parsing logic starts getting complicated, extract it
-from <em>main.rs</em> and move it to <em>lib.rs</em>.</li>
+<li>Khi logic phân tích cú pháp dòng lệnh bắt đầu trở nên phức tạp, hãy trích xuất nó
+từ <em>main.rs</em> và chuyển nó sang <em>lib.rs</em>.</li>
 </ul>
-<p>The responsibilities that remain in the <code>main</code> function after this process
-should be limited to the following:</p>
+<p>Các trách nhiệm còn lại trong hàm <code>main</code> sau quá trình này
+nên được giới hạn ở các việc sau:</p>
 <ul>
-<li>Calling the command line parsing logic with the argument values</li>
-<li>Setting up any other configuration</li>
-<li>Calling a <code>run</code> function in <em>lib.rs</em></li>
-<li>Handling the error if <code>run</code> returns an error</li>
+<li>Gọi logic phân tích cú pháp dòng lệnh với các giá trị đối số</li>
+<li>Thiết lập bất kỳ cấu hình nào khác</li>
+<li>Gọi một hàm <code>run</code> trong <em>lib.rs</em></li>
+<li>Xử lý lỗi nếu <code>run</code> trả về một lỗi</li>
 </ul>
-<p>This pattern is about separating concerns: <em>main.rs</em> handles running the
-program and <em>lib.rs</em> handles all the logic of the task at hand. Because you
-can’t test the <code>main</code> function directly, this structure lets you test all of
-your program’s logic by moving it into functions in <em>lib.rs</em>. The code that
-remains in <em>main.rs</em> will be small enough to verify its correctness by reading
-it. Let’s rework our program by following this process.</p>
-<h4 id="extracting-the-argument-parser"><a class="header" href="#extracting-the-argument-parser">Extracting the Argument Parser</a></h4>
-<p>We’ll extract the functionality for parsing arguments into a function that
-<code>main</code> will call to prepare for moving the command line parsing logic to
-<em>src/lib.rs</em>. Listing 12-5 shows the new start of <code>main</code> that calls a new
-function <code>parse_config</code>, which we’ll define in <em>src/main.rs</em> for the moment.</p>
+<p>Mô hình này là về việc phân tách các mối bận tâm: <em>main.rs</em> xử lý việc chạy
+chương trình và <em>lib.rs</em> xử lý tất cả logic của nhiệm vụ đang thực hiện. Bởi vì bạn
+không thể kiểm thử trực tiếp hàm <code>main</code>, cấu trúc này cho phép bạn kiểm thử tất cả
+logic chương trình của mình bằng cách chuyển nó vào các hàm trong <em>lib.rs</em>. Mã
+còn lại trong <em>main.rs</em> sẽ đủ nhỏ để xác minh tính chính xác của nó bằng cách
+đọc nó. Hãy làm lại chương trình của chúng ta bằng cách tuân theo quy trình này.</p>
+<h4 id="trích-xuất-bộ-phân-tích-cú-pháp-Đối-số"><a class="header" href="#trích-xuất-bộ-phân-tích-cú-pháp-Đối-số">Trích Xuất Bộ Phân Tích Cú Pháp Đối Số</a></h4>
+<p>Chúng ta sẽ trích xuất chức năng phân tích cú pháp các đối số vào một hàm mà
+<code>main</code> sẽ gọi để chuẩn bị cho việc chuyển logic phân tích cú pháp dòng lệnh sang
+<em>src/lib.rs</em>. Liệt kê 12-5 cho thấy phần bắt đầu mới của <code>main</code> gọi một
+hàm mới <code>parse_config</code>, hàm mà chúng ta sẽ tạm thời định nghĩa trong <em>src/main.rs</em>.</p>
 <figure class="listing" id="listing-12-5">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><code class="language-rust ignore"><span class="boring">use std::env;
@@ -263,35 +263,35 @@ fn parse_config(args: &amp;[String]) -&gt; (&amp;str, &amp;str) {
 
     (query, file_path)
 }</code></pre>
-<figcaption><a href="#listing-12-5">Listing 12-5</a>: Extracting a <code>parse_config</code> function from <code>main</code></figcaption>
+<figcaption><a href="#listing-12-5">Listing 12-5</a>: Trích xuất một hàm <code>parse_config</code> từ <code>main</code></figcaption>
 </figure>
-<p>We’re still collecting the command line arguments into a vector, but instead of
-assigning the argument value at index 1 to the variable <code>query</code> and the
-argument value at index 2 to the variable <code>file_path</code> within the <code>main</code>
-function, we pass the whole vector to the <code>parse_config</code> function. The
-<code>parse_config</code> function then holds the logic that determines which argument
-goes in which variable and passes the values back to <code>main</code>. We still create
-the <code>query</code> and <code>file_path</code> variables in <code>main</code>, but <code>main</code> no longer has the
-responsibility of determining how the command line arguments and variables
-correspond.</p>
-<p>This rework may seem like overkill for our small program, but we’re refactoring
-in small, incremental steps. After making this change, run the program again to
-verify that the argument parsing still works. It’s good to check your progress
-often, to help identify the cause of problems when they occur.</p>
-<h4 id="grouping-configuration-values"><a class="header" href="#grouping-configuration-values">Grouping Configuration Values</a></h4>
-<p>We can take another small step to improve the <code>parse_config</code> function further.
-At the moment, we’re returning a tuple, but then we immediately break that
-tuple into individual parts again. This is a sign that perhaps we don’t have
-the right abstraction yet.</p>
-<p>Another indicator that shows there’s room for improvement is the <code>config</code> part
-of <code>parse_config</code>, which implies that the two values we return are related and
-are both part of one configuration value. We’re not currently conveying this
-meaning in the structure of the data other than by grouping the two values into
-a tuple; we’ll instead put the two values into one struct and give each of the
-struct fields a meaningful name. Doing so will make it easier for future
-maintainers of this code to understand how the different values relate to each
-other and what their purpose is.</p>
-<p>Listing 12-6 shows the improvements to the <code>parse_config</code> function.</p>
+<p>Chúng ta vẫn đang thu thập các đối số dòng lệnh vào một vector, nhưng thay vì
+gán giá trị đối số tại chỉ số 1 cho biến <code>query</code> và
+giá trị đối số tại chỉ số 2 cho biến <code>file_path</code> trong hàm <code>main</code>,
+chúng ta truyền toàn bộ vector cho hàm <code>parse_config</code>. Hàm
+<code>parse_config</code> sau đó giữ logic xác định đối số nào
+nằm trong biến nào và truyền các giá trị trở lại <code>main</code>. Chúng ta vẫn tạo
+các biến <code>query</code> và <code>file_path</code> trong <code>main</code>, nhưng <code>main</code> không còn
+trách nhiệm xác định các đối số dòng lệnh và biến
+tương ứng như thế nào.</p>
+<p>Việc làm lại này có vẻ như là hơi quá mức đối với chương trình nhỏ của chúng ta, nhưng chúng ta đang tái cấu trúc
+theo các bước nhỏ, tăng dần. Sau khi thực hiện thay đổi này, hãy chạy lại chương trình để
+xác minh rằng việc phân tích cú pháp đối số vẫn hoạt động. Tốt nhất là nên kiểm tra tiến độ của bạn
+thường xuyên, để giúp xác định nguyên nhân của các vấn đề khi chúng xảy ra.</p>
+<h4 id="nhóm-các-giá-trị-cấu-hình"><a class="header" href="#nhóm-các-giá-trị-cấu-hình">Nhóm Các Giá Trị Cấu Hình</a></h4>
+<p>Chúng ta có thể thực hiện một bước nhỏ khác để cải thiện hàm <code>parse_config</code> hơn nữa.
+Tại thời điểm này, chúng ta đang trả về một tuple, nhưng sau đó chúng ta ngay lập tức tách
+tuple đó thành các phần riêng lẻ một lần nữa. Đây là một dấu hiệu cho thấy có lẽ chúng ta chưa có
+sự trừu tượng hóa phù hợp.</p>
+<p>Một chỉ báo khác cho thấy vẫn còn chỗ để cải thiện là phần <code>config</code>
+của <code>parse_config</code>, nó ám chỉ rằng hai giá trị chúng ta trả về có liên quan với nhau và
+đều là một phần của một giá trị cấu hình. Chúng ta hiện không truyền đạt
+ý nghĩa này trong cấu trúc của dữ liệu ngoài việc nhóm hai giá trị thành
+một tuple; thay vào đó chúng ta sẽ đặt hai giá trị vào một struct và đặt cho mỗi
+trường của struct một cái tên có ý nghĩa. Làm như vậy sẽ giúp những người
+bảo trì mã này trong tương lai dễ dàng hiểu được các giá trị khác nhau liên quan đến
+nhau như thế nào và mục đích của chúng là gì.</p>
+<p>Liệt kê 12-6 cho thấy những cải tiến đối với hàm <code>parse_config</code>.</p>
 <figure class="listing" id="listing-12-6">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><code class="language-rust should_panic noplayground"><span class="boring">use std::env;
@@ -324,59 +324,59 @@ fn parse_config(args: &amp;[String]) -&gt; Config {
 
     Config { query, file_path }
 }</code></pre>
-<figcaption><a href="#listing-12-6">Listing 12-6</a>: Refactoring <code>parse_config</code> to return an instance of a <code>Config</code> struct</figcaption>
+<figcaption><a href="#listing-12-6">Listing 12-6</a>: Tái cấu trúc <code>parse_config</code> để trả về một instance của một struct <code>Config</code></figcaption>
 </figure>
-<p>We’ve added a struct named <code>Config</code> defined to have fields named <code>query</code> and
-<code>file_path</code>. The signature of <code>parse_config</code> now indicates that it returns a
-<code>Config</code> value. In the body of <code>parse_config</code>, where we used to return
-string slices that reference <code>String</code> values in <code>args</code>, we now define <code>Config</code>
-to contain owned <code>String</code> values. The <code>args</code> variable in <code>main</code> is the owner of
-the argument values and is only letting the <code>parse_config</code> function borrow
-them, which means we’d violate Rust’s borrowing rules if <code>Config</code> tried to take
-ownership of the values in <code>args</code>.</p>
-<p>There are a number of ways we could manage the <code>String</code> data; the easiest,
-though somewhat inefficient, route is to call the <code>clone</code> method on the values.
-This will make a full copy of the data for the <code>Config</code> instance to own, which
-takes more time and memory than storing a reference to the string data.
-However, cloning the data also makes our code very straightforward because we
-don’t have to manage the lifetimes of the references; in this circumstance,
-giving up a little performance to gain simplicity is a worthwhile trade-off.</p>
+<p>Chúng ta đã thêm một struct tên là <code>Config</code> được định nghĩa để có các trường tên là <code>query</code> và
+<code>file_path</code>. Chữ ký của <code>parse_config</code> giờ đây chỉ ra rằng nó trả về một
+giá trị <code>Config</code>. Trong thân hàm <code>parse_config</code>, nơi chúng ta từng trả về
+các string slice tham chiếu đến các giá trị <code>String</code> trong <code>args</code>, giờ đây chúng ta định nghĩa <code>Config</code>
+chứa các giá trị <code>String</code> được sở hữu (owned). Biến <code>args</code> trong <code>main</code> là chủ sở hữu của
+các giá trị đối số và chỉ cho phép hàm <code>parse_config</code> mượn
+chúng, điều đó có nghĩa là chúng ta sẽ vi phạm các quy tắc mượn (borrowing rules) của Rust nếu <code>Config</code> cố gắng lấy
+quyền sở hữu các giá trị trong <code>args</code>.</p>
+<p>Có một số cách chúng ta có thể quản lý dữ liệu <code>String</code>; con đường dễ dàng nhất,
+mặc dù hơi kém hiệu quả, là gọi phương thức <code>clone</code> trên các giá trị.
+Điều này sẽ tạo ra một bản sao đầy đủ của dữ liệu để instance <code>Config</code> sở hữu, việc này
+tốn nhiều thời gian và bộ nhớ hơn so với việc lưu trữ một tham chiếu đến dữ liệu chuỗi.
+Tuy nhiên, việc nhân bản dữ liệu cũng làm cho mã của chúng ta rất đơn giản vì chúng ta
+không phải quản lý lifetime của các tham chiếu; trong hoàn cảnh này,
+hy sinh một chút hiệu năng để đạt được sự đơn giản là một sự đánh đổi xứng đáng.</p>
 <section class="note" aria-role="note">
-<h3 id="the-trade-offs-of-using-clone"><a class="header" href="#the-trade-offs-of-using-clone">The Trade-Offs of Using <code>clone</code></a></h3>
-<p>There’s a tendency among many Rustaceans to avoid using <code>clone</code> to fix
-ownership problems because of its runtime cost. In
-<a href="ch13-00-functional-features.html">Chapter 13</a><!-- ignore -->, you’ll learn how to use more efficient
-methods in this type of situation. But for now, it’s okay to copy a few
-strings to continue making progress because you’ll make these copies only
-once and your file path and query string are very small. It’s better to have
-a working program that’s a bit inefficient than to try to hyperoptimize code
-on your first pass. As you become more experienced with Rust, it’ll be
-easier to start with the most efficient solution, but for now, it’s
-perfectly acceptable to call <code>clone</code>.</p>
+<h3 id="những-Đánh-Đổi-của-việc-sử-dụng-clone"><a class="header" href="#những-Đánh-Đổi-của-việc-sử-dụng-clone">Những Đánh Đổi của Việc Sử Dụng <code>clone</code></a></h3>
+<p>Có một xu hướng trong nhiều người dùng Rust là tránh sử dụng <code>clone</code> để sửa chữa
+các vấn đề về quyền sở hữu vì chi phí thời gian chạy (runtime cost) của nó. Trong
+<a href="ch13-00-functional-features.html">Chương 13</a><!-- ignore -->, bạn sẽ học cách sử dụng các phương thức hiệu quả hơn
+trong loại tình huống này. Nhưng hiện tại, việc sao chép một vài
+chuỗi để tiếp tục đạt được tiến bộ là không sao vì bạn sẽ chỉ thực hiện các bản sao này
+một lần và đường dẫn tệp cũng như chuỗi truy vấn của bạn rất nhỏ. Tốt hơn là nên có
+một chương trình hoạt động nhưng hơi kém hiệu quả còn hơn là cố gắng tối ưu hóa mã quá mức
+ngay trong lần viết đầu tiên. Khi bạn trở nên có kinh nghiệm hơn với Rust, việc
+bắt đầu với giải pháp hiệu quả nhất sẽ dễ dàng hơn, nhưng hiện tại, việc
+gọi <code>clone</code> là hoàn toàn có thể chấp nhận được.</p>
 </section>
-<p>We’ve updated <code>main</code> so it places the instance of <code>Config</code> returned by
-<code>parse_config</code> into a variable named <code>config</code>, and we updated the code that
-previously used the separate <code>query</code> and <code>file_path</code> variables so it now uses
-the fields on the <code>Config</code> struct instead.</p>
-<p>Now our code more clearly conveys that <code>query</code> and <code>file_path</code> are related and
-that their purpose is to configure how the program will work. Any code that
-uses these values knows to find them in the <code>config</code> instance in the fields
-named for their purpose.</p>
-<h4 id="creating-a-constructor-for-config"><a class="header" href="#creating-a-constructor-for-config">Creating a Constructor for <code>Config</code></a></h4>
-<p>So far, we’ve extracted the logic responsible for parsing the command line
-arguments from <code>main</code> and placed it in the <code>parse_config</code> function. Doing so
-helped us see that the <code>query</code> and <code>file_path</code> values were related, and that
-relationship should be conveyed in our code. We then added a <code>Config</code> struct to
-name the related purpose of <code>query</code> and <code>file_path</code> and to be able to return the
-values’ names as struct field names from the <code>parse_config</code> function.</p>
-<p>So now that the purpose of the <code>parse_config</code> function is to create a <code>Config</code>
-instance, we can change <code>parse_config</code> from a plain function to a function
-named <code>new</code> that is associated with the <code>Config</code> struct. Making this change
-will make the code more idiomatic. We can create instances of types in the
-standard library, such as <code>String</code>, by calling <code>String::new</code>. Similarly, by
-changing <code>parse_config</code> into a <code>new</code> function associated with <code>Config</code>, we’ll
-be able to create instances of <code>Config</code> by calling <code>Config::new</code>. Listing 12-7
-shows the changes we need to make.</p>
+<p>Chúng ta đã cập nhật <code>main</code> để nó đặt instance của <code>Config</code> được trả về bởi
+<code>parse_config</code> vào một biến tên là <code>config</code>, và chúng ta đã cập nhật mã
+trước đây sử dụng các biến <code>query</code> và <code>file_path</code> riêng biệt để giờ đây nó sử dụng
+các trường trên struct <code>Config</code> thay thế.</p>
+<p>Bây giờ mã của chúng ta truyền đạt rõ ràng hơn rằng <code>query</code> và <code>file_path</code> có liên quan đến nhau và
+mục đích của chúng là cấu hình cách chương trình sẽ hoạt động. Bất kỳ mã nào
+sử dụng các giá trị này đều biết cách tìm chúng trong instance <code>config</code> trong các trường
+được đặt tên theo mục đích của chúng.</p>
+<h4 id="tạo-một-constructor-cho-config"><a class="header" href="#tạo-một-constructor-cho-config">Tạo một Constructor cho <code>Config</code></a></h4>
+<p>Cho đến nay, chúng ta đã trích xuất logic chịu trách nhiệm phân tích cú pháp các đối số dòng lệnh
+từ <code>main</code> và đặt nó vào hàm <code>parse_config</code>. Làm như vậy đã
+giúp chúng ta thấy rằng các giá trị <code>query</code> và <code>file_path</code> có liên quan đến nhau, và
+mối quan hệ đó nên được truyền đạt trong mã của chúng ta. Sau đó chúng ta đã thêm một struct <code>Config</code> để
+đặt tên cho mục đích liên quan của <code>query</code> và <code>file_path</code> và để có thể trả về các
+tên giá trị dưới dạng tên trường struct từ hàm <code>parse_config</code>.</p>
+<p>Vì vậy, bây giờ mục đích của hàm <code>parse_config</code> là tạo một instance <code>Config</code>,
+chúng ta có thể thay đổi <code>parse_config</code> từ một hàm thông thường thành một hàm
+tên là <code>new</code> được liên kết với struct <code>Config</code>. Việc thực hiện thay đổi này
+sẽ làm cho mã mang tính đặc trưng của Rust (idiomatic) hơn. Chúng ta có thể tạo các instance của các kiểu trong
+thư viện chuẩn, chẳng hạn như <code>String</code>, bằng cách gọi <code>String::new</code>. Tương tự, bằng cách
+thay đổi <code>parse_config</code> thành một hàm <code>new</code> liên kết với <code>Config</code>, chúng ta sẽ
+có thể tạo các instance của <code>Config</code> bằng cách gọi <code>Config::new</code>. Liệt kê 12-7
+cho thấy những thay đổi chúng ta cần thực hiện.</p>
 <figure class="listing" id="listing-12-7">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><code class="language-rust should_panic noplayground"><span class="boring">use std::env;
@@ -413,17 +413,17 @@ shows the changes we need to make.</p>
         Config { query, file_path }
     }
 }</code></pre>
-<figcaption><a href="#listing-12-7">Listing 12-7</a>: Changing <code>parse_config</code> into <code>Config::new</code></figcaption>
+<figcaption><a href="#listing-12-7">Listing 12-7</a>: Thay đổi <code>parse_config</code> thành <code>Config::new</code></figcaption>
 </figure>
-<p>We’ve updated <code>main</code> where we were calling <code>parse_config</code> to instead call
-<code>Config::new</code>. We’ve changed the name of <code>parse_config</code> to <code>new</code> and moved it
-within an <code>impl</code> block, which associates the <code>new</code> function with <code>Config</code>. Try
-compiling this code again to make sure it works.</p>
-<h3 id="fixing-the-error-handling"><a class="header" href="#fixing-the-error-handling">Fixing the Error Handling</a></h3>
-<p>Now we’ll work on fixing our error handling. Recall that attempting to access
-the values in the <code>args</code> vector at index 1 or index 2 will cause the program to
-panic if the vector contains fewer than three items. Try running the program
-without any arguments; it will look like this:</p>
+<p>Chúng ta đã cập nhật <code>main</code> nơi chúng ta đang gọi <code>parse_config</code> để thay vào đó gọi
+<code>Config::new</code>. Chúng ta đã đổi tên của <code>parse_config</code> thành <code>new</code> và di chuyển nó
+vào trong một khối <code>impl</code>, khối này liên kết hàm <code>new</code> với <code>Config</code>. Hãy thử
+biên dịch lại mã này để đảm bảo nó hoạt động.</p>
+<h3 id="sửa-lỗi-xử-lý-lỗi"><a class="header" href="#sửa-lỗi-xử-lý-lỗi">Sửa Lỗi Xử Lý Lỗi</a></h3>
+<p>Bây giờ chúng ta sẽ thực hiện việc sửa lỗi xử lý lỗi của mình. Hãy nhớ rằng việc cố gắng truy cập
+các giá trị trong vector <code>args</code> tại chỉ số 1 hoặc chỉ số 2 sẽ khiến chương trình
+panic nếu vector chứa ít hơn ba phần tử. Thử chạy chương trình
+mà không có bất kỳ đối số nào; nó sẽ trông như thế này:</p>
 <pre><code class="language-console">$ cargo run
    Compiling minigrep v0.1.0 (file:///projects/minigrep)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.0s
@@ -433,13 +433,13 @@ thread 'main' panicked at src/main.rs:27:21:
 index out of bounds: the len is 1 but the index is 1
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 </code></pre>
-<p>The line <code>index out of bounds: the len is 1 but the index is 1</code> is an error
-message intended for programmers. It won’t help our end users understand what
-they should do instead. Let’s fix that now.</p>
-<h4 id="improving-the-error-message"><a class="header" href="#improving-the-error-message">Improving the Error Message</a></h4>
-<p>In Listing 12-8, we add a check in the <code>new</code> function that will verify that the
-slice is long enough before accessing index 1 and index 2. If the slice isn’t
-long enough, the program panics and displays a better error message.</p>
+<p>Dòng <code>index out of bounds: the len is 1 but the index is 1</code> là một thông báo lỗi
+dành cho các lập trình viên. Nó sẽ không giúp người dùng cuối của chúng ta hiểu được
+họ nên làm gì thay thế. Hãy sửa lỗi đó ngay bây giờ.</p>
+<h4 id="cải-thiện-thông-báo-lỗi"><a class="header" href="#cải-thiện-thông-báo-lỗi">Cải Thiện Thông Báo Lỗi</a></h4>
+<p>Trong Liệt kê 12-8, chúng ta thêm một kiểm tra trong hàm <code>new</code> để xác minh rằng
+slice đủ dài trước khi truy cập chỉ số 1 và chỉ số 2. Nếu slice không
+đủ dài, chương trình sẽ panic và hiển thị một thông báo lỗi tốt hơn.</p>
 <figure class="listing" id="listing-12-8">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><code class="language-rust ignore"><span class="boring">use std::env;
@@ -478,17 +478,17 @@ long enough, the program panics and displays a better error message.</p>
 </span><span class="boring">        Config { query, file_path }
 </span><span class="boring">    }
 </span><span class="boring">}</span></code></pre>
-<figcaption><a href="#listing-12-8">Listing 12-8</a>: Adding a check for the number of arguments</figcaption>
+<figcaption><a href="#listing-12-8">Listing 12-8</a>: Thêm một kiểm tra cho số lượng đối số</figcaption>
 </figure>
-<p>This code is similar to <a href="ch09-03-to-panic-or-not-to-panic.html#creating-custom-types-for-validation">the <code>Guess::new</code> function we wrote in Listing
-9-13</a><!-- ignore -->, where we called <code>panic!</code> when the
-<code>value</code> argument was out of the range of valid values. Instead of checking for
-a range of values here, we’re checking that the length of <code>args</code> is at least
-<code>3</code> and the rest of the function can operate under the assumption that this
-condition has been met. If <code>args</code> has fewer than three items, this condition
-will be <code>true</code>, and we call the <code>panic!</code> macro to end the program immediately.</p>
-<p>With these extra few lines of code in <code>new</code>, let’s run the program without any
-arguments again to see what the error looks like now:</p>
+<p>Mã này tương tự như <a href="ch09-03-to-panic-or-not-to-panic.html#creating-custom-types-for-validation">hàm <code>Guess::new</code> mà chúng ta đã viết trong Liệt kê
+9-13</a><!-- ignore -->, nơi chúng ta đã gọi <code>panic!</code> khi
+đối số <code>value</code> nằm ngoài phạm vi của các giá trị hợp lệ. Thay vì kiểm tra
+một phạm vi các giá trị ở đây, chúng ta đang kiểm tra xem độ dài của <code>args</code> có ít nhất là
+<code>3</code> hay không và phần còn lại của hàm có thể hoạt động dưới giả định rằng
+điều kiện này đã được đáp ứng. Nếu <code>args</code> có ít hơn ba phần tử, điều kiện này
+sẽ là <code>true</code>, và chúng ta gọi macro <code>panic!</code> để kết thúc chương trình ngay lập tức.</p>
+<p>Với vài dòng mã bổ sung này trong <code>new</code>, hãy chạy lại chương trình mà không có bất kỳ
+đối số nào để xem lỗi bây giờ trông như thế nào:</p>
 <pre><code class="language-console">$ cargo run
    Compiling minigrep v0.1.0 (file:///projects/minigrep)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.0s
@@ -498,27 +498,27 @@ thread 'main' panicked at src/main.rs:26:13:
 not enough arguments
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 </code></pre>
-<p>This output is better: we now have a reasonable error message. However, we also
-have extraneous information we don’t want to give to our users. Perhaps the
-technique we used in Listing 9-13 isn’t the best one to use here: a call to
-<code>panic!</code> is more appropriate for a programming problem than a usage problem,
-<a href="ch09-03-to-panic-or-not-to-panic.html#guidelines-for-error-handling">as discussed in Chapter 9</a><!-- ignore -->. Instead,
-we’ll use the other technique you learned about in Chapter 9—<a href="ch09-02-recoverable-errors-with-result.html">returning a
-<code>Result</code></a><!-- ignore --> that indicates either success or an error.</p>
+<p>Đầu ra này tốt hơn: bây giờ chúng ta đã có một thông báo lỗi hợp lý. Tuy nhiên, chúng ta cũng
+có thông tin dư thừa mà chúng ta không muốn đưa cho người dùng của mình. Có lẽ
+kỹ thuật chúng ta đã sử dụng trong Liệt kê 9-13 không phải là kỹ thuật tốt nhất để sử dụng ở đây: một lệnh gọi
+đến <code>panic!</code> phù hợp cho một vấn đề lập trình hơn là một vấn đề sử dụng,
+<a href="ch09-03-to-panic-or-not-to-panic.html#guidelines-for-error-handling">như đã thảo luận trong Chương 9</a><!-- ignore -->. Thay vào đó,
+chúng ta sẽ sử dụng kỹ thuật khác mà bạn đã học ở Chương 9—<a href="ch09-02-recoverable-errors-with-result.html">trả về một
+<code>Result</code></a><!-- ignore --> để chỉ ra thành công hoặc một lỗi.</p>
 <!-- Old headings. Do not remove or links may break. -->
 <p><a id="returning-a-result-from-new-instead-of-calling-panic"></a></p>
-<h4 id="returning-a-result-instead-of-calling-panic"><a class="header" href="#returning-a-result-instead-of-calling-panic">Returning a <code>Result</code> Instead of Calling <code>panic!</code></a></h4>
-<p>We can instead return a <code>Result</code> value that will contain a <code>Config</code> instance in
-the successful case and will describe the problem in the error case. We’re also
-going to change the function name from <code>new</code> to <code>build</code> because many
-programmers expect <code>new</code> functions to never fail. When <code>Config::build</code> is
-communicating to <code>main</code>, we can use the <code>Result</code> type to signal there was a
-problem. Then we can change <code>main</code> to convert an <code>Err</code> variant into a more
-practical error for our users without the surrounding text about <code>thread 'main'</code> and <code>RUST_BACKTRACE</code> that a call to <code>panic!</code> causes.</p>
-<p>Listing 12-9 shows the changes we need to make to the return value of the
-function we’re now calling <code>Config::build</code> and the body of the function needed
-to return a <code>Result</code>. Note that this won’t compile until we update <code>main</code> as
-well, which we’ll do in the next listing.</p>
+<h4 id="trả-về-một-result-thay-vì-gọi-panic"><a class="header" href="#trả-về-một-result-thay-vì-gọi-panic">Trả Về một <code>Result</code> Thay Vì Gọi <code>panic!</code></a></h4>
+<p>Thay vào đó, chúng ta có thể trả về một giá trị <code>Result</code> sẽ chứa một instance <code>Config</code> trong
+trường hợp thành công và sẽ mô tả vấn đề trong trường hợp lỗi. Chúng ta cũng
+sẽ đổi tên hàm từ <code>new</code> thành <code>build</code> vì nhiều
+lập trình viên kỳ vọng các hàm <code>new</code> không bao giờ thất bại. Khi <code>Config::build</code> đang
+giao tiếp với <code>main</code>, chúng ta có thể sử dụng kiểu <code>Result</code> để báo hiệu rằng đã có một
+vấn đề. Sau đó chúng ta có thể thay đổi <code>main</code> để chuyển đổi một biến thể <code>Err</code> thành một
+lỗi thực tế hơn cho người dùng của chúng ta mà không có đoạn văn bản xung quanh về <code>thread 'main'</code> và <code>RUST_BACKTRACE</code> mà lệnh gọi đến <code>panic!</code> gây ra.</p>
+<p>Liệt kê 12-9 cho thấy những thay đổi chúng ta cần thực hiện đối với giá trị trả về của
+hàm mà bây giờ chúng ta gọi là <code>Config::build</code> và thân của hàm cần thiết
+để trả về một <code>Result</code>. Lưu ý rằng mã này sẽ không được biên dịch cho đến khi chúng ta cập nhật cả <code>main</code>,
+việc mà chúng ta sẽ thực hiện trong danh sách tiếp theo.</p>
 <figure class="listing" id="listing-12-9">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><code class="language-rust ignore does_not_compile"><span class="boring">use std::env;
@@ -555,27 +555,27 @@ well, which we’ll do in the next listing.</p>
         Ok(Config { query, file_path })
     }
 }</code></pre>
-<figcaption><a href="#listing-12-9">Listing 12-9</a>: Returning a <code>Result</code> from <code>Config::build</code></figcaption>
+<figcaption><a href="#listing-12-9">Listing 12-9</a>: Trả về một <code>Result</code> từ <code>Config::build</code></figcaption>
 </figure>
-<p>Our <code>build</code> function returns a <code>Result</code> with a <code>Config</code> instance in the success
-case and a string literal in the error case. Our error values will always be
-string literals that have the <code>'static</code> lifetime.</p>
-<p>We’ve made two changes in the body of the function: instead of calling <code>panic!</code>
-when the user doesn’t pass enough arguments, we now return an <code>Err</code> value, and
-we’ve wrapped the <code>Config</code> return value in an <code>Ok</code>. These changes make the
-function conform to its new type signature.</p>
-<p>Returning an <code>Err</code> value from <code>Config::build</code> allows the <code>main</code> function to
-handle the <code>Result</code> value returned from the <code>build</code> function and exit the
-process more cleanly in the error case.</p>
+<p>Hàm <code>build</code> của chúng ta trả về một <code>Result</code> với một instance <code>Config</code> trong trường hợp thành công
+và một string literal trong trường hợp lỗi. Các giá trị lỗi của chúng ta sẽ luôn là
+các string literal có lifetime <code>'static</code>.</p>
+<p>Chúng ta đã thực hiện hai thay đổi trong thân hàm: thay vì gọi <code>panic!</code>
+khi người dùng không truyền đủ các đối số, bây giờ chúng ta trả về một giá trị <code>Err</code>, và
+chúng ta đã bọc giá trị trả về <code>Config</code> trong một <code>Ok</code>. Những thay đổi này làm cho
+hàm tuân thủ chữ ký kiểu mới của nó.</p>
+<p>Trả về một giá trị <code>Err</code> từ <code>Config::build</code> cho phép hàm <code>main</code>
+xử lý giá trị <code>Result</code> được trả về từ hàm <code>build</code> và thoát khỏi
+tiến trình một cách sạch sẽ hơn trong trường hợp lỗi.</p>
 <!-- Old headings. Do not remove or links may break. -->
 <p><a id="calling-confignew-and-handling-errors"></a></p>
-<h4 id="calling-configbuild-and-handling-errors"><a class="header" href="#calling-configbuild-and-handling-errors">Calling <code>Config::build</code> and Handling Errors</a></h4>
-<p>To handle the error case and print a user-friendly message, we need to update
-<code>main</code> to handle the <code>Result</code> being returned by <code>Config::build</code>, as shown in
-Listing 12-10. We’ll also take the responsibility of exiting the command line
-tool with a nonzero error code away from <code>panic!</code> and instead implement it by
-hand. A nonzero exit status is a convention to signal to the process that
-called our program that the program exited with an error state.</p>
+<h4 id="gọi-configbuild-và-xử-lý-lỗi"><a class="header" href="#gọi-configbuild-và-xử-lý-lỗi">Gọi <code>Config::build</code> và Xử Lý Lỗi</a></h4>
+<p>Để xử lý trường hợp lỗi và in ra một thông báo thân thiện với người dùng, chúng ta cần cập nhật
+<code>main</code> để xử lý <code>Result</code> đang được trả về bởi <code>Config::build</code>, như được hiển thị trong
+Liệt kê 12-10. Chúng ta cũng sẽ tước bỏ trách nhiệm thoát khỏi công cụ dòng lệnh
+với một mã lỗi khác không từ <code>panic!</code> và thay vào đó tự mình triển khai nó.
+Một trạng thái thoát (exit status) khác không là một quy ước để báo hiệu cho tiến trình đã
+gọi chương trình của chúng ta rằng chương trình đã thoát với một trạng thái lỗi.</p>
 <figure class="listing" id="listing-12-10">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><code class="language-rust ignore"><span class="boring">use std::env;
@@ -618,46 +618,46 @@ fn main() {
 </span><span class="boring">        Ok(Config { query, file_path })
 </span><span class="boring">    }
 </span><span class="boring">}</span></code></pre>
-<figcaption><a href="#listing-12-10">Listing 12-10</a>: Exiting with an error code if building a <code>Config</code> fails</figcaption>
+<figcaption><a href="#listing-12-10">Listing 12-10</a>: Thoát với một mã lỗi nếu việc xây dựng một <code>Config</code> thất bại</figcaption>
 </figure>
-<p>In this listing, we’ve used a method we haven’t covered in detail yet:
-<code>unwrap_or_else</code>, which is defined on <code>Result&lt;T, E&gt;</code> by the standard library.
-Using <code>unwrap_or_else</code> allows us to define some custom, non-<code>panic!</code> error
-handling. If the <code>Result</code> is an <code>Ok</code> value, this method’s behavior is similar
-to <code>unwrap</code>: it returns the inner value that <code>Ok</code> is wrapping. However, if the
-value is an <code>Err</code> value, this method calls the code in the <em>closure</em>, which is
-an anonymous function we define and pass as an argument to <code>unwrap_or_else</code>.
-We’ll cover closures in more detail in <a href="ch13-00-functional-features.html">Chapter 13</a><!-- ignore -->. For
-now, you just need to know that <code>unwrap_or_else</code> will pass the inner value of
-the <code>Err</code>, which in this case is the static string <code>"not enough arguments"</code>
-that we added in Listing 12-9, to our closure in the argument <code>err</code> that
-appears between the vertical pipes. The code in the closure can then use the
-<code>err</code> value when it runs.</p>
-<p>We’ve added a new <code>use</code> line to bring <code>process</code> from the standard library into
-scope. The code in the closure that will be run in the error case is only two
-lines: we print the <code>err</code> value and then call <code>process::exit</code>. The
-<code>process::exit</code> function will stop the program immediately and return the
-number that was passed as the exit status code. This is similar to the
-<code>panic!</code>-based handling we used in Listing 12-8, but we no longer get all the
-extra output. Let’s try it:</p>
+<p>Trong liệt kê này, chúng ta đã sử dụng một phương thức mà chúng ta chưa đề cập chi tiết:
+<code>unwrap_or_else</code>, phương thức này được định nghĩa trên <code>Result&lt;T, E&gt;</code> bởi thư viện chuẩn.
+Sử dụng <code>unwrap_or_else</code> cho phép chúng ta định nghĩa một số xử lý lỗi tùy chỉnh, không phải <code>panic!</code>.
+Nếu <code>Result</code> là một giá trị <code>Ok</code>, hành vi của phương thức này tương tự
+như <code>unwrap</code>: nó trả về giá trị bên trong mà <code>Ok</code> đang bọc. Tuy nhiên, nếu
+giá trị là một giá trị <code>Err</code>, phương thức này gọi mã trong <em>closure</em>, đó là
+một hàm ẩn danh mà chúng ta định nghĩa và truyền làm đối số cho <code>unwrap_or_else</code>.
+Chúng ta sẽ tìm hiểu kỹ về closure trong <a href="ch13-00-functional-features.html">Chương 13</a><!-- ignore -->. Hiện tại,
+bạn chỉ cần biết rằng <code>unwrap_or_else</code> sẽ truyền giá trị bên trong của
+<code>Err</code>, trong trường hợp này là chuỗi tĩnh <code>"not enough arguments"</code>
+mà chúng ta đã thêm trong Liệt kê 12-9, vào closure của chúng ta trong đối số <code>err</code>
+xuất hiện giữa các thanh dọc. Mã trong closure sau đó có thể sử dụng
+giá trị <code>err</code> khi nó chạy.</p>
+<p>Chúng ta đã thêm một dòng <code>use</code> mới để đưa <code>process</code> từ thư viện chuẩn vào
+phạm vi. Mã trong closure sẽ được chạy trong trường hợp lỗi chỉ có
+hai dòng: chúng ta in giá trị <code>err</code> và sau đó gọi <code>process::exit</code>. Hàm
+<code>process::exit</code> sẽ dừng chương trình ngay lập tức và trả về
+số được truyền làm mã trạng thái thoát. Điều này tương tự như việc
+xử lý dựa trên <code>panic!</code> mà chúng ta đã sử dụng trong Liệt kê 12-8, nhưng chúng ta không còn nhận được tất cả
+đầu ra bổ sung. Hãy thử xem:</p>
 <pre><code class="language-console">$ cargo run
    Compiling minigrep v0.1.0 (file:///projects/minigrep)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.48s
      Running `target/debug/minigrep`
 Problem parsing arguments: not enough arguments
 </code></pre>
-<p>Great! This output is much friendlier for our users.</p>
-<h3 id="extracting-logic-from-main"><a class="header" href="#extracting-logic-from-main">Extracting Logic from <code>main</code></a></h3>
-<p>Now that we’ve finished refactoring the configuration parsing, let’s turn to
-the program’s logic. As we stated in <a href="#separation-of-concerns-for-binary-projects">“Separation of Concerns for Binary
-Projects”</a><!-- ignore -->, we’ll
-extract a function named <code>run</code> that will hold all the logic currently in the
-<code>main</code> function that isn’t involved with setting up configuration or handling
-errors. When we’re done, <code>main</code> will be concise and easy to verify by
-inspection, and we’ll be able to write tests for all the other logic.</p>
-<p>Listing 12-11 shows the extracted <code>run</code> function. For now, we’re just making
-the small, incremental improvement of extracting the function. We’re still
-defining the function in <em>src/main.rs</em>.</p>
+<p>Tuyệt vời! Đầu ra này thân thiện hơn nhiều đối với người dùng của chúng ta.</p>
+<h3 id="trích-xuất-logic-từ-main"><a class="header" href="#trích-xuất-logic-từ-main">Trích Xuất Logic từ <code>main</code></a></h3>
+<p>Bây giờ chúng ta đã hoàn thành việc tái cấu trúc phần phân tích cú pháp cấu hình, hãy chuyển sang
+logic của chương trình. Như chúng ta đã nêu trong <a href="#separation-of-concerns-for-binary-projects">“Phân Tách các Mối Bận Tâm cho Các Dự Án Nhị
+Phân”</a><!-- ignore -->, chúng ta sẽ
+trích xuất một hàm tên là <code>run</code> sẽ giữ tất cả logic hiện có trong
+hàm <code>main</code> mà không liên quan đến việc thiết lập cấu hình hoặc xử lý
+lỗi. Khi hoàn tất, <code>main</code> sẽ ngắn gọn và dễ xác minh bằng cách
+kiểm tra trực quan, và chúng ta sẽ có thể viết các kiểm thử cho tất cả logic khác.</p>
+<p>Liệt kê 12-11 cho thấy hàm <code>run</code> được trích xuất. Hiện tại, chúng ta chỉ đang thực hiện
+cải tiến nhỏ, tăng dần là trích xuất hàm. Chúng ta vẫn
+định nghĩa hàm trong <em>src/main.rs</em>.</p>
 <figure class="listing" id="listing-12-11">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><code class="language-rust ignore"><span class="boring">use std::env;
@@ -706,19 +706,19 @@ fn run(config: Config) {
 </span><span class="boring">        Ok(Config { query, file_path })
 </span><span class="boring">    }
 </span><span class="boring">}</span></code></pre>
-<figcaption><a href="#listing-12-11">Listing 12-11</a>: Extracting a <code>run</code> function containing the rest of the program logic</figcaption>
+<figcaption><a href="#listing-12-11">Listing 12-11</a>: Trích xuất một hàm <code>run</code> chứa phần còn lại của logic chương trình</figcaption>
 </figure>
-<p>The <code>run</code> function now contains all the remaining logic from <code>main</code>, starting
-from reading the file. The <code>run</code> function takes the <code>Config</code> instance as an
-argument.</p>
-<h4 id="returning-errors-from-the-run-function"><a class="header" href="#returning-errors-from-the-run-function">Returning Errors from the <code>run</code> Function</a></h4>
-<p>With the remaining program logic separated into the <code>run</code> function, we can
-improve the error handling, as we did with <code>Config::build</code> in Listing 12-9.
-Instead of allowing the program to panic by calling <code>expect</code>, the <code>run</code>
-function will return a <code>Result&lt;T, E&gt;</code> when something goes wrong. This will let
-us further consolidate the logic around handling errors into <code>main</code> in a
-user-friendly way. Listing 12-12 shows the changes we need to make to the
-signature and body of <code>run</code>.</p>
+<p>Hàm <code>run</code> giờ đây chứa tất cả logic còn lại từ <code>main</code>, bắt đầu
+từ việc đọc tệp. Hàm <code>run</code> nhận instance <code>Config</code> làm
+đối số.</p>
+<h4 id="trả-về-lỗi-từ-hàm-run"><a class="header" href="#trả-về-lỗi-từ-hàm-run">Trả Về Lỗi từ Hàm <code>run</code></a></h4>
+<p>Với logic chương trình còn lại được tách biệt vào hàm <code>run</code>, chúng ta có thể
+cải thiện việc xử lý lỗi, như chúng ta đã làm với <code>Config::build</code> trong Liệt kê 12-9.
+Thay vì cho phép chương trình panic bằng cách gọi <code>expect</code>, hàm
+<code>run</code> sẽ trả về một <code>Result&lt;T, E&gt;</code> khi có sự cố xảy ra. Điều này sẽ cho phép
+chúng ta củng cố thêm logic xoay quanh việc xử lý lỗi vào <code>main</code> theo một
+cách thân thiện với người dùng. Liệt kê 12-12 cho thấy những thay đổi chúng ta cần thực hiện đối với
+chữ ký và thân hàm <code>run</code>.</p>
 <figure class="listing" id="listing-12-12">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><code class="language-rust ignore"><span class="boring">use std::env;
@@ -768,31 +768,31 @@ signature and body of <code>run</code>.</p>
 </span><span class="boring">        Ok(Config { query, file_path })
 </span><span class="boring">    }
 </span><span class="boring">}</span></code></pre>
-<figcaption><a href="#listing-12-12">Listing 12-12</a>: Changing the <code>run</code> function to return <code>Result</code></figcaption>
+<figcaption><a href="#listing-12-12">Listing 12-12</a>: Thay đổi hàm <code>run</code> để trả về <code>Result</code></figcaption>
 </figure>
-<p>We’ve made three significant changes here. First, we changed the return type of
-the <code>run</code> function to <code>Result&lt;(), Box&lt;dyn Error&gt;&gt;</code>. This function previously
-returned the unit type, <code>()</code>, and we keep that as the value returned in the
-<code>Ok</code> case.</p>
-<p>For the error type, we used the <em>trait object</em> <code>Box&lt;dyn Error&gt;</code> (and we’ve
-brought <code>std::error::Error</code> into scope with a <code>use</code> statement at the top).
-We’ll cover trait objects in <a href="ch18-00-oop.html">Chapter 18</a><!-- ignore -->. For now, just
-know that <code>Box&lt;dyn Error&gt;</code> means the function will return a type that
-implements the <code>Error</code> trait, but we don’t have to specify what particular type
-the return value will be. This gives us flexibility to return error values that
-may be of different types in different error cases. The <code>dyn</code> keyword is short
-for <em>dynamic</em>.</p>
-<p>Second, we’ve removed the call to <code>expect</code> in favor of the <code>?</code> operator, as we
-talked about in <a href="ch09-02-recoverable-errors-with-result.html#a-shortcut-for-propagating-errors-the--operator">Chapter 9</a><!-- ignore -->. Rather than
-<code>panic!</code> on an error, <code>?</code> will return the error value from the current function
-for the caller to handle.</p>
-<p>Third, the <code>run</code> function now returns an <code>Ok</code> value in the success case.
-We’ve declared the <code>run</code> function’s success type as <code>()</code> in the signature,
-which means we need to wrap the unit type value in the <code>Ok</code> value. This
-<code>Ok(())</code> syntax might look a bit strange at first, but using <code>()</code> like this is
-the idiomatic way to indicate that we’re calling <code>run</code> for its side effects
-only; it doesn’t return a value we need.</p>
-<p>When you run this code, it will compile but will display a warning:</p>
+<p>Chúng ta đã thực hiện ba thay đổi quan trọng ở đây. Đầu tiên, chúng ta đã thay đổi kiểu trả về của
+hàm <code>run</code> thành <code>Result&lt;(), Box&lt;dyn Error&gt;&gt;</code>. Hàm này trước đây
+trả về kiểu unit, <code>()</code>, và chúng ta giữ nó làm giá trị được trả về trong
+trường hợp <code>Ok</code>.</p>
+<p>Đối với kiểu lỗi, chúng ta đã sử dụng <em>trait object</em> <code>Box&lt;dyn Error&gt;</code> (và chúng ta đã
+đưa <code>std::error::Error</code> vào phạm vi bằng một câu lệnh <code>use</code> ở đầu tệp).
+Chúng ta sẽ tìm hiểu về trait object trong <a href="ch18-00-oop.html">Chương 18</a><!-- ignore -->. Hiện tại,
+chỉ cần biết rằng <code>Box&lt;dyn Error&gt;</code> có nghĩa là hàm sẽ trả về một kiểu
+triển khai trait <code>Error</code>, nhưng chúng ta không phải chỉ định cụ thể kiểu nào
+mà giá trị trả về sẽ là. Điều này cho phép chúng ta linh hoạt trả về các giá trị lỗi có
+thể thuộc các kiểu khác nhau trong các trường hợp lỗi khác nhau. Từ khóa <code>dyn</code> là viết tắt
+của <em>dynamic</em> (động).</p>
+<p>Thứ hai, chúng ta đã loại bỏ lời gọi đến <code>expect</code> để thay thế bằng toán tử <code>?</code>, như chúng ta
+đã nói trong <a href="ch09-02-recoverable-errors-with-result.html#a-shortcut-for-propagating-errors-the--operator">Chương 9</a><!-- ignore -->. Thay vì
+<code>panic!</code> khi gặp lỗi, <code>?</code> sẽ trả về giá trị lỗi từ hàm hiện tại
+cho người gọi xử lý.</p>
+<p>Thứ ba, hàm <code>run</code> bây giờ trả về một giá trị <code>Ok</code> trong trường hợp thành công.
+Chúng ta đã khai báo kiểu thành công của hàm <code>run</code> là <code>()</code> trong chữ ký,
+điều đó có nghĩa là chúng ta cần bọc giá trị kiểu unit trong giá trị <code>Ok</code>. Cú pháp
+<code>Ok(())</code> này thoạt nhìn có vẻ hơi lạ, nhưng sử dụng <code>()</code> như thế này là
+cách chuẩn tắc (idiomatic) để chỉ ra rằng chúng ta đang gọi <code>run</code> chỉ vì các tác dụng phụ (side effects) của nó;
+nó không trả về một giá trị chúng ta cần.</p>
+<p>Khi bạn chạy mã này, nó sẽ được biên dịch nhưng sẽ hiển thị một cảnh báo:</p>
 <pre><code class="language-console">$ cargo run -- the poem.txt
    Compiling minigrep v0.1.0 (file:///projects/minigrep)
 warning: unused `Result` that must be used
@@ -825,14 +825,14 @@ To tell your name the livelong day
 To an admiring bog!
 
 </code></pre>
-<p>Rust tells us that our code ignored the <code>Result</code> value and the <code>Result</code> value
-might indicate that an error occurred. But we’re not checking to see whether or
-not there was an error, and the compiler reminds us that we probably meant to
-have some error-handling code here! Let’s rectify that problem now.</p>
-<h4 id="handling-errors-returned-from-run-in-main"><a class="header" href="#handling-errors-returned-from-run-in-main">Handling Errors Returned from <code>run</code> in <code>main</code></a></h4>
-<p>We’ll check for errors and handle them using a technique similar to one we used
-with <code>Config::build</code> in Listing 12-10, but with a slight difference:</p>
-<p><span class="filename">Filename: src/main.rs</span></p>
+<p>Rust cho chúng ta biết rằng mã của chúng ta đã bỏ qua giá trị <code>Result</code> và giá trị <code>Result</code> đó
+có thể chỉ ra rằng một lỗi đã xảy ra. Nhưng chúng ta không kiểm tra xem có
+lỗi hay không, và trình biên dịch nhắc nhở chúng ta rằng có lẽ chúng ta đã định
+có một số mã xử lý lỗi ở đây! Hãy khắc phục vấn đề đó ngay bây giờ.</p>
+<h4 id="xử-lý-lỗi-Được-trả-về-từ-run-trong-main"><a class="header" href="#xử-lý-lỗi-Được-trả-về-từ-run-trong-main">Xử Lý Lỗi Được Trả Về từ <code>run</code> trong <code>main</code></a></h4>
+<p>Chúng ta sẽ kiểm tra các lỗi và xử lý chúng bằng kỹ thuật tương tự như kỹ thuật chúng ta đã sử dụng
+với <code>Config::build</code> trong Liệt kê 12-10, nhưng có một chút khác biệt:</p>
+<p><span class="filename">Tên tệp: src/main.rs</span></p>
 <pre><code class="language-rust ignore"><span class="boring">use std::env;
 </span><span class="boring">use std::error::Error;
 </span><span class="boring">use std::fs;
@@ -882,29 +882,29 @@ with <code>Config::build</code> in Listing 12-10, but with a slight difference:<
 </span><span class="boring">        Ok(Config { query, file_path })
 </span><span class="boring">    }
 </span><span class="boring">}</span></code></pre>
-<p>We use <code>if let</code> rather than <code>unwrap_or_else</code> to check whether <code>run</code> returns an
-<code>Err</code> value and to call <code>process::exit(1)</code> if it does. The <code>run</code> function
-doesn’t return a value that we want to <code>unwrap</code> in the same way that
-<code>Config::build</code> returns the <code>Config</code> instance. Because <code>run</code> returns <code>()</code> in
-the success case, we only care about detecting an error, so we don’t need
-<code>unwrap_or_else</code> to return the unwrapped value, which would only be <code>()</code>.</p>
-<p>The bodies of the <code>if let</code> and the <code>unwrap_or_else</code> functions are the same in
-both cases: we print the error and exit.</p>
-<h3 id="splitting-code-into-a-library-crate"><a class="header" href="#splitting-code-into-a-library-crate">Splitting Code into a Library Crate</a></h3>
-<p>Our <code>minigrep</code> project is looking good so far! Now we’ll split the
-<em>src/main.rs</em> file and put some code into the <em>src/lib.rs</em> file. That way, we
-can test the code and have a <em>src/main.rs</em> file with fewer responsibilities.</p>
-<p>Let’s move all the code that isn’t in the <code>main</code> function from <em>src/main.rs</em> to
+<p>Chúng ta sử dụng <code>if let</code> thay vì <code>unwrap_or_else</code> để kiểm tra xem <code>run</code> có trả về một
+giá trị <code>Err</code> hay không và gọi <code>process::exit(1)</code> nếu nó xảy ra. Hàm <code>run</code>
+không trả về một giá trị mà chúng ta muốn <code>unwrap</code> theo cùng cách mà
+<code>Config::build</code> trả về instance <code>Config</code>. Bởi vì <code>run</code> trả về <code>()</code> trong
+trường hợp thành công, chúng ta chỉ quan tâm đến việc phát hiện lỗi, vì vậy chúng ta không cần
+<code>unwrap_or_else</code> để trả về giá trị đã được unwrapped, cái mà chỉ là <code>()</code>.</p>
+<p>Thân của các hàm <code>if let</code> và <code>unwrap_or_else</code> là giống nhau trong
+cả hai trường hợp: chúng ta in lỗi và thoát.</p>
+<h3 id="chia-tách-mã-vào-một-library-crate"><a class="header" href="#chia-tách-mã-vào-một-library-crate">Chia Tách Mã vào một Library Crate</a></h3>
+<p>Dự án <code>minigrep</code> của chúng ta trông ổn cho đến nay! Bây giờ chúng ta sẽ chia tách
+tệp <em>src/main.rs</em> và đặt một số mã vào tệp <em>src/lib.rs</em>. Bằng cách đó, chúng ta
+có thể kiểm thử mã và có một tệp <em>src/main.rs</em> với ít trách nhiệm hơn.</p>
+<p>Hãy chuyển tất cả mã không nằm trong hàm <code>main</code> từ <em>src/main.rs</em> sang
 <em>src/lib.rs</em>:</p>
 <ul>
-<li>The <code>run</code> function definition</li>
-<li>The relevant <code>use</code> statements</li>
-<li>The definition of <code>Config</code></li>
-<li>The <code>Config::build</code> function definition</li>
+<li>Định nghĩa hàm <code>run</code></li>
+<li>Các câu lệnh <code>use</code> liên quan</li>
+<li>Định nghĩa struct <code>Config</code></li>
+<li>Định nghĩa hàm <code>Config::build</code></li>
 </ul>
-<p>The contents of <em>src/lib.rs</em> should have the signatures shown in Listing 12-13
-(we’ve omitted the bodies of the functions for brevity). Note that this won’t
-compile until we modify <em>src/main.rs</em> in Listing 12-14.</p>
+<p>Nội dung của <em>src/lib.rs</em> nên có các chữ ký được hiển thị trong Liệt kê 12-13
+(chúng ta đã bỏ qua thân của các hàm để cho ngắn gọn). Lưu ý rằng điều này sẽ không
+biên dịch được cho đến khi chúng ta sửa đổi <em>src/main.rs</em> trong Liệt kê 12-14.</p>
 <figure class="listing" id="listing-12-13">
 <span class="file-name">Filename: src/lib.rs</span>
 <pre><code class="language-rust ignore does_not_compile">use std::error::Error;
@@ -937,13 +937,13 @@ pub fn run(config: Config) -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
 </span><span class="boring">
 </span><span class="boring">    Ok(())
 </span>}</code></pre>
-<figcaption><a href="#listing-12-13">Listing 12-13</a>: Moving <code>Config</code> and <code>run</code> into <em>src/lib.rs</em></figcaption>
+<figcaption><a href="#listing-12-13">Listing 12-13</a>: Chuyển <code>Config</code> và <code>run</code> vào <em>src/lib.rs</em></figcaption>
 </figure>
-<p>We’ve made liberal use of the <code>pub</code> keyword: on <code>Config</code>, on its fields and its
-<code>build</code> method, and on the <code>run</code> function. We now have a library crate that has
-a public API we can test!</p>
-<p>Now we need to bring the code we moved to <em>src/lib.rs</em> into the scope of the
-binary crate in <em>src/main.rs</em>, as shown in Listing 12-14.</p>
+<p>Chúng ta đã sử dụng rộng rãi từ khóa <code>pub</code>: trên <code>Config</code>, trên các trường của nó và phương thức
+<code>build</code> của nó, và trên hàm <code>run</code>. Bây giờ chúng ta có một crate thư viện (library crate) có
+một API công khai mà chúng ta có thể kiểm thử!</p>
+<p>Bây giờ chúng ta cần đưa mã chúng ta đã chuyển sang <em>src/lib.rs</em> vào phạm vi của
+crate nhị phân (binary crate) trong <em>src/main.rs</em>, như được hiển thị trong Liệt kê 12-14.</p>
 <figure class="listing" id="listing-12-14">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><code class="language-rust ignore">use std::env;
@@ -969,18 +969,18 @@ fn main() {
 </span><span class="boring">        process::exit(1);
 </span>    }
 }</code></pre>
-<figcaption><a href="#listing-12-14">Listing 12-14</a>: Using the <code>minigrep</code> library crate in <em>src/main.rs</em></figcaption>
+<figcaption><a href="#listing-12-14">Listing 12-14</a>: Sử dụng library crate <code>minigrep</code> trong <em>src/main.rs</em></figcaption>
 </figure>
-<p>We add a <code>use minigrep::Config</code> line to bring the <code>Config</code> type from the
-library crate into the binary crate’s scope, and we prefix the <code>run</code> function
-with our crate name. Now all the functionality should be connected and should
-work. Run the program with <code>cargo run</code> and make sure everything works correctly.</p>
-<p>Whew! That was a lot of work, but we’ve set ourselves up for success in the
-future. Now it’s much easier to handle errors, and we’ve made the code more
-modular. Almost all of our work will be done in <em>src/lib.rs</em> from here on out.</p>
-<p>Let’s take advantage of this newfound modularity by doing something that would
-have been difficult with the old code but is easy with the new code: we’ll
-write some tests!</p>
+<p>Chúng ta thêm một dòng <code>use minigrep::Config</code> để đưa kiểu <code>Config</code> từ
+crate thư viện vào phạm vi của crate nhị phân, và chúng ta thêm tiền tố cho hàm <code>run</code>
+bằng tên crate của chúng ta. Bây giờ tất cả chức năng nên được kết nối và nên
+hoạt động. Chạy chương trình với <code>cargo run</code> và đảm bảo mọi thứ hoạt động chính xác.</p>
+<p>Phù! Đó là một khối lượng công việc lớn, nhưng chúng ta đã chuẩn bị sẵn sàng cho sự thành công trong
+tương lai. Bây giờ việc xử lý lỗi dễ dàng hơn nhiều, và chúng ta đã làm cho mã có tính mô-đun hơn.
+Hầu như tất cả công việc của chúng ta sẽ được thực hiện trong <em>src/lib.rs</em> từ nay về sau.</p>
+<p>Hãy tận dụng tính mô-đun mới tìm thấy này bằng cách làm một việc mà trước đây
+khó thực hiện với mã cũ nhưng giờ đây lại dễ dàng với mã mới: chúng ta sẽ
+viết một số kiểm thử!</p>
 
                     </main>
 
