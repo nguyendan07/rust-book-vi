@@ -1,76 +1,76 @@
-## Refactoring to Improve Modularity and Error Handling
+## Tái Cấu Trúc để Cải Thiện Tính Module và Xử Lý Lỗi
 
-To improve our program, we’ll fix four problems that have to do with the
-program’s structure and how it’s handling potential errors. First, our `main`
-function now performs two tasks: it parses arguments and reads files. As our
-program grows, the number of separate tasks the `main` function handles will
-increase. As a function gains responsibilities, it becomes more difficult to
-reason about, harder to test, and harder to change without breaking one of its
-parts. It’s best to separate functionality so each function is responsible for
-one task.
+Để cải thiện chương trình của mình, chúng ta sẽ khắc phục bốn vấn đề liên quan đến
+cấu trúc của chương trình và cách nó xử lý các lỗi tiềm ẩn. Đầu tiên, hàm `main`
+của chúng ta hiện thực hiện hai nhiệm vụ: phân tích cú pháp các đối số và đọc các tệp. Khi
+chương trình của chúng ta phát triển, số lượng các nhiệm vụ riêng biệt mà hàm `main` xử lý sẽ
+tăng lên. Khi một hàm đảm nhận thêm nhiều trách nhiệm, nó trở nên khó suy luận hơn,
+khó kiểm thử hơn và khó thay đổi hơn mà không làm hỏng một trong các
+phần của nó. Tốt nhất là nên tách biệt chức năng để mỗi hàm chịu trách nhiệm cho
+một nhiệm vụ.
 
-This issue also ties into the second problem: although `query` and `file_path`
-are configuration variables to our program, variables like `contents` are used
-to perform the program’s logic. The longer `main` becomes, the more variables
-we’ll need to bring into scope; the more variables we have in scope, the harder
-it will be to keep track of the purpose of each. It’s best to group the
-configuration variables into one structure to make their purpose clear.
+Vấn đề này cũng liên quan đến vấn đề thứ hai: mặc dù `query` và `file_path`
+là các biến cấu hình cho chương trình của chúng ta, các biến như `contents` lại được sử dụng
+để thực hiện logic của chương trình. `main` càng dài, chúng ta càng cần đưa nhiều biến
+vào phạm vi; chúng ta càng có nhiều biến trong phạm vi, thì càng khó để
+theo dõi mục đích của từng biến. Tốt nhất là nhóm các
+biến cấu hình vào một cấu trúc để làm rõ mục đích của chúng.
 
-The third problem is that we’ve used `expect` to print an error message when
-reading the file fails, but the error message just prints `Should have been
-able to read the file`. Reading a file can fail in a number of ways: for
-example, the file could be missing, or we might not have permission to open it.
-Right now, regardless of the situation, we’d print the same error message for
-everything, which wouldn’t give the user any information!
+Vấn đề thứ ba là chúng ta đã sử dụng `expect` để in một thông báo lỗi khi
+việc đọc tệp thất bại, nhưng thông báo lỗi chỉ in ra `Should have been
+able to read the file`. Việc đọc một tệp có thể thất bại theo nhiều cách: ví
+dụ, tệp có thể bị thiếu, hoặc chúng ta có thể không có quyền để mở nó.
+Hiện tại, bất kể tình huống nào, chúng ta đều in cùng một thông báo lỗi cho
+mọi thứ, điều này sẽ không cung cấp cho người dùng bất kỳ thông tin nào!
 
-Fourth, we use `expect` to handle an error, and if the user runs our program
-without specifying enough arguments, they’ll get an `index out of bounds` error
-from Rust that doesn’t clearly explain the problem. It would be best if all the
-error-handling code were in one place so future maintainers had only one place
-to consult the code if the error-handling logic needed to change. Having all the
-error-handling code in one place will also ensure that we’re printing messages
-that will be meaningful to our end users.
+Thứ tư, chúng ta sử dụng `expect` để xử lý một lỗi, và nếu người dùng chạy chương trình của chúng ta
+mà không chỉ định đủ các đối số, họ sẽ nhận được một lỗi `index out of bounds`
+từ Rust mà không giải thích rõ ràng vấn đề. Sẽ tốt nhất nếu tất cả các
+mã xử lý lỗi nằm ở một nơi để những người bảo trì trong tương lai chỉ cần một nơi
+để tham khảo mã nếu logic xử lý lỗi cần thay đổi. Việc có tất cả các
+mã xử lý lỗi ở một nơi cũng sẽ đảm bảo rằng chúng ta đang in các thông báo
+có ý nghĩa đối với người dùng cuối của mình.
 
-Let’s address these four problems by refactoring our project.
+Hãy giải quyết bốn vấn đề này bằng cách tái cấu trúc (refactoring) dự án của chúng ta.
 
-### Separation of Concerns for Binary Projects
+### Phân Tách các Mối Bận Tâm cho Các Dự Án Nhị Phân
 
-The organizational problem of allocating responsibility for multiple tasks to
-the `main` function is common to many binary projects. As a result, the Rust
-community has developed guidelines for splitting the separate concerns of a
-binary program when `main` starts getting large. This process has the following
-steps:
+Vấn đề tổ chức về việc phân bổ trách nhiệm cho nhiều nhiệm vụ cho
+hàm `main` là phổ biến đối với nhiều dự án nhị phân (binary projects). Do đó, cộng đồng Rust
+đã phát triển các hướng dẫn để phân tách các mối bận tâm (separation of concerns) riêng biệt của một
+chương trình nhị phân khi `main` bắt đầu trở nên lớn. Quá trình này có các
+bước sau:
 
-- Split your program into a _main.rs_ file and a _lib.rs_ file and move your
-  program’s logic to _lib.rs_.
-- As long as your command line parsing logic is small, it can remain in
+- Chia chương trình của bạn thành một tệp _main.rs_ và một tệp _lib.rs_ và chuyển
+  logic chương trình của bạn sang _lib.rs_.
+- Miễn là logic phân tích cú pháp dòng lệnh của bạn còn nhỏ, nó có thể vẫn nằm trong
   _main.rs_.
-- When the command line parsing logic starts getting complicated, extract it
-  from _main.rs_ and move it to _lib.rs_.
+- Khi logic phân tích cú pháp dòng lệnh bắt đầu trở nên phức tạp, hãy trích xuất nó
+  từ _main.rs_ và chuyển nó sang _lib.rs_.
 
-The responsibilities that remain in the `main` function after this process
-should be limited to the following:
+Các trách nhiệm còn lại trong hàm `main` sau quá trình này
+nên được giới hạn ở các việc sau:
 
-- Calling the command line parsing logic with the argument values
-- Setting up any other configuration
-- Calling a `run` function in _lib.rs_
-- Handling the error if `run` returns an error
+- Gọi logic phân tích cú pháp dòng lệnh với các giá trị đối số
+- Thiết lập bất kỳ cấu hình nào khác
+- Gọi một hàm `run` trong _lib.rs_
+- Xử lý lỗi nếu `run` trả về một lỗi
 
-This pattern is about separating concerns: _main.rs_ handles running the
-program and _lib.rs_ handles all the logic of the task at hand. Because you
-can’t test the `main` function directly, this structure lets you test all of
-your program’s logic by moving it into functions in _lib.rs_. The code that
-remains in _main.rs_ will be small enough to verify its correctness by reading
-it. Let’s rework our program by following this process.
+Mô hình này là về việc phân tách các mối bận tâm: _main.rs_ xử lý việc chạy
+chương trình và _lib.rs_ xử lý tất cả logic của nhiệm vụ đang thực hiện. Bởi vì bạn
+không thể kiểm thử trực tiếp hàm `main`, cấu trúc này cho phép bạn kiểm thử tất cả
+logic chương trình của mình bằng cách chuyển nó vào các hàm trong _lib.rs_. Mã
+còn lại trong _main.rs_ sẽ đủ nhỏ để xác minh tính chính xác của nó bằng cách
+đọc nó. Hãy làm lại chương trình của chúng ta bằng cách tuân theo quy trình này.
 
-#### Extracting the Argument Parser
+#### Trích Xuất Bộ Phân Tích Cú Pháp Đối Số
 
-We’ll extract the functionality for parsing arguments into a function that
-`main` will call to prepare for moving the command line parsing logic to
-_src/lib.rs_. Listing 12-5 shows the new start of `main` that calls a new
-function `parse_config`, which we’ll define in _src/main.rs_ for the moment.
+Chúng ta sẽ trích xuất chức năng phân tích cú pháp các đối số vào một hàm mà
+`main` sẽ gọi để chuẩn bị cho việc chuyển logic phân tích cú pháp dòng lệnh sang
+_src/lib.rs_. Liệt kê 12-5 cho thấy phần bắt đầu mới của `main` gọi một
+hàm mới `parse_config`, hàm mà chúng ta sẽ tạm thời định nghĩa trong _src/main.rs_.
 
-<Listing number="12-5" file-name="src/main.rs" caption="Extracting a `parse_config` function from `main`">
+<Listing number="12-5" file-name="src/main.rs" caption="Trích xuất một hàm `parse_config` từ `main`">
 
 ```rust,ignore
 {{#rustdoc_include ../listings/ch12-an-io-project/listing-12-05/src/main.rs:here}}
@@ -78,40 +78,40 @@ function `parse_config`, which we’ll define in _src/main.rs_ for the moment.
 
 </Listing>
 
-We’re still collecting the command line arguments into a vector, but instead of
-assigning the argument value at index 1 to the variable `query` and the
-argument value at index 2 to the variable `file_path` within the `main`
-function, we pass the whole vector to the `parse_config` function. The
-`parse_config` function then holds the logic that determines which argument
-goes in which variable and passes the values back to `main`. We still create
-the `query` and `file_path` variables in `main`, but `main` no longer has the
-responsibility of determining how the command line arguments and variables
-correspond.
+Chúng ta vẫn đang thu thập các đối số dòng lệnh vào một vector, nhưng thay vì
+gán giá trị đối số tại chỉ số 1 cho biến `query` và
+giá trị đối số tại chỉ số 2 cho biến `file_path` trong hàm `main`,
+chúng ta truyền toàn bộ vector cho hàm `parse_config`. Hàm
+`parse_config` sau đó giữ logic xác định đối số nào
+nằm trong biến nào và truyền các giá trị trở lại `main`. Chúng ta vẫn tạo
+các biến `query` và `file_path` trong `main`, nhưng `main` không còn
+trách nhiệm xác định các đối số dòng lệnh và biến
+tương ứng như thế nào.
 
-This rework may seem like overkill for our small program, but we’re refactoring
-in small, incremental steps. After making this change, run the program again to
-verify that the argument parsing still works. It’s good to check your progress
-often, to help identify the cause of problems when they occur.
+Việc làm lại này có vẻ như là hơi quá mức đối với chương trình nhỏ của chúng ta, nhưng chúng ta đang tái cấu trúc
+theo các bước nhỏ, tăng dần. Sau khi thực hiện thay đổi này, hãy chạy lại chương trình để
+xác minh rằng việc phân tích cú pháp đối số vẫn hoạt động. Tốt nhất là nên kiểm tra tiến độ của bạn
+thường xuyên, để giúp xác định nguyên nhân của các vấn đề khi chúng xảy ra.
 
-#### Grouping Configuration Values
+#### Nhóm Các Giá Trị Cấu Hình
 
-We can take another small step to improve the `parse_config` function further.
-At the moment, we’re returning a tuple, but then we immediately break that
-tuple into individual parts again. This is a sign that perhaps we don’t have
-the right abstraction yet.
+Chúng ta có thể thực hiện một bước nhỏ khác để cải thiện hàm `parse_config` hơn nữa.
+Tại thời điểm này, chúng ta đang trả về một tuple, nhưng sau đó chúng ta ngay lập tức tách
+tuple đó thành các phần riêng lẻ một lần nữa. Đây là một dấu hiệu cho thấy có lẽ chúng ta chưa có
+sự trừu tượng hóa phù hợp.
 
-Another indicator that shows there’s room for improvement is the `config` part
-of `parse_config`, which implies that the two values we return are related and
-are both part of one configuration value. We’re not currently conveying this
-meaning in the structure of the data other than by grouping the two values into
-a tuple; we’ll instead put the two values into one struct and give each of the
-struct fields a meaningful name. Doing so will make it easier for future
-maintainers of this code to understand how the different values relate to each
-other and what their purpose is.
+Một chỉ báo khác cho thấy vẫn còn chỗ để cải thiện là phần `config`
+của `parse_config`, nó ám chỉ rằng hai giá trị chúng ta trả về có liên quan với nhau và
+đều là một phần của một giá trị cấu hình. Chúng ta hiện không truyền đạt
+ý nghĩa này trong cấu trúc của dữ liệu ngoài việc nhóm hai giá trị thành
+một tuple; thay vào đó chúng ta sẽ đặt hai giá trị vào một struct và đặt cho mỗi
+trường của struct một cái tên có ý nghĩa. Làm như vậy sẽ giúp những người
+bảo trì mã này trong tương lai dễ dàng hiểu được các giá trị khác nhau liên quan đến
+nhau như thế nào và mục đích của chúng là gì.
 
-Listing 12-6 shows the improvements to the `parse_config` function.
+Liệt kê 12-6 cho thấy những cải tiến đối với hàm `parse_config`.
 
-<Listing number="12-6" file-name="src/main.rs" caption="Refactoring `parse_config` to return an instance of a `Config` struct">
+<Listing number="12-6" file-name="src/main.rs" caption="Tái cấu trúc `parse_config` để trả về một instance của một struct `Config`">
 
 ```rust,should_panic,noplayground
 {{#rustdoc_include ../listings/ch12-an-io-project/listing-12-06/src/main.rs:here}}
@@ -119,65 +119,65 @@ Listing 12-6 shows the improvements to the `parse_config` function.
 
 </Listing>
 
-We’ve added a struct named `Config` defined to have fields named `query` and
-`file_path`. The signature of `parse_config` now indicates that it returns a
-`Config` value. In the body of `parse_config`, where we used to return
-string slices that reference `String` values in `args`, we now define `Config`
-to contain owned `String` values. The `args` variable in `main` is the owner of
-the argument values and is only letting the `parse_config` function borrow
-them, which means we’d violate Rust’s borrowing rules if `Config` tried to take
-ownership of the values in `args`.
+Chúng ta đã thêm một struct tên là `Config` được định nghĩa để có các trường tên là `query` và
+`file_path`. Chữ ký của `parse_config` giờ đây chỉ ra rằng nó trả về một
+giá trị `Config`. Trong thân hàm `parse_config`, nơi chúng ta từng trả về
+các string slice tham chiếu đến các giá trị `String` trong `args`, giờ đây chúng ta định nghĩa `Config`
+chứa các giá trị `String` được sở hữu (owned). Biến `args` trong `main` là chủ sở hữu của
+các giá trị đối số và chỉ cho phép hàm `parse_config` mượn
+chúng, điều đó có nghĩa là chúng ta sẽ vi phạm các quy tắc mượn (borrowing rules) của Rust nếu `Config` cố gắng lấy
+quyền sở hữu các giá trị trong `args`.
 
-There are a number of ways we could manage the `String` data; the easiest,
-though somewhat inefficient, route is to call the `clone` method on the values.
-This will make a full copy of the data for the `Config` instance to own, which
-takes more time and memory than storing a reference to the string data.
-However, cloning the data also makes our code very straightforward because we
-don’t have to manage the lifetimes of the references; in this circumstance,
-giving up a little performance to gain simplicity is a worthwhile trade-off.
+Có một số cách chúng ta có thể quản lý dữ liệu `String`; con đường dễ dàng nhất,
+mặc dù hơi kém hiệu quả, là gọi phương thức `clone` trên các giá trị.
+Điều này sẽ tạo ra một bản sao đầy đủ của dữ liệu để instance `Config` sở hữu, việc này
+tốn nhiều thời gian và bộ nhớ hơn so với việc lưu trữ một tham chiếu đến dữ liệu chuỗi.
+Tuy nhiên, việc nhân bản dữ liệu cũng làm cho mã của chúng ta rất đơn giản vì chúng ta
+không phải quản lý lifetime của các tham chiếu; trong hoàn cảnh này,
+hy sinh một chút hiệu năng để đạt được sự đơn giản là một sự đánh đổi xứng đáng.
 
-> ### The Trade-Offs of Using `clone`
+> ### Những Đánh Đổi của Việc Sử Dụng `clone`
 >
-> There’s a tendency among many Rustaceans to avoid using `clone` to fix
-> ownership problems because of its runtime cost. In
-> [Chapter 13][ch13]<!-- ignore -->, you’ll learn how to use more efficient
-> methods in this type of situation. But for now, it’s okay to copy a few
-> strings to continue making progress because you’ll make these copies only
-> once and your file path and query string are very small. It’s better to have
-> a working program that’s a bit inefficient than to try to hyperoptimize code
-> on your first pass. As you become more experienced with Rust, it’ll be
-> easier to start with the most efficient solution, but for now, it’s
-> perfectly acceptable to call `clone`.
+> Có một xu hướng trong nhiều người dùng Rust là tránh sử dụng `clone` để sửa chữa
+> các vấn đề về quyền sở hữu vì chi phí thời gian chạy (runtime cost) của nó. Trong
+> [Chương 13][ch13]<!-- ignore -->, bạn sẽ học cách sử dụng các phương thức hiệu quả hơn
+> trong loại tình huống này. Nhưng hiện tại, việc sao chép một vài
+> chuỗi để tiếp tục đạt được tiến bộ là không sao vì bạn sẽ chỉ thực hiện các bản sao này
+> một lần và đường dẫn tệp cũng như chuỗi truy vấn của bạn rất nhỏ. Tốt hơn là nên có
+> một chương trình hoạt động nhưng hơi kém hiệu quả còn hơn là cố gắng tối ưu hóa mã quá mức
+> ngay trong lần viết đầu tiên. Khi bạn trở nên có kinh nghiệm hơn với Rust, việc
+> bắt đầu với giải pháp hiệu quả nhất sẽ dễ dàng hơn, nhưng hiện tại, việc
+> gọi `clone` là hoàn toàn có thể chấp nhận được.
 
-We’ve updated `main` so it places the instance of `Config` returned by
-`parse_config` into a variable named `config`, and we updated the code that
-previously used the separate `query` and `file_path` variables so it now uses
-the fields on the `Config` struct instead.
+Chúng ta đã cập nhật `main` để nó đặt instance của `Config` được trả về bởi
+`parse_config` vào một biến tên là `config`, và chúng ta đã cập nhật mã
+trước đây sử dụng các biến `query` và `file_path` riêng biệt để giờ đây nó sử dụng
+các trường trên struct `Config` thay thế.
 
-Now our code more clearly conveys that `query` and `file_path` are related and
-that their purpose is to configure how the program will work. Any code that
-uses these values knows to find them in the `config` instance in the fields
-named for their purpose.
+Bây giờ mã của chúng ta truyền đạt rõ ràng hơn rằng `query` và `file_path` có liên quan đến nhau và
+mục đích của chúng là cấu hình cách chương trình sẽ hoạt động. Bất kỳ mã nào
+sử dụng các giá trị này đều biết cách tìm chúng trong instance `config` trong các trường
+được đặt tên theo mục đích của chúng.
 
-#### Creating a Constructor for `Config`
+#### Tạo một Constructor cho `Config`
 
-So far, we’ve extracted the logic responsible for parsing the command line
-arguments from `main` and placed it in the `parse_config` function. Doing so
-helped us see that the `query` and `file_path` values were related, and that
-relationship should be conveyed in our code. We then added a `Config` struct to
-name the related purpose of `query` and `file_path` and to be able to return the
-values’ names as struct field names from the `parse_config` function.
+Cho đến nay, chúng ta đã trích xuất logic chịu trách nhiệm phân tích cú pháp các đối số dòng lệnh
+từ `main` và đặt nó vào hàm `parse_config`. Làm như vậy đã
+giúp chúng ta thấy rằng các giá trị `query` và `file_path` có liên quan đến nhau, và
+mối quan hệ đó nên được truyền đạt trong mã của chúng ta. Sau đó chúng ta đã thêm một struct `Config` để
+đặt tên cho mục đích liên quan của `query` và `file_path` và để có thể trả về các
+tên giá trị dưới dạng tên trường struct từ hàm `parse_config`.
 
-So now that the purpose of the `parse_config` function is to create a `Config`
-instance, we can change `parse_config` from a plain function to a function
-named `new` that is associated with the `Config` struct. Making this change
-will make the code more idiomatic. We can create instances of types in the
-standard library, such as `String`, by calling `String::new`. Similarly, by
-changing `parse_config` into a `new` function associated with `Config`, we’ll
-be able to create instances of `Config` by calling `Config::new`. Listing 12-7
-shows the changes we need to make.
+Vì vậy, bây giờ mục đích của hàm `parse_config` là tạo một instance `Config`,
+chúng ta có thể thay đổi `parse_config` từ một hàm thông thường thành một hàm
+tên là `new` được liên kết với struct `Config`. Việc thực hiện thay đổi này
+sẽ làm cho mã mang tính đặc trưng của Rust (idiomatic) hơn. Chúng ta có thể tạo các instance của các kiểu trong
+thư viện chuẩn, chẳng hạn như `String`, bằng cách gọi `String::new`. Tương tự, bằng cách
+thay đổi `parse_config` thành một hàm `new` liên kết với `Config`, chúng ta sẽ
+có thể tạo các instance của `Config` bằng cách gọi `Config::new`. Liệt kê 12-7
+cho thấy những thay đổi chúng ta cần thực hiện.
 
-<Listing number="12-7" file-name="src/main.rs" caption="Changing `parse_config` into `Config::new`">
+<Listing number="12-7" file-name="src/main.rs" caption="Thay đổi `parse_config` thành `Config::new`">
 
 ```rust,should_panic,noplayground
 {{#rustdoc_include ../listings/ch12-an-io-project/listing-12-07/src/main.rs:here}}
@@ -185,33 +185,33 @@ shows the changes we need to make.
 
 </Listing>
 
-We’ve updated `main` where we were calling `parse_config` to instead call
-`Config::new`. We’ve changed the name of `parse_config` to `new` and moved it
-within an `impl` block, which associates the `new` function with `Config`. Try
-compiling this code again to make sure it works.
+Chúng ta đã cập nhật `main` nơi chúng ta đang gọi `parse_config` để thay vào đó gọi
+`Config::new`. Chúng ta đã đổi tên của `parse_config` thành `new` và di chuyển nó
+vào trong một khối `impl`, khối này liên kết hàm `new` với `Config`. Hãy thử
+biên dịch lại mã này để đảm bảo nó hoạt động.
 
-### Fixing the Error Handling
+### Sửa Lỗi Xử Lý Lỗi
 
-Now we’ll work on fixing our error handling. Recall that attempting to access
-the values in the `args` vector at index 1 or index 2 will cause the program to
-panic if the vector contains fewer than three items. Try running the program
-without any arguments; it will look like this:
+Bây giờ chúng ta sẽ thực hiện việc sửa lỗi xử lý lỗi của mình. Hãy nhớ rằng việc cố gắng truy cập
+các giá trị trong vector `args` tại chỉ số 1 hoặc chỉ số 2 sẽ khiến chương trình
+panic nếu vector chứa ít hơn ba phần tử. Thử chạy chương trình
+mà không có bất kỳ đối số nào; nó sẽ trông như thế này:
 
 ```console
 {{#include ../listings/ch12-an-io-project/listing-12-07/output.txt}}
 ```
 
-The line `index out of bounds: the len is 1 but the index is 1` is an error
-message intended for programmers. It won’t help our end users understand what
-they should do instead. Let’s fix that now.
+Dòng `index out of bounds: the len is 1 but the index is 1` là một thông báo lỗi
+dành cho các lập trình viên. Nó sẽ không giúp người dùng cuối của chúng ta hiểu được
+họ nên làm gì thay thế. Hãy sửa lỗi đó ngay bây giờ.
 
-#### Improving the Error Message
+#### Cải Thiện Thông Báo Lỗi
 
-In Listing 12-8, we add a check in the `new` function that will verify that the
-slice is long enough before accessing index 1 and index 2. If the slice isn’t
-long enough, the program panics and displays a better error message.
+Trong Liệt kê 12-8, chúng ta thêm một kiểm tra trong hàm `new` để xác minh rằng
+slice đủ dài trước khi truy cập chỉ số 1 và chỉ số 2. Nếu slice không
+đủ dài, chương trình sẽ panic và hiển thị một thông báo lỗi tốt hơn.
 
-<Listing number="12-8" file-name="src/main.rs" caption="Adding a check for the number of arguments">
+<Listing number="12-8" file-name="src/main.rs" caption="Thêm một kiểm tra cho số lượng đối số">
 
 ```rust,ignore
 {{#rustdoc_include ../listings/ch12-an-io-project/listing-12-08/src/main.rs:here}}
@@ -219,50 +219,50 @@ long enough, the program panics and displays a better error message.
 
 </Listing>
 
-This code is similar to [the `Guess::new` function we wrote in Listing
-9-13][ch9-custom-types]<!-- ignore -->, where we called `panic!` when the
-`value` argument was out of the range of valid values. Instead of checking for
-a range of values here, we’re checking that the length of `args` is at least
-`3` and the rest of the function can operate under the assumption that this
-condition has been met. If `args` has fewer than three items, this condition
-will be `true`, and we call the `panic!` macro to end the program immediately.
+Mã này tương tự như [hàm `Guess::new` mà chúng ta đã viết trong Liệt kê
+9-13][ch9-custom-types]<!-- ignore -->, nơi chúng ta đã gọi `panic!` khi
+đối số `value` nằm ngoài phạm vi của các giá trị hợp lệ. Thay vì kiểm tra
+một phạm vi các giá trị ở đây, chúng ta đang kiểm tra xem độ dài của `args` có ít nhất là
+`3` hay không và phần còn lại của hàm có thể hoạt động dưới giả định rằng
+điều kiện này đã được đáp ứng. Nếu `args` có ít hơn ba phần tử, điều kiện này
+sẽ là `true`, và chúng ta gọi macro `panic!` để kết thúc chương trình ngay lập tức.
 
-With these extra few lines of code in `new`, let’s run the program without any
-arguments again to see what the error looks like now:
+Với vài dòng mã bổ sung này trong `new`, hãy chạy lại chương trình mà không có bất kỳ
+đối số nào để xem lỗi bây giờ trông như thế nào:
 
 ```console
 {{#include ../listings/ch12-an-io-project/listing-12-08/output.txt}}
 ```
 
-This output is better: we now have a reasonable error message. However, we also
-have extraneous information we don’t want to give to our users. Perhaps the
-technique we used in Listing 9-13 isn’t the best one to use here: a call to
-`panic!` is more appropriate for a programming problem than a usage problem,
-[as discussed in Chapter 9][ch9-error-guidelines]<!-- ignore -->. Instead,
-we’ll use the other technique you learned about in Chapter 9—[returning a
-`Result`][ch9-result]<!-- ignore --> that indicates either success or an error.
+Đầu ra này tốt hơn: bây giờ chúng ta đã có một thông báo lỗi hợp lý. Tuy nhiên, chúng ta cũng
+có thông tin dư thừa mà chúng ta không muốn đưa cho người dùng của mình. Có lẽ
+kỹ thuật chúng ta đã sử dụng trong Liệt kê 9-13 không phải là kỹ thuật tốt nhất để sử dụng ở đây: một lệnh gọi
+đến `panic!` phù hợp cho một vấn đề lập trình hơn là một vấn đề sử dụng,
+[như đã thảo luận trong Chương 9][ch9-error-guidelines]<!-- ignore -->. Thay vào đó,
+chúng ta sẽ sử dụng kỹ thuật khác mà bạn đã học ở Chương 9—[trả về một
+`Result`][ch9-result]<!-- ignore --> để chỉ ra thành công hoặc một lỗi.
 
 <!-- Old headings. Do not remove or links may break. -->
 
 <a id="returning-a-result-from-new-instead-of-calling-panic"></a>
 
-#### Returning a `Result` Instead of Calling `panic!`
+#### Trả Về một `Result` Thay Vì Gọi `panic!`
 
-We can instead return a `Result` value that will contain a `Config` instance in
-the successful case and will describe the problem in the error case. We’re also
-going to change the function name from `new` to `build` because many
-programmers expect `new` functions to never fail. When `Config::build` is
-communicating to `main`, we can use the `Result` type to signal there was a
-problem. Then we can change `main` to convert an `Err` variant into a more
-practical error for our users without the surrounding text about `thread
-'main'` and `RUST_BACKTRACE` that a call to `panic!` causes.
+Thay vào đó, chúng ta có thể trả về một giá trị `Result` sẽ chứa một instance `Config` trong
+trường hợp thành công và sẽ mô tả vấn đề trong trường hợp lỗi. Chúng ta cũng
+sẽ đổi tên hàm từ `new` thành `build` vì nhiều
+lập trình viên kỳ vọng các hàm `new` không bao giờ thất bại. Khi `Config::build` đang
+giao tiếp với `main`, chúng ta có thể sử dụng kiểu `Result` để báo hiệu rằng đã có một
+vấn đề. Sau đó chúng ta có thể thay đổi `main` để chuyển đổi một biến thể `Err` thành một
+lỗi thực tế hơn cho người dùng của chúng ta mà không có đoạn văn bản xung quanh về `thread
+'main'` và `RUST_BACKTRACE` mà lệnh gọi đến `panic!` gây ra.
 
-Listing 12-9 shows the changes we need to make to the return value of the
-function we’re now calling `Config::build` and the body of the function needed
-to return a `Result`. Note that this won’t compile until we update `main` as
-well, which we’ll do in the next listing.
+Liệt kê 12-9 cho thấy những thay đổi chúng ta cần thực hiện đối với giá trị trả về của
+hàm mà bây giờ chúng ta gọi là `Config::build` và thân của hàm cần thiết
+để trả về một `Result`. Lưu ý rằng mã này sẽ không được biên dịch cho đến khi chúng ta cập nhật cả `main`,
+việc mà chúng ta sẽ thực hiện trong danh sách tiếp theo.
 
-<Listing number="12-9" file-name="src/main.rs" caption="Returning a `Result` from `Config::build`">
+<Listing number="12-9" file-name="src/main.rs" caption="Trả về một `Result` từ `Config::build`">
 
 ```rust,ignore,does_not_compile
 {{#rustdoc_include ../listings/ch12-an-io-project/listing-12-09/src/main.rs:here}}
@@ -270,33 +270,33 @@ well, which we’ll do in the next listing.
 
 </Listing>
 
-Our `build` function returns a `Result` with a `Config` instance in the success
-case and a string literal in the error case. Our error values will always be
-string literals that have the `'static` lifetime.
+Hàm `build` của chúng ta trả về một `Result` với một instance `Config` trong trường hợp thành công
+và một string literal trong trường hợp lỗi. Các giá trị lỗi của chúng ta sẽ luôn là
+các string literal có lifetime `'static`.
 
-We’ve made two changes in the body of the function: instead of calling `panic!`
-when the user doesn’t pass enough arguments, we now return an `Err` value, and
-we’ve wrapped the `Config` return value in an `Ok`. These changes make the
-function conform to its new type signature.
+Chúng ta đã thực hiện hai thay đổi trong thân hàm: thay vì gọi `panic!`
+khi người dùng không truyền đủ các đối số, bây giờ chúng ta trả về một giá trị `Err`, và
+chúng ta đã bọc giá trị trả về `Config` trong một `Ok`. Những thay đổi này làm cho
+hàm tuân thủ chữ ký kiểu mới của nó.
 
-Returning an `Err` value from `Config::build` allows the `main` function to
-handle the `Result` value returned from the `build` function and exit the
-process more cleanly in the error case.
+Trả về một giá trị `Err` từ `Config::build` cho phép hàm `main`
+xử lý giá trị `Result` được trả về từ hàm `build` và thoát khỏi
+tiến trình một cách sạch sẽ hơn trong trường hợp lỗi.
 
 <!-- Old headings. Do not remove or links may break. -->
 
 <a id="calling-confignew-and-handling-errors"></a>
 
-#### Calling `Config::build` and Handling Errors
+#### Gọi `Config::build` và Xử Lý Lỗi
 
-To handle the error case and print a user-friendly message, we need to update
-`main` to handle the `Result` being returned by `Config::build`, as shown in
-Listing 12-10. We’ll also take the responsibility of exiting the command line
-tool with a nonzero error code away from `panic!` and instead implement it by
-hand. A nonzero exit status is a convention to signal to the process that
-called our program that the program exited with an error state.
+Để xử lý trường hợp lỗi và in ra một thông báo thân thiện với người dùng, chúng ta cần cập nhật
+`main` để xử lý `Result` đang được trả về bởi `Config::build`, như được hiển thị trong
+Liệt kê 12-10. Chúng ta cũng sẽ tước bỏ trách nhiệm thoát khỏi công cụ dòng lệnh
+với một mã lỗi khác không từ `panic!` và thay vào đó tự mình triển khai nó.
+Một trạng thái thoát (exit status) khác không là một quy ước để báo hiệu cho tiến trình đã
+gọi chương trình của chúng ta rằng chương trình đã thoát với một trạng thái lỗi.
 
-<Listing number="12-10" file-name="src/main.rs" caption="Exiting with an error code if building a `Config` fails">
+<Listing number="12-10" file-name="src/main.rs" caption="Thoát với một mã lỗi nếu việc xây dựng một `Config` thất bại">
 
 ```rust,ignore
 {{#rustdoc_include ../listings/ch12-an-io-project/listing-12-10/src/main.rs:here}}
@@ -304,49 +304,49 @@ called our program that the program exited with an error state.
 
 </Listing>
 
-In this listing, we’ve used a method we haven’t covered in detail yet:
-`unwrap_or_else`, which is defined on `Result<T, E>` by the standard library.
-Using `unwrap_or_else` allows us to define some custom, non-`panic!` error
-handling. If the `Result` is an `Ok` value, this method’s behavior is similar
-to `unwrap`: it returns the inner value that `Ok` is wrapping. However, if the
-value is an `Err` value, this method calls the code in the _closure_, which is
-an anonymous function we define and pass as an argument to `unwrap_or_else`.
-We’ll cover closures in more detail in [Chapter 13][ch13]<!-- ignore -->. For
-now, you just need to know that `unwrap_or_else` will pass the inner value of
-the `Err`, which in this case is the static string `"not enough arguments"`
-that we added in Listing 12-9, to our closure in the argument `err` that
-appears between the vertical pipes. The code in the closure can then use the
-`err` value when it runs.
+Trong liệt kê này, chúng ta đã sử dụng một phương thức mà chúng ta chưa đề cập chi tiết:
+`unwrap_or_else`, phương thức này được định nghĩa trên `Result<T, E>` bởi thư viện chuẩn.
+Sử dụng `unwrap_or_else` cho phép chúng ta định nghĩa một số xử lý lỗi tùy chỉnh, không phải `panic!`.
+Nếu `Result` là một giá trị `Ok`, hành vi của phương thức này tương tự
+như `unwrap`: nó trả về giá trị bên trong mà `Ok` đang bọc. Tuy nhiên, nếu
+giá trị là một giá trị `Err`, phương thức này gọi mã trong _closure_, đó là
+một hàm ẩn danh mà chúng ta định nghĩa và truyền làm đối số cho `unwrap_or_else`.
+Chúng ta sẽ tìm hiểu kỹ về closure trong [Chương 13][ch13]<!-- ignore -->. Hiện tại,
+bạn chỉ cần biết rằng `unwrap_or_else` sẽ truyền giá trị bên trong của
+`Err`, trong trường hợp này là chuỗi tĩnh `"not enough arguments"`
+mà chúng ta đã thêm trong Liệt kê 12-9, vào closure của chúng ta trong đối số `err`
+xuất hiện giữa các thanh dọc. Mã trong closure sau đó có thể sử dụng
+giá trị `err` khi nó chạy.
 
-We’ve added a new `use` line to bring `process` from the standard library into
-scope. The code in the closure that will be run in the error case is only two
-lines: we print the `err` value and then call `process::exit`. The
-`process::exit` function will stop the program immediately and return the
-number that was passed as the exit status code. This is similar to the
-`panic!`-based handling we used in Listing 12-8, but we no longer get all the
-extra output. Let’s try it:
+Chúng ta đã thêm một dòng `use` mới để đưa `process` từ thư viện chuẩn vào
+phạm vi. Mã trong closure sẽ được chạy trong trường hợp lỗi chỉ có
+hai dòng: chúng ta in giá trị `err` và sau đó gọi `process::exit`. Hàm
+`process::exit` sẽ dừng chương trình ngay lập tức và trả về
+số được truyền làm mã trạng thái thoát. Điều này tương tự như việc
+xử lý dựa trên `panic!` mà chúng ta đã sử dụng trong Liệt kê 12-8, nhưng chúng ta không còn nhận được tất cả
+đầu ra bổ sung. Hãy thử xem:
 
 ```console
 {{#include ../listings/ch12-an-io-project/listing-12-10/output.txt}}
 ```
 
-Great! This output is much friendlier for our users.
+Tuyệt vời! Đầu ra này thân thiện hơn nhiều đối với người dùng của chúng ta.
 
-### Extracting Logic from `main`
+### Trích Xuất Logic từ `main`
 
-Now that we’ve finished refactoring the configuration parsing, let’s turn to
-the program’s logic. As we stated in [“Separation of Concerns for Binary
-Projects”](#separation-of-concerns-for-binary-projects)<!-- ignore -->, we’ll
-extract a function named `run` that will hold all the logic currently in the
-`main` function that isn’t involved with setting up configuration or handling
-errors. When we’re done, `main` will be concise and easy to verify by
-inspection, and we’ll be able to write tests for all the other logic.
+Bây giờ chúng ta đã hoàn thành việc tái cấu trúc phần phân tích cú pháp cấu hình, hãy chuyển sang
+logic của chương trình. Như chúng ta đã nêu trong [“Phân Tách các Mối Bận Tâm cho Các Dự Án Nhị
+Phân”](#separation-of-concerns-for-binary-projects)<!-- ignore -->, chúng ta sẽ
+trích xuất một hàm tên là `run` sẽ giữ tất cả logic hiện có trong
+hàm `main` mà không liên quan đến việc thiết lập cấu hình hoặc xử lý
+lỗi. Khi hoàn tất, `main` sẽ ngắn gọn và dễ xác minh bằng cách
+kiểm tra trực quan, và chúng ta sẽ có thể viết các kiểm thử cho tất cả logic khác.
 
-Listing 12-11 shows the extracted `run` function. For now, we’re just making
-the small, incremental improvement of extracting the function. We’re still
-defining the function in _src/main.rs_.
+Liệt kê 12-11 cho thấy hàm `run` được trích xuất. Hiện tại, chúng ta chỉ đang thực hiện
+cải tiến nhỏ, tăng dần là trích xuất hàm. Chúng ta vẫn
+định nghĩa hàm trong _src/main.rs_.
 
-<Listing number="12-11" file-name="src/main.rs" caption="Extracting a `run` function containing the rest of the program logic">
+<Listing number="12-11" file-name="src/main.rs" caption="Trích xuất một hàm `run` chứa phần còn lại của logic chương trình">
 
 ```rust,ignore
 {{#rustdoc_include ../listings/ch12-an-io-project/listing-12-11/src/main.rs:here}}
@@ -354,21 +354,21 @@ defining the function in _src/main.rs_.
 
 </Listing>
 
-The `run` function now contains all the remaining logic from `main`, starting
-from reading the file. The `run` function takes the `Config` instance as an
-argument.
+Hàm `run` giờ đây chứa tất cả logic còn lại từ `main`, bắt đầu
+từ việc đọc tệp. Hàm `run` nhận instance `Config` làm
+đối số.
 
-#### Returning Errors from the `run` Function
+#### Trả Về Lỗi từ Hàm `run`
 
-With the remaining program logic separated into the `run` function, we can
-improve the error handling, as we did with `Config::build` in Listing 12-9.
-Instead of allowing the program to panic by calling `expect`, the `run`
-function will return a `Result<T, E>` when something goes wrong. This will let
-us further consolidate the logic around handling errors into `main` in a
-user-friendly way. Listing 12-12 shows the changes we need to make to the
-signature and body of `run`.
+Với logic chương trình còn lại được tách biệt vào hàm `run`, chúng ta có thể
+cải thiện việc xử lý lỗi, như chúng ta đã làm với `Config::build` trong Liệt kê 12-9.
+Thay vì cho phép chương trình panic bằng cách gọi `expect`, hàm
+`run` sẽ trả về một `Result<T, E>` khi có sự cố xảy ra. Điều này sẽ cho phép
+chúng ta củng cố thêm logic xoay quanh việc xử lý lỗi vào `main` theo một
+cách thân thiện với người dùng. Liệt kê 12-12 cho thấy những thay đổi chúng ta cần thực hiện đối với
+chữ ký và thân hàm `run`.
 
-<Listing number="12-12" file-name="src/main.rs" caption="Changing the `run` function to return `Result`">
+<Listing number="12-12" file-name="src/main.rs" caption="Thay đổi hàm `run` để trả về `Result`">
 
 ```rust,ignore
 {{#rustdoc_include ../listings/ch12-an-io-project/listing-12-12/src/main.rs:here}}
@@ -376,83 +376,83 @@ signature and body of `run`.
 
 </Listing>
 
-We’ve made three significant changes here. First, we changed the return type of
-the `run` function to `Result<(), Box<dyn Error>>`. This function previously
-returned the unit type, `()`, and we keep that as the value returned in the
-`Ok` case.
+Chúng ta đã thực hiện ba thay đổi quan trọng ở đây. Đầu tiên, chúng ta đã thay đổi kiểu trả về của
+hàm `run` thành `Result<(), Box<dyn Error>>`. Hàm này trước đây
+trả về kiểu unit, `()`, và chúng ta giữ nó làm giá trị được trả về trong
+trường hợp `Ok`.
 
-For the error type, we used the _trait object_ `Box<dyn Error>` (and we’ve
-brought `std::error::Error` into scope with a `use` statement at the top).
-We’ll cover trait objects in [Chapter 18][ch18]<!-- ignore -->. For now, just
-know that `Box<dyn Error>` means the function will return a type that
-implements the `Error` trait, but we don’t have to specify what particular type
-the return value will be. This gives us flexibility to return error values that
-may be of different types in different error cases. The `dyn` keyword is short
-for _dynamic_.
+Đối với kiểu lỗi, chúng ta đã sử dụng _trait object_ `Box<dyn Error>` (và chúng ta đã
+đưa `std::error::Error` vào phạm vi bằng một câu lệnh `use` ở đầu tệp).
+Chúng ta sẽ tìm hiểu về trait object trong [Chương 18][ch18]<!-- ignore -->. Hiện tại,
+chỉ cần biết rằng `Box<dyn Error>` có nghĩa là hàm sẽ trả về một kiểu
+triển khai trait `Error`, nhưng chúng ta không phải chỉ định cụ thể kiểu nào
+mà giá trị trả về sẽ là. Điều này cho phép chúng ta linh hoạt trả về các giá trị lỗi có
+thể thuộc các kiểu khác nhau trong các trường hợp lỗi khác nhau. Từ khóa `dyn` là viết tắt
+của _dynamic_ (động).
 
-Second, we’ve removed the call to `expect` in favor of the `?` operator, as we
-talked about in [Chapter 9][ch9-question-mark]<!-- ignore -->. Rather than
-`panic!` on an error, `?` will return the error value from the current function
-for the caller to handle.
+Thứ hai, chúng ta đã loại bỏ lời gọi đến `expect` để thay thế bằng toán tử `?`, như chúng ta
+đã nói trong [Chương 9][ch9-question-mark]<!-- ignore -->. Thay vì
+`panic!` khi gặp lỗi, `?` sẽ trả về giá trị lỗi từ hàm hiện tại
+cho người gọi xử lý.
 
-Third, the `run` function now returns an `Ok` value in the success case.
-We’ve declared the `run` function’s success type as `()` in the signature,
-which means we need to wrap the unit type value in the `Ok` value. This
-`Ok(())` syntax might look a bit strange at first, but using `()` like this is
-the idiomatic way to indicate that we’re calling `run` for its side effects
-only; it doesn’t return a value we need.
+Thứ ba, hàm `run` bây giờ trả về một giá trị `Ok` trong trường hợp thành công.
+Chúng ta đã khai báo kiểu thành công của hàm `run` là `()` trong chữ ký,
+điều đó có nghĩa là chúng ta cần bọc giá trị kiểu unit trong giá trị `Ok`. Cú pháp
+`Ok(())` này thoạt nhìn có vẻ hơi lạ, nhưng sử dụng `()` như thế này là
+cách chuẩn tắc (idiomatic) để chỉ ra rằng chúng ta đang gọi `run` chỉ vì các tác dụng phụ (side effects) của nó;
+nó không trả về một giá trị chúng ta cần.
 
-When you run this code, it will compile but will display a warning:
+Khi bạn chạy mã này, nó sẽ được biên dịch nhưng sẽ hiển thị một cảnh báo:
 
 ```console
 {{#include ../listings/ch12-an-io-project/listing-12-12/output.txt}}
 ```
 
-Rust tells us that our code ignored the `Result` value and the `Result` value
-might indicate that an error occurred. But we’re not checking to see whether or
-not there was an error, and the compiler reminds us that we probably meant to
-have some error-handling code here! Let’s rectify that problem now.
+Rust cho chúng ta biết rằng mã của chúng ta đã bỏ qua giá trị `Result` và giá trị `Result` đó
+có thể chỉ ra rằng một lỗi đã xảy ra. Nhưng chúng ta không kiểm tra xem có
+lỗi hay không, và trình biên dịch nhắc nhở chúng ta rằng có lẽ chúng ta đã định
+có một số mã xử lý lỗi ở đây! Hãy khắc phục vấn đề đó ngay bây giờ.
 
-#### Handling Errors Returned from `run` in `main`
+#### Xử Lý Lỗi Được Trả Về từ `run` trong `main`
 
-We’ll check for errors and handle them using a technique similar to one we used
-with `Config::build` in Listing 12-10, but with a slight difference:
+Chúng ta sẽ kiểm tra các lỗi và xử lý chúng bằng kỹ thuật tương tự như kỹ thuật chúng ta đã sử dụng
+với `Config::build` trong Liệt kê 12-10, nhưng có một chút khác biệt:
 
-<span class="filename">Filename: src/main.rs</span>
+<span class="filename">Tên tệp: src/main.rs</span>
 
 ```rust,ignore
 {{#rustdoc_include ../listings/ch12-an-io-project/no-listing-01-handling-errors-in-main/src/main.rs:here}}
 ```
 
-We use `if let` rather than `unwrap_or_else` to check whether `run` returns an
-`Err` value and to call `process::exit(1)` if it does. The `run` function
-doesn’t return a value that we want to `unwrap` in the same way that
-`Config::build` returns the `Config` instance. Because `run` returns `()` in
-the success case, we only care about detecting an error, so we don’t need
-`unwrap_or_else` to return the unwrapped value, which would only be `()`.
+Chúng ta sử dụng `if let` thay vì `unwrap_or_else` để kiểm tra xem `run` có trả về một
+giá trị `Err` hay không và gọi `process::exit(1)` nếu nó xảy ra. Hàm `run`
+không trả về một giá trị mà chúng ta muốn `unwrap` theo cùng cách mà
+`Config::build` trả về instance `Config`. Bởi vì `run` trả về `()` trong
+trường hợp thành công, chúng ta chỉ quan tâm đến việc phát hiện lỗi, vì vậy chúng ta không cần
+`unwrap_or_else` để trả về giá trị đã được unwrapped, cái mà chỉ là `()`.
 
-The bodies of the `if let` and the `unwrap_or_else` functions are the same in
-both cases: we print the error and exit.
+Thân của các hàm `if let` và `unwrap_or_else` là giống nhau trong
+cả hai trường hợp: chúng ta in lỗi và thoát.
 
-### Splitting Code into a Library Crate
+### Chia Tách Mã vào một Library Crate
 
-Our `minigrep` project is looking good so far! Now we’ll split the
-_src/main.rs_ file and put some code into the _src/lib.rs_ file. That way, we
-can test the code and have a _src/main.rs_ file with fewer responsibilities.
+Dự án `minigrep` của chúng ta trông ổn cho đến nay! Bây giờ chúng ta sẽ chia tách
+tệp _src/main.rs_ và đặt một số mã vào tệp _src/lib.rs_. Bằng cách đó, chúng ta
+có thể kiểm thử mã và có một tệp _src/main.rs_ với ít trách nhiệm hơn.
 
-Let’s move all the code that isn’t in the `main` function from _src/main.rs_ to
+Hãy chuyển tất cả mã không nằm trong hàm `main` từ _src/main.rs_ sang
 _src/lib.rs_:
 
-- The `run` function definition
-- The relevant `use` statements
-- The definition of `Config`
-- The `Config::build` function definition
+- Định nghĩa hàm `run`
+- Các câu lệnh `use` liên quan
+- Định nghĩa struct `Config`
+- Định nghĩa hàm `Config::build`
 
-The contents of _src/lib.rs_ should have the signatures shown in Listing 12-13
-(we’ve omitted the bodies of the functions for brevity). Note that this won’t
-compile until we modify _src/main.rs_ in Listing 12-14.
+Nội dung của _src/lib.rs_ nên có các chữ ký được hiển thị trong Liệt kê 12-13
+(chúng ta đã bỏ qua thân của các hàm để cho ngắn gọn). Lưu ý rằng điều này sẽ không
+biên dịch được cho đến khi chúng ta sửa đổi _src/main.rs_ trong Liệt kê 12-14.
 
-<Listing number="12-13" file-name="src/lib.rs" caption="Moving `Config` and `run` into *src/lib.rs*">
+<Listing number="12-13" file-name="src/lib.rs" caption="Chuyển `Config` và `run` vào *src/lib.rs*">
 
 ```rust,ignore,does_not_compile
 {{#rustdoc_include ../listings/ch12-an-io-project/listing-12-13/src/lib.rs:here}}
@@ -460,14 +460,14 @@ compile until we modify _src/main.rs_ in Listing 12-14.
 
 </Listing>
 
-We’ve made liberal use of the `pub` keyword: on `Config`, on its fields and its
-`build` method, and on the `run` function. We now have a library crate that has
-a public API we can test!
+Chúng ta đã sử dụng rộng rãi từ khóa `pub`: trên `Config`, trên các trường của nó và phương thức
+`build` của nó, và trên hàm `run`. Bây giờ chúng ta có một crate thư viện (library crate) có
+một API công khai mà chúng ta có thể kiểm thử!
 
-Now we need to bring the code we moved to _src/lib.rs_ into the scope of the
-binary crate in _src/main.rs_, as shown in Listing 12-14.
+Bây giờ chúng ta cần đưa mã chúng ta đã chuyển sang _src/lib.rs_ vào phạm vi của
+crate nhị phân (binary crate) trong _src/main.rs_, như được hiển thị trong Liệt kê 12-14.
 
-<Listing number="12-14" file-name="src/main.rs" caption="Using the `minigrep` library crate in *src/main.rs*">
+<Listing number="12-14" file-name="src/main.rs" caption="Sử dụng library crate `minigrep` trong *src/main.rs*">
 
 ```rust,ignore
 {{#rustdoc_include ../listings/ch12-an-io-project/listing-12-14/src/main.rs:here}}
@@ -475,18 +475,18 @@ binary crate in _src/main.rs_, as shown in Listing 12-14.
 
 </Listing>
 
-We add a `use minigrep::Config` line to bring the `Config` type from the
-library crate into the binary crate’s scope, and we prefix the `run` function
-with our crate name. Now all the functionality should be connected and should
-work. Run the program with `cargo run` and make sure everything works correctly.
+Chúng ta thêm một dòng `use minigrep::Config` để đưa kiểu `Config` từ
+crate thư viện vào phạm vi của crate nhị phân, và chúng ta thêm tiền tố cho hàm `run`
+bằng tên crate của chúng ta. Bây giờ tất cả chức năng nên được kết nối và nên
+hoạt động. Chạy chương trình với `cargo run` và đảm bảo mọi thứ hoạt động chính xác.
 
-Whew! That was a lot of work, but we’ve set ourselves up for success in the
-future. Now it’s much easier to handle errors, and we’ve made the code more
-modular. Almost all of our work will be done in _src/lib.rs_ from here on out.
+Phù! Đó là một khối lượng công việc lớn, nhưng chúng ta đã chuẩn bị sẵn sàng cho sự thành công trong
+tương lai. Bây giờ việc xử lý lỗi dễ dàng hơn nhiều, và chúng ta đã làm cho mã có tính mô-đun hơn.
+Hầu như tất cả công việc của chúng ta sẽ được thực hiện trong _src/lib.rs_ từ nay về sau.
 
-Let’s take advantage of this newfound modularity by doing something that would
-have been difficult with the old code but is easy with the new code: we’ll
-write some tests!
+Hãy tận dụng tính mô-đun mới tìm thấy này bằng cách làm một việc mà trước đây
+khó thực hiện với mã cũ nhưng giờ đây lại dễ dàng với mã mới: chúng ta sẽ
+viết một số kiểm thử!
 
 [ch13]: ch13-00-functional-features.html
 [ch9-custom-types]: ch09-03-to-panic-or-not-to-panic.html#creating-custom-types-for-validation

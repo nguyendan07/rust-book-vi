@@ -1,45 +1,45 @@
-# An I/O Project: Building a Command Line Program
+# Dự Án I/O: Xây Dựng Chương Trình Dòng Lệnh
 
-This chapter is a recap of the many skills you’ve learned so far and an
-exploration of a few more standard library features. We’ll build a command line
-tool that interacts with file and command line input/output to practice some of
-the Rust concepts you now have under your belt.
+Chương này là phần ôn tập về nhiều kỹ năng bạn đã học cho đến nay và là một
+cuộc khám phá thêm một vài tính năng của thư viện chuẩn. Chúng ta sẽ xây dựng một
+công cụ dòng lệnh tương tác với tệp và đầu vào/đầu ra dòng lệnh để thực hành một số
+khái niệm Rust mà bạn hiện đã nắm vững.
 
-> **Note:** there are no quizzes in this chapter, since it is just supposed to be a hands-on walkthrough.
+> **Ghi chú:** không có các bài trắc nghiệm trong chương này, vì nó chỉ nhằm mục đích là một bài thực hành hướng dẫn trực tiếp.
 
-Rust’s speed, safety, single binary output, and cross-platform support make it
-an ideal language for creating command line tools, so for our project, we’ll
-make our own version of the classic command line search tool `grep`
-(**g**lobally search a **r**egular **e**xpression and **p**rint). In the
-simplest use case, `grep` searches a specified file for a specified string. To
-do so, `grep` takes as its arguments a file path and a string. Then it reads
-the file, finds lines in that file that contain the string argument, and prints
-those lines.
+Tốc độ, sự an toàn, đầu ra một tệp nhị phân duy nhất và hỗ trợ đa nền tảng của Rust làm cho nó
+trở thành một ngôn ngữ lý tưởng để tạo các công cụ dòng lệnh, vì vậy đối với dự án của chúng ta, chúng ta sẽ
+tạo phiên bản riêng của công cụ tìm kiếm dòng lệnh cổ điển `grep`
+(**g**lobally search a **r**egular **e**xpression and **p**rint - tìm kiếm toàn cầu một biểu thức chính quy và in ra). Trong
+trường hợp sử dụng đơn giản nhất, `grep` tìm kiếm một chuỗi được chỉ định trong một tệp được chỉ định. Để
+làm như vậy, `grep` nhận các đối số là một đường dẫn tệp và một chuỗi. Sau đó, nó đọc
+tệp, tìm các dòng trong tệp đó có chứa đối số chuỗi và in
+những dòng đó ra.
 
-Along the way, we’ll show how to make our command line tool use the terminal
-features that many other command line tools use. We’ll read the value of an
-environment variable to allow the user to configure the behavior of our tool.
-We’ll also print error messages to the standard error console stream (`stderr`)
-instead of standard output (`stdout`) so that, for example, the user can
-redirect successful output to a file while still seeing error messages onscreen.
+Trong quá trình thực hiện, chúng tôi sẽ chỉ ra cách làm cho công cụ dòng lệnh của chúng ta sử dụng các
+tính năng terminal mà nhiều công cụ dòng lệnh khác sử dụng. Chúng ta sẽ đọc giá trị của một
+biến môi trường (environment variable) để cho phép người dùng cấu hình hành vi của công cụ của chúng ta.
+Chúng ta cũng sẽ in các thông báo lỗi ra luồng bảng điều khiển lỗi chuẩn (`stderr`)
+thay vì đầu ra chuẩn (`stdout`) để, ví dụ, người dùng có thể
+chuyển hướng đầu ra thành công vào một tệp trong khi vẫn thấy các thông báo lỗi trên màn hình.
 
-One Rust community member, Andrew Gallant, has already created a fully
-featured, very fast version of `grep`, called `ripgrep`. By comparison, our
-version will be fairly simple, but this chapter will give you some of the
-background knowledge you need to understand a real-world project such as
+Một thành viên cộng đồng Rust, Andrew Gallant, đã tạo ra một phiên bản
+đầy đủ tính năng, rất nhanh của `grep`, được gọi là `ripgrep`. Để so sánh,
+phiên bản của chúng ta sẽ khá đơn giản, nhưng chương này sẽ cung cấp cho bạn một số
+kiến thức nền tảng cần thiết để hiểu một dự án thực tế như
 `ripgrep`.
 
-Our `grep` project will combine a number of concepts you’ve learned so far:
+Dự án `grep` của chúng ta sẽ kết hợp một số khái niệm bạn đã học cho đến nay:
 
-- Organizing code ([Chapter 7][ch7]<!-- ignore -->)
-- Using vectors and strings ([Chapter 8][ch8]<!-- ignore -->)
-- Handling errors ([Chapter 9][ch9]<!-- ignore -->)
-- Using traits and lifetimes where appropriate ([Chapter 10][ch10]<!-- ignore -->)
-- Writing tests ([Chapter 11][ch11]<!-- ignore -->)
+- Tổ chức mã ([Chương 7][ch7]<!-- ignore -->)
+- Sử dụng vector và chuỗi ([Chương 8][ch8]<!-- ignore -->)
+- Xử lý lỗi ([Chương 9][ch9]<!-- ignore -->)
+- Sử dụng trait và lifetime ở những nơi thích hợp ([Chương 10][ch10]<!-- ignore -->)
+- Viết kiểm thử ([Chương 11][ch11]<!-- ignore -->)
 
-We’ll also briefly introduce closures, iterators, and trait objects, which
-[Chapter 13][ch13]<!-- ignore --> and [Chapter 18][ch18]<!-- ignore --> will
-cover in detail.
+Chúng ta cũng sẽ giới thiệu ngắn gọn về closure, iterator và trait object, những thứ mà
+[Chương 13][ch13]<!-- ignore --> và [Chương 18][ch18]<!-- ignore --> sẽ
+đề cập chi tiết.
 
 [ch7]: ch07-00-managing-growing-projects-with-packages-crates-and-modules.html
 [ch8]: ch08-00-common-collections.html

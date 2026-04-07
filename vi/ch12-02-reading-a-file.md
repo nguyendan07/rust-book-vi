@@ -1,13 +1,13 @@
-## Reading a File
+## Đọc Một Tệp
 
-Now we’ll add functionality to read the file specified in the `file_path`
-argument. First we need a sample file to test it with: we’ll use a file with a
-small amount of text over multiple lines with some repeated words. Listing 12-3
-has an Emily Dickinson poem that will work well! Create a file called
-_poem.txt_ at the root level of your project, and enter the poem “I’m Nobody!
+Bây giờ chúng ta sẽ thêm chức năng để đọc tệp được chỉ định trong đối số `file_path`.
+Đầu tiên chúng ta cần một tệp mẫu để kiểm thử: chúng ta sẽ sử dụng một tệp với một
+lượng nhỏ văn bản trên nhiều dòng với một số từ lặp lại. Liệt kê 12-3
+có một bài thơ của Emily Dickinson sẽ hoạt động tốt! Tạo một tệp tên là
+_poem.txt_ ở cấp độ gốc của dự án, và nhập bài thơ “I’m Nobody!
 Who are you?”
 
-<Listing number="12-3" file-name="poem.txt" caption="A poem by Emily Dickinson makes a good test case.">
+<Listing number="12-3" file-name="poem.txt" caption="Một bài thơ của Emily Dickinson tạo nên một trường hợp kiểm thử tốt.">
 
 ```text
 {{#include ../listings/ch12-an-io-project/listing-12-03/poem.txt}}
@@ -15,10 +15,10 @@ Who are you?”
 
 </Listing>
 
-With the text in place, edit _src/main.rs_ and add code to read the file, as
-shown in Listing 12-4.
+Sau khi văn bản đã sẵn sàng, hãy chỉnh sửa _src/main.rs_ và thêm mã để đọc tệp, như
+được hiển thị trong Liệt kê 12-4.
 
-<Listing number="12-4" file-name="src/main.rs" caption="Reading the contents of the file specified by the second argument">
+<Listing number="12-4" file-name="src/main.rs" caption="Đọc nội dung của tệp được chỉ định bởi đối số thứ hai">
 
 ```rust,should_panic,noplayground
 {{#rustdoc_include ../listings/ch12-an-io-project/listing-12-04/src/main.rs:here}}
@@ -26,31 +26,30 @@ shown in Listing 12-4.
 
 </Listing>
 
-First we bring in a relevant part of the standard library with a `use`
-statement: we need `std::fs` to handle files.
+Đầu tiên, chúng ta đưa một phần liên quan của thư viện chuẩn vào bằng một câu lệnh `use`:
+chúng ta cần `std::fs` để xử lý các tệp.
 
-In `main`, the new statement `fs::read_to_string` takes the `file_path`, opens
-that file, and returns a value of type `std::io::Result<String>` that contains
-the file’s contents.
+Trong `main`, câu lệnh mới `fs::read_to_string` nhận `file_path`, mở
+tệp đó và trả về một giá trị kiểu `std::io::Result<String>` chứa
+nội dung của tệp.
 
-After that, we again add a temporary `println!` statement that prints the value
-of `contents` after the file is read, so we can check that the program is
-working so far.
+Sau đó, chúng ta lại thêm một câu lệnh `println!` tạm thời để in giá trị
+của `contents` sau khi tệp được đọc, để chúng ta có thể kiểm tra xem chương trình có
+đang hoạt động cho đến nay hay không.
 
-Let’s run this code with any string as the first command line argument (because
-we haven’t implemented the searching part yet) and the _poem.txt_ file as the
-second argument:
+Hãy chạy mã này với bất kỳ chuỗi nào làm đối số dòng lệnh đầu tiên (vì
+chúng ta chưa triển khai phần tìm kiếm) và tệp _poem.txt_ là
+đối số thứ hai:
 
 ```console
 {{#rustdoc_include ../listings/ch12-an-io-project/listing-12-04/output.txt}}
 ```
 
-Great! The code read and then printed the contents of the file. But the code
-has a few flaws. At the moment, the `main` function has multiple
-responsibilities: generally, functions are clearer and easier to maintain if
-each function is responsible for only one idea. The other problem is that we’re
-not handling errors as well as we could. The program is still small, so these
-flaws aren’t a big problem, but as the program grows, it will be harder to fix
-them cleanly. It’s a good practice to begin refactoring early on when
-developing a program because it’s much easier to refactor smaller amounts of
-code. We’ll do that next.
+Tuyệt vời! Mã đã đọc và sau đó in nội dung của tệp. Nhưng mã
+có một vài thiếu sót. Hiện tại, hàm `main` có nhiều
+trách nhiệm: nhìn chung, các hàm sẽ rõ ràng và dễ bảo trì hơn nếu
+mỗi hàm chỉ chịu trách nhiệm cho một ý tưởng duy nhất. Vấn đề khác là chúng ta
+không xử lý lỗi tốt như chúng ta có thể. Chương trình vẫn còn nhỏ, vì vậy những
+thiếu sót này không phải là vấn đề lớn, nhưng khi chương trình phát triển, sẽ khó để sửa
+chúng một cách sạch sẽ. Một thực hành tốt là bắt đầu tái cấu trúc (refactoring) sớm khi
+phát triển một chương trình vì việc tái cấu trúc lượng mã nhỏ hơn sẽ dễ dàng hơn nhiều. Chúng ta sẽ làm điều đó tiếp theo.
