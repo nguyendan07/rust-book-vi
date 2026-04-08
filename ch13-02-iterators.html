@@ -175,16 +175,16 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="processing-a-series-of-items-with-iterators"><a class="header" href="#processing-a-series-of-items-with-iterators">Processing a Series of Items with Iterators</a></h2>
-<p>The iterator pattern allows you to perform some task on a sequence of items in
-turn. An iterator is responsible for the logic of iterating over each item and
-determining when the sequence has finished. When you use iterators, you don’t
-have to reimplement that logic yourself.</p>
-<p>In Rust, iterators are <em>lazy</em>, meaning they have no effect until you call
-methods that consume the iterator to use it up. For example, the code in
-Listing 13-10 creates an iterator over the items in the vector <code>v1</code> by calling
-the <code>iter</code> method defined on <code>Vec&lt;T&gt;</code>. This code by itself doesn’t do anything
-useful.</p>
+                        <h2 id="xử-lý-một-chuỗi-các-mục-với-iterator"><a class="header" href="#xử-lý-một-chuỗi-các-mục-với-iterator">Xử lý một chuỗi các mục với Iterator</a></h2>
+<p>Mẫu iterator (iterator pattern) cho phép bạn thực hiện một số tác vụ trên một chuỗi các mục
+lần lượt. Một iterator chịu trách nhiệm về logic của việc lặp qua từng mục và
+xác định khi nào chuỗi kết thúc. Khi bạn sử dụng iterator, bạn không
+phải tự mình triển khai lại logic đó.</p>
+<p>Trong Rust, các iterator là <em>lười biếng</em> (lazy), nghĩa là chúng không có tác dụng gì cho đến khi bạn gọi
+các phương thức tiêu thụ iterator để sử dụng hết nó. Ví dụ, đoạn mã trong
+Danh sách 13-10 tạo ra một iterator trên các mục trong vector <code>v1</code> bằng cách gọi
+phương thức <code>iter</code> được định nghĩa trên <code>Vec&lt;T&gt;</code>. Bản thân đoạn mã này không làm bất cứ điều gì
+hữu ích.</p>
 <figure class="listing" id="listing-13-10">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><pre class="playground"><code class="language-rust edition2024"><span class="boring">fn main() {
@@ -192,17 +192,17 @@ useful.</p>
 
     let v1_iter = v1.iter();
 <span class="boring">}</span></code></pre></pre>
-<figcaption><a href="#listing-13-10">Listing 13-10</a>: Creating an iterator</figcaption>
+<figcaption><a href="#listing-13-10">Listing 13-10</a>: Tạo một iterator</figcaption>
 </figure>
-<p>The iterator is stored in the <code>v1_iter</code> variable. Once we’ve created an
-iterator, we can use it in a variety of ways. In Listing 3-5 in Chapter 3, we
-iterated over an array using a <code>for</code> loop to execute some code on each of its
-items. Under the hood this implicitly created and then consumed an iterator,
-but we glossed over how exactly that works until now.</p>
-<p>In the example in Listing 13-11, we separate the creation of the iterator from
-the use of the iterator in the <code>for</code> loop. When the <code>for</code> loop is called using
-the iterator in <code>v1_iter</code>, each element in the iterator is used in one
-iteration of the loop, which prints out each value.</p>
+<p>Iterator được lưu trữ trong biến <code>v1_iter</code>. Một khi chúng ta đã tạo ra một
+iterator, chúng ta có thể sử dụng nó theo nhiều cách khác nhau. Trong Danh sách 3-5 ở Chương 3, chúng ta
+đã lặp qua một mảng bằng vòng lặp <code>for</code> để thực thi một số mã trên mỗi
+mục của nó. Bên dưới lớp vỏ, điều này đã ngầm tạo ra và sau đó tiêu thụ một iterator,
+nhưng cho đến tận bây giờ chúng ta mới xem xét kỹ cách thức hoạt động chính xác của nó.</p>
+<p>Trong ví dụ ở Danh sách 13-11, chúng ta tách biệt việc tạo iterator khỏi
+việc sử dụng iterator trong vòng lặp <code>for</code>. Khi vòng lặp <code>for</code> được gọi bằng cách sử dụng
+iterator trong <code>v1_iter</code>, mỗi phần tử trong iterator được sử dụng trong một
+lần lặp của vòng lặp, việc này in ra từng giá trị.</p>
 <figure class="listing" id="listing-13-11">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><pre class="playground"><code class="language-rust edition2024"><span class="boring">fn main() {
@@ -214,20 +214,20 @@ iteration of the loop, which prints out each value.</p>
         println!("Got: {val}");
     }
 <span class="boring">}</span></code></pre></pre>
-<figcaption><a href="#listing-13-11">Listing 13-11</a>: Using an iterator in a <code>for</code> loop</figcaption>
+<figcaption><a href="#listing-13-11">Listing 13-11</a>: Sử dụng một iterator trong một vòng lặp <code>for</code></figcaption>
 </figure>
-<p>In languages that don’t have iterators provided by their standard libraries,
-you would likely write this same functionality by starting a variable at index
-0, using that variable to index into the vector to get a value, and
-incrementing the variable value in a loop until it reached the total number of
-items in the vector.</p>
-<p>Iterators handle all of that logic for you, cutting down on repetitive code you
-could potentially mess up. Iterators give you more flexibility to use the same
-logic with many different kinds of sequences, not just data structures you can
-index into, like vectors. Let’s examine how iterators do that.</p>
-<h3 id="the-iterator-trait-and-the-next-method"><a class="header" href="#the-iterator-trait-and-the-next-method">The <code>Iterator</code> Trait and the <code>next</code> Method</a></h3>
-<p>All iterators implement a trait named <code>Iterator</code> that is defined in the
-standard library. The definition of the trait looks like this:</p>
+<p>Trong các ngôn ngữ không có iterator được cung cấp bởi thư viện chuẩn của chúng,
+bạn có thể sẽ viết chức năng tương tự này bằng cách bắt đầu một biến tại chỉ số
+0, sử dụng biến đó để truy cập vào vector nhằm lấy một giá trị, và
+tăng giá trị biến trong một vòng lặp cho đến khi nó đạt đến tổng số
+mục trong vector.</p>
+<p>Iterator xử lý tất cả logic đó cho bạn, cắt giảm mã lặp lại mà bạn
+có khả năng làm hỏng. Iterator mang lại cho bạn sự linh hoạt hơn để sử dụng cùng một
+logic với nhiều loại chuỗi khác nhau, không chỉ các cấu trúc dữ liệu bạn có thể
+truy cập bằng chỉ số, như vector. Hãy cùng xem xét cách các iterator thực hiện điều đó.</p>
+<h3 id="trait-iterator-và-phương-thức-next"><a class="header" href="#trait-iterator-và-phương-thức-next">Trait <code>Iterator</code> và phương thức <code>next</code></a></h3>
+<p>Tất cả các iterator đều triển khai một trait tên là <code>Iterator</code> được định nghĩa trong
+thư viện chuẩn. Định nghĩa của trait trông như thế này:</p>
 <pre><pre class="playground"><code class="language-rust edition2024"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>pub trait Iterator {
@@ -235,22 +235,21 @@ standard library. The definition of the trait looks like this:</p>
 
     fn next(&amp;mut self) -&gt; Option&lt;Self::Item&gt;;
 
-    // methods with default implementations elided
+    // các phương thức với các triển khai mặc định đã được lược bỏ
 }
 <span class="boring">}</span></code></pre></pre>
-<p>Notice that this definition uses some new syntax: <code>type Item</code> and <code>Self::Item</code>,
-which are defining an <em>associated type</em> with this trait. We’ll talk about
-associated types in depth in Chapter 20. For now, all you need to know is that
-this code says implementing the <code>Iterator</code> trait requires that you also define
-an <code>Item</code> type, and this <code>Item</code> type is used in the return type of the <code>next</code>
-method. In other words, the <code>Item</code> type will be the type returned from the
-iterator.</p>
-<p>The <code>Iterator</code> trait only requires implementors to define one method: the
-<code>next</code> method, which returns one item of the iterator at a time, wrapped in
-<code>Some</code> and, when iteration is over, returns <code>None</code>.</p>
-<p>We can call the <code>next</code> method on iterators directly; Listing 13-12 demonstrates
-what values are returned from repeated calls to <code>next</code> on the iterator created
-from the vector.</p>
+<p>Lưu ý rằng định nghĩa này sử dụng một số cú pháp mới: <code>type Item</code> và <code>Self::Item</code>,
+đang định nghĩa một <em>kiểu liên kết</em> (associated type) với trait này. Chúng ta sẽ nói về
+các kiểu liên kết một cách chuyên sâu trong Chương 20. Hiện tại, tất cả những gì bạn cần biết là
+đoạn mã này nói rằng việc triển khai trait <code>Iterator</code> yêu cầu bạn cũng phải định nghĩa
+một kiểu <code>Item</code>, và kiểu <code>Item</code> này được sử dụng trong kiểu trả về của phương thức <code>next</code>.
+Nói cách khác, kiểu <code>Item</code> sẽ là kiểu được trả về từ iterator.</p>
+<p>Trait <code>Iterator</code> chỉ yêu cầu những người triển khai định nghĩa một phương thức: phương thức
+<code>next</code>, trả về từng mục của iterator tại một thời điểm, được bọc trong
+<code>Some</code> và khi quá trình lặp kết thúc, trả về <code>None</code>.</p>
+<p>Chúng ta có thể gọi trực tiếp phương thức <code>next</code> trên các iterator; Danh sách 13-12 minh họa
+những giá trị nào được trả về từ các lần gọi lặp lại tới <code>next</code> trên iterator được tạo
+từ vector.</p>
 <figure class="listing" id="listing-13-12">
 <span class="file-name">Filename: src/lib.rs</span>
 <pre><code class="language-rust noplayground"><span class="boring">#[cfg(test)]
@@ -267,33 +266,33 @@ from the vector.</p>
         assert_eq!(v1_iter.next(), None);
     }
 <span class="boring">}</span></code></pre>
-<figcaption><a href="#listing-13-12">Listing 13-12</a>: Calling the <code>next</code> method on an iterator</figcaption>
+<figcaption><a href="#listing-13-12">Listing 13-12</a>: Gọi phương thức <code>next</code> trên một iterator</figcaption>
 </figure>
-<p>Note that we needed to make <code>v1_iter</code> mutable: calling the <code>next</code> method on an
-iterator changes internal state that the iterator uses to keep track of where
-it is in the sequence. In other words, this code <em>consumes</em>, or uses up, the
-iterator. Each call to <code>next</code> eats up an item from the iterator. We didn’t need
-to make <code>v1_iter</code> mutable when we used a <code>for</code> loop because the loop took
-ownership of <code>v1_iter</code> and made it mutable behind the scenes.</p>
-<p>Also note that the values we get from the calls to <code>next</code> are immutable
-references to the values in the vector. The <code>iter</code> method produces an iterator
-over immutable references. If we want to create an iterator that takes
-ownership of <code>v1</code> and returns owned values, we can call <code>into_iter</code> instead of
-<code>iter</code>. Similarly, if we want to iterate over mutable references, we can call
-<code>iter_mut</code> instead of <code>iter</code>.</p>
-<h3 id="methods-that-consume-the-iterator"><a class="header" href="#methods-that-consume-the-iterator">Methods That Consume the Iterator</a></h3>
-<p>The <code>Iterator</code> trait has a number of different methods with default
-implementations provided by the standard library; you can find out about these
-methods by looking in the standard library API documentation for the <code>Iterator</code>
-trait. Some of these methods call the <code>next</code> method in their definition, which
-is why you’re required to implement the <code>next</code> method when implementing the
-<code>Iterator</code> trait.</p>
-<p>Methods that call <code>next</code> are called <em>consuming adapters</em> because calling them
-uses up the iterator. One example is the <code>sum</code> method, which takes ownership of
-the iterator and iterates through the items by repeatedly calling <code>next</code>, thus
-consuming the iterator. As it iterates through, it adds each item to a running
-total and returns the total when iteration is complete. Listing 13-13 has a
-test illustrating a use of the <code>sum</code> method.</p>
+<p>Lưu ý rằng chúng ta cần làm cho <code>v1_iter</code> có khả năng thay đổi (mutable): việc gọi phương thức <code>next</code> trên một
+iterator làm thay đổi trạng thái nội bộ mà iterator sử dụng để theo dõi vị trí của nó
+trong chuỗi. Nói cách khác, đoạn mã này <em>tiêu thụ</em> (consume), hoặc sử dụng hết,
+iterator. Mỗi lần gọi tới <code>next</code> sẽ “ăn” mất một mục từ iterator. Chúng ta không cần
+phải làm cho <code>v1_iter</code> có khả năng thay đổi khi chúng ta sử dụng vòng lặp <code>for</code> vì vòng lặp đã lấy
+quyền sở hữu của <code>v1_iter</code> và làm cho nó có khả năng thay đổi ở phía sau hậu trường.</p>
+<p>Cũng lưu ý rằng các giá trị chúng ta nhận được từ các lần gọi tới <code>next</code> là các tham chiếu bất biến
+đến các giá trị trong vector. Phương thức <code>iter</code> tạo ra một iterator trên
+các tham chiếu bất biến. Nếu chúng ta muốn tạo một iterator lấy quyền sở hữu của <code>v1</code>
+và trả về các giá trị được sở hữu, chúng ta có thể gọi <code>into_iter</code> thay vì
+<code>iter</code>. Tương tự, nếu chúng ta muốn lặp trên các tham chiếu khả biến, chúng ta có thể gọi
+<code>iter_mut</code> thay vì <code>iter</code>.</p>
+<h3 id="các-phương-thức-tiêu-thụ-iterator"><a class="header" href="#các-phương-thức-tiêu-thụ-iterator">Các phương thức tiêu thụ Iterator</a></h3>
+<p>Trait <code>Iterator</code> có một số phương thức khác nhau với các triển khai mặc định
+được cung cấp bởi thư viện chuẩn; bạn có thể tìm hiểu về các phương thức này
+bằng cách xem trong tài liệu API thư viện chuẩn cho trait <code>Iterator</code>.
+Một số phương thức này gọi phương thức <code>next</code> trong định nghĩa của chúng, đó là
+lý do tại sao bạn được yêu cầu triển khai phương thức <code>next</code> khi triển khai
+trait <code>Iterator</code>.</p>
+<p>Các phương thức gọi <code>next</code> được gọi là các <em>adapter tiêu thụ</em> (consuming adapters) bởi vì việc gọi chúng
+sẽ sử dụng hết iterator. Một ví dụ là phương thức <code>sum</code>, phương thức này lấy quyền sở hữu của
+iterator và lặp qua các mục bằng cách gọi lặp lại <code>next</code>, do đó
+tiêu thụ iterator. Khi nó lặp qua, nó cộng từng mục vào một tổng đang chạy
+và trả về tổng đó khi quá trình lặp hoàn tất. Danh sách 13-13 có một
+bản kiểm tra minh họa việc sử dụng phương thức <code>sum</code>.</p>
 <figure class="listing" id="listing-13-13">
 <span class="file-name">Filename: src/lib.rs</span>
 <pre><code class="language-rust noplayground"><span class="boring">#[cfg(test)]
@@ -309,19 +308,19 @@ test illustrating a use of the <code>sum</code> method.</p>
         assert_eq!(total, 6);
     }
 <span class="boring">}</span></code></pre>
-<figcaption><a href="#listing-13-13">Listing 13-13</a>: Calling the <code>sum</code> method to get the total of all items in the iterator</figcaption>
+<figcaption><a href="#listing-13-13">Listing 13-13</a>: Gọi phương thức <code>sum</code> để lấy tổng của tất cả các mục trong iterator</figcaption>
 </figure>
-<p>We aren’t allowed to use <code>v1_iter</code> after the call to <code>sum</code> because <code>sum</code> takes
-ownership of the iterator we call it on.</p>
-<h3 id="methods-that-produce-other-iterators"><a class="header" href="#methods-that-produce-other-iterators">Methods that Produce Other Iterators</a></h3>
-<p><em>Iterator adapters</em> are methods defined on the <code>Iterator</code> trait that don’t
-consume the iterator. Instead, they produce different iterators by changing
-some aspect of the original iterator.</p>
-<p>Listing 13-14 shows an example of calling the iterator adapter method <code>map</code>,
-which takes a closure to call on each item as the items are iterated through.
-The <code>map</code> method returns a new iterator that produces the modified items. The
-closure here creates a new iterator in which each item from the vector will be
-incremented by 1:</p>
+<p>Chúng ta không được phép sử dụng <code>v1_iter</code> sau khi gọi <code>sum</code> vì <code>sum</code> lấy
+quyền sở hữu của iterator mà chúng ta gọi nó.</p>
+<h3 id="các-phương-thức-tạo-ra-các-iterator-khác"><a class="header" href="#các-phương-thức-tạo-ra-các-iterator-khác">Các phương thức tạo ra các Iterator khác</a></h3>
+<p><em>Adapter iterator</em> (iterator adapters) là các phương thức được định nghĩa trên trait <code>Iterator</code> mà không
+tiêu thụ iterator. Thay vào đó, chúng tạo ra các iterator khác nhau bằng cách thay đổi
+một số khía cạnh của iterator ban đầu.</p>
+<p>Danh sách 13-14 cho thấy một ví dụ về việc gọi phương thức adapter iterator <code>map</code>,
+phương thức này nhận một closure để gọi trên mỗi mục khi các mục được lặp qua.
+Phương thức <code>map</code> trả về một iterator mới tạo ra các mục đã được sửa đổi.
+Closure ở đây tạo ra một iterator mới trong đó mỗi mục từ vector sẽ được
+tăng thêm 1:</p>
 <figure class="listing" id="listing-13-14">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><pre class="playground"><code class="language-rust not_desired_behavior edition2024"><span class="boring">fn main() {
@@ -329,9 +328,9 @@ incremented by 1:</p>
 
     v1.iter().map(|x| x + 1);
 <span class="boring">}</span></code></pre></pre>
-<figcaption><a href="#listing-13-14">Listing 13-14</a>: Calling the iterator adapter <code>map</code> to create a new iterator</figcaption>
+<figcaption><a href="#listing-13-14">Listing 13-14</a>: Gọi adapter iterator <code>map</code> để tạo một iterator mới</figcaption>
 </figure>
-<p>However, this code produces a warning:</p>
+<p>Tuy nhiên, đoạn mã này tạo ra một cảnh báo:</p>
 <pre><code class="language-console">$ cargo run
    Compiling iterators v0.1.0 (file:///projects/iterators)
 warning: unused `Map` that must be used
@@ -351,16 +350,15 @@ warning: `iterators` (bin "iterators") generated 1 warning
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.47s
      Running `target/debug/iterators`
 </code></pre>
-<p>The code in Listing 13-14 doesn’t do anything; the closure we’ve specified
-never gets called. The warning reminds us why: iterator adapters are lazy, and
-we need to consume the iterator here.</p>
-<p>To fix this warning and consume the iterator, we’ll use the <code>collect</code> method,
-which we used in Chapter 12 with <code>env::args</code> in Listing 12-1. This method
-consumes the iterator and collects the resultant values into a collection data
-type.</p>
-<p>In Listing 13-15, we collect the results of iterating over the iterator that’s
-returned from the call to <code>map</code> into a vector. This vector will end up
-containing each item from the original vector, incremented by 1.</p>
+<p>Đoạn mã trong Danh sách 13-14 không làm gì cả; closure chúng ta đã chỉ định
+không bao giờ được gọi. Cảnh báo nhắc nhở chúng ta tại sao: các adapter iterator là lười biếng, và
+chúng ta cần tiêu thụ iterator ở đây.</p>
+<p>Để khắc phục cảnh báo này và tiêu thụ iterator, chúng ta sẽ sử dụng phương thức <code>collect</code>,
+phương thức mà chúng ta đã sử dụng trong Chương 12 với <code>env::args</code> trong Danh sách 12-1. Phương thức này
+tiêu thụ iterator và thu thập các giá trị kết quả vào một kiểu dữ liệu bộ sưu tập (collection).</p>
+<p>Trong Danh sách 13-15, chúng ta thu thập các kết quả của việc lặp qua iterator được
+trả về từ lời gọi tới <code>map</code> vào một vector. Vector này cuối cùng sẽ
+chứa từng mục từ vector ban đầu, được tăng thêm 1.</p>
 <figure class="listing" id="listing-13-15">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><pre class="playground"><code class="language-rust edition2024"><span class="boring">fn main() {
@@ -370,26 +368,25 @@ containing each item from the original vector, incremented by 1.</p>
 
     assert_eq!(v2, vec![2, 3, 4]);
 <span class="boring">}</span></code></pre></pre>
-<figcaption><a href="#listing-13-15">Listing 13-15</a>: Calling the <code>map</code> method to create a new iterator and then calling the <code>collect</code> method to consume the new iterator and create a vector</figcaption>
+<figcaption><a href="#listing-13-15">Listing 13-15</a>: Gọi phương thức <code>map</code> để tạo một iterator mới và sau đó gọi phương thức <code>collect</code> để tiêu thụ iterator mới và tạo một vector</figcaption>
 </figure>
-<p>Because <code>map</code> takes a closure, we can specify any operation we want to perform
-on each item. This is a great example of how closures let you customize some
-behavior while reusing the iteration behavior that the <code>Iterator</code> trait
-provides.</p>
-<p>You can chain multiple calls to iterator adapters to perform complex actions in
-a readable way. But because all iterators are lazy, you have to call one of the
-consuming adapter methods to get results from calls to iterator adapters.</p>
-<h3 id="using-closures-that-capture-their-environment"><a class="header" href="#using-closures-that-capture-their-environment">Using Closures That Capture Their Environment</a></h3>
-<p>Many iterator adapters take closures as arguments, and commonly the closures
-we’ll specify as arguments to iterator adapters will be closures that capture
-their environment.</p>
-<p>For this example, we’ll use the <code>filter</code> method that takes a closure. The
-closure gets an item from the iterator and returns a <code>bool</code>. If the closure
-returns <code>true</code>, the value will be included in the iteration produced by
-<code>filter</code>. If the closure returns <code>false</code>, the value won’t be included.</p>
-<p>In Listing 13-16, we use <code>filter</code> with a closure that captures the <code>shoe_size</code>
-variable from its environment to iterate over a collection of <code>Shoe</code> struct
-instances. It will return only shoes that are the specified size.</p>
+<p>Bởi vì <code>map</code> nhận một closure, chúng ta có thể chỉ định bất kỳ thao tác nào chúng ta muốn thực hiện
+trên mỗi mục. Đây là một ví dụ tuyệt vời về cách các closure cho phép bạn tùy chỉnh một số
+hành vi trong khi tái sử dụng hành vi lặp mà trait <code>Iterator</code> cung cấp.</p>
+<p>Bạn có thể chuỗi nhiều lời gọi tới các adapter iterator để thực hiện các hành động phức tạp theo
+một cách dễ đọc. Nhưng vì tất cả các iterator đều lười biếng, bạn phải gọi một trong các
+phương thức adapter tiêu thụ để nhận kết quả từ các lần gọi tới adapter iterator.</p>
+<h3 id="sử-dụng-các-closure-có-ghi-lại-môi-trường-của-chúng"><a class="header" href="#sử-dụng-các-closure-có-ghi-lại-môi-trường-của-chúng">Sử dụng các Closure có ghi lại môi trường của chúng</a></h3>
+<p>Nhiều adapter iterator nhận các closure làm đối số, và thông thường các closure
+chúng ta sẽ chỉ định làm đối số cho các adapter iterator sẽ là các closure ghi lại
+môi trường của chúng.</p>
+<p>Đối với ví dụ này, chúng ta sẽ sử dụng phương thức <code>filter</code> nhận một closure.
+Closure nhận một mục từ iterator và trả về một <code>bool</code>. Nếu closure
+trả về <code>true</code>, giá trị sẽ được đưa vào quá trình lặp được tạo ra bởi
+<code>filter</code>. Nếu closure trả về <code>false</code>, giá trị sẽ không được bao gồm.</p>
+<p>Trong Danh sách 13-16, chúng ta sử dụng <code>filter</code> với một closure ghi lại biến <code>shoe_size</code>
+từ môi trường của nó để lặp qua một bộ sưu tập các instance struct <code>Shoe</code>.
+Nó sẽ chỉ trả về những đôi giày có kích cỡ được chỉ định.</p>
 <figure class="listing" id="listing-13-16">
 <span class="file-name">Filename: src/lib.rs</span>
 <pre><code class="language-rust noplayground">#[derive(PartialEq, Debug)]
@@ -440,21 +437,20 @@ mod tests {
         );
     }
 }</code></pre>
-<figcaption><a href="#listing-13-16">Listing 13-16</a>: Using the <code>filter</code> method with a closure that captures <code>shoe_size</code></figcaption>
+<figcaption><a href="#listing-13-16">Listing 13-16</a>: Sử dụng phương thức <code>filter</code> với một closure ghi lại <code>shoe_size</code></figcaption>
 </figure>
-<p>The <code>shoes_in_size</code> function takes ownership of a vector of shoes and a shoe
-size as parameters. It returns a vector containing only shoes of the specified
-size.</p>
-<p>In the body of <code>shoes_in_size</code>, we call <code>into_iter</code> to create an iterator
-that takes ownership of the vector. Then we call <code>filter</code> to adapt that
-iterator into a new iterator that only contains elements for which the closure
-returns <code>true</code>.</p>
-<p>The closure captures the <code>shoe_size</code> parameter from the environment and
-compares the value with each shoe’s size, keeping only shoes of the size
-specified. Finally, calling <code>collect</code> gathers the values returned by the
-adapted iterator into a vector that’s returned by the function.</p>
-<p>The test shows that when we call <code>shoes_in_size</code>, we get back only shoes
-that have the same size as the value we specified.</p>
+<p>Hàm <code>shoes_in_size</code> lấy quyền sở hữu của một vector các đôi giày và một kích cỡ giày
+làm các tham số. Nó trả về một vector chỉ chứa những đôi giày có kích cỡ
+được chỉ định.</p>
+<p>Trong phần thân của <code>shoes_in_size</code>, chúng ta gọi <code>into_iter</code> để tạo một iterator
+lấy quyền sở hữu của vector. Sau đó chúng ta gọi <code>filter</code> để điều chỉnh iterator đó
+thành một iterator mới chỉ chứa các phần tử mà closure trả về <code>true</code>.</p>
+<p>Closure ghi lại tham số <code>shoe_size</code> từ môi trường và
+so sánh giá trị đó với kích cỡ của mỗi đôi giày, chỉ giữ lại những đôi giày có kích cỡ
+được chỉ định. Cuối cùng, việc gọi <code>collect</code> sẽ tập hợp các giá trị được trả về bởi
+iterator đã được điều chỉnh vào một vector được trả về bởi hàm.</p>
+<p>Bản kiểm tra cho thấy khi chúng ta gọi <code>shoes_in_size</code>, chúng ta chỉ nhận lại những đôi giày
+có cùng kích cỡ với giá trị chúng ta đã chỉ định.</p>
 <div class="quiz-placeholder" data-quiz-name="&quot;ch13-02-iterators&quot;" data-quiz-questions="{&quot;questions&quot;:[{&quot;context&quot;:&quot;Lazy generally means \&quot;does not do work until asked\&quot;, and iterators do not perform any computation until\n`Iterator::next` is called.\n&quot;,&quot;id&quot;:&quot;d50dd9fb-f84c-4748-9e45-cd3dc8d5fb47&quot;,&quot;type&quot;:&quot;MultipleChoice&quot;,&quot;answer&quot;:{&quot;answer&quot;:&quot;An iterator has no effect until you call methods that extract elements from the iterator&quot;},&quot;prompt&quot;:{&quot;distractors&quot;:[&quot;An iterator creates a copy of each item it iterates over&quot;,&quot;An iterator takes ownership of the sequence of items it is iterating over&quot;,&quot;An iterator will only iterate over a given number of items&quot;],&quot;prompt&quot;:&quot;Which of the following best describes why iterators are described as \&quot;lazy\&quot;?\n&quot;}},{&quot;context&quot;:&quot;The for-loop is a syntactic sugar for the `while let`, which is itself a sugar for `loop` and `break`.\n&quot;,&quot;id&quot;:&quot;19eac65e-44ad-4349-9632-47bdbb519d46&quot;,&quot;type&quot;:&quot;MultipleChoice&quot;,&quot;answer&quot;:{&quot;answer&quot;:&quot;True&quot;},&quot;prompt&quot;:{&quot;distractors&quot;:[&quot;False&quot;],&quot;prompt&quot;:&quot;True/false: these two code snippets are semantically equivalent where `iter` is an iterator.\n\nSnippet 1:\n```\nwhile let Some(x) = iter.next() {\n    f(x);\n}\n```\n\nSnippet 2:\n```\nfor x in iter {\n    f(x);\n}\n```\n&quot;}},{&quot;context&quot;:&quot;The order of iterators matters &amp;mdash; a filter and a map is not the same as a map and a filter!\n\nYou might wonder why the first filter uses `*x` and the second filter does not. \n`v.iter()` produces an `Iterator&lt;Item = &amp;i32&gt;`. The `.filter()` call takes an `Iterator&lt;Item = T&gt;` as input,\nand passes `&amp;T` to its predicate. Therefore `x: &amp;&amp;i32` on line 3. The Rust standard library implements the\nremainder operator `%` for `&amp;i32` on the left-hand side ([see the docs](https://doc.rust-lang.org/std/ops/trait.Rem.html#impl-Rem%3Ci32%3E-for-%26'a+i32)),\nbut not for `&amp;&amp;i32`. So we have to dereference `x` once to use it in the expression `*x % 2`.\n\nBy contrast on line 4, when `.map()` takes an `Iterator&lt;Item = T&gt;` as input, it passes `T` to its closure.\nTherefore the closure in `map` takes `&amp;i32` as input. The multiplication operator `*` is implemented for `&amp;i32`,\nso `x` does not need to be dereferenced in `x * 2`. The operation `x * 2` produces a value of type `i32`, so\nthe result of the map is an `Iterator&lt;Item = i32&gt;`. The `filter` then takes `x : &amp;i32`, which also does not need\na dereference to do `x % 2`. Now you know!\n&quot;,&quot;id&quot;:&quot;ff652580-b487-4379-bd70-652f5803321d&quot;,&quot;type&quot;:&quot;Tracing&quot;,&quot;answer&quot;:{&quot;doesCompile&quot;:true,&quot;stdout&quot;:&quot;4 2&quot;},&quot;prompt&quot;:{&quot;program&quot;:&quot;fn main() {\n    let v = vec![1, 2, 3, 4];\n    let a: Vec&lt;_&gt; = v.iter().filter(|x: &amp;&amp;i32| *x % 2 == 0).map(|x: &amp;i32| x * 2).collect();\n    let b: Vec&lt;_&gt; = v.iter().map(|x: &amp;i32| x * 2).filter(|x: &amp;i32| x % 2 == 0).collect();\n    println!(\&quot;{} {}\&quot;, a[0], b[0]);\n}\n&quot;}}]}" data-quiz-fullscreen="true" data-quiz-cache-answers="true"></div>
 <script type="text/javascript" src="quiz/quiz-embed.iife.js"></script><link rel="stylesheet" type="text/css" href="quiz/style.css">
                     </main>
