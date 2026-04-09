@@ -1,72 +1,70 @@
-## Using Trait Objects That Allow for Values of Different Types
+## Sử dụng Trait Object cho phép các giá trị thuộc các kiểu khác nhau
 
-In Chapter 8, we mentioned that one limitation of vectors is that they can
-store elements of only one type. We created a workaround in Listing 8-9 where
-we defined a `SpreadsheetCell` enum that had variants to hold integers, floats,
-and text. This meant we could store different types of data in each cell and
-still have a vector that represented a row of cells. This is a perfectly good
-solution when our interchangeable items are a fixed set of types that we know
-when our code is compiled.
+Trong Chương 8, chúng ta đã đề cập rằng một hạn chế của vector là chúng chỉ có thể
+lưu trữ các phần tử của một kiểu duy nhất. Chúng ta đã tạo ra một giải pháp thay thế trong Liệt kê 8-9, nơi
+chúng ta định nghĩa một enum `SpreadsheetCell` có các biến thể để chứa số nguyên, số thực,
+và văn bản. Điều này có nghĩa là chúng ta có thể lưu trữ các kiểu dữ liệu khác nhau trong mỗi ô và
+vẫn có một vector đại diện cho một hàng các ô. Đây là một giải pháp hoàn hảo khi
+các mục có thể thay đổi của chúng ta là một tập hợp cố định các kiểu mà chúng ta biết khi
+mã được biên dịch.
 
-However, sometimes we want our library user to be able to extend the set of
-types that are valid in a particular situation. To show how we might achieve
-this, we’ll create an example graphical user interface (GUI) tool that iterates
-through a list of items, calling a `draw` method on each one to draw it to the
-screen—a common technique for GUI tools. We’ll create a library crate called
-`gui` that contains the structure of a GUI library. This crate might include
-some types for people to use, such as `Button` or `TextField`. In addition,
-`gui` users will want to create their own types that can be drawn: for
-instance, one programmer might add an `Image` and another might add a
+Tuy nhiên, đôi khi chúng ta muốn người dùng thư viện của mình có thể mở rộng tập hợp
+các kiểu hợp lệ trong một tình huống cụ thể. Để cho thấy cách chúng ta có thể đạt được
+điều này, chúng ta sẽ tạo một ví dụ về công cụ giao diện người dùng đồ họa (GUI) duyệt qua
+một danh sách các mục, gọi một phương thức `draw` trên mỗi mục để vẽ nó lên
+màn hình—một kỹ thuật phổ biến cho các công cụ GUI. Chúng ta sẽ tạo một thư viện crate có tên
+`gui` chứa cấu trúc của một thư viện GUI. Crate này có thể bao gồm
+một số kiểu để mọi người sử dụng, chẳng hạn như `Button` hoặc `TextField`. Ngoài ra,
+người dùng `gui` sẽ muốn tạo các kiểu của riêng họ có thể vẽ được: ví dụ,
+một lập trình viên có thể thêm một `Image` và một người khác có thể thêm một
 `SelectBox`.
 
-We won’t implement a full-fledged GUI library for this example but will show
-how the pieces would fit together. At the time of writing the library, we can’t
-know and define all the types other programmers might want to create. But we do
-know that `gui` needs to keep track of many values of different types, and it
-needs to call a `draw` method on each of these differently typed values. It
-doesn’t need to know exactly what will happen when we call the `draw` method,
-just that the value will have that method available for us to call.
+Chúng ta sẽ không triển khai một thư viện GUI đầy đủ cho ví dụ này nhưng sẽ chỉ ra
+cách các mảnh ghép khớp với nhau. Tại thời điểm viết thư viện, chúng ta không thể
+biết và định nghĩa tất cả các kiểu mà các lập trình viên khác có thể muốn tạo. Nhưng chúng ta
+biết rằng `gui` cần theo dõi nhiều giá trị thuộc các kiểu khác nhau và nó
+cần gọi một phương thức `draw` trên mỗi giá trị có kiểu khác nhau này. Nó
+không cần biết chính xác điều gì sẽ xảy ra khi chúng ta gọi phương thức `draw`,
+chỉ cần biết rằng giá trị đó sẽ có phương thức đó sẵn sàng để chúng ta gọi.
 
-To do this in a language with inheritance, we might define a class named
-`Component` that has a method named `draw` on it. The other classes, such as
-`Button`, `Image`, and `SelectBox`, would inherit from `Component` and thus
-inherit the `draw` method. They could each override the `draw` method to define
-their custom behavior, but the framework could treat all of the types as if
-they were `Component` instances and call `draw` on them. But because Rust
-doesn’t have inheritance, we need another way to structure the `gui` library to
-allow users to extend it with new types.
+Để làm điều này trong một ngôn ngữ có tính kế thừa, chúng ta có thể định nghĩa một lớp tên là
+`Component` có một phương thức tên là `draw` trên đó. Các lớp khác, chẳng hạn như
+`Button`, `Image`, và `SelectBox`, sẽ kế thừa từ `Component` và do đó
+kế thừa phương thức `draw`. Mỗi lớp có thể ghi đè phương thức `draw` để định nghĩa
+hành vi tùy chỉnh của chúng, nhưng khung làm việc (framework) có thể coi tất cả các kiểu như thể
+chúng là các thực thể `Component` và gọi `draw` trên chúng. Nhưng vì Rust
+không có tính kế thừa, chúng ta cần một cách khác để cấu trúc thư viện `gui` nhằm
+cho phép người dùng mở rộng nó với các kiểu mới.
 
-### Defining a Trait for Common Behavior
+### Định nghĩa một Trait cho hành vi chung
 
-To implement the behavior we want `gui` to have, we’ll define a trait named
-`Draw` that will have one method named `draw`. Then we can define a vector that
-takes a trait object. A _trait object_ points to both an instance of a type
-implementing our specified trait and a table used to look up trait methods on
-that type at runtime. We create a trait object by specifying some sort of
-pointer, such as an `&` reference or a `Box<T>` smart pointer, then the `dyn`
-keyword, and then specifying the relevant trait. (We’ll talk about the reason
-trait objects must use a pointer in [“Dynamically Sized Types and the `Sized`
-Trait”][dynamically-sized]<!-- ignore --> in Chapter 20.) We can use trait
-objects in place of a generic or concrete type. Wherever we use a trait object,
-Rust’s type system will ensure at compile time that any value used in that
-context will implement the trait object’s trait. Consequently, we don’t need to
-know all the possible types at compile time.
+Để triển khai hành vi mà chúng ta muốn `gui` có, chúng ta sẽ định nghĩa một trait tên là
+`Draw` sẽ có một phương thức tên là `draw`. Sau đó, chúng ta có thể định nghĩa một vector
+nhận một trait object. Một _trait object_ trỏ đến cả một thực thể của một kiểu
+triển khai trait được chỉ định của chúng ta và một bảng được sử dụng để tra cứu các phương thức trait trên
+kiểu đó tại thời điểm chạy. Chúng ta tạo một trait object bằng cách chỉ định một loại
+con trỏ nào đó, chẳng hạn như một tham chiếu `&` hoặc một con trỏ thông minh `Box<T>`, sau đó là
+từ khóa `dyn`, và sau đó chỉ định trait có liên quan. (Chúng ta sẽ nói về lý do
+trait object phải sử dụng một con trỏ trong [“Các kiểu có kích thước động và Trait `Sized`”][dynamically-sized]<!-- ignore --> trong Chương 20.) Chúng ta có thể sử dụng trait object thay cho một kiểu generic hoặc cụ thể. Bất cứ nơi nào chúng ta sử dụng một trait object,
+hệ thống kiểu của Rust sẽ đảm bảo tại thời điểm biên dịch rằng bất kỳ giá trị nào được sử dụng trong
+ngữ cảnh đó sẽ triển khai trait của trait object đó. Do đó, chúng ta không cần
+biết tất cả các kiểu có thể có tại thời điểm biên dịch.
 
-We’ve mentioned that, in Rust, we refrain from calling structs and enums
-“objects” to distinguish them from other languages’ objects. In a struct or
-enum, the data in the struct fields and the behavior in `impl` blocks are
-separated, whereas in other languages, the data and behavior combined into one
-concept is often labeled an object. However, trait objects _are_ more like
-objects in other languages in the sense that they combine data and behavior.
-But trait objects differ from traditional objects in that we can’t add data to
-a trait object. Trait objects aren’t as generally useful as objects in other
-languages: their specific purpose is to allow abstraction across common
-behavior.
+Chúng ta đã đề cập rằng, trong Rust, chúng ta hạn chế gọi các struct và enum là
+“đối tượng” để phân biệt chúng với các đối tượng của các ngôn ngữ khác. Trong một struct hoặc
+enum, dữ liệu trong các trường struct và hành vi trong các khối `impl` được
+tách biệt, trong khi ở các ngôn ngữ khác, dữ liệu và hành vi kết hợp thành một
+khái niệm thường được dán nhãn là một đối tượng. Tuy nhiên, các trait object _thì_ giống
+với các đối tượng trong các ngôn ngữ khác hơn theo nghĩa là chúng kết hợp dữ liệu và hành vi.
+Nhưng các trait object khác với các đối tượng truyền thống ở chỗ chúng ta không thể
+thêm dữ liệu vào một trait object. Các trait object không hữu ích một cách tổng quát như các đối tượng
+trong các ngôn ngữ khác: mục đích cụ thể của chúng là cho phép trừu tượng hóa trên
+các hành vi chung.
 
-Listing 18-3 shows how to define a trait named `Draw` with one method named
+Liệt kê 18-3 cho thấy cách định nghĩa một trait tên là `Draw` với một phương thức tên là
 `draw`.
 
-<Listing number="18-3" file-name="src/lib.rs" caption="Definition of the `Draw` trait">
+<Listing number="18-3" file-name="src/lib.rs" caption="Định nghĩa trait `Draw`">
 
 ```rust,noplayground
 {{#rustdoc_include ../listings/ch18-oop/listing-18-03/src/lib.rs}}
@@ -74,13 +72,13 @@ Listing 18-3 shows how to define a trait named `Draw` with one method named
 
 </Listing>
 
-This syntax should look familiar from our discussions on how to define traits
-in Chapter 10. Next comes some new syntax: Listing 18-4 defines a struct named
-`Screen` that holds a vector named `components`. This vector is of type
-`Box<dyn Draw>`, which is a trait object; it’s a stand-in for any type inside
-a `Box` that implements the `Draw` trait.
+Cú pháp này hẳn đã quen thuộc từ các cuộc thảo luận của chúng ta về cách định nghĩa các trait
+trong Chương 10. Tiếp theo là một số cú pháp mới: Liệt kê 18-4 định nghĩa một struct tên là
+`Screen` chứa một vector tên là `components`. Vector này có kiểu
+`Box<dyn Draw>`, là một trait object; nó là một vật thay thế cho bất kỳ kiểu nào bên trong
+một `Box` mà triển khai trait `Draw`.
 
-<Listing number="18-4" file-name="src/lib.rs" caption="Definition of the `Screen` struct with a `components` field holding a vector of trait objects that implement the `Draw` trait">
+<Listing number="18-4" file-name="src/lib.rs" caption="Định nghĩa struct `Screen` với một trường `components` chứa một vector các trait object triển khai trait `Draw` ">
 
 ```rust,noplayground
 {{#rustdoc_include ../listings/ch18-oop/listing-18-04/src/lib.rs:here}}
@@ -88,10 +86,10 @@ a `Box` that implements the `Draw` trait.
 
 </Listing>
 
-On the `Screen` struct, we’ll define a method named `run` that will call the
-`draw` method on each of its `components`, as shown in Listing 18-5.
+Trên struct `Screen`, chúng ta sẽ định nghĩa một phương thức tên là `run` sẽ gọi
+phương thức `draw` trên mỗi `components` của nó, như được hiển thị trong Liệt kê 18-5.
 
-<Listing number="18-5" file-name="src/lib.rs" caption="A `run` method on `Screen` that calls the `draw` method on each component">
+<Listing number="18-5" file-name="src/lib.rs" caption="Một phương thức `run` trên `Screen` gọi phương thức `draw` trên mỗi component">
 
 ```rust,noplayground
 {{#rustdoc_include ../listings/ch18-oop/listing-18-05/src/lib.rs:here}}
@@ -99,14 +97,14 @@ On the `Screen` struct, we’ll define a method named `run` that will call the
 
 </Listing>
 
-This works differently from defining a struct that uses a generic type
-parameter with trait bounds. A generic type parameter can be substituted with
-only one concrete type at a time, whereas trait objects allow for multiple
-concrete types to fill in for the trait object at runtime. For example, we
-could have defined the `Screen` struct using a generic type and a trait bound
-as in Listing 18-6:
+Điều này hoạt động khác với việc định nghĩa một struct sử dụng một tham số kiểu generic
+với trait bounds. Một tham số kiểu generic chỉ có thể được thay thế bằng
+một kiểu cụ thể tại một thời điểm, trong khi các trait object cho phép nhiều
+kiểu cụ thể lấp đầy cho trait object tại thời điểm chạy. Ví dụ, chúng ta
+có thể đã định nghĩa struct `Screen` bằng cách sử dụng một kiểu generic và một trait bound
+như trong Liệt kê 18-6:
 
-<Listing number="18-6" file-name="src/lib.rs" caption="An alternate implementation of the `Screen` struct and its `run` method using generics and trait bounds">
+<Listing number="18-6" file-name="src/lib.rs" caption="Một triển khai thay thế của struct `Screen` và phương thức `run` của nó bằng cách sử dụng generics và trait bounds">
 
 ```rust,noplayground
 {{#rustdoc_include ../listings/ch18-oop/listing-18-06/src/lib.rs:here}}
@@ -114,25 +112,25 @@ as in Listing 18-6:
 
 </Listing>
 
-This restricts us to a `Screen` instance that has a list of components all of
-type `Button` or all of type `TextField`. If you’ll only ever have homogeneous
-collections, using generics and trait bounds is preferable because the
-definitions will be monomorphized at compile time to use the concrete types.
+Điều này giới hạn chúng ta trong một thực thể `Screen` có một danh sách các thành phần tất cả đều
+thuộc kiểu `Button` hoặc tất cả đều thuộc kiểu `TextField`. Nếu bạn chỉ bao giờ có các
+bộ sưu tập đồng nhất, việc sử dụng generics và trait bounds sẽ thích hợp hơn vì các
+định nghĩa sẽ được đơn hình hóa (monomorphized) tại thời điểm biên dịch để sử dụng các kiểu cụ thể.
 
-On the other hand, with the method using trait objects, one `Screen` instance
-can hold a `Vec<T>` that contains a `Box<Button>` as well as a
-`Box<TextField>`. Let’s look at how this works, and then we’ll talk about the
-runtime performance implications.
+Mặt khác, với phương thức sử dụng các trait object, một thực thể `Screen`
+có thể chứa một `Vec<T>` chứa một `Box<Button>` cũng như một
+`Box<TextField>`. Hãy xem cách này hoạt động, và sau đó chúng ta sẽ nói về
+các tác động đến hiệu năng tại thời điểm chạy.
 
-### Implementing the Trait
+### Triển khai Trait
 
-Now we’ll add some types that implement the `Draw` trait. We’ll provide the
-`Button` type. Again, actually implementing a GUI library is beyond the scope
-of this book, so the `draw` method won’t have any useful implementation in its
-body. To imagine what the implementation might look like, a `Button` struct
-might have fields for `width`, `height`, and `label`, as shown in Listing 18-7:
+Bây giờ chúng ta sẽ thêm một số kiểu triển khai trait `Draw`. Chúng ta sẽ cung cấp
+kiểu `Button`. Một lần nữa, việc thực sự triển khai một thư viện GUI nằm ngoài phạm vi
+của cuốn sách này, vì vậy phương thức `draw` sẽ không có bất kỳ triển khai hữu ích nào trong
+thân của nó. Để tưởng tượng việc triển khai có thể trông như thế nào, một struct `Button`
+có thể có các trường cho `width`, `height`, và `label`, như được hiển thị trong Liệt kê 18-7:
 
-<Listing number="18-7" file-name="src/lib.rs" caption="A `Button` struct that implements the `Draw` trait">
+<Listing number="18-7" file-name="src/lib.rs" caption="Một struct `Button` triển khai trait `Draw` ">
 
 ```rust,noplayground
 {{#rustdoc_include ../listings/ch18-oop/listing-18-07/src/lib.rs:here}}
@@ -140,21 +138,21 @@ might have fields for `width`, `height`, and `label`, as shown in Listing 18-7:
 
 </Listing>
 
-The `width`, `height`, and `label` fields on `Button` will differ from the
-fields on other components; for example, a `TextField` type might have those
-same fields plus a `placeholder` field. Each of the types we want to draw on
-the screen will implement the `Draw` trait but will use different code in the
-`draw` method to define how to draw that particular type, as `Button` has here
-(without the actual GUI code, as mentioned). The `Button` type, for instance,
-might have an additional `impl` block containing methods related to what
-happens when a user clicks the button. These kinds of methods won’t apply to
-types like `TextField`.
+Các trường `width`, `height`, và `label` trên `Button` sẽ khác với các
+trường trên các thành phần khác; ví dụ, một kiểu `TextField` có thể có những
+trường tương tự cộng với một trường `placeholder`. Mỗi kiểu chúng ta muốn vẽ trên
+màn hình sẽ triển khai trait `Draw` nhưng sẽ sử dụng mã khác nhau trong
+phương thức `draw` để định nghĩa cách vẽ kiểu cụ thể đó, như `Button` đã làm
+ở đây (không có mã GUI thực tế, như đã đề cập). Kiểu `Button`, chẳng hạn,
+có thể có một khối `impl` bổ sung chứa các phương thức liên quan đến những gì
+xảy ra khi người dùng nhấp vào nút. Những loại phương thức này sẽ không áp dụng cho
+các kiểu như `TextField`.
 
-If someone using our library decides to implement a `SelectBox` struct that has
-`width`, `height`, and `options` fields, they would implement the `Draw` trait
-on the `SelectBox` type as well, as shown in Listing 18-8.
+Nếu ai đó sử dụng thư viện của chúng ta quyết định triển khai một struct `SelectBox` có
+các trường `width`, `height`, và `options`, họ cũng sẽ triển khai trait `Draw`
+trên kiểu `SelectBox`, như được hiển thị trong Liệt kê 18-8.
 
-<Listing number="18-8" file-name="src/main.rs" caption="Another crate using `gui` and implementing the `Draw` trait on a `SelectBox` struct">
+<Listing number="18-8" file-name="src/main.rs" caption="Một crate khác sử dụng `gui` và triển khai trait `Draw` trên một struct `SelectBox` ">
 
 ```rust,ignore
 {{#rustdoc_include ../listings/ch18-oop/listing-18-08/src/main.rs:here}}
@@ -162,15 +160,15 @@ on the `SelectBox` type as well, as shown in Listing 18-8.
 
 </Listing>
 
-### Using the Trait
+### Sử dụng Trait
 
-Our library’s user can now write their `main` function to create a `Screen`
-instance. To the `Screen` instance, they can add a `SelectBox` and a `Button`
-by putting each in a `Box<T>` to become a trait object. They can then call the
-`run` method on the `Screen` instance, which will call `draw` on each of the
-components. Listing 18-9 shows this implementation:
+Giờ đây, người dùng thư viện của chúng ta có thể viết hàm `main` của họ để tạo một thực thể `Screen`.
+Vào thực thể `Screen`, họ có thể thêm một `SelectBox` và một `Button`
+bằng cách đặt mỗi cái vào một `Box<T>` để trở thành một trait object. Sau đó, họ có thể gọi
+phương thức `run` trên thực thể `Screen`, phương thức này sẽ gọi `draw` trên mỗi
+thành phần. Liệt kê 18-9 cho thấy triển khai này:
 
-<Listing number="18-9" file-name="src/main.rs" caption="Using trait objects to store values of different types that implement the same trait">
+<Listing number="18-9" file-name="src/main.rs" caption="Sử dụng các trait object để lưu trữ các giá trị thuộc các kiểu khác nhau triển khai cùng một trait">
 
 ```rust,ignore
 {{#rustdoc_include ../listings/ch18-oop/listing-18-09/src/main.rs:here}}
@@ -178,32 +176,31 @@ components. Listing 18-9 shows this implementation:
 
 </Listing>
 
-When we wrote the library, we didn’t know that someone might add the
-`SelectBox` type, but our `Screen` implementation was able to operate on the
-new type and draw it because `SelectBox` implements the `Draw` trait, which
-means it implements the `draw` method.
+Khi chúng ta viết thư viện, chúng ta không biết rằng ai đó có thể thêm
+kiểu `SelectBox`, nhưng triển khai `Screen` của chúng ta đã có thể hoạt động trên
+kiểu mới và vẽ nó vì `SelectBox` triển khai trait `Draw`, điều đó
+có nghĩa là nó triển khai phương thức `draw`.
 
-This concept—of being concerned only with the messages a value responds to
-rather than the value’s concrete type—is similar to the concept of _duck
-typing_ in dynamically typed languages: if it walks like a duck and quacks
-like a duck, then it must be a duck! In the implementation of `run` on `Screen`
-in Listing 18-5, `run` doesn’t need to know what the concrete type of each
-component is. It doesn’t check whether a component is an instance of a `Button`
-or a `SelectBox`, it just calls the `draw` method on the component. By
-specifying `Box<dyn Draw>` as the type of the values in the `components`
-vector, we’ve defined `Screen` to need values that we can call the `draw`
-method on.
+Khái niệm này—về việc chỉ quan tâm đến các thông điệp mà một giá trị phản hồi
+thay vì kiểu cụ thể của giá trị đó—tương tự như khái niệm _duck typing_ (kiểu con vịt)
+trong các ngôn ngữ định kiểu động: nếu nó đi như một con vịt và kêu
+như một con vịt, thì nó chắc chắn là một con vịt! Trong triển khai của `run` trên `Screen`
+trong Liệt kê 18-5, `run` không cần biết kiểu cụ thể của mỗi
+thành phần là gì. Nó không kiểm tra xem một thành phần là một thực thể của một `Button`
+hay một `SelectBox`, nó chỉ gọi phương thức `draw` trên thành phần đó. Bằng cách
+chỉ định `Box<dyn Draw>` làm kiểu của các giá trị trong vector `components`,
+chúng ta đã định nghĩa `Screen` cần các giá trị mà chúng ta có thể gọi phương thức `draw` trên đó.
 
-The advantage of using trait objects and Rust’s type system to write code
-similar to code using duck typing is that we never have to check whether a
-value implements a particular method at runtime or worry about getting errors
-if a value doesn’t implement a method but we call it anyway. Rust won’t compile
-our code if the values don’t implement the traits that the trait objects need.
+Ưu điểm của việc sử dụng các trait object và hệ thống kiểu của Rust để viết mã
+tương tự như mã sử dụng duck typing là chúng ta không bao giờ phải kiểm tra xem một
+giá trị có triển khai một phương thức cụ thể hay không tại thời điểm chạy hoặc lo lắng về việc gặp lỗi
+nếu một giá trị không triển khai một phương thức nhưng chúng ta vẫn gọi nó. Rust sẽ không biên dịch
+mã của chúng ta nếu các giá trị không triển khai các trait mà các trait object cần.
 
-For example, Listing 18-10 shows what happens if we try to create a `Screen`
-with a `String` as a component.
+Ví dụ, Liệt kê 18-10 cho thấy điều gì xảy ra nếu chúng ta cố gắng tạo một `Screen`
+với một `String` như một thành phần.
 
-<Listing number="18-10" file-name="src/main.rs" caption="Attempting to use a type that doesn’t implement the trait object’s trait">
+<Listing number="18-10" file-name="src/main.rs" caption="Cố gắng sử dụng một kiểu không triển khai trait của trait object">
 
 ```rust,ignore,does_not_compile
 {{#rustdoc_include ../listings/ch18-oop/listing-18-10/src/main.rs}}
@@ -211,24 +208,24 @@ with a `String` as a component.
 
 </Listing>
 
-We’ll get this error because `String` doesn’t implement the `Draw` trait:
+Chúng ta sẽ nhận được lỗi này vì `String` không triển khai trait `Draw`:
 
 ```console
 {{#include ../listings/ch18-oop/listing-18-10/output.txt}}
 ```
 
-This error lets us know that either we’re passing something to `Screen` that we
-didn’t mean to pass and so should pass a different type, or we should implement
-`Draw` on `String` so that `Screen` is able to call `draw` on it.
+Lỗi này cho chúng ta biết rằng hoặc chúng ta đang truyền một thứ gì đó cho `Screen` mà chúng ta
+không có ý định truyền và vì vậy nên truyền một kiểu khác, hoặc chúng ta nên triển khai
+`Draw` trên `String` để `Screen` có thể gọi `draw` trên nó.
 
 <!-- BEGIN INTERVENTION: cce62358-5291-4eb3-84d6-fbc570873ee3 -->
 
-### Trait Objects and Type Inference
+### Trait Object và Suy luận kiểu
 
-One downside to using trait objects is how they interact with type inference. 
-For example, consider type inference for `Vec<T>`. When `T` is not a trait object,
-Rust just needs to know the type of a single element in the vector to infer `T`. So
-an empty vector causes a type inference error:
+Một nhược điểm của việc sử dụng các trait object là cách chúng tương tác với suy luận kiểu.
+Ví dụ, hãy xem xét suy luận kiểu cho `Vec<T>`. Khi `T` không phải là một trait object,
+Rust chỉ cần biết kiểu của một phần tử duy nhất trong vector để suy luận ra `T`. Vì vậy
+một vector trống sẽ gây ra lỗi suy luận kiểu:
 
 ```rust,ignore,does_not_compile
 # fn main() {
@@ -237,7 +234,7 @@ let v = vec![];
 # }
 ```
 
-But adding an element enables Rust to infer the type of the vector:
+Nhưng việc thêm một phần tử cho phép Rust suy luận ra kiểu của vector:
 
 ```rust,ignore
 # fn main() {
@@ -246,8 +243,8 @@ let v = vec!["Hello world"];
 # }
 ```
 
-Type inference is trickier for trait objects. For example, say we tried to factor 
-the `components` array in Listing 17-9 into a separate variable, like this:
+Suy luận kiểu khó khăn hơn đối với các trait object. Ví dụ, giả sử chúng ta cố gắng tách
+mảng `components` trong Liệt kê 17-9 thành một biến riêng biệt, như thế này:
 
 ```rust,ignore,does_not_compile
 fn main() {
@@ -260,10 +257,10 @@ fn main() {
 }
 ```
 
-<span class="caption">Listing 17-11: Factoring the components array causes a type error</span>
+<span class="caption">Liệt kê 17-11: Việc tách mảng components gây ra lỗi kiểu</span>
 
-This refactor causes the program to no longer compile! The compiler rejects this program with
-the following error:
+Việc cấu trúc lại này khiến chương trình không còn biên dịch được nữa! Trình biên dịch từ chối chương trình này với
+lỗi sau:
 
 ```text
 error[E0308]: mismatched types
@@ -280,11 +277,11 @@ error[E0308]: mismatched types
     | |_____^ expected `SelectBox`, found `Button`
 ```
 
-In Listing 17-09, the compiler understands that the `components` vector must have the type
-`Vec<Box<dyn Draw>>` because that's specified in the `Screen` struct definition. But in Listing 17-11,
-the compiler loses that information at the point where `components` is defined. To fix the issue, you
-have to give a hint to the type inference algorithm. That can either be via an explicit cast on
-any element of the vector, like this:
+Trong Liệt kê 17-09, trình biên dịch hiểu rằng vector `components` phải có kiểu
+`Vec<Box<dyn Draw>>` vì điều đó được chỉ định trong định nghĩa struct `Screen`. Nhưng trong Liệt kê 17-11,
+trình biên dịch mất thông tin đó tại thời điểm `components` được định nghĩa. Để khắc phục vấn đề, bạn
+phải đưa ra một gợi ý cho thuật toán suy luận kiểu. Điều đó có thể thông qua một phép ép kiểu (cast) rõ ràng trên
+bất kỳ phần tử nào của vector, như thế này:
 
 ```rust,ignore
   let components = vec![
@@ -293,7 +290,7 @@ any element of the vector, like this:
   ];
 ```
 
-Or it can be via a type annotation on the let-binding, like this:
+Hoặc nó có thể thông qua một chú thích kiểu (type annotation) trên let-binding, như thế này:
 
 ```rust,ignore
   let components: Vec<Box<dyn Draw>> = vec![
@@ -302,37 +299,34 @@ Or it can be via a type annotation on the let-binding, like this:
   ];
 ```
 
-In general, it is good to be aware that using trait objects can cause a worse developer experience for
-API clients in the case of type inference.
+Nhìn chung, tốt hơn hết là bạn nên biết rằng việc sử dụng các trait object có thể gây ra trải nghiệm nhà phát triển kém hơn cho
+các khách hàng sử dụng API trong trường hợp suy luận kiểu.
 
 <!-- END INTERVENTION: cce62358-5291-4eb3-84d6-fbc570873ee3 -->
 
+### Trait Object thực hiện Điều phối động
 
-### Trait Objects Perform Dynamic Dispatch
+Hãy nhớ lại trong [“Hiệu năng của mã sử dụng Generics”][performance-of-code-using-generics]<!-- ignore --> ở Chương 10 cuộc thảo luận của chúng ta về quá trình đơn hình hóa (monomorphization) được thực hiện trên generics bởi
+trình biên dịch: trình biên dịch tạo ra các triển khai không generic của các hàm và
+phương thức cho mỗi kiểu cụ thể mà chúng ta sử dụng thay cho một tham số kiểu generic.
+Mã kết quả từ quá trình đơn hình hóa đang thực hiện _điều phối tĩnh_ (static dispatch), đó là
+khi trình biên dịch biết phương thức nào bạn đang gọi tại thời điểm biên dịch. Điều này
+ngược lại với _điều phối động_ (dynamic dispatch), đó là khi trình biên dịch không thể biết tại
+thời điểm biên dịch phương thức nào bạn đang gọi. Trong các trường hợp điều phối động, trình biên dịch phát ra
+mã mà tại thời điểm chạy sẽ tìm ra phương thức nào cần gọi.
 
-Recall in [“Performance of Code Using
-Generics”][performance-of-code-using-generics]<!-- ignore --> in Chapter 10 our
-discussion on the monomorphization process performed on generics by the
-compiler: the compiler generates nongeneric implementations of functions and
-methods for each concrete type that we use in place of a generic type parameter.
-The code that results from monomorphization is doing _static dispatch_, which is
-when the compiler knows what method you’re calling at compile time. This is
-opposed to _dynamic dispatch_, which is when the compiler can’t tell at compile
-time which method you’re calling. In dynamic dispatch cases, the compiler emits
-code that at runtime will figure out which method to call.
-
-When we use trait objects, Rust must use dynamic dispatch. The compiler doesn’t
-know all the types that might be used with the code that’s using trait objects,
-so it doesn’t know which method implemented on which type to call. Instead, at
-runtime, Rust uses the pointers inside the trait object to know which method to
-call. This lookup incurs a runtime cost that doesn’t occur with static dispatch.
-Dynamic dispatch also prevents the compiler from choosing to inline a method’s
-code, which in turn prevents some optimizations, and Rust has some rules, called
-_dyn compatibility_, about where you can and cannot use dynamic dispatch. Those
-rules are beyond the scope of this discussion, but  you can read more about them
-[in the reference][dyn-compatibility]. However, we did get extra flexibility in
-the code that we wrote in Listing 18-5 and were able to support in Listing 18-9,
-so it’s a trade-off to consider.
+Khi chúng ta sử dụng các trait object, Rust phải sử dụng điều phối động. Trình biên dịch không
+biết tất cả các kiểu có thể được sử dụng với mã đang sử dụng các trait object,
+vì vậy nó không biết phương thức nào được triển khai trên kiểu nào để gọi. Thay vào đó, tại
+thời điểm chạy, Rust sử dụng các con trỏ bên trong trait object để biết phương thức nào
+cần gọi. Việc tra cứu này làm phát sinh chi phí thời gian chạy không xảy ra với điều phối tĩnh.
+Điều phối động cũng ngăn cản trình biên dịch chọn nội tuyến (inline) mã của một phương thức,
+điều này lần lượt ngăn cản một số tối ưu hóa, và Rust có một số quy tắc, được gọi là
+_tương thích dyn_ (dyn compatibility), về nơi bạn có thể và không thể sử dụng điều phối động. Những
+quy tắc đó nằm ngoài phạm vi của cuộc thảo luận này, nhưng bạn có thể đọc thêm về chúng
+[trong tài liệu tham khảo][dyn-compatibility]. Tuy nhiên, chúng ta đã có thêm sự linh hoạt trong
+mã mà chúng ta đã viết trong Liệt kê 18-5 và có thể hỗ trợ trong Liệt kê 18-9,
+vì vậy đó là một sự đánh đổi cần cân nhắc.
 
 {{#quiz ../quizzes/ch17-02-trait-objects.toml}}
 

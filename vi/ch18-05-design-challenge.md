@@ -1,57 +1,58 @@
-# Design Trade-offs
+# Các đánh đổi trong thiết kế
 
-This section is about **design trade-offs** in Rust. To be an effective Rust engineer, it's not enough just to know how Rust works. You have to decide which of Rust's many tools are appropriate for a given job. In this section, we will give you a sequence of quizzes about your understanding of design trade-offs in Rust.  After each quiz, we will explain in-depth our rationale for each question.
+Phần này nói về **các đánh đổi trong thiết kế** trong Rust. Để trở thành một kỹ sư Rust hiệu quả, chỉ biết Rust hoạt động như thế nào là chưa đủ. Bạn phải quyết định công cụ nào trong số nhiều công cụ của Rust là phù hợp cho một công việc nhất định. Trong phần này, chúng tôi sẽ cung cấp cho bạn một chuỗi các câu đố về sự hiểu biết của bạn về các đánh đổi trong thiết kế trong Rust. Sau mỗi câu đố, chúng tôi sẽ giải thích chuyên sâu lý do của mình cho mỗi câu hỏi.
 
-Here's an example of what a question will look like. It will start out by describing a software case study with a space of designs:
+Dưới đây là một ví dụ về một câu hỏi sẽ trông như thế nào. Nó sẽ bắt đầu bằng cách mô tả một nghiên cứu điển hình về phần mềm với một không gian các thiết kế:
 
-> **Context:** You are designing an application with a global configuration, e.g. containing command-line flags.
+> **Ngữ cảnh:** Bạn đang thiết kế một ứng dụng với một cấu hình toàn cục, ví dụ: chứa các cờ dòng lệnh.
 >
-> **Functionality:** The application needs to pass immutable references to this configuration throughout the application.
+> **Chức năng:** Ứng dụng cần truyền các tham chiếu không thay đổi (immutable references) đến cấu hình này trong toàn bộ ứng dụng.
 >
-> **Designs:** Below are several proposed designs to implement the functionality.
+> **Thiết kế:** Dưới đây là một số thiết kế được đề xuất để triển khai chức năng này.
 >
 > ```rust,ignore
 > use std::rc::Rc;
 > use std::sync::Arc;
 >
-> struct Config { 
+> struct Config {
 >     flags: Flags,
->     // .. more fields ..
+>     // .. thêm các trường khác ..
 > }
-> 
-> // Option 1: use a reference
+>
+> // Tùy chọn 1: sử dụng một tham chiếu
 > struct ConfigRef<'a>(&'a Config);
-> 
-> // Option 2: use a reference-counted pointer
+>
+> // Tùy chọn 2: sử dụng một con trỏ đếm tham chiếu
 > struct ConfigRef(Rc<Config>);
-> 
-> // Option 3: use an atomic reference-counted pointer
+>
+> // Tùy chọn 3: sử dụng một con trỏ đếm tham chiếu nguyên tử
 > struct ConfigRef(Arc<Config>);
 > ```
 
-Given just the context and key functionality, all three designs are potential candidates. 
-We need more information about the system goals to decide which ones make the most sense.
-Hence, we give a new requirement:
+Nếu chỉ dựa vào ngữ cảnh và chức năng chính, cả ba thiết kế đều là những ứng cử viên tiềm năng.
+Chúng ta cần thêm thông tin về các mục tiêu hệ thống để quyết định cái nào là hợp lý nhất.
+Do đó, chúng tôi đưa ra một yêu cầu mới:
 
-> Select each design option that satisfies the following requirement:
+> Chọn mỗi tùy chọn thiết kế đáp ứng yêu cầu sau:
 >
-> **Requirement:** The configuration reference must be shareable between multiple threads.
+> **Yêu cầu:** Tham chiếu cấu hình phải có thể chia sẻ được giữa nhiều luồng (threads).
 >
-> **Answer:**
+> **Câu trả lời:**
 >
-> <input type="checkbox" checked disabled> Option 1 <br>
-> <input type="checkbox" disabled> Option 2 <br>
-> <input type="checkbox" checked disabled> Option 3 <br>
+> <input type="checkbox" checked disabled> Tùy chọn 1 <br>
+> <input type="checkbox" disabled> Tùy chọn 2 <br>
+> <input type="checkbox" checked disabled> Tùy chọn 3 <br>
 
-In formal terms, this means that `ConfigRef` implements [`Send`] and [`Sync`]. 
-Assuming `Config: Send + Sync`, then both `&Config` and `Arc<Config>` satisfy this requirement,
-but [`Rc`] does not (because non-atomic reference-counted pointers are not thread-safe). So Option 2 does not satisfy the requirement, while Option 3 does.
+Về mặt kỹ thuật, điều này có nghĩa là `ConfigRef` triển khai [`Send`] và [`Sync`].
+Giả sử `Config: Send + Sync`, thì cả `&Config` và `Arc<Config>` đều đáp ứng yêu cầu này,
+nhưng [`Rc`] thì không (vì các con trỏ đếm tham chiếu không nguyên tử không an toàn luồng). Vì vậy Tùy chọn 2 không đáp ứng yêu cầu, trong khi Tùy chọn 3 thì có.
 
-We might also be tempted to conclude that Option 1 does not satisfy the requirement because functions like [`thread::spawn`] require that all data moved into a thread can only contain references with a `'static` lifetime. However, that does not rule out Option 1 for two reasons:
-1.  The `Config` could be stored as a global static variable (e.g., using [`OnceLock`]), so one could construct `&'static Config` references.
-2. Not all concurrency mechanisms require `'static` lifetimes, such as [`thread::scope`]. 
+Chúng ta cũng có thể bị cám dỗ để kết luận rằng Tùy chọn 1 không đáp ứng yêu cầu vì các hàm như [`thread::spawn`] yêu cầu tất cả dữ liệu được di chuyển vào một luồng chỉ có thể chứa các tham chiếu với thời gian sống `'static`. Tuy nhiên, điều đó không loại trừ Tùy chọn 1 vì hai lý do:
 
-Therefore the requirement as-stated only rules out non-[`Send`] types, and we consider Options 1 and 3 to be the correct answers.
+1. `Config` có thể được lưu trữ dưới dạng một biến tĩnh toàn cục (ví dụ: sử dụng [`OnceLock`]), vì vậy người ta có thể xây dựng các tham chiếu `&'static Config`.
+2. Không phải tất cả các cơ chế đồng thời đều yêu cầu thời gian sống `'static`, chẳng hạn như [`thread::scope`].
+
+Do đó, yêu cầu như đã nêu chỉ loại trừ các kiểu không phải-[`Send`], và chúng tôi coi Tùy chọn 1 và 3 là các câu trả lời đúng.
 
 [`thread::spawn`]: https://doc.rust-lang.org/std/thread/fn.spawn.html
 [`Send`]: https://doc.rust-lang.org/std/marker/trait.Send.html
@@ -62,34 +63,34 @@ Therefore the requirement as-stated only rules out non-[`Send`] types, and we co
 
 <hr>
 
-Now you try with the questions below! Each section contains a quiz focused on a single scenario. Complete the quiz, and make sure to read the answer context after each quiz.
- <!-- These questions are both experimental and opinionated &mdash; please leave us feedback via the bug button 🐞 if you disagree with our answers. -->
+Bây giờ hãy thử với các câu hỏi bên dưới! Mỗi phần chứa một câu đố tập trung vào một tình huống duy nhất. Hoàn thành câu đố và đảm bảo đọc ngữ cảnh câu trả lời sau mỗi câu đố.
 
-Along with each quiz, we have also provided links to popular Rust crates that served as inspiration for the quiz.
+ <!-- Những câu hỏi này mang tính thử nghiệm và chủ quan &mdash; vui lòng để lại phản hồi cho chúng tôi qua nút báo lỗi 🐞 nếu bạn không đồng ý với câu trả lời của chúng tôi. -->
 
-## References
+Cùng với mỗi câu đố, chúng tôi cũng cung cấp các liên kết đến các crate Rust phổ biến đóng vai trò là nguồn cảm hứng cho câu đố.
 
-*Inspiration:* [Bevy assets], [Petgraph node indices], [Cargo units]
+## Tham chiếu (References)
+
+_Nguồn cảm hứng:_ [Bevy assets], [Petgraph node indices], [Cargo units]
 
 {{#quiz ../quizzes/ch17-05-design-challenge-references.toml}}
-
 
 [Bevy assets]: https://docs.rs/bevy/0.11.2/bevy/asset/struct.Assets.html
 [Petgraph node indices]: https://docs.rs/petgraph/0.6.4/petgraph/graph/struct.NodeIndex.html
 [Cargo units]: https://docs.rs/cargo/0.73.1/cargo/core/compiler/struct.Unit.html
 
-## Trait Trees
+## Cây Trait (Trait Trees)
 
-*Inspiration:* [Yew components], [Druid widgets]
+_Nguồn cảm hứng:_ [Yew components], [Druid widgets]
 
 {{#quiz ../quizzes/ch17-05-design-challenge-trait-trees.toml}}
 
 [Yew components]: https://docs.rs/yew/0.20.0/yew/html/trait.Component.html
 [Druid widgets]: https://docs.rs/druid/0.8.3/druid/trait.Widget.html
 
-## Dispatch
+## Điều phối (Dispatch)
 
-*Inspiration:* [Bevy systems], [Diesel queries], [Axum handlers]
+_Nguồn cảm hứng:_ [Bevy systems], [Diesel queries], [Axum handlers]
 
 {{#quiz ../quizzes/ch17-05-design-challenge-dispatch.toml}}
 
@@ -97,9 +98,9 @@ Along with each quiz, we have also provided links to popular Rust crates that se
 [Diesel queries]: https://docs.diesel.rs/2.1.x/diesel/query_dsl/trait.BelongingToDsl.html
 [Axum handlers]: https://docs.rs/axum/0.6.20/axum/handler/trait.Handler.html
 
-## Intermediates
+## Các kiểu trung gian (Intermediates)
 
-*Inspiration:* [Serde] and [miniserde]
+_Nguồn cảm hứng:_ [Serde] và [miniserde]
 
 {{#quiz ../quizzes/ch17-05-design-challenge-intermediates.toml}}
 
