@@ -1,53 +1,53 @@
-# Smart Pointers
+# Con trỏ thông minh (Smart Pointers)
 
-A _pointer_ is a general concept for a variable that contains an address in
-memory. This address refers to, or “points at,” some other data. The most
-common kind of pointer in Rust is a reference, which you learned about in
-Chapter 4. References are indicated by the `&` symbol and borrow the value they
-point to. They don’t have any special capabilities other than referring to
-data, and they have no overhead.
+Một _con trỏ_ (pointer) là một khái niệm chung cho một biến chứa một địa chỉ trong
+bộ nhớ. Địa chỉ này tham chiếu đến, hoặc “trỏ vào,” một vài dữ liệu khác. Loại
+con trỏ phổ biến nhất trong Rust là tham chiếu (reference), cái mà bạn đã học ở
+Chương 4. Các tham chiếu được chỉ định bởi ký hiệu `&` và mượn giá trị mà chúng
+trỏ tới. Chúng không có bất kỳ khả năng đặc biệt nào khác ngoài việc tham chiếu đến
+dữ liệu, và chúng không có chi phí bổ sung (overhead).
 
-_Smart pointers_, on the other hand, are data structures that act like a
-pointer but also have additional metadata and capabilities. The concept of
-smart pointers isn’t unique to Rust: smart pointers originated in C++ and exist
-in other languages as well. Rust has a variety of smart pointers defined in the
-standard library that provide functionality beyond that provided by references.
-To explore the general concept, we’ll look at a couple of different examples of
-smart pointers, including a _reference counting_ smart pointer type. This
-pointer enables you to allow data to have multiple owners by keeping track of
-the number of owners and, when no owners remain, cleaning up the data.
+_Con trỏ thông minh_ (Smart pointers), mặt khác, là các cấu trúc dữ liệu hoạt động giống như
+một con trỏ nhưng cũng có thêm các siêu dữ liệu (metadata) và các khả năng bổ sung.
+Khái niệm con trỏ thông minh không chỉ có duy nhất ở Rust: con trỏ thông minh có nguồn gốc từ C++ và cũng
+tồn tại trong các ngôn ngữ khác. Rust có nhiều loại con trỏ thông minh khác nhau được định nghĩa trong
+thư viện tiêu chuẩn nhằm cung cấp các chức năng vượt xa những gì tham chiếu cung cấp.
+Để khám phá khái niệm chung này, chúng ta sẽ xem xét một vài ví dụ khác nhau về
+con trỏ thông minh, bao gồm một loại con trỏ thông minh _đếm tham chiếu_ (reference counting). Loại
+con trỏ này cho phép bạn cho phép dữ liệu có nhiều chủ sở hữu bằng cách theo dõi
+số lượng chủ sở hữu và khi không còn chủ sở hữu nào, nó sẽ dọn dẹp dữ liệu đó.
 
-Rust, with its concept of ownership and borrowing, has an additional difference
-between references and smart pointers: while references only borrow data, in
-many cases smart pointers _own_ the data they point to.
+Rust, với khái niệm quyền sở hữu (ownership) và mượn (borrowing), có thêm một điểm khác biệt
+giữa tham chiếu và con trỏ thông minh: trong khi tham chiếu chỉ mượn dữ liệu, thì trong
+nhiều trường hợp con trỏ thông minh _sở hữu_ dữ liệu mà chúng trỏ tới.
 
-Though we didn’t call them as such at the time, we’ve already encountered a few
-smart pointers in this book, including `String` and `Vec<T>` in Chapter 8. Both
-of these types count as smart pointers because they own some memory and allow
-you to manipulate it. They also have metadata and extra capabilities or
-guarantees. `String`, for example, stores its capacity as metadata and has the
-extra ability to ensure its data will always be valid UTF-8.
+Mặc dù chúng ta không gọi chúng như vậy vào thời điểm đó, nhưng chúng ta đã gặp một vài
+con trỏ thông minh trong cuốn sách này, bao gồm `String` và `Vec<T>` ở Chương 8. Cả hai
+loại này đều được coi là con trỏ thông minh vì chúng sở hữu một số vùng nhớ và cho phép
+bạn thao tác trên đó. Chúng cũng có siêu dữ liệu và các khả năng hoặc đảm bảo bổ sung.
+`String`, ví dụ, lưu trữ dung lượng (capacity) của nó dưới dạng siêu dữ liệu và có
+khả năng bổ sung để đảm bảo dữ liệu của nó luôn là UTF-8 hợp lệ.
 
-Smart pointers are usually implemented using structs. Unlike an ordinary
-struct, smart pointers implement the `Deref` and `Drop` traits. The `Deref`
-trait allows an instance of the smart pointer struct to behave like a reference
-so you can write your code to work with either references or smart pointers.
-The `Drop` trait allows you to customize the code that’s run when an instance
-of the smart pointer goes out of scope. In this chapter, we’ll discuss both of
-these traits and demonstrate why they’re important to smart pointers.
+Con trỏ thông minh thường được thực thi bằng cách sử dụng các struct. Không giống như một
+struct thông thường, con trỏ thông minh thực thi các trait `Deref` và `Drop`.
+Trait `Deref` cho phép một instance của struct con trỏ thông minh hành xử giống như một tham chiếu
+để bạn có thể viết mã của mình hoạt động với cả tham chiếu hoặc con trỏ thông minh.
+Trait `Drop` cho phép bạn tùy chỉnh mã được chạy khi một instance
+của con trỏ thông minh ra khỏi phạm vi (scope). Trong chương này, chúng ta sẽ thảo luận về cả hai
+trait này và chứng minh tại sao chúng quan trọng đối với con trỏ thông minh.
 
-Given that the smart pointer pattern is a general design pattern used
-frequently in Rust, this chapter won’t cover every existing smart pointer. Many
-libraries have their own smart pointers, and you can even write your own. We’ll
-cover the most common smart pointers in the standard library:
+Bởi vì mô hình con trỏ thông minh là một mô hình thiết kế chung được sử dụng
+thường xuyên trong Rust, chương này sẽ không bao gồm mọi con trỏ thông minh hiện có. Nhiều
+thư viện có các con trỏ thông minh của riêng chúng, và bạn thậm chí có thể tự viết con trỏ của riêng mình. Chúng ta sẽ
+đề cập đến các con trỏ thông minh phổ biến nhất trong thư viện tiêu chuẩn:
 
-- `Box<T>`, for allocating values on the heap
-- `Rc<T>`, a reference counting type that enables multiple ownership
-- `Ref<T>` and `RefMut<T>`, accessed through `RefCell<T>`, a type that enforces
-  the borrowing rules at runtime instead of compile time
+- `Box<T>`, để cấp phát các giá trị trên heap
+- `Rc<T>`, một kiểu đếm tham chiếu cho phép đa sở hữu
+- `Ref<T>` và `RefMut<T>`, được truy cập thông qua `RefCell<T>`, một kiểu thực thi
+  các quy tắc mượn tại thời điểm chạy (runtime) thay vì thời điểm biên dịch (compile time)
 
-In addition, we’ll cover the _interior mutability_ pattern where an immutable
-type exposes an API for mutating an interior value. We’ll also discuss
-_reference cycles_: how they can leak memory and how to prevent them.
+Ngoài ra, chúng ta sẽ đề cập đến mô hình _tính đột biến nội thất_ (interior mutability) nơi một
+kiểu không biến đổi (immutable) để lộ ra một API để thay đổi một giá trị bên trong. Chúng ta cũng sẽ thảo luận về
+_chu kỳ tham chiếu_ (reference cycles): cách chúng có thể làm rò rỉ bộ nhớ và cách ngăn chặn chúng.
 
-Let’s dive in!
+Hãy cùng bắt đầu nào!
