@@ -1,95 +1,95 @@
 ## Unsafe Rust
 
-All the code we’ve discussed so far has had Rust’s memory safety guarantees
-enforced at compile time. However, Rust has a second language hidden inside it
-that doesn’t enforce these memory safety guarantees: it’s called _unsafe Rust_
-and works just like regular Rust, but gives us extra superpowers.
+Tất cả mã nguồn chúng ta đã thảo luận cho đến nay đều có các đảm bảo an toàn bộ nhớ của Rust
+được thực thi tại thời điểm biên dịch. Tuy nhiên, Rust có một ngôn ngữ thứ hai ẩn bên trong nó
+mà không thực thi các đảm bảo an toàn bộ nhớ này: nó được gọi là _unsafe Rust_
+và hoạt động giống như Rust thông thường, nhưng mang lại cho chúng ta thêm những siêu năng lực.
 
-Unsafe Rust exists because, by nature, static analysis is conservative. When
-the compiler tries to determine whether or not code upholds the guarantees,
-it’s better for it to reject some valid programs than to accept some invalid
-programs. Although the code _might_ be okay, if the Rust compiler doesn’t have
-enough information to be confident, it will reject the code. In these cases,
-you can use unsafe code to tell the compiler, “Trust me, I know what I’m
-doing.” Be warned, however, that you use unsafe Rust at your own risk: if you
-use unsafe code incorrectly, problems can occur due to memory unsafety, such as
-null pointer dereferencing.
+Unsafe Rust tồn tại vì, về bản chất, phân tích tĩnh (static analysis) là bảo thủ. Khi
+trình biên dịch cố gắng xác định xem mã nguồn có duy trì các đảm bảo hay không,
+thà rằng nó từ chối một số chương trình hợp lệ còn hơn là chấp nhận một số chương trình
+không hợp lệ. Mặc dù mã nguồn _có thể_ ổn, nhưng nếu trình biên dịch Rust không có
+đủ thông tin để tự tin, nó sẽ từ chối mã nguồn đó. Trong những trường hợp này,
+bạn có thể sử dụng mã unsafe để nói với trình biên dịch rằng, “Hãy tin tôi, tôi biết mình đang
+làm gì.” Tuy nhiên, hãy lưu ý rằng, bạn tự chịu rủi ro khi sử dụng unsafe Rust: nếu bạn
+sử dụng mã unsafe không đúng cách, các vấn đề có thể xảy ra do mất an toàn bộ nhớ, chẳng hạn như
+giải tham chiếu con trỏ null (null pointer dereferencing).
 
-Another reason Rust has an unsafe alter ego is that the underlying computer
-hardware is inherently unsafe. If Rust didn’t let you do unsafe operations, you
-couldn’t do certain tasks. Rust needs to allow you to do low-level systems
-programming, such as directly interacting with the operating system or even
-writing your own operating system. Working with low-level systems programming
-is one of the goals of the language. Let’s explore what we can do with unsafe
-Rust and how to do it.
+Một lý do khác khiến Rust có một bản ngã unsafe là vì phần cứng máy tính bên dưới
+vốn dĩ không an toàn. Nếu Rust không cho phép bạn thực hiện các thao tác unsafe,
+bạn không thể thực hiện một số tác vụ nhất định. Rust cần cho phép bạn lập trình hệ thống cấp thấp,
+chẳng hạn như tương tác trực tiếp với hệ điều hành hoặc thậm chí là
+viết hệ điều hành của riêng bạn. Làm việc với lập trình hệ thống cấp thấp
+là một trong các mục tiêu của ngôn ngữ này. Hãy cùng khám phá những gì chúng ta có thể làm với unsafe
+Rust và cách thực hiện nó.
 
-### Unsafe Superpowers
+### Các siêu năng lực của Unsafe
 
-To switch to unsafe Rust, use the `unsafe` keyword and then start a new block
-that holds the unsafe code. You can take five actions in unsafe Rust that you
-can’t in safe Rust, which we call _unsafe superpowers_. Those superpowers
-include the ability to:
+Để chuyển sang unsafe Rust, hãy sử dụng từ khóa `unsafe` và sau đó bắt đầu một khối mới
+chứa mã unsafe. Bạn có thể thực hiện năm hành động trong unsafe Rust mà bạn
+không thể làm trong Rust an toàn, mà chúng ta gọi là _các siêu năng lực của unsafe_. Những siêu năng lực đó
+bao gồm khả năng để:
 
-- Dereference a raw pointer
-- Call an unsafe function or method
-- Access or modify a mutable static variable
-- Implement an unsafe trait
-- Access fields of a `union`
+- Giải tham chiếu một con trỏ thô (raw pointer)
+- Gọi một hàm hoặc phương thức unsafe
+- Truy cập hoặc sửa đổi một biến tĩnh có thể thay đổi (mutable static variable)
+- Thực thi một trait unsafe
+- Truy cập các trường của một `union`
 
-It’s important to understand that `unsafe` doesn’t turn off the borrow checker
-or disable any of Rust’s other safety checks: if you use a reference in unsafe
-code, it will still be checked. The `unsafe` keyword only gives you access to
-these five features that are then not checked by the compiler for memory
-safety. You’ll still get some degree of safety inside of an unsafe block.
+Điều quan trọng cần hiểu là `unsafe` không tắt trình kiểm tra mượn (borrow checker)
+hoặc vô hiệu hóa bất kỳ kiểm tra an toàn nào khác của Rust: nếu bạn sử dụng một tham chiếu trong mã
+unsafe, nó vẫn sẽ được kiểm tra. Từ khóa `unsafe` chỉ cung cấp cho bạn quyền truy cập vào
+năm tính năng này, những tính năng mà sau đó không được trình biên dịch kiểm tra về an toàn
+bộ nhớ. Bạn vẫn sẽ nhận được một mức độ an toàn nhất định bên trong một khối unsafe.
 
-In addition, `unsafe` does not mean the code inside the block is necessarily
-dangerous or that it will definitely have memory safety problems: the intent is
-that as the programmer, you’ll ensure the code inside an `unsafe` block will
-access memory in a valid way.
+Ngoài ra, `unsafe` không có nghĩa là mã nguồn bên trong khối nhất thiết phải
+nguy hiểm hoặc chắc chắn sẽ gặp các vấn đề về an toàn bộ nhớ: mục đích là
+với tư cách là lập trình viên, bạn sẽ đảm bảo mã nguồn bên trong một khối `unsafe` sẽ
+truy cập bộ nhớ theo cách hợp lệ.
 
-People are fallible and mistakes will happen, but by requiring these five
-unsafe operations to be inside blocks annotated with `unsafe`, you’ll know that
-any errors related to memory safety must be within an `unsafe` block. Keep
-`unsafe` blocks small; you’ll be thankful later when you investigate memory
-bugs.
+Con người có thể sai lầm và lỗi sẽ xảy ra, nhưng bằng cách yêu cầu năm thao tác
+unsafe này phải nằm bên trong các khối được chú thích bằng `unsafe`, bạn sẽ biết rằng
+bất kỳ lỗi nào liên quan đến an toàn bộ nhớ phải nằm trong một khối `unsafe`. Hãy giữ
+các khối `unsafe` nhỏ; bạn sẽ thấy biết ơn sau này khi điều tra các lỗi bộ
+nhớ.
 
-To isolate unsafe code as much as possible, it’s best to enclose such code
-within a safe abstraction and provide a safe API, which we’ll discuss later in
-the chapter when we examine unsafe functions and methods. Parts of the standard
-library are implemented as safe abstractions over unsafe code that has been
-audited. Wrapping unsafe code in a safe abstraction prevents uses of `unsafe`
-from leaking out into all the places that you or your users might want to use
-the functionality implemented with `unsafe` code, because using a safe
-abstraction is safe.
+Để cô lập mã unsafe nhiều nhất có thể, tốt nhất là bao bọc mã đó
+bên trong một trừu tượng an toàn và cung cấp một API an toàn, điều mà chúng ta sẽ thảo luận sau trong
+chương này khi chúng ta xem xét các hàm và phương thức unsafe. Các phần của thư viện chuẩn
+được triển khai dưới dạng các trừu tượng an toàn trên mã unsafe đã được
+kiểm duyệt. Việc bao bọc mã unsafe trong một trừu tượng an toàn giúp ngăn chặn việc sử dụng `unsafe`
+rò rỉ ra tất cả những nơi mà bạn hoặc người dùng của bạn có thể muốn sử dụng
+chức năng được triển khai bằng mã `unsafe`, bởi vì việc sử dụng một trừu tượng
+an toàn là an toàn.
 
-Let’s look at each of the five unsafe superpowers in turn. We’ll also look at
-some abstractions that provide a safe interface to unsafe code.
+Hãy lần lượt xem xét từng siêu năng lực trong số năm siêu năng lực của unsafe. Chúng ta cũng sẽ xem xét
+một số trừu tượng cung cấp một giao diện an toàn cho mã unsafe.
 
-### Dereferencing a Raw Pointer
+### Giải tham chiếu một con trỏ thô
 
-In [“The Borrow Checker Finds Permission Violations”][permission-violations]<!-- ignore --> in Chapter 4, we
-described how the compiler ensures references are always valid. Unsafe Rust has
-two new types called _raw pointers_ that are similar to references. As with
-references, raw pointers can be immutable or mutable and are written as `*const
-T` and `*mut T`, respectively. The asterisk isn’t the dereference operator; it’s
-part of the type name. In the context of raw pointers, _immutable_ means that
-the pointer can’t be directly assigned to after being dereferenced.
+Trong [“Trình kiểm tra mượn tìm thấy các vi phạm quyền”][permission-violations]<!-- ignore --> ở Chương 4, chúng ta
+đã mô tả cách trình biên dịch đảm bảo các tham chiếu luôn hợp lệ. Unsafe Rust có
+hai kiểu mới được gọi là _con trỏ thô_ (raw pointers) tương tự như các tham chiếu. Giống như
+các tham chiếu, con trỏ thô có thể là bất biến hoặc có thể thay đổi và được viết là `*const
+T` và `*mut T`, tương ứng. Dấu hoa thị không phải là toán tử giải tham chiếu; nó là
+một phần của tên kiểu. Trong ngữ cảnh của con trỏ thô, _bất biến_ có nghĩa là
+con trỏ không thể được gán trực tiếp sau khi được giải tham chiếu.
 
-Different from references and smart pointers, raw pointers:
+Khác với các tham chiếu và con trỏ thông minh (smart pointers), con trỏ thô:
 
-- Are allowed to ignore the borrowing rules by having both immutable and
-  mutable pointers or multiple mutable pointers to the same location
-- Aren’t guaranteed to point to valid memory
-- Are allowed to be null
-- Don’t implement any automatic cleanup
+- Được phép bỏ qua các quy tắc mượn bằng cách có cả con trỏ bất biến và
+  con trỏ có thể thay đổi hoặc nhiều con trỏ có thể thay đổi trỏ đến cùng một vị trí
+- Không được đảm bảo trỏ đến bộ nhớ hợp lệ
+- Được phép là null
+- Không thực hiện bất kỳ việc tự động dọn dẹp nào
 
-By opting out of having Rust enforce these guarantees, you can give up
-guaranteed safety in exchange for greater performance or the ability to
-interface with another language or hardware where Rust’s guarantees don’t apply.
+Bằng cách chọn không để Rust thực thi các đảm bảo này, bạn có thể từ bỏ
+sự an toàn được đảm bảo để đổi lấy hiệu suất cao hơn hoặc khả năng
+giao tiếp với một ngôn ngữ hoặc phần cứng khác nơi các đảm bảo của Rust không áp dụng.
 
-Listing 20-1 shows how to create an immutable and a mutable raw pointer.
+Danh sách 20-1 cho thấy cách tạo một con trỏ thô bất biến và một con trỏ thô có thể thay đổi.
 
-<Listing number="20-1" caption="Creating raw pointers with the raw borrow operators">
+<Listing number="20-1" caption="Tạo các con trỏ thô bằng các toán tử mượn thô (raw borrow operators)">
 
 ```rust
 {{#rustdoc_include ../listings/ch20-advanced-features/listing-20-01/src/main.rs:here}}
@@ -97,26 +97,26 @@ Listing 20-1 shows how to create an immutable and a mutable raw pointer.
 
 </Listing>
 
-Notice that we don’t include the `unsafe` keyword in this code. We can create
-raw pointers in safe code; we just can’t dereference raw pointers outside an
-unsafe block, as you’ll see in a bit.
+Lưu ý rằng chúng ta không bao gồm từ khóa `unsafe` trong mã này. Chúng ta có thể tạo
+các con trỏ thô trong mã an toàn; chúng ta chỉ không thể giải tham chiếu các con trỏ thô bên ngoài một
+khối unsafe, như bạn sẽ thấy trong giây lát.
 
-We’ve created raw pointers by using the raw borrow operators: `&raw const num`
-creates a `*const i32` immutable raw pointer, and `&raw mut num` creates a `*mut
-i32` mutable raw pointer. Because we created them directly from a local
-variable, we know these particular raw pointers are valid, but we can’t make
-that assumption about just any raw pointer.
+Chúng ta đã tạo các con trỏ thô bằng cách sử dụng các toán tử mượn thô: `&raw const num`
+tạo một con trỏ thô bất biến `*const i32`, và `&raw mut num` tạo một con trỏ thô
+có thể thay đổi `*mut i32`. Bởi vì chúng ta đã tạo chúng trực tiếp từ một biến
+cục bộ, chúng ta biết những con trỏ thô cụ thể này là hợp lệ, nhưng chúng ta không thể đưa ra
+giả định đó về bất kỳ con trỏ thô nào.
 
-To demonstrate this, next we’ll create a raw pointer whose validity we can’t be
-so certain of, using `as` to cast a value instead of using the raw borrow
-operators. Listing 20-2 shows how to create a raw pointer to an arbitrary
-location in memory. Trying to use arbitrary memory is undefined: there might be
-data at that address or there might not, the compiler might optimize the code so
-there is no memory access, or the program might terminate with a segmentation
-fault. Usually, there is no good reason to write code like this, especially in
-cases where you can use a raw borrow operator instead, but it is possible.
+Để chứng minh điều này, tiếp theo chúng ta sẽ tạo một con trỏ thô mà tính hợp lệ của nó chúng ta không thể
+chắc chắn, bằng cách sử dụng `as` để ép kiểu một giá trị thay vì sử dụng các toán tử mượn
+thô. Danh sách 20-2 cho thấy cách tạo một con trỏ thô đến một vị trí bất kỳ
+trong bộ nhớ. Việc cố gắng sử dụng bộ nhớ tùy ý là không xác định (undefined): có thể có
+dữ liệu tại địa chỉ đó hoặc có thể không, trình biên dịch có thể tối ưu hóa mã nguồn để
+không có truy cập bộ nhớ nào, hoặc chương trình có thể kết thúc với một lỗi phân đoạn (segmentation
+fault). Thông thường, không có lý do chính đáng nào để viết mã như thế này, đặc biệt là trong
+những trường hợp bạn có thể sử dụng một toán tử mượn thô để thay thế, nhưng nó là khả thi.
 
-<Listing number="20-2" caption="Creating a raw pointer to an arbitrary memory address">
+<Listing number="20-2" caption="Tạo một con trỏ thô đến một địa chỉ bộ nhớ tùy ý">
 
 ```rust
 {{#rustdoc_include ../listings/ch20-advanced-features/listing-20-02/src/main.rs:here}}
@@ -124,11 +124,11 @@ cases where you can use a raw borrow operator instead, but it is possible.
 
 </Listing>
 
-Recall that we can create raw pointers in safe code, but we can’t _dereference_
-raw pointers and read the data being pointed to. In Listing 20-3, we use the
-dereference operator `*` on a raw pointer that requires an `unsafe` block.
+Hãy nhớ rằng chúng ta có thể tạo các con trỏ thô trong mã an toàn, nhưng chúng ta không thể _giải tham chiếu_
+các con trỏ thô và đọc dữ liệu đang được trỏ tới. Trong Danh sách 20-3, chúng ta sử dụng
+toán tử giải tham chiếu `*` trên một con trỏ thô, việc này yêu cầu một khối `unsafe`.
 
-<Listing number="20-3" caption="Dereferencing raw pointers within an `unsafe` block">
+<Listing number="20-3" caption="Giải tham chiếu các con trỏ thô bên trong một khối `unsafe` ">
 
 ```rust
 {{#rustdoc_include ../listings/ch20-advanced-features/listing-20-03/src/main.rs:here}}
@@ -136,72 +136,72 @@ dereference operator `*` on a raw pointer that requires an `unsafe` block.
 
 </Listing>
 
-Creating a pointer does no harm; it’s only when we try to access the value that
-it points at that we might end up dealing with an invalid value.
+Việc tạo một con trỏ không gây hại; chỉ khi chúng ta cố gắng truy cập giá trị mà
+nó trỏ tới thì chúng ta mới có thể phải đối mặt với một giá trị không hợp lệ.
 
-Note also that in Listing 20-1 and 20-3, we created `*const i32` and `*mut i32`
-raw pointers that both pointed to the same memory location, where `num` is
-stored. If we instead tried to create an immutable and a mutable reference to
-`num`, the code would not have compiled because Rust’s ownership rules don’t
-allow a mutable reference at the same time as any immutable references. With
-raw pointers, we can create a mutable pointer and an immutable pointer to the
-same location and change data through the mutable pointer, potentially creating
-a data race. Be careful!
+Cũng lưu ý rằng trong Danh sách 20-1 và 20-3, chúng đã tạo các con trỏ thô `*const i32` và `*mut i32`
+cùng trỏ đến một vị trí bộ nhớ, nơi `num` được
+lưu trữ. Nếu thay vào đó chúng ta cố gắng tạo một tham chiếu bất biến và một tham chiếu có thể thay đổi cho
+`num`, mã nguồn sẽ không được biên dịch vì các quy tắc sở hữu của Rust không
+cho phép một tham chiếu có thể thay đổi cùng lúc với bất kỳ tham chiếu bất biến nào. Với
+các con trỏ thô, chúng ta có thể tạo một con trỏ có thể thay đổi và một con trỏ bất biến đến
+cùng một vị trí và thay đổi dữ liệu thông qua con trỏ có thể thay đổi, có khả năng tạo ra
+một cuộc đua dữ liệu (data race). Hãy cẩn thận!
 
-With all of these dangers, why would you ever use raw pointers? One major use
-case is when interfacing with C code, as you’ll see in the next section,
-[“Calling an Unsafe Function or
-Method.”](#calling-an-unsafe-function-or-method)<!-- ignore --> Another case is
-when building up safe abstractions that the borrow checker doesn’t understand.
-We’ll introduce unsafe functions and then look at an example of a safe
-abstraction that uses unsafe code.
+Với tất cả những nguy hiểm này, tại sao bạn lại sử dụng con trỏ thô? Một trường hợp sử dụng chính
+là khi giao tiếp với mã C, như bạn sẽ thấy trong phần tiếp theo,
+[“Gọi một hàm hoặc
+phương thức unsafe.”](#calling-an-unsafe-function-or-method)<!-- ignore --> Một trường hợp khác là
+khi xây dựng các trừu tượng an toàn mà trình kiểm tra mượn không hiểu.
+Chúng ta sẽ giới thiệu các hàm unsafe và sau đó xem xét một ví dụ về một trừu tượng
+an toàn sử dụng mã unsafe.
 
-### Calling an Unsafe Function or Method
+### Gọi một hàm hoặc phương thức unsafe
 
-The second type of operation you can perform in an unsafe block is calling
-unsafe functions. Unsafe functions and methods look exactly like regular
-functions and methods, but they have an extra `unsafe` before the rest of the
-definition. The `unsafe` keyword in this context indicates the function has
-requirements we need to uphold when we call this function, because Rust can’t
-guarantee we’ve met these requirements. By calling an unsafe function within an
-`unsafe` block, we’re saying that we’ve read this function’s documentation and
-we take responsibility for upholding the function’s contracts.
+Loại thao tác thứ hai bạn có thể thực hiện trong một khối unsafe là gọi
+các hàm unsafe. Các hàm và phương thức unsafe trông hoàn toàn giống như các hàm và phương thức
+thông thường, nhưng chúng có thêm một từ khóa `unsafe` trước phần còn lại của
+định nghĩa. Từ khóa `unsafe` trong ngữ cảnh này cho biết hàm có
+các yêu cầu mà chúng ta cần duy trì khi gọi hàm này, bởi vì Rust không thể
+đảm bảo chúng ta đã đáp ứng các yêu cầu này. Bằng cách gọi một hàm unsafe bên trong một
+khối `unsafe`, chúng ta đang nói rằng chúng ta đã đọc tài liệu của hàm này và
+chúng ta chịu trách nhiệm duy trì các hợp đồng của hàm.
 
-Here is an unsafe function named `dangerous` that doesn’t do anything in its
-body:
+Đây là một hàm unsafe tên là `dangerous` không làm gì trong
+thân hàm của nó:
 
 ```rust
 {{#rustdoc_include ../listings/ch20-advanced-features/no-listing-01-unsafe-fn/src/main.rs:here}}
 ```
 
-We must call the `dangerous` function within a separate `unsafe` block. If we
-try to call `dangerous` without the `unsafe` block, we’ll get an error:
+Chúng ta phải gọi hàm `dangerous` bên trong một khối `unsafe` riêng biệt. Nếu chúng ta
+cố gắng gọi `dangerous` mà không có khối `unsafe`, chúng ta sẽ gặp lỗi:
 
 ```console
 {{#include ../listings/ch20-advanced-features/output-only-01-missing-unsafe/output.txt}}
 ```
 
-With the `unsafe` block, we’re asserting to Rust that we’ve read the function’s
-documentation, we understand how to use it properly, and we’ve verified that
-we’re fulfilling the contract of the function.
+Với khối `unsafe`, chúng ta đang khẳng định với Rust rằng chúng ta đã đọc tài liệu của
+hàm, chúng ta hiểu cách sử dụng nó đúng cách, và chúng ta đã xác minh rằng
+chúng ta đang thực hiện đúng hợp đồng của hàm.
 
-To perform unsafe operations in the body of an unsafe function, you still need
-to use an `unsafe` block, just as within a regular function, and the compiler
-will warn you if you forget. This helps to keep `unsafe` blocks as small as
-possible, as unsafe operations may not be needed across the whole function
-body.
+Để thực hiện các thao tác unsafe trong thân của một hàm unsafe, bạn vẫn cần
+sử dụng một khối `unsafe`, giống như bên trong một hàm thông thường, và trình biên dịch
+sẽ cảnh báo bạn nếu bạn quên. Điều này giúp giữ cho các khối `unsafe` nhỏ nhất
+có thể, vì các thao tác unsafe có thể không cần thiết trong toàn bộ thân
+hàm.
 
-#### Creating a Safe Abstraction over Unsafe Code
+#### Tạo một trừu tượng an toàn trên mã unsafe
 
-Just because a function contains unsafe code doesn’t mean we need to mark the
-entire function as unsafe. In fact, wrapping unsafe code in a safe function is
-a common abstraction. As an example, let’s study the `split_at_mut` function
-from the standard library, which requires some unsafe code. We’ll explore how
-we might implement it. This safe method is defined on mutable slices: it takes
-one slice and makes it two by splitting the slice at the index given as an
-argument. Listing 20-4 shows how to use `split_at_mut`.
+Chỉ vì một hàm chứa mã unsafe không có nghĩa là chúng ta cần đánh dấu
+toàn bộ hàm là unsafe. Trên thực tế, việc bao bọc mã unsafe trong một hàm an toàn là
+một sự trừu tượng phổ biến. Ví dụ, hãy nghiên cứu hàm `split_at_mut`
+từ thư viện chuẩn, vốn yêu cầu một số mã unsafe. Chúng ta sẽ khám phá cách
+chúng ta có thể triển khai nó. Phương thức an toàn này được định nghĩa trên các slice có thể thay đổi: nó nhận
+một slice và tạo thành hai bằng cách chia slice tại chỉ số (index) được đưa vào như một
+đối số. Danh sách 20-4 cho thấy cách sử dụng `split_at_mut`.
 
-<Listing number="20-4" caption="Using the safe `split_at_mut` function">
+<Listing number="20-4" caption="Sử dụng hàm `split_at_mut` an toàn">
 
 ```rust
 {{#rustdoc_include ../listings/ch20-advanced-features/listing-20-04/src/main.rs:here}}
@@ -209,12 +209,12 @@ argument. Listing 20-4 shows how to use `split_at_mut`.
 
 </Listing>
 
-We can’t implement this function using only safe Rust. An attempt might look
-something like Listing 20-5, which won’t compile. For simplicity, we’ll
-implement `split_at_mut` as a function rather than a method and only for slices
-of `i32` values rather than for a generic type `T`.
+Chúng ta không thể triển khai hàm này chỉ bằng cách sử dụng Rust an toàn. Một nỗ lực có thể trông
+giống như Danh sách 20-5, cái mà sẽ không được biên dịch. Để đơn giản, chúng ta sẽ
+triển khai `split_at_mut` dưới dạng một hàm thay vì một phương thức và chỉ dành cho các slice
+của các giá trị `i32` thay vì cho một kiểu generic `T`.
 
-<Listing number="20-5" caption="An attempted implementation of `split_at_mut` using only safe Rust">
+<Listing number="20-5" caption="Một nỗ lực triển khai `split_at_mut` chỉ sử dụng Rust an toàn">
 
 ```rust,ignore,does_not_compile
 {{#rustdoc_include ../listings/ch20-advanced-features/listing-20-05/src/main.rs:here}}
@@ -222,32 +222,32 @@ of `i32` values rather than for a generic type `T`.
 
 </Listing>
 
-This function first gets the total length of the slice. Then it asserts that
-the index given as a parameter is within the slice by checking whether it’s
-less than or equal to the length. The assertion means that if we pass an index
-that is greater than the length to split the slice at, the function will panic
-before it attempts to use that index.
+Hàm này trước tiên lấy tổng độ dài của slice. Sau đó, nó xác nhận (assert) rằng
+chỉ số được đưa vào như một tham số nằm trong slice bằng cách kiểm tra xem nó có
+nhỏ hơn hoặc bằng độ dài hay không. Việc xác nhận có nghĩa là nếu chúng ta truyền một chỉ số
+lớn hơn độ dài để chia slice, hàm sẽ panic
+trước khi nó cố gắng sử dụng chỉ số đó.
 
-Then we return two mutable slices in a tuple: one from the start of the
-original slice to the `mid` index and another from `mid` to the end of the
+Sau đó, chúng ta trả về hai slice có thể thay đổi trong một tuple: một từ đầu của
+slice ban đầu đến chỉ số `mid` và một slice khác từ `mid` đến cuối của
 slice.
 
-When we try to compile the code in Listing 20-5, we’ll get an error.
+Khi chúng ta cố gắng biên dịch mã trong Danh sách 20-5, chúng ta sẽ nhận được một lỗi.
 
 ```console
 {{#include ../listings/ch20-advanced-features/listing-20-05/output.txt}}
 ```
 
-Rust’s borrow checker can’t understand that we’re borrowing different parts of
-the slice; it only knows that we’re borrowing from the same slice twice.
-Borrowing different parts of a slice is fundamentally okay because the two
-slices aren’t overlapping, but Rust isn’t smart enough to know this. When we
-know code is okay, but Rust doesn’t, it’s time to reach for unsafe code.
+Trình kiểm tra mượn của Rust không thể hiểu rằng chúng ta đang mượn các phần khác nhau của
+slice; nó chỉ biết rằng chúng ta đang mượn từ cùng một slice hai lần.
+Việc mượn các phần khác nhau của một slice về cơ bản là ổn vì hai
+slice không chồng lấn lên nhau, nhưng Rust không đủ thông minh để biết điều này. Khi chúng ta
+biết mã nguồn là ổn, nhưng Rust thì không, đó là lúc cần tìm đến mã unsafe.
 
-Listing 20-6 shows how to use an `unsafe` block, a raw pointer, and some calls
-to unsafe functions to make the implementation of `split_at_mut` work.
+Danh sách 20-6 cho thấy cách sử dụng một khối `unsafe`, một con trỏ thô, và một số lời gọi
+đến các hàm unsafe để làm cho việc triển khai `split_at_mut` hoạt động.
 
-<Listing number="20-6" caption="Using unsafe code in the implementation of the `split_at_mut` function">
+<Listing number="20-6" caption="Sử dụng mã unsafe trong việc triển khai hàm `split_at_mut` ">
 
 ```rust
 {{#rustdoc_include ../listings/ch20-advanced-features/listing-20-06/src/main.rs:here}}
@@ -255,42 +255,42 @@ to unsafe functions to make the implementation of `split_at_mut` work.
 
 </Listing>
 
-Recall from [“The Slice Type”][the-slice-type]<!-- ignore --> in Chapter 4 that
-slices are a pointer to some data and the length of the slice. We use the `len`
-method to get the length of a slice and the `as_mut_ptr` method to access the
-raw pointer of a slice. In this case, because we have a mutable slice to `i32`
-values, `as_mut_ptr` returns a raw pointer with the type `*mut i32`, which we’ve
-stored in the variable `ptr`.
+Hãy nhớ lại từ [“Kiểu Slice”][the-slice-type]<!-- ignore --> ở Chương 4 rằng
+các slice là một con trỏ đến một số dữ liệu và độ dài của slice. Chúng ta sử dụng phương thức `len`
+để lấy độ dài của một slice và phương thức `as_mut_ptr` để truy cập
+con trỏ thô của một slice. Trong trường hợp này, vì chúng ta có một slice có thể thay đổi cho các giá trị `i32`
+, `as_mut_ptr` trả về một con trỏ thô với kiểu `*mut i32`, cái mà chúng ta đã
+lưu trữ trong biến `ptr`.
 
-We keep the assertion that the `mid` index is within the slice. Then we get to
-the unsafe code: the `slice::from_raw_parts_mut` function takes a raw pointer
-and a length, and it creates a slice. We use it to create a slice that starts
-from `ptr` and is `mid` items long. Then we call the `add` method on `ptr` with
-`mid` as an argument to get a raw pointer that starts at `mid`, and we create a
-slice using that pointer and the remaining number of items after `mid` as the
-length.
+Chúng ta giữ nguyên phần xác nhận rằng chỉ số `mid` nằm trong slice. Sau đó, chúng ta đi đến
+mã unsafe: hàm `slice::from_raw_parts_mut` nhận một con trỏ thô
+và một độ dài, và nó tạo ra một slice. Chúng ta sử dụng nó để tạo ra một slice bắt đầu
+từ `ptr` và dài `mid` phần tử. Sau đó, chúng ta gọi phương thức `add` trên `ptr` với
+`mid` như một đối số để lấy một con trỏ thô bắt đầu tại `mid`, và chúng ta tạo ra một
+slice bằng cách sử dụng con trỏ đó và số lượng phần tử còn lại sau `mid` làm
+độ dài.
 
-The function `slice::from_raw_parts_mut` is unsafe because it takes a raw
-pointer and must trust that this pointer is valid. The `add` method on raw
-pointers is also unsafe because it must trust that the offset location is also
-a valid pointer. Therefore, we had to put an `unsafe` block around our calls to
-`slice::from_raw_parts_mut` and `add` so we could call them. By looking at
-the code and by adding the assertion that `mid` must be less than or equal to
-`len`, we can tell that all the raw pointers used within the `unsafe` block
-will be valid pointers to data within the slice. This is an acceptable and
-appropriate use of `unsafe`.
+Hàm `slice::from_raw_parts_mut` là unsafe bởi vì nó nhận một
+con trỏ thô và phải tin rằng con trỏ này là hợp lệ. Phương thức `add` trên các con trỏ
+thô cũng là unsafe bởi vì nó phải tin rằng vị trí offset cũng
+là một con trỏ hợp lệ. Do đó, chúng ta đã phải đặt một khối `unsafe` xung quanh các lời gọi của chúng ta đến
+`slice::from_raw_parts_mut` và `add` để chúng ta có thể gọi chúng. Bằng cách xem xét
+mã nguồn và bằng cách thêm phần xác nhận rằng `mid` phải nhỏ hơn hoặc bằng
+`len`, chúng ta có thể khẳng định rằng tất cả các con trỏ thô được sử dụng bên trong khối `unsafe`
+sẽ là các con trỏ hợp lệ đến dữ liệu bên trong slice. Đây là một cách sử dụng `unsafe`
+chấp nhận được và phù hợp.
 
-Note that we don’t need to mark the resultant `split_at_mut` function as
-`unsafe`, and we can call this function from safe Rust. We’ve created a safe
-abstraction to the unsafe code with an implementation of the function that uses
-`unsafe` code in a safe way, because it creates only valid pointers from the
-data this function has access to.
+Lưu ý rằng chúng ta không cần đánh dấu hàm `split_at_mut` kết quả là
+`unsafe`, và chúng ta có thể gọi hàm này từ Rust an toàn. Chúng ta đã tạo ra một
+trừu tượng an toàn cho mã unsafe với một triển khai của hàm có sử dụng
+mã `unsafe` theo cách an toàn, bởi vì nó chỉ tạo ra các con trỏ hợp lệ từ
+dữ liệu mà hàm này có quyền truy cập.
 
-In contrast, the use of `slice::from_raw_parts_mut` in Listing 20-7 would
-likely crash when the slice is used. This code takes an arbitrary memory
-location and creates a slice 10,000 items long.
+Ngược lại, việc sử dụng `slice::from_raw_parts_mut` trong Danh sách 20-7 có thể
+sẽ gây crash khi slice được sử dụng. Mã này lấy một vị trí bộ nhớ tùy ý
+và tạo ra một slice dài 10.000 phần tử.
 
-<Listing number="20-7" caption="Creating a slice from an arbitrary memory location">
+<Listing number="20-7" caption="Tạo một slice từ một vị trí bộ nhớ tùy ý">
 
 ```rust
 {{#rustdoc_include ../listings/ch20-advanced-features/listing-20-07/src/main.rs:here}}
@@ -298,26 +298,26 @@ location and creates a slice 10,000 items long.
 
 </Listing>
 
-We don’t own the memory at this arbitrary location, and there is no guarantee
-that the slice this code creates contains valid `i32` values. Attempting to use
-`values` as though it’s a valid slice results in undefined behavior.
+Chúng ta không sở hữu bộ nhớ tại vị trí tùy ý này, và không có gì đảm bảo
+rằng slice mà mã này tạo ra chứa các giá trị `i32` hợp lệ. Việc cố gắng sử dụng
+`values` như thể nó là một slice hợp lệ sẽ dẫn đến hành vi không xác định (undefined behavior).
 
-#### Using `extern` Functions to Call External Code
+#### Sử dụng các hàm `extern` để gọi mã bên ngoài
 
-Sometimes, your Rust code might need to interact with code written in another
-language. For this, Rust has the keyword `extern` that facilitates the creation
-and use of a _Foreign Function Interface (FFI)_. An FFI is a way for a
-programming language to define functions and enable a different (foreign)
-programming language to call those functions.
+Đôi khi, mã Rust của bạn có thể cần tương tác với mã được viết bằng một ngôn ngữ khác.
+Đối với việc này, Rust có từ khóa `extern` tạo điều kiện thuận lợi cho việc tạo ra
+và sử dụng một _Foreign Function Interface (FFI)_ (Giao diện hàm ngoại). Một FFI là một cách để một
+ngôn ngữ lập trình định nghĩa các hàm và cho phép một ngôn ngữ lập trình khác (ngoại lai)
+gọi những hàm đó.
 
-Listing 20-8 demonstrates how to set up an integration with the `abs` function
-from the C standard library. Functions declared within `extern` blocks are
-generally unsafe to call from Rust code, so `extern` blocks must also be marked
-`unsafe`. The reason is that other languages don’t enforce Rust’s rules and
-guarantees, and Rust can’t check them, so responsibility falls on the programmer
-to ensure safety.
+Danh sách 20-8 minh họa cách thiết lập tích hợp với hàm `abs`
+từ thư viện chuẩn C. Các hàm được khai báo bên trong các khối `extern` thường
+là không an toàn để gọi từ mã Rust, vì vậy các khối `extern` cũng phải được đánh dấu
+`unsafe`. Lý do là các ngôn ngữ khác không thực thi các quy tắc và
+đảm bảo của Rust, và Rust không thể kiểm tra chúng, vì vậy trách nhiệm thuộc về lập trình viên
+để đảm bảo an toàn.
 
-<Listing number="20-8" file-name="src/main.rs" caption="Declaring and calling an `extern` function defined in another language">
+<Listing number="20-8" file-name="src/main.rs" caption="Khai báo và gọi một hàm `extern` được định nghĩa trong một ngôn ngữ khác">
 
 ```rust
 {{#rustdoc_include ../listings/ch20-advanced-features/listing-20-08/src/main.rs}}
@@ -325,22 +325,22 @@ to ensure safety.
 
 </Listing>
 
-Within the `unsafe extern "C"` block, we list the names and signatures of
-external functions from another language we want to call. The `"C"` part defines
-which _application binary interface (ABI)_ the external function uses: the ABI
-defines how to call the function at the assembly level. The `"C"` ABI is the
-most common and follows the C programming language’s ABI. Information about all
-the ABIs Rust supports is available in [the Rust Reference][ABI].
+Bên trong khối `unsafe extern "C"`, chúng ta liệt kê tên và chữ ký của
+các hàm bên ngoài từ một ngôn ngữ khác mà chúng ta muốn gọi. Phần `"C"` xác định
+_giao diện nhị phân ứng dụng (application binary interface - ABI)_ nào mà hàm bên ngoài sử dụng: ABI
+định nghĩa cách gọi hàm ở cấp độ assembly. ABI `"C"` là
+phổ biến nhất và tuân theo ABI của ngôn ngữ lập trình C. Thông tin về tất cả
+các ABI mà Rust hỗ trợ có sẵn trong [Tài liệu tham khảo Rust][ABI].
 
-Every item declared within an `unsafe extern` block is implicitly `unsafe`.
-However, some FFI functions *are* safe to call. For example, the `abs` function
-from C’s standard library does not have any memory safety considerations and we
-know it can be called with any `i32`. In cases like this, we can use the `safe`
-keyword to say that this specific function is safe to call even though it is in
-an `unsafe extern` block. Once we make that change, calling it no longer
-requires an `unsafe` block, as shown in Listing 20-9.
+Mọi mục được khai báo bên trong một khối `unsafe extern` đều ngầm định là `unsafe`.
+Tuy nhiên, một số hàm FFI _là_ an toàn để gọi. Ví dụ, hàm `abs`
+từ thư viện chuẩn của C không có bất kỳ cân nhắc nào về an toàn bộ nhớ và chúng ta
+biết nó có thể được gọi với bất kỳ `i32` nào. Trong những trường hợp như thế này, chúng ta có thể sử dụng từ khóa `safe`
+để nói rằng hàm cụ thể này là an toàn để gọi mặc dù nó nằm trong
+một khối `unsafe extern`. Một khi chúng ta thực hiện thay đổi đó, việc gọi nó không còn
+yêu cầu một khối `unsafe` nữa, như được trình bày trong Danh sách 20-9.
 
-<Listing number="20-9" file-name="src/main.rs" caption="Explicitly marking a function as `safe` within an `unsafe extern` block and calling it safely">
+<Listing number="20-9" file-name="src/main.rs" caption="Đánh dấu rõ ràng một hàm là `safe` bên trong một khối `unsafe extern` và gọi nó một cách an toàn">
 
 ```rust
 {{#rustdoc_include ../listings/ch20-advanced-features/listing-20-09/src/main.rs}}
@@ -348,28 +348,28 @@ requires an `unsafe` block, as shown in Listing 20-9.
 
 </Listing>
 
-Marking a function as `safe` does not inherently make it safe! Instead, it is
-like a promise you are making to Rust that it _is_ safe. It is still your
-responsibility to make sure that promise is kept!
+Việc đánh dấu một hàm là `safe` không vốn dĩ làm cho nó an toàn! Thay vào đó, nó
+giống như một lời hứa bạn đang thực hiện với Rust rằng nó _thật sự_ an toàn. Đó vẫn là
+trách nhiệm của bạn để đảm bảo lời hứa đó được giữ vững!
 
-> #### Calling Rust Functions from Other Languages
+> #### Gọi các hàm Rust từ các ngôn ngữ khác
 >
-> We can also use `extern` to create an interface that allows other languages to
-> call Rust functions. Instead of creating a whole `extern` block, we add the
-> `extern` keyword and specify the ABI to use just before the `fn` keyword for
-> the relevant function. We also need to add an `#[unsafe(no_mangle)]`
-> annotation to tell the Rust compiler not to mangle the name of this function.
-> _Mangling_ is when a compiler changes the name we’ve given a function to a
-> different name that contains more information for other parts of the
-> compilation process to consume but is less human readable. Every programming
-> language compiler mangles names slightly differently, so for a Rust function
-> to be nameable by other languages, we must disable the Rust compiler’s name
-> mangling. This is unsafe because there might be name collisions across
-> libraries without the built-in mangling, so it is our responsibility to make
-> sure the name we choose is safe to export without mangling.
+> Chúng ta cũng có thể sử dụng `extern` để tạo một giao diện cho phép các ngôn ngữ khác
+> gọi các hàm Rust. Thay vì tạo toàn bộ khối `extern`, chúng ta thêm từ khóa
+> `extern` và chỉ định ABI sẽ sử dụng ngay trước từ khóa `fn` cho
+> hàm có liên quan. Chúng ta cũng cần thêm một chú thích `#[unsafe(no_mangle)]`
+> để yêu cầu trình biên dịch Rust không làm xáo trộn (mangle) tên của hàm này.
+> _Mangling_ là khi một trình biên dịch thay đổi tên chúng ta đã đặt cho một hàm thành một
+> tên khác chứa nhiều thông tin hơn cho các phần khác của
+> quá trình biên dịch tiêu thụ nhưng ít dễ đọc hơn đối với con người. Mọi ngôn ngữ lập trình
+> trình biên dịch ngôn ngữ đều xáo trộn tên hơi khác nhau, vì vậy để một hàm Rust
+> có thể được đặt tên bởi các ngôn ngữ khác, chúng ta phải vô hiệu hóa việc xáo trộn tên của
+> trình biên dịch Rust. Việc này là unsafe bởi vì có thể có sự xung đột tên giữa
+> các thư viện nếu không có tính năng xáo trộn tích hợp, vì vậy trách nhiệm của chúng ta là đảm bảo
+> rằng tên chúng ta chọn là an toàn để xuất ra mà không cần xáo trộn.
 >
-> In the following example, we make the `call_from_c` function accessible from
-> C code, after it’s compiled to a shared library and linked from C:
+> Trong ví dụ sau, chúng ta làm cho hàm `call_from_c` có thể truy cập được từ
+> mã C, sau khi nó được biên dịch thành một thư viện chia sẻ (shared library) và được liên kết từ C:
 >
 > ```rust
 > #[unsafe(no_mangle)]
@@ -378,20 +378,20 @@ responsibility to make sure that promise is kept!
 > }
 > ```
 >
-> This usage of `extern` requires `unsafe` only in the attribute, not on the
-> `extern` block.
+> Cách sử dụng `extern` này chỉ yêu cầu `unsafe` trong thuộc tính (attribute), không phải trên
+> khối `extern`.
 
-### Accessing or Modifying a Mutable Static Variable
+### Truy cập hoặc Sửa đổi một Biến tĩnh có thể thay đổi
 
-In this book, we’ve not yet talked about global variables, which Rust does
-support but can be problematic with Rust’s ownership rules. If two threads are
-accessing the same mutable global variable, it can cause a data race.
+Trong cuốn sách này, chúng ta vẫn chưa nói về các biến toàn cục (global variables), cái mà Rust có
+hỗ trợ nhưng có thể gây rắc rối với các quy tắc sở hữu của Rust. Nếu hai luồng (thread)
+đang truy cập cùng một biến toàn cục có thể thay đổi, nó có thể gây ra một cuộc đua dữ liệu.
 
-In Rust, global variables are called _static_ variables. Listing 20-10 shows an
-example declaration and use of a static variable with a string slice as a
-value.
+Trong Rust, các biến toàn cục được gọi là các biến _tĩnh_ (static). Danh sách 20-10 cho thấy một
+ví dụ về khai báo và sử dụng một biến tĩnh với một string slice làm
+giá trị.
 
-<Listing number="20-10" file-name="src/main.rs" caption="Defining and using an immutable static variable">
+<Listing number="20-10" file-name="src/main.rs" caption="Định nghĩa và sử dụng một biến tĩnh bất biến">
 
 ```rust
 {{#rustdoc_include ../listings/ch20-advanced-features/listing-20-10/src/main.rs}}
@@ -399,23 +399,23 @@ value.
 
 </Listing>
 
-Static variables are similar to constants, which we discussed in
-[“Constants”][differences-between-variables-and-constants]<!-- ignore --> in
-Chapter 3. The names of static variables are in `SCREAMING_SNAKE_CASE` by
-convention. Static variables can only store references with the `'static`
-lifetime, which means the Rust compiler can figure out the lifetime and we
-aren’t required to annotate it explicitly. Accessing an immutable static
-variable is safe.
+Các biến tĩnh tương tự như các hằng số (constants), điều mà chúng ta đã thảo luận trong
+[“Hằng số”][differences-between-variables-and-constants]<!-- ignore --> ở
+Chương 3. Tên của các biến tĩnh theo quy ước là `SCREAMING_SNAKE_CASE`.
+Các biến tĩnh chỉ có thể lưu trữ các tham chiếu với lifetime `'static`
+, có nghĩa là trình biên dịch Rust có thể tự tìm ra lifetime và chúng ta
+không bắt buộc phải chú thích nó một cách rõ ràng. Việc truy cập một biến tĩnh
+bất biến là an toàn.
 
-A subtle difference between constants and immutable static variables is that
-values in a static variable have a fixed address in memory. Using the value
-will always access the same data. Constants, on the other hand, are allowed to
-duplicate their data whenever they’re used. Another difference is that static
-variables can be mutable. Accessing and modifying mutable static variables is
-_unsafe_. Listing 20-11 shows how to declare, access, and modify a mutable
-static variable named `COUNTER`.
+Một sự khác biệt nhỏ giữa các hằng số và các biến tĩnh bất biến là
+các giá trị trong một biến tĩnh có một địa chỉ cố định trong bộ nhớ. Việc sử dụng giá trị
+sẽ luôn truy cập vào cùng một dữ liệu. Mặt khác, các hằng số được phép
+sao chép dữ liệu của chúng bất cứ khi nào chúng được sử dụng. Một sự khác biệt khác là các biến tĩnh
+có thể thay đổi được. Việc truy cập và sửa đổi các biến tĩnh có thể thay đổi là
+_unsafe_. Danh sách 20-11 cho thấy cách khai báo, truy cập và sửa đổi một biến tĩnh
+có thể thay đổi tên là `COUNTER`.
 
-<Listing number="20-11" file-name="src/main.rs" caption="Reading from or writing to a mutable static variable is unsafe">
+<Listing number="20-11" file-name="src/main.rs" caption="Đọc từ hoặc ghi vào một biến tĩnh có thể thay đổi là unsafe">
 
 ```rust
 {{#rustdoc_include ../listings/ch20-advanced-features/listing-20-11/src/main.rs}}
@@ -423,42 +423,42 @@ static variable named `COUNTER`.
 
 </Listing>
 
-As with regular variables, we specify mutability using the `mut` keyword. Any
-code that reads or writes from `COUNTER` must be within an `unsafe` block. This
-code compiles and prints `COUNTER: 3` as we would expect because it’s single
-threaded. Having multiple threads access `COUNTER` would likely result in data
-races, so it is undefined behavior. Therefore, we need to mark the entire
-function as `unsafe`, and document the safety limitation, so anyone calling the
-function knows what they are and are not allowed to do safely.
+Giống như các biến thông thường, chúng ta chỉ định khả năng thay đổi bằng cách sử dụng từ khóa `mut`. Bất kỳ
+mã nguồn nào đọc hoặc ghi từ `COUNTER` đều phải nằm trong một khối `unsafe`. Mã
+này biên dịch và in ra `COUNTER: 3` như chúng ta mong đợi vì nó là đơn
+luồng. Việc có nhiều luồng truy cập `COUNTER` có khả năng dẫn đến các cuộc đua
+dữ liệu, vì vậy nó là hành vi không xác định. Do đó, chúng ta cần đánh dấu toàn bộ
+hàm là `unsafe`, và ghi lại các hạn chế về an toàn, để bất kỳ ai gọi
+hàm đều biết những gì họ được và không được phép làm một cách an toàn.
 
-Whenever we write an unsafe function, it is idiomatic to write a comment
-starting with `SAFETY` and explaining what the caller needs to do to call the
-function safely. Likewise, whenever we perform an unsafe operation, it is
-idiomatic to write a comment starting with `SAFETY` to explain how the safety
-rules are upheld.
+Bất cứ khi nào chúng ta viết một hàm unsafe, theo quy ước là nên viết một bình luận
+bắt đầu bằng `SAFETY` và giải thích những gì người gọi cần làm để gọi
+hàm một cách an toàn. Tương tự, bất cứ khi nào chúng ta thực hiện một thao tác unsafe, theo
+quy ước là nên viết một bình luận bắt đầu bằng `SAFETY` để giải thích cách các quy tắc
+an toàn được duy trì.
 
-Additionally, the compiler will not allow you to create references to a mutable
-static variable. You can only access it via a raw pointer, created with one of
-the raw borrow operators. That includes in cases where the reference is created
-invisibly, as when it is used in the `println!` in this code listing. The
-requirement that references to static mutable variables can only be created via
-raw pointers helps make the safety requirements for using them more obvious.
+Ngoài ra, trình biên dịch sẽ không cho phép bạn tạo các tham chiếu đến một biến tĩnh
+có thể thay đổi. Bạn chỉ có thể truy cập nó thông qua một con trỏ thô, được tạo bằng một trong
+các toán tử mượn thô. Điều đó bao gồm cả những trường hợp mà tham chiếu được tạo ra
+vô hình, chẳng hạn như khi nó được sử dụng trong `println!` trong danh sách mã này. Yêu
+cầu rằng các tham chiếu đến các biến tĩnh có thể thay đổi chỉ có thể được tạo thông qua
+các con trỏ thô giúp làm cho các yêu cầu an toàn khi sử dụng chúng trở nên rõ ràng hơn.
 
-With mutable data that is globally accessible, it’s difficult to ensure there
-are no data races, which is why Rust considers mutable static variables to be
-unsafe. Where possible, it’s preferable to use the concurrency techniques and
-thread-safe smart pointers we discussed in Chapter 16 so the compiler checks
-that data access from different threads is done safely.
+Với dữ liệu có thể thay đổi có thể truy cập toàn cục, thật khó để đảm bảo không có
+cuộc đua dữ liệu nào, đó là lý do tại sao Rust coi các biến tĩnh có thể thay đổi là
+unsafe. Khi có thể, tốt hơn là sử dụng các kỹ thuật đồng thời và
+các con trỏ thông minh an toàn với luồng mà chúng ta đã thảo luận trong Chương 16 để trình biên dịch kiểm tra
+rằng việc truy cập dữ liệu từ các luồng khác nhau được thực hiện một cách an toàn.
 
-### Implementing an Unsafe Trait
+### Thực thi một Trait Unsafe
 
-We can use `unsafe` to implement an unsafe trait. A trait is unsafe when at
-least one of its methods has some invariant that the compiler can’t verify. We
-declare that a trait is `unsafe` by adding the `unsafe` keyword before `trait`
-and marking the implementation of the trait as `unsafe` too, as shown in
-Listing 20-12.
+Chúng ta có thể sử dụng `unsafe` để thực thi một trait unsafe. Một trait là unsafe khi có ít nhất
+một trong các phương thức của nó có một số bất biến (invariant) mà trình biên dịch không thể xác minh.
+Chúng ta khai báo rằng một trait là `unsafe` bằng cách thêm từ khóa `unsafe` trước `trait`
+và cũng đánh dấu việc thực thi trait đó là `unsafe`, như được trình bày trong
+Danh sách 20-12.
 
-<Listing number="20-12" caption="Defining and implementing an unsafe trait">
+<Listing number="20-12" caption="Định nghĩa và thực thi một trait unsafe">
 
 ```rust
 {{#rustdoc_include ../listings/ch20-advanced-features/listing-20-12/src/main.rs:here}}
@@ -466,87 +466,87 @@ Listing 20-12.
 
 </Listing>
 
-By using `unsafe impl`, we’re promising that we’ll uphold the invariants that
-the compiler can’t verify.
+Bằng cách sử dụng `unsafe impl`, chúng ta đang hứa rằng chúng ta sẽ duy trì các bất biến mà
+trình biên dịch không thể xác minh.
 
-As an example, recall the `Sync` and `Send` marker traits we discussed in
-[“Extensible Concurrency with the `Sync` and `Send`
-Traits”][extensible-concurrency-with-the-sync-and-send-traits]<!-- ignore --> in
-Chapter 16: the compiler implements these traits automatically if our types are
-composed entirely of other types that implement `Send` and `Sync`. If we
-implement a type that contains a type that does not implement `Send` or `Sync`,
-such as raw pointers, and we want to mark that type as `Send` or `Sync`, we must
-use `unsafe`. Rust can’t verify that our type upholds the guarantees that it can
-be safely sent across threads or accessed from multiple threads; therefore, we
-need to do those checks manually and indicate as such with `unsafe`.
+Ví dụ, hãy nhớ lại các marker trait `Sync` và `Send` mà chúng ta đã thảo luận trong
+[“Đồng thời có thể mở rộng với các trait `Sync` và `Send`
+Traits”][extensible-concurrency-with-the-sync-and-send-traits]<!-- ignore --> ở
+Chương 16: trình biên dịch tự động thực thi các trait này nếu các kiểu của chúng ta được
+cấu thành hoàn toàn từ các kiểu khác có thực thi `Send` và `Sync`. Nếu chúng ta
+thực thi một kiểu có chứa một kiểu không thực thi `Send` hoặc `Sync`,
+chẳng hạn như các con trỏ thô, và chúng ta muốn đánh dấu kiểu đó là `Send` hoặc `Sync`, chúng ta phải
+sử dụng `unsafe`. Rust không thể xác minh rằng kiểu của chúng ta duy trì các đảm bảo rằng nó có thể
+được gửi an toàn giữa các luồng hoặc được truy cập từ nhiều luồng; do đó, chúng ta
+cần thực hiện các kiểm tra đó một cách thủ công và chỉ định như vậy bằng `unsafe`.
 
-### Accessing Fields of a Union
+### Truy cập các trường của một Union
 
-The final action that works only with `unsafe` is accessing fields of a union. A
-`union` is similar to a `struct`, but only one declared field is used in a
-particular instance at one time. Unions are primarily used to interface with
-unions in C code. Accessing union fields is unsafe because Rust can’t guarantee
-the type of the data currently being stored in the union instance. You can learn
-more about unions in [the Rust Reference][unions].
+Hành động cuối cùng chỉ hoạt động với `unsafe` là truy cập các trường của một union. Một
+`union` tương tự như một `struct`, nhưng chỉ một trường được khai báo được sử dụng trong một
+thực thể (instance) cụ thể tại một thời điểm. Các union chủ yếu được sử dụng để giao tiếp với
+các union trong mã C. Việc truy cập các trường của union là unsafe bởi vì Rust không thể đảm bảo
+kiểu dữ liệu hiện đang được lưu trữ trong thực thể union. Bạn có thể tìm hiểu
+thêm về union trong [Tài liệu tham khảo Rust][unions].
 
-### Using Miri to Check Unsafe Code
+### Sử dụng Miri để kiểm tra mã Unsafe
 
-When writing unsafe code, you might want to check that what you have written
-actually is safe and correct. One of the best ways to do that is to use
-Miri, an official Rust tool for detecting undefined behavior. Whereas
-the borrow checker is a _static_ tool that works at compile time, Miri is a
-_dynamic_ tool that works at runtime. It checks your code by running your
-program, or its test suite, and detecting when you violate the rules it
-understands about how Rust should work.
+Khi viết mã unsafe, bạn có thể muốn kiểm tra xem những gì bạn đã viết
+thực sự an toàn và chính xác hay không. Một trong những cách tốt nhất để làm điều đó là sử dụng
+Miri, một công cụ chính thức của Rust để phát hiện hành vi không xác định. Trong khi
+trình kiểm tra mượn là một công cụ _tĩnh_ hoạt động tại thời điểm biên dịch, Miri là một
+công cụ _động_ hoạt động tại thời điểm thực thi. Nó kiểm tra mã của bạn bằng cách chạy
+chương trình của bạn, hoặc bộ test của nó, và phát hiện khi bạn vi phạm các quy tắc mà nó
+hiểu về cách Rust nên hoạt động.
 
-Using Miri requires a nightly build of Rust (which we talk about more in
-[Appendix G: How Rust is Made and “Nightly Rust”][nightly]). You can install
-both a nightly version of Rust and the Miri tool by typing `rustup +nightly
-component add miri`. This does not change what version of Rust your project
-uses; it only adds the tool to your system so you can use it when you want to.
-You can run Miri on a project by typing `cargo +nightly miri run` or `cargo
+Việc sử dụng Miri yêu cầu một bản build nightly của Rust (điều mà chúng ta nói nhiều hơn trong
+[Phụ lục G: Rust được tạo ra như thế nào và “Nightly Rust”][nightly]). Bạn có thể cài đặt
+cả phiên bản nightly của Rust và công cụ Miri bằng cách gõ `rustup +nightly
+component add miri`. Việc này không thay đổi phiên bản Rust mà dự án của bạn
+sử dụng; nó chỉ thêm công cụ vào hệ thống của bạn để bạn có thể sử dụng khi muốn.
+Bạn có thể chạy Miri trên một dự án bằng cách gõ `cargo +nightly miri run` hoặc `cargo
 +nightly miri test`.
 
-For an example of how helpful this can be, consider what happens when we run it
-against Listing 20-11.
+Để thấy một ví dụ về việc công cụ này hữu ích như thế nào, hãy xem xét điều gì xảy ra khi chúng ta chạy nó
+với Danh sách 20-11.
 
 ```console
 {{#include ../listings/ch20-advanced-features/listing-20-11/output.txt}}
 ```
 
-Miri correctly warns us that we have shared references to mutable data. Here,
-Miri issues only a warning because this is not guaranteed to be undefined
-behavior in this case, and it does not tell us how to fix the problem. but at
-least we know there is a risk of undefined behavior and can think about how to
-make the code safe. In some cases, Miri can also detect outright errors—code
-patterns that are _sure_ to be wrong—and make recommendations about how to fix
-those errors.
+Miri cảnh báo chính xác rằng chúng ta có các tham chiếu dùng chung cho dữ liệu có thể thay đổi. Ở đây,
+Miri chỉ đưa ra một cảnh báo vì điều này không được đảm bảo là hành vi không xác định
+trong trường hợp này, và nó không cho chúng ta biết cách khắc phục vấn đề. Nhưng ít
+nhất chúng ta biết có nguy cơ xảy ra hành vi không xác định và có thể suy nghĩ về cách
+làm cho mã nguồn an toàn. Trong một số trường hợp, Miri cũng có thể phát hiện các lỗi hoàn toàn—các mẫu mã
+chắc chắn là sai—và đưa ra các khuyến nghị về cách khắc phục
+những lỗi đó.
 
-Miri doesn’t catch everything you might get wrong when writing unsafe code. Miri
-is a dynamic analysis tool, so it only catches problems with code that actually
-gets run. That means you will need to use it in conjunction with good testing
-techniques to increase your confidence about the unsafe code you have written.
-Miri also does not cover every possible way your code can be unsound.
+Miri không bắt được mọi thứ bạn có thể làm sai khi viết mã unsafe. Miri
+là một công cụ phân tích động, vì vậy nó chỉ bắt được các vấn đề với mã nguồn thực sự
+được chạy. Điều đó có nghĩa là bạn sẽ cần sử dụng nó kết hợp với các kỹ thuật kiểm thử tốt
+để tăng sự tự tin của bạn về mã unsafe mà bạn đã viết.
+Miri cũng không bao quát mọi cách có thể khiến mã của bạn không an toàn (unsound).
 
-Put another way: If Miri _does_ catch a problem, you know there’s a bug, but
-just because Miri _doesn’t_ catch a bug doesn’t mean there isn’t a problem. It
-can catch a lot, though. Try running it on the other examples of unsafe code in
-this chapter and see what it says!
+Nói cách khác: Nếu Miri _thực sự_ bắt được một vấn đề, bạn biết là có bug, nhưng
+chỉ vì Miri _không_ bắt được bug không có nghĩa là không có vấn đề gì. Nó
+tuy nhiên có thể bắt được rất nhiều. Hãy thử chạy nó trên các ví dụ khác về mã unsafe trong
+chương này và xem nó nói gì!
 
-You can learn more about Miri at [its GitHub repository][miri].
+Bạn có thể tìm hiểu thêm về Miri tại [kho lưu trữ GitHub của nó][miri].
 
-### When to Use Unsafe Code
+### Khi nào nên sử dụng mã Unsafe
 
-Using `unsafe` to use one of the five superpowers just discussed
-isn’t wrong or even frowned upon, but it is trickier to get `unsafe` code
-correct because the compiler can’t help uphold memory safety. When you have a
-reason to use `unsafe` code, you can do so, and having the explicit `unsafe`
-annotation makes it easier to track down the source of problems when they occur.
-Whenever you write unsafe code, you can use Miri to help you be more confident
-that the code you have written upholds Rust’s rules.
+Việc sử dụng `unsafe` để sử dụng một trong năm siêu năng lực vừa được thảo luận
+không phải là sai hay thậm chí là bị phản đối, nhưng việc viết mã `unsafe`
+chính xác thì khó khăn hơn vì trình biên dịch không thể giúp duy trì an toàn bộ nhớ. Khi bạn có một
+lý do để sử dụng mã `unsafe`, bạn có thể làm như vậy, và việc có chú thích `unsafe` rõ ràng
+giúp việc truy vết nguồn gốc của các vấn đề khi chúng xảy ra trở nên dễ dàng hơn.
+Bất cứ khi nào bạn viết mã unsafe, bạn có thể sử dụng Miri để giúp bạn tự tin hơn
+rằng mã bạn đã viết tuân thủ các quy tắc của Rust.
 
-For a much deeper exploration of how to work effectively with unsafe Rust, read
-Rust’s official guide to the subject, the [Rustonomicon][nomicon].
+Để khám phá sâu hơn về cách làm việc hiệu quả với unsafe Rust, hãy đọc
+hướng dẫn chính thức của Rust về chủ đề này, [Rustonomicon][nomicon].
 
 {{#quiz ../quizzes/ch19-01-unsafe-rust.toml}}
 

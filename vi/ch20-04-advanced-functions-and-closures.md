@@ -1,28 +1,28 @@
-## Advanced Functions and Closures
+## Các hàm và Closure nâng cao
 
-This section explores some advanced features related to functions and closures,
-including function pointers and returning closures.
+Phần này khám phá một số tính năng nâng cao liên quan đến các hàm và closure,
+bao gồm các con trỏ hàm và việc trả về các closure.
 
-### Function Pointers
+### Con trỏ hàm
 
-We’ve talked about how to pass closures to functions; you can also pass regular
-functions to functions! This technique is useful when you want to pass a
-function you’ve already defined rather than defining a new closure. Functions
-coerce to the type `fn` (with a lowercase _f_), not to be confused with the `Fn`
-closure trait. The `fn` type is called a _function pointer_. Passing functions
-with function pointers will allow you to use functions as arguments to other
-functions.
+Chúng ta đã nói về cách truyền các closure vào các hàm; bạn cũng có thể truyền các hàm
+thông thường vào các hàm! Kỹ thuật này hữu ích khi bạn muốn truyền một
+hàm mà bạn đã định nghĩa thay vì định nghĩa một closure mới. Các hàm
+ép kiểu (coerce) sang kiểu `fn` (với chữ _f_ viết thường), không được nhầm lẫn với trait
+closure `Fn`. Kiểu `fn` được gọi là một _con trỏ hàm_ (function pointer). Việc truyền các hàm
+bằng con trỏ hàm sẽ cho phép bạn sử dụng các hàm như là các đối số cho các hàm
+khác.
 
-The syntax for specifying that a parameter is a function pointer is similar to
-that of closures, as shown in Listing 20-28, where we’ve defined a function
-`add_one` that adds 1 to its parameter. The function `do_twice` takes two
-parameters: a function pointer to any function that takes an `i32` parameter
-and returns an `i32`, and one `i32` value. The `do_twice` function calls the
-function `f` twice, passing it the `arg` value, then adds the two function call
-results together. The `main` function calls `do_twice` with the arguments
-`add_one` and `5`.
+Cú pháp để chỉ định rằng một tham số là một con trỏ hàm tương tự như
+cú pháp của các closure, như được trình bày trong Danh sách 20-28, nơi chúng ta đã định nghĩa một hàm
+`add_one` cộng thêm 1 vào tham số của nó. Hàm `do_twice` nhận hai
+tham số: một con trỏ hàm trỏ đến bất kỳ hàm nào nhận một tham số `i32`
+và trả về một `i32`, và một giá trị `i32`. Hàm `do_twice` gọi
+hàm `f` hai lần, truyền cho nó giá trị `arg`, sau đó cộng kết quả của hai lần gọi hàm
+lại với nhau. Hàm `main` gọi `do_twice` với các đối số là
+`add_one` và `5`.
 
-<Listing number="20-28" file-name="src/main.rs" caption="Using the `fn` type to accept a function pointer as an argument">
+<Listing number="20-28" file-name="src/main.rs" caption="Sử dụng kiểu `fn` để chấp nhận một con trỏ hàm làm đối số">
 
 ```rust
 {{#rustdoc_include ../listings/ch20-advanced-features/listing-20-28/src/main.rs}}
@@ -30,31 +30,31 @@ results together. The `main` function calls `do_twice` with the arguments
 
 </Listing>
 
-This code prints `The answer is: 12`. We specify that the parameter `f` in
-`do_twice` is an `fn` that takes one parameter of type `i32` and returns an
-`i32`. We can then call `f` in the body of `do_twice`. In `main`, we can pass
-the function name `add_one` as the first argument to `do_twice`.
+Mã này in ra `The answer is: 12`. Chúng ta chỉ định rằng tham số `f` trong
+`do_twice` là một `fn` nhận một tham số kiểu `i32` và trả về một
+`i32`. Sau đó chúng ta có thể gọi `f` trong thân của `do_twice`. Trong `main`, chúng ta có thể truyền
+tên hàm `add_one` làm đối số đầu tiên cho `do_twice`.
 
-Unlike closures, `fn` is a type rather than a trait, so we specify `fn` as the
-parameter type directly rather than declaring a generic type parameter with one
-of the `Fn` traits as a trait bound.
+Không giống như các closure, `fn` là một kiểu thay vì là một trait, vì vậy chúng ta chỉ định `fn` làm
+kiểu tham số trực tiếp thay vì khai báo một tham số kiểu generic với một
+trong các trait `Fn` làm trait bound.
 
-Function pointers implement all three of the closure traits (`Fn`, `FnMut`, and
-`FnOnce`), meaning you can always pass a function pointer as an argument for a
-function that expects a closure. It’s best to write functions using a generic
-type and one of the closure traits so your functions can accept either
-functions or closures.
+Các con trỏ hàm thực thi tất cả ba trait closure (`Fn`, `FnMut`, và
+`FnOnce`), nghĩa là bạn luôn có thể truyền một con trỏ hàm như một đối số cho một
+hàm mong đợi một closure. Tốt nhất là nên viết các hàm sử dụng một kiểu generic
+và một trong các trait closure để các hàm của bạn có thể chấp nhận cả
+hàm hoặc closure.
 
-That said, one example of where you would want to only accept `fn` and not
-closures is when interfacing with external code that doesn’t have closures: C
-functions can accept functions as arguments, but C doesn’t have closures.
+Tuy nhiên, một ví dụ về nơi mà bạn chỉ muốn chấp nhận `fn` mà không phải
+closure là khi giao tiếp với mã bên ngoài không có closure: các
+hàm C có thể chấp nhận các hàm làm đối số, nhưng C không có closure.
 
-As an example of where you could use either a closure defined inline or a named
-function, let’s look at a use of the `map` method provided by the `Iterator`
-trait in the standard library. To use the `map` method to turn a vector of
-numbers into a vector of strings, we could use a closure, as in Listing 20-29.
+Ví dụ về nơi bạn có thể sử dụng một closure được định nghĩa inline hoặc một hàm
+được đặt tên, hãy xem xét việc sử dụng phương thức `map` được cung cấp bởi trait `Iterator`
+trong thư viện chuẩn. Để sử dụng phương thức `map` nhằm chuyển một vector các
+số thành một vector các chuỗi, chúng ta có thể sử dụng một closure, như trong Danh sách 20-29.
 
-<Listing number="20-29" caption="Using a closure with the `map` method to convert numbers to strings">
+<Listing number="20-29" caption="Sử dụng một closure với phương thức `map` để chuyển đổi các số thành chuỗi">
 
 ```rust
 {{#rustdoc_include ../listings/ch20-advanced-features/listing-20-29/src/main.rs:here}}
@@ -62,10 +62,10 @@ numbers into a vector of strings, we could use a closure, as in Listing 20-29.
 
 </Listing>
 
-Or we could name a function as the argument to map instead of the closure.
-Listing 20-30 shows what this would look like.
+Hoặc chúng ta có thể đặt tên cho một hàm làm đối số cho map thay vì closure.
+Danh sách 20-30 cho thấy điều này sẽ trông như thế nào.
 
-<Listing number="20-30" caption="Using the `String::to_string` method to convert numbers to strings">
+<Listing number="20-30" caption="Sử dụng phương thức `String::to_string` để chuyển đổi các số thành chuỗi">
 
 ```rust
 {{#rustdoc_include ../listings/ch20-advanced-features/listing-20-30/src/main.rs:here}}
@@ -73,21 +73,21 @@ Listing 20-30 shows what this would look like.
 
 </Listing>
 
-Note that we must use the fully qualified syntax that we talked about in
-[“Advanced Traits”][advanced-traits]<!-- ignore --> because there are multiple
-functions available named `to_string`.
+Lưu ý rằng chúng ta phải sử dụng cú pháp định danh đầy đủ (fully qualified syntax) mà chúng ta đã nói đến trong
+[“Các Trait nâng cao”][advanced-traits]<!-- ignore --> bởi vì có nhiều
+hàm có sẵn tên là `to_string`.
 
-Here, we’re using the `to_string` function defined in the `ToString` trait,
-which the standard library has implemented for any type that implements
+Ở đây, chúng ta đang sử dụng hàm `to_string` được định nghĩa trong trait `ToString`,
+mà thư viện chuẩn đã thực thi cho bất kỳ kiểu nào thực thi
 `Display`.
 
-Recall from [“Enum values”][enum-values]<!-- ignore --> in Chapter 6 that the
-name of each enum variant that we define also becomes an initializer function.
-We can use these initializer functions as function pointers that implement the
-closure traits, which means we can specify the initializer functions as
-arguments for methods that take closures, as seen in Listing 20-31.
+Hãy nhớ lại từ [“Các giá trị Enum”][enum-values]<!-- ignore --> ở Chương 6 rằng
+tên của mỗi biến thể enum mà chúng ta định nghĩa cũng trở thành một hàm khởi tạo.
+Chúng ta có thể sử dụng các hàm khởi tạo này như các con trỏ hàm thực thi các
+trait closure, điều đó có nghĩa là chúng ta có thể chỉ định các hàm khởi tạo làm
+đối số cho các phương thức nhận closure, như thấy trong Danh sách 20-31.
 
-<Listing number="20-31" caption="Using an enum initializers with the `map` method to create a `Status` instance from numbers">
+<Listing number="20-31" caption="Sử dụng các hàm khởi tạo enum với phương thức `map` để tạo một thực thể `Status` từ các số">
 
 ```rust
 {{#rustdoc_include ../listings/ch20-advanced-features/listing-20-31/src/main.rs:here}}
@@ -95,26 +95,25 @@ arguments for methods that take closures, as seen in Listing 20-31.
 
 </Listing>
 
-Here we create `Status::Value` instances using each `u32` value in the range
-that `map` is called on by using the initializer function of `Status::Value`.
-Some people prefer this style and some people prefer to use closures. They
-compile to the same code, so use whichever style is clearer to you.
+Ở đây chúng ta tạo các thực thể `Status::Value` bằng cách sử dụng mỗi giá trị `u32` trong phạm vi
+mà `map` được gọi bằng cách sử dụng hàm khởi tạo của `Status::Value`.
+Một số người thích phong cách này và một số người thích sử dụng closure. Chúng
+được biên dịch thành cùng một mã nguồn, vì vậy hãy sử dụng bất kỳ phong cách nào rõ ràng hơn đối với bạn.
 
-### Returning Closures
+### Trả về Closure
 
-Closures are represented by traits, which means you can’t return closures
-directly. In most cases where you might want to return a trait, you can instead
-use the concrete type that implements the trait as the return value of the
-function. However, you can’t usually do that with closures because they don’t
-have a concrete type that is returnable. You’re not allowed to use the function
-pointer `fn` as a return type if the closure captures any values from its scope,
-for example.
+Các closure được đại diện bởi các trait, điều đó có nghĩa là bạn không thể trả về các closure
+trực tiếp. Trong hầu hết các trường hợp mà bạn muốn trả về một trait, thay vào đó bạn có thể
+sử dụng kiểu cụ thể thực thi trait đó làm giá trị trả về của
+hàm. Tuy nhiên, bạn thường không thể làm điều đó với các closure vì chúng không
+có một kiểu cụ thể có thể trả về được. Ví dụ, bạn không được phép sử dụng
+con trỏ hàm `fn` làm kiểu trả về nếu closure nắm giữ (capture) bất kỳ giá trị nào từ phạm vi của nó.
 
-Instead, you will normally use the `impl Trait` syntax we learned about in
-Chapter 10. You can return any function type, using `Fn`, `FnOnce` and `FnMut`.
-For example, the code in Listing 20-32 will work just fine.
+Thay vào đó, thông thường bạn sẽ sử dụng cú pháp `impl Trait` mà chúng ta đã học ở
+Chương 10. Bạn có thể trả về bất kỳ kiểu hàm nào, bằng cách sử dụng `Fn`, `FnOnce` và `FnMut`.
+Ví dụ, mã trong Danh sách 20-32 sẽ hoạt động tốt.
 
-<Listing number="20-32" caption="Returning a closure from a function using the `impl Trait` syntax">
+<Listing number="20-32" caption="Trả về một closure từ một hàm bằng cách sử dụng cú pháp `impl Trait` ">
 
 ```rust
 {{#rustdoc_include ../listings/ch20-advanced-features/listing-20-32/src/lib.rs}}
@@ -122,14 +121,13 @@ For example, the code in Listing 20-32 will work just fine.
 
 </Listing>
 
-However, as we noted in [“Closure Type Inference and
-Annotation”][closure-types]<!-- ignore --> in Chapter 13, each closure is also
-its own distinct type. If you need to work with multiple functions that have the
-same signature but different implementations, you will need to use a trait
-object for them. Consider what happens if you write code like that shown in
-Listing 20-33.
+Tuy nhiên, như chúng ta đã lưu ý trong [“Suy luận kiểu và chú thích closure”][closure-types]<!-- ignore --> ở Chương 13, mỗi closure cũng là
+một kiểu riêng biệt của chính nó. Nếu bạn cần làm việc với nhiều hàm có
+cùng chữ ký nhưng các cách triển khai khác nhau, bạn sẽ cần sử dụng một đối tượng trait
+cho chúng. Hãy xem xét điều gì xảy ra nếu bạn viết mã như trong
+Danh sách 20-33.
 
-<Listing file-name="src/main.rs" number="20-33" caption="Creating a `Vec<T>` of closures defined by functions that return `impl Fn`">
+<Listing file-name="src/main.rs" number="20-33" caption="Tạo một `Vec<T>` gồm các closure được định nghĩa bởi các hàm trả về `impl Fn` ">
 
 ```rust,ignore,does_not_compile
 {{#rustdoc_include ../listings/ch20-advanced-features/listing-20-33/src/main.rs}}
@@ -137,26 +135,25 @@ Listing 20-33.
 
 </Listing>
 
-Here we have two functions, `returns_closure` and `returns_initialized_closure`,
-which both return `impl Fn(i32) -> i32`. Notice that he closures that they
-return are different, even though they implement the same type. If we try to
-compile this, Rust lets us know that it won’t work:
+Ở đây chúng ta có hai hàm, `returns_closure` và `returns_initialized_closure`,
+cả hai đều trả về `impl Fn(i32) -> i32`. Lưu ý rằng các closure mà chúng
+trả về là khác nhau, mặc dù chúng thực thi cùng một kiểu. Nếu chúng ta cố gắng
+biên dịch mã này, Rust cho chúng ta biết rằng nó sẽ không hoạt động:
 
 ```text
 {{#include ../listings/ch20-advanced-features/listing-20-33/output.txt}}
 ```
 
-The error message tells us that whenever we return an `impl Trait` Rust creates
-a unique _opaque type_, a type where we cannot see into the details of what Rust
-constructs for us. So even though these functions both return closures that
-implements the same trait, `Fn(i32) -> i32`, the opaque types Rust generates for
-each are distinct. (This is similar to how Rust produces different concrete
-types for distinct async blocks even when they have the same output type, as we
-saw in [“Working with Any Number of Futures”][any-number-of-futures] in Chapter
-17. We have seen a solution to this problem a few times now: we can use a trait
-object, as in Listing 20-34.
+Thông báo lỗi cho chúng ta biết rằng bất cứ khi nào chúng ta trả về một `impl Trait`, Rust sẽ tạo ra một
+_kiểu mờ_ (opaque type) duy nhất, một kiểu mà chúng ta không thể nhìn sâu vào các chi tiết về những gì Rust
+xây dựng cho chúng ta. Vì vậy, mặc dù cả hai hàm này đều trả về các closure
+thực thi cùng một trait, `Fn(i32) -> i32`, các kiểu mờ mà Rust tạo ra cho
+mỗi cái là khác biệt. (Điều này tương tự như cách Rust tạo ra các kiểu cụ thể khác nhau
+cho các khối async riêng biệt ngay cả khi chúng có cùng kiểu đầu ra, như chúng ta
+đã thấy trong [“Làm việc với bất kỳ số lượng Future nào”][any-number-of-futures] ở Chương 17. Chúng ta đã thấy một giải pháp cho vấn đề này một vài lần: chúng ta có thể sử dụng một đối tượng
+trait, như trong Danh sách 20-34.
 
-<Listing number="20-34" caption="Creating a `Vec<T>` of closures defined by functions that return `Box<dyn Fn>` so they have the same type">
+<Listing number="20-34" caption="Tạo một `Vec<T>` gồm các closure được định nghĩa bởi các hàm trả về `Box<dyn Fn>` để chúng có cùng kiểu">
 
 ```rust
 {{#rustdoc_include ../listings/ch20-advanced-features/listing-20-34/src/main.rs:here}}
@@ -164,12 +161,11 @@ object, as in Listing 20-34.
 
 </Listing>
 
-This code will compile just fine. For more about trait objects, refer to the
-section [“Using Trait Objects That Allow for Values of Different
-Types”][using-trait-objects-that-allow-for-values-of-different-types]<!-- ignore
---> in Chapter 18.
+Mã này sẽ biên dịch hoàn toàn ổn. Để biết thêm về các đối tượng trait, hãy tham khảo
+phần [“Sử dụng các đối tượng Trait cho phép các giá trị thuộc các kiểu khác nhau”][using-trait-objects-that-allow-for-values-of-different-types]<!-- ignore
+--> ở Chương 18.
 
-Next, let’s look at macros!
+Tiếp theo, hãy cùng xem xét các macro!
 
 {{#quiz ../quizzes/ch19-05-advanced-functions-and-closures.toml}}
 
