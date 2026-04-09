@@ -175,35 +175,35 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="treating-smart-pointers-like-regular-references-with-deref"><a class="header" href="#treating-smart-pointers-like-regular-references-with-deref">Treating Smart Pointers Like Regular References with <code>Deref</code></a></h2>
+                        <h2 id="xử-lý-smart-pointer-giống-như-tham-chiếu-thông-thường-với-deref"><a class="header" href="#xử-lý-smart-pointer-giống-như-tham-chiếu-thông-thường-với-deref">Xử lý Smart Pointer giống như tham chiếu thông thường với <code>Deref</code></a></h2>
 <!-- Old link, do not remove -->
 <p><a id="treating-smart-pointers-like-regular-references-with-the-deref-trait"></a></p>
-<p>Implementing the <code>Deref</code> trait allows you to customize the behavior of the
-<em>dereference operator</em> <code>*</code> (not to be confused with the multiplication or glob
-operator). By implementing <code>Deref</code> in such a way that a smart pointer can be
-treated like a regular reference, you can write code that operates on
-references and use that code with smart pointers too.</p>
-<p>Let’s first look at how the dereference operator works with regular references.
-Then we’ll try to define a custom type that behaves like <code>Box&lt;T&gt;</code>, and see why
-the dereference operator doesn’t work like a reference on our newly defined
-type. We’ll explore how implementing the <code>Deref</code> trait makes it possible for
-smart pointers to work in ways similar to references. Then we’ll look at
-Rust’s <em>deref coercion</em> feature and how it lets us work with either references
-or smart pointers.</p>
-<section class="note" aria-role="note">
-<p>Note: There’s one big difference between the <code>MyBox&lt;T&gt;</code> type we’re about to
-build and the real <code>Box&lt;T&gt;</code>: our version will not store its data on the heap.
-We are focusing this example on <code>Deref</code>, so where the data is actually stored
-is less important than the pointer-like behavior.</p>
-</section>
+<p>Việc thực thi trait <code>Deref</code> cho phép bạn tùy chỉnh hành vi của
+<em>toán tử giải tham chiếu</em> (dereference operator) <code>*</code> (đừng nhầm lẫn với toán tử nhân hoặc toán tử glob).
+Bằng cách thực thi <code>Deref</code> theo cách mà một con trỏ thông minh có thể được xử lý như một
+tham chiếu thông thường, bạn có thể viết mã hoạt động trên các tham chiếu và sử dụng mã đó
+với cả con trỏ thông minh.</p>
+<p>Trước tiên hãy xem cách toán tử giải tham chiếu hoạt động với các tham chiếu thông thường.
+Sau đó, chúng ta sẽ cố gắng định nghĩa một kiểu tùy chỉnh hoạt động giống như <code>Box&lt;T&gt;</code>, và xem tại sao
+toán tử giải tham chiếu không hoạt động như một tham chiếu trên kiểu mới được định nghĩa của chúng ta.
+Chúng ta sẽ khám phá cách thực thi trait <code>Deref</code> làm cho các con trỏ thông minh có thể
+hoạt động theo những cách tương tự như các tham chiếu. Sau đó, chúng ta sẽ xem xét tính năng
+<em>ép kiểu deref</em> (deref coercion) của Rust và cách nó cho phép chúng ta làm việc với cả tham chiếu
+hoặc con trỏ thông minh.</p>
+<blockquote>
+<p>Ghi chú: Có một điểm khác biệt lớn giữa kiểu <code>MyBox&lt;T&gt;</code> mà chúng ta sắp xây dựng
+và kiểu <code>Box&lt;T&gt;</code> thật sự: phiên bản của chúng ta sẽ không lưu trữ dữ liệu của nó trên heap.
+Chúng ta tập trung ví dụ này vào <code>Deref</code>, vì vậy nơi dữ liệu thực sự được lưu trữ
+ít quan trọng hơn hành vi giống như con trỏ.</p>
+</blockquote>
 <!-- Old links, do not remove -->
 <p><a id="following-the-pointer-to-the-value-with-the-dereference-operator"></a>
 <a id="following-the-pointer-to-the-value"></a></p>
-<h3 id="following-the-reference-to-the-value"><a class="header" href="#following-the-reference-to-the-value">Following the Reference to the Value</a></h3>
-<p>A regular reference is a type of pointer, and one way to think of a pointer is
-as an arrow to a value stored somewhere else. In Listing 15-6, we create a
-reference to an <code>i32</code> value and then use the dereference operator to follow the
-reference to the value.</p>
+<h3 id="Đi-theo-tham-chiếu-đến-giá-trị"><a class="header" href="#Đi-theo-tham-chiếu-đến-giá-trị">Đi theo Tham chiếu đến Giá trị</a></h3>
+<p>Một tham chiếu thông thường là một loại con trỏ, và một cách để nghĩ về một con trỏ là
+như một mũi tên chỉ đến một giá trị được lưu trữ ở nơi khác. Trong Liệt kê 15-6, chúng ta tạo ra một
+tham chiếu đến một giá trị <code>i32</code> và sau đó sử dụng toán tử giải tham chiếu để đi theo
+tham chiếu đến giá trị đó.</p>
 <figure class="listing" id="listing-15-6">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><pre class="playground"><code class="language-rust edition2024">fn main() {
@@ -213,16 +213,15 @@ reference to the value.</p>
     assert_eq!(5, x);
     assert_eq!(5, *y);
 }</code></pre></pre>
-<figcaption><a href="#listing-15-6">Listing 15-6</a>: Using the dereference operator to follow a reference to an <code>i32</code> value</figcaption>
+<figcaption><a href="#listing-15-6">Listing 15-6</a>: Sử dụng toán tử giải tham chiếu để đi theo một tham chiếu đến một giá trị <code>i32</code></figcaption>
 </figure>
-<p>The variable <code>x</code> holds an <code>i32</code> value <code>5</code>. We set <code>y</code> equal to a reference to
-<code>x</code>. We can assert that <code>x</code> is equal to <code>5</code>. However, if we want to make an
-assertion about the value in <code>y</code>, we have to use <code>*y</code> to follow the reference
-to the value it’s pointing to (hence <em>dereference</em>) so the compiler can compare
-the actual value. Once we dereference <code>y</code>, we have access to the integer value
-<code>y</code> is pointing to that we can compare with <code>5</code>.</p>
-<p>If we tried to write <code>assert_eq!(5, y);</code> instead, we would get this compilation
-error:</p>
+<p>Biến <code>x</code> giữ một giá trị <code>i32</code> là <code>5</code>. Chúng ta gán <code>y</code> bằng một tham chiếu đến
+<code>x</code>. Chúng ta có thể khẳng định rằng <code>x</code> bằng <code>5</code>. Tuy nhiên, nếu chúng ta muốn thực hiện một
+khẳng định về giá trị trong <code>y</code>, chúng ta phải sử dụng <code>*y</code> để đi theo tham chiếu
+đến giá trị mà nó đang trỏ tới (do đó gọi là <em>giải tham chiếu</em>) để trình biên dịch có thể so sánh
+giá trị thực tế. Một khi chúng ta giải tham chiếu <code>y</code>, chúng ta có quyền truy cập vào giá trị số nguyên
+mà <code>y</code> đang trỏ tới mà chúng ta có thể so sánh với <code>5</code>.</p>
+<p>Nếu chúng ta cố gắng viết <code>assert_eq!(5, y);</code> thay vào đó, chúng ta sẽ nhận được lỗi biên dịch này:</p>
 <pre><code class="language-console">$ cargo run
    Compiling deref-example v0.1.0 (file:///projects/deref-example)
 error[E0277]: can't compare `{integer}` with `&amp;{integer}`
@@ -237,14 +236,14 @@ error[E0277]: can't compare `{integer}` with `&amp;{integer}`
 For more information about this error, try `rustc --explain E0277`.
 error: could not compile `deref-example` (bin "deref-example") due to 1 previous error
 </code></pre>
-<p>Comparing a number and a reference to a number isn’t allowed because they’re
-different types. We must use the dereference operator to follow the reference
-to the value it’s pointing to.</p>
-<h3 id="using-boxt-like-a-reference"><a class="header" href="#using-boxt-like-a-reference">Using <code>Box&lt;T&gt;</code> Like a Reference</a></h3>
-<p>We can rewrite the code in Listing 15-6 to use a <code>Box&lt;T&gt;</code> instead of a
-reference; the dereference operator used on the <code>Box&lt;T&gt;</code> in Listing 15-7
-functions in the same way as the dereference operator used on the reference in
-Listing 15-6:</p>
+<p>Việc so sánh một số và một tham chiếu đến một số là không được phép vì chúng là
+các kiểu khác nhau. Chúng ta phải sử dụng toán tử giải tham chiếu để đi theo tham chiếu
+đến giá trị mà nó đang trỏ tới.</p>
+<h3 id="sử-dụng-boxt-giống-như-một-tham-chiếu"><a class="header" href="#sử-dụng-boxt-giống-như-một-tham-chiếu">Sử dụng <code>Box&lt;T&gt;</code> giống như một Tham chiếu</a></h3>
+<p>Chúng ta có thể viết lại mã trong Liệt kê 15-6 để sử dụng một <code>Box&lt;T&gt;</code> thay vì một
+tham chiếu; toán tử giải tham chiếu được sử dụng trên <code>Box&lt;T&gt;</code> trong Liệt kê 15-7
+hoạt động theo cùng một cách như toán tử giải tham chiếu được sử dụng trên tham chiếu trong
+Liệt kê 15-6:</p>
 <figure class="listing" id="listing-15-7">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><pre class="playground"><code class="language-rust edition2024">fn main() {
@@ -254,22 +253,22 @@ Listing 15-6:</p>
     assert_eq!(5, x);
     assert_eq!(5, *y);
 }</code></pre></pre>
-<figcaption><a href="#listing-15-7">Listing 15-7</a>: Using the dereference operator on a <code>Box&lt;i32&gt;</code></figcaption>
+<figcaption><a href="#listing-15-7">Listing 15-7</a>: Sử dụng toán tử giải tham chiếu trên một <code>Box&lt;i32&gt;</code></figcaption>
 </figure>
-<p>The main difference between Listing 15-7 and Listing 15-6 is that here we set
-<code>y</code> to be an instance of a box pointing to a copied value of <code>x</code> rather than a
-reference pointing to the value of <code>x</code>. In the last assertion, we can use the
-dereference operator to follow the box’s pointer in the same way that we did
-when <code>y</code> was a reference. Next, we’ll explore what is special about <code>Box&lt;T&gt;</code>
-that enables us to use the dereference operator by defining our own type.</p>
-<h3 id="defining-our-own-smart-pointer"><a class="header" href="#defining-our-own-smart-pointer">Defining Our Own Smart Pointer</a></h3>
-<p>Let’s build a smart pointer similar to the <code>Box&lt;T&gt;</code> type provided by the
-standard library to experience how smart pointers behave differently from
-references by default. Then we’ll look at how to add the ability to use the
-dereference operator.</p>
-<p>The <code>Box&lt;T&gt;</code> type is ultimately defined as a tuple struct with one element, so
-Listing 15-8 defines a <code>MyBox&lt;T&gt;</code> type in the same way. We’ll also define a
-<code>new</code> function to match the <code>new</code> function defined on <code>Box&lt;T&gt;</code>.</p>
+<p>Sự khác biệt chính giữa Liệt kê 15-7 và Liệt kê 15-6 là ở đây chúng ta gán
+<code>y</code> là một instance của một box trỏ đến một giá trị được sao chép của <code>x</code> thay vì một
+tham chiếu trỏ đến giá trị của <code>x</code>. Trong khẳng định cuối cùng, chúng ta có thể sử dụng
+toán tử giải tham chiếu để đi theo con trỏ của box theo cùng cách mà chúng ta đã làm
+khi <code>y</code> là một tham chiếu. Tiếp theo, chúng ta sẽ khám phá điều gì đặc biệt ở <code>Box&lt;T&gt;</code>
+mà cho phép chúng ta sử dụng toán tử giải tham chiếu bằng cách tự định nghĩa kiểu của riêng mình.</p>
+<h3 id="Định-nghĩa-con-trỏ-thông-minh-của-riêng-chúng-ta"><a class="header" href="#Định-nghĩa-con-trỏ-thông-minh-của-riêng-chúng-ta">Định nghĩa Con trỏ thông minh của riêng chúng ta</a></h3>
+<p>Hãy xây dựng một con trỏ thông minh tương tự như kiểu <code>Box&lt;T&gt;</code> được cung cấp bởi
+thư viện tiêu chuẩn để trải nghiệm cách các con trỏ thông minh hành xử khác với
+các tham chiếu theo mặc định. Sau đó chúng ta sẽ xem xét cách thêm khả năng sử dụng
+toán tử giải tham chiếu.</p>
+<p>Kiểu <code>Box&lt;T&gt;</code> cuối cùng được định nghĩa là một tuple struct với một thành phần, vì vậy
+Liệt kê 15-8 định nghĩa một kiểu <code>MyBox&lt;T&gt;</code> theo cùng một cách. Chúng ta cũng sẽ định nghĩa một
+hàm <code>new</code> để khớp với hàm <code>new</code> được định nghĩa trên <code>Box&lt;T&gt;</code>.</p>
 <figure class="listing" id="listing-15-8">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><pre class="playground"><code class="language-rust edition2024">struct MyBox&lt;T&gt;(T);
@@ -281,15 +280,15 @@ impl&lt;T&gt; MyBox&lt;T&gt; {
 }
 <span class="boring">
 </span><span class="boring">fn main() {}</span></code></pre></pre>
-<figcaption><a href="#listing-15-8">Listing 15-8</a>: Defining a <code>MyBox&lt;T&gt;</code> type</figcaption>
+<figcaption><a href="#listing-15-8">Listing 15-8</a>: Định nghĩa kiểu <code>MyBox&lt;T&gt;</code></figcaption>
 </figure>
-<p>We define a struct named <code>MyBox</code> and declare a generic parameter <code>T</code> because
-we want our type to hold values of any type. The <code>MyBox</code> type is a tuple struct
-with one element of type <code>T</code>. The <code>MyBox::new</code> function takes one parameter of
-type <code>T</code> and returns a <code>MyBox</code> instance that holds the value passed in.</p>
-<p>Let’s try adding the <code>main</code> function in Listing 15-7 to Listing 15-8 and
-changing it to use the <code>MyBox&lt;T&gt;</code> type we’ve defined instead of <code>Box&lt;T&gt;</code>. The
-code in Listing 15-9 won’t compile because Rust doesn’t know how to dereference
+<p>Chúng ta định nghĩa một struct tên là <code>MyBox</code> và khai báo một tham số generic <code>T</code> vì
+chúng ta muốn kiểu của mình giữ các giá trị của bất kỳ kiểu nào. Kiểu <code>MyBox</code> là một tuple struct
+với một thành phần kiểu <code>T</code>. Hàm <code>MyBox::new</code> nhận một tham số kiểu <code>T</code>
+và trả về một instance <code>MyBox</code> giữ giá trị được truyền vào.</p>
+<p>Hãy thử thêm hàm <code>main</code> trong Liệt kê 15-7 vào Liệt kê 15-8 và
+thay đổi nó để sử dụng kiểu <code>MyBox&lt;T&gt;</code> chúng ta vừa định nghĩa thay vì <code>Box&lt;T&gt;</code>. Mã
+trong Liệt kê 15-9 sẽ không biên dịch được vì Rust không biết cách giải tham chiếu
 <code>MyBox</code>.</p>
 <figure class="listing" id="listing-15-9">
 <span class="file-name">Filename: src/main.rs</span>
@@ -308,9 +307,9 @@ code in Listing 15-9 won’t compile because Rust doesn’t know how to derefere
     assert_eq!(5, x);
     assert_eq!(5, *y);
 }</code></pre>
-<figcaption><a href="#listing-15-9">Listing 15-9</a>: Attempting to use <code>MyBox&lt;T&gt;</code> in the same way we used references and <code>Box&lt;T&gt;</code></figcaption>
+<figcaption><a href="#listing-15-9">Listing 15-9</a>: Cố gắng sử dụng <code>MyBox&lt;T&gt;</code> theo cách chúng ta đã sử dụng các tham chiếu và <code>Box&lt;T&gt;</code></figcaption>
 </figure>
-<p>Here’s the resultant compilation error:</p>
+<p>Đây là lỗi biên dịch kết quả:</p>
 <pre><code class="language-console">$ cargo run
    Compiling deref-example v0.1.0 (file:///projects/deref-example)
 error[E0614]: type `MyBox&lt;{integer}&gt;` cannot be dereferenced
@@ -322,18 +321,18 @@ error[E0614]: type `MyBox&lt;{integer}&gt;` cannot be dereferenced
 For more information about this error, try `rustc --explain E0614`.
 error: could not compile `deref-example` (bin "deref-example") due to 1 previous error
 </code></pre>
-<p>Our <code>MyBox&lt;T&gt;</code> type can’t be dereferenced because we haven’t implemented that
-ability on our type. To enable dereferencing with the <code>*</code> operator, we
-implement the <code>Deref</code> trait.</p>
+<p>Kiểu <code>MyBox&lt;T&gt;</code> của chúng ta không thể được giải tham chiếu vì chúng ta chưa thực thi
+khả năng đó trên kiểu của mình. Để cho phép giải tham chiếu với toán tử <code>*</code>, chúng ta
+thực thi trait <code>Deref</code>.</p>
 <!-- Old link, do not remove -->
 <p><a id="treating-a-type-like-a-reference-by-implementing-the-deref-trait"></a></p>
-<h3 id="implementing-the-deref-trait"><a class="header" href="#implementing-the-deref-trait">Implementing the <code>Deref</code> Trait</a></h3>
-<p>As discussed in <a href="ch10-02-traits.html#implementing-a-trait-on-a-type">“Implementing a Trait on a Type”</a><!-- ignore --> in
-Chapter 10, to implement a trait, we need to provide implementations for the
-trait’s required methods. The <code>Deref</code> trait, provided by the standard library,
-requires us to implement one method named <code>deref</code> that borrows <code>self</code> and
-returns a reference to the inner data. Listing 15-10 contains an implementation
-of <code>Deref</code> to add to the definition of <code>MyBox&lt;T&gt;</code>.</p>
+<h3 id="thực-thi-trait-deref"><a class="header" href="#thực-thi-trait-deref">Thực thi trait <code>Deref</code></a></h3>
+<p>Như đã thảo luận trong <a href="ch10-02-traits.html#implementing-a-trait-on-a-type">“Thực thi một Trait trên một Kiểu”</a><!-- ignore --> ở
+Chương 10, để thực thi một trait, chúng ta cần cung cấp các thực thi cho các
+phương thức bắt buộc của trait đó. Trait <code>Deref</code>, được cung cấp bởi thư viện tiêu chuẩn,
+yêu cầu chúng ta thực thi một phương thức tên là <code>deref</code> mượn <code>self</code> và
+trả về một tham chiếu đến dữ liệu bên trong. Liệt kê 15-10 chứa một thực thi
+của <code>Deref</code> để thêm vào định nghĩa của <code>MyBox&lt;T&gt;</code>.</p>
 <figure class="listing" id="listing-15-10">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><pre class="playground"><code class="language-rust edition2024">use std::ops::Deref;
@@ -361,59 +360,55 @@ impl&lt;T&gt; Deref for MyBox&lt;T&gt; {
 </span><span class="boring">    assert_eq!(5, x);
 </span><span class="boring">    assert_eq!(5, *y);
 </span><span class="boring">}</span></code></pre></pre>
-<figcaption><a href="#listing-15-10">Listing 15-10</a>: Implementing <code>Deref</code> on <code>MyBox&lt;T&gt;</code></figcaption>
+<figcaption><a href="#listing-15-10">Listing 15-10</a>: Thực thi <code>Deref</code> trên <code>MyBox&lt;T&gt;</code></figcaption>
 </figure>
-<p>The <code>type Target = T;</code> syntax defines an associated type for the <code>Deref</code>
-trait to use. Associated types are a slightly different way of declaring a
-generic parameter, but you don’t need to worry about them for now; we’ll cover
-them in more detail in Chapter 20.</p>
-<p>We fill in the body of the <code>deref</code> method with <code>&amp;self.0</code> so <code>deref</code> returns a
-reference to the value we want to access with the <code>*</code> operator; recall from
-<a href="ch05-01-defining-structs.html#using-tuple-structs-without-named-fields-to-create-different-types">“Using Tuple Structs Without Named Fields to Create Different
-Types”</a><!-- ignore --> in Chapter 5 that <code>.0</code> accesses the first
-value in a tuple struct. The <code>main</code> function in Listing 15-9 that calls <code>*</code> on
-the <code>MyBox&lt;T&gt;</code> value now compiles, and the assertions pass!</p>
-<p>Without the <code>Deref</code> trait, the compiler can only dereference <code>&amp;</code> references.
-The <code>deref</code> method gives the compiler the ability to take a value of any type
-that implements <code>Deref</code> and call the <code>deref</code> method to get an <code>&amp;</code> reference that
-it knows how to dereference.</p>
-<p>When we entered <code>*y</code> in Listing 15-9, behind the scenes Rust actually ran this
-code:</p>
+<p>Cú pháp <code>type Target = T;</code> định nghĩa một kiểu liên kết (associated type) cho trait <code>Deref</code>
+sử dụng. Các kiểu liên kết là một cách hơi khác để khai báo một tham số generic,
+nhưng bạn không cần lo lắng về chúng bây giờ; chúng ta sẽ đề cập đến chúng
+chi tiết hơn ở Chương 20.</p>
+<p>Chúng ta điền vào thân của phương thức <code>deref</code> với <code>&amp;self.0</code> để <code>deref</code> trả về một
+tham chiếu đến giá trị mà chúng ta muốn truy cập với toán tử <code>*</code>; nhớ lại từ
+<a href="ch05-01-defining-structs.html#using-tuple-structs-without-named-fields-to-create-different-types">“Sử dụng Tuple Structs Không có các Trường được đặt tên để Tạo ra các Kiểu Khác nhau”</a><!-- ignore --> ở Chương 5 rằng <code>.0</code> truy cập vào giá trị đầu tiên trong một tuple struct. Hàm <code>main</code> trong Liệt kê 15-9 gọi <code>*</code> trên
+giá trị <code>MyBox&lt;T&gt;</code> bây giờ đã biên dịch được, và các khẳng định đã vượt qua!</p>
+<p>Nếu không có trait <code>Deref</code>, trình biên dịch chỉ có thể giải tham chiếu các tham chiếu <code>&amp;</code>.
+Phương thức <code>deref</code> cung cấp cho trình biên dịch khả năng lấy một giá trị của bất kỳ kiểu nào
+có thực thi <code>Deref</code> và gọi phương thức <code>deref</code> để lấy một tham chiếu <code>&amp;</code> mà
+nó biết cách giải tham chiếu.</p>
+<p>Khi chúng ta nhập <code>*y</code> trong Liệt kê 15-9, đằng sau hậu trường Rust thực sự đã chạy mã này:</p>
 <pre><code class="language-rust ignore">*(y.deref())</code></pre>
-<p>Rust substitutes the <code>*</code> operator with a call to the <code>deref</code> method and then a
-plain dereference so we don’t have to think about whether or not we need to
-call the <code>deref</code> method. This Rust feature lets us write code that functions
-identically whether we have a regular reference or a type that implements
+<p>Rust thay thế toán tử <code>*</code> bằng một lời gọi đến phương thức <code>deref</code> và sau đó là một
+giải tham chiếu thông thường để chúng ta không phải suy nghĩ về việc liệu chúng ta có cần
+gọi phương thức <code>deref</code> hay không. Tính năng này của Rust cho phép chúng ta viết mã hoạt động
+giống hệt nhau cho dù chúng ta có một tham chiếu thông thường hay một kiểu có thực thi
 <code>Deref</code>.</p>
-<p>The reason the <code>deref</code> method returns a reference to a value, and that the
-plain dereference outside the parentheses in <code>*(y.deref())</code> is still necessary,
-has to do with the ownership system. If the <code>deref</code> method returned the value
-directly instead of a reference to the value, the value would be moved out of
-<code>self</code>. We don’t want to take ownership of the inner value inside <code>MyBox&lt;T&gt;</code> in
-this case or in most cases where we use the dereference operator.</p>
-<p>Note that the <code>*</code> operator is replaced with a call to the <code>deref</code> method and
-then a call to the <code>*</code> operator just once, each time we use a <code>*</code> in our code.
-Because the substitution of the <code>*</code> operator does not recurse infinitely, we
-end up with data of type <code>i32</code>, which matches the <code>5</code> in <code>assert_eq!</code> in
-Listing 15-9.</p>
-<h3 id="implicit-deref-coercions-with-functions-and-methods"><a class="header" href="#implicit-deref-coercions-with-functions-and-methods">Implicit Deref Coercions with Functions and Methods</a></h3>
-<p><em>Deref coercion</em> converts a reference to a type that implements the <code>Deref</code>
-trait into a reference to another type. For example, deref coercion can convert
-<code>&amp;String</code> to <code>&amp;str</code> because <code>String</code> implements the <code>Deref</code> trait such that it
-returns <code>&amp;str</code>. Deref coercion is a convenience Rust performs on arguments to
-functions and methods, and works only on types that implement the <code>Deref</code>
-trait. It happens automatically when we pass a reference to a particular type’s
-value as an argument to a function or method that doesn’t match the parameter
-type in the function or method definition. A sequence of calls to the <code>deref</code>
-method converts the type we provided into the type the parameter needs.</p>
-<p>Deref coercion was added to Rust so that programmers writing function and
-method calls don’t need to add as many explicit references and dereferences
-with <code>&amp;</code> and <code>*</code>. The deref coercion feature also lets us write more code that
-can work for either references or smart pointers.</p>
-<p>To see deref coercion in action, let’s use the <code>MyBox&lt;T&gt;</code> type we defined in
-Listing 15-8 as well as the implementation of <code>Deref</code> that we added in Listing
-15-10. Listing 15-11 shows the definition of a function that has a string slice
-parameter.</p>
+<p>Lý do phương thức <code>deref</code> trả về một tham chiếu đến một giá trị, và việc
+giải tham chiếu thông thường bên ngoài dấu ngoặc đơn trong <code>*(y.deref())</code> vẫn cần thiết,
+có liên quan đến hệ thống quyền sở hữu. Nếu phương thức <code>deref</code> trả về giá trị
+trực tiếp thay vì một tham chiếu đến giá trị, giá trị đó sẽ bị di chuyển (move) ra khỏi
+<code>self</code>. Chúng ta không muốn lấy quyền sở hữu của giá trị bên trong <code>MyBox&lt;T&gt;</code> trong
+trường hợp này hoặc trong hầu hết các trường hợp chúng ta sử dụng toán tử giải tham chiếu.</p>
+<p>Lưu ý rằng toán tử <code>*</code> được thay thế bằng một lời gọi đến phương thức <code>deref</code> và
+sau đó là một lời gọi đến toán tử <code>*</code> chỉ một lần, mỗi lần chúng ta sử dụng một <code>*</code> trong mã của mình.
+Bởi vì việc thay thế toán tử <code>*</code> không đệ quy vô hạn, chúng ta
+kết thúc với dữ liệu kiểu <code>i32</code>, khớp với số <code>5</code> trong <code>assert_eq!</code> ở
+Liệt kê 15-9.</p>
+<h3 id="Ép-kiểu-deref-ngầm-định-với-các-hàm-và-phương-thức"><a class="header" href="#Ép-kiểu-deref-ngầm-định-với-các-hàm-và-phương-thức">Ép kiểu Deref ngầm định với các Hàm và Phương thức</a></h3>
+<p><em>Ép kiểu Deref</em> (Deref coercion) chuyển đổi một tham chiếu đến một kiểu có thực thi trait <code>Deref</code>
+thành một tham chiếu đến một kiểu khác. Ví dụ, ép kiểu deref có thể chuyển đổi
+<code>&amp;String</code> thành <code>&amp;str</code> bởi vì <code>String</code> thực thi trait <code>Deref</code> sao cho nó
+trả về <code>&amp;str</code>. Ép kiểu Deref là một sự tiện lợi mà Rust thực hiện trên các đối số truyền vào
+các hàm và phương thức, và chỉ hoạt động trên các kiểu có thực thi trait <code>Deref</code>.
+Nó xảy ra tự động khi chúng ta truyền một tham chiếu đến giá trị của một kiểu cụ thể
+như một đối số cho một hàm hoặc phương thức mà không khớp với kiểu tham số trong
+định nghĩa hàm hoặc phương thức. Một chuỗi các lời gọi đến phương thức <code>deref</code> chuyển đổi
+kiểu chúng ta cung cấp thành kiểu mà tham số cần.</p>
+<p>Ép kiểu Deref đã được thêm vào Rust để các lập trình viên khi viết các lời gọi hàm và
+phương thức không cần phải thêm nhiều tham chiếu và giải tham chiếu rõ ràng
+với <code>&amp;</code> và <code>*</code>. Tính năng ép kiểu deref cũng cho phép chúng ta viết nhiều mã hơn
+có thể hoạt động cho cả tham chiếu hoặc con trỏ thông minh.</p>
+<p>Để thấy ép kiểu deref hoạt động, hãy sử dụng kiểu <code>MyBox&lt;T&gt;</code> chúng ta đã định nghĩa trong
+Liệt kê 15-8 cũng như việc thực thi <code>Deref</code> mà chúng ta đã thêm vào trong Liệt kê
+15-10. Liệt kê 15-11 cho thấy định nghĩa của một hàm có một tham số string slice.</p>
 <figure class="listing" id="listing-15-11">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><pre class="playground"><code class="language-rust edition2024">fn hello(name: &amp;str) {
@@ -421,11 +416,11 @@ parameter.</p>
 }
 <span class="boring">
 </span><span class="boring">fn main() {}</span></code></pre></pre>
-<figcaption><a href="#listing-15-11">Listing 15-11</a>: A <code>hello</code> function that has the parameter <code>name</code> of type <code>&amp;str</code></figcaption>
+<figcaption><a href="#listing-15-11">Listing 15-11</a>: Một hàm <code>hello</code> có tham số <code>name</code> thuộc kiểu <code>&amp;str</code></figcaption>
 </figure>
-<p>We can call the <code>hello</code> function with a string slice as an argument, such as
-<code>hello("Rust");</code>, for example. Deref coercion makes it possible to call <code>hello</code>
-with a reference to a value of type <code>MyBox&lt;String&gt;</code>, as shown in Listing 15-12.</p>
+<p>Chúng ta có thể gọi hàm <code>hello</code> với một string slice như một đối số, ví dụ như
+<code>hello("Rust");</code>. Ép kiểu Deref giúp chúng ta có thể gọi <code>hello</code>
+với một tham chiếu đến một giá trị kiểu <code>MyBox&lt;String&gt;</code>, như được hiển thị trong Liệt kê 15-12.</p>
 <figure class="listing" id="listing-15-12">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><pre class="playground"><code class="language-rust edition2024"><span class="boring">use std::ops::Deref;
@@ -454,18 +449,18 @@ with a reference to a value of type <code>MyBox&lt;String&gt;</code>, as shown i
     let m = MyBox::new(String::from("Rust"));
     hello(&amp;m);
 }</code></pre></pre>
-<figcaption><a href="#listing-15-12">Listing 15-12</a>: Calling <code>hello</code> with a reference to a <code>MyBox&lt;String&gt;</code> value, which works because of deref coercion</figcaption>
+<figcaption><a href="#listing-15-12">Listing 15-12</a>: Gọi <code>hello</code> với một tham chiếu đến một giá trị <code>MyBox&lt;String&gt;</code>, điều này hoạt động nhờ vào ép kiểu deref</figcaption>
 </figure>
-<p>Here we’re calling the <code>hello</code> function with the argument <code>&amp;m</code>, which is a
-reference to a <code>MyBox&lt;String&gt;</code> value. Because we implemented the <code>Deref</code> trait
-on <code>MyBox&lt;T&gt;</code> in Listing 15-10, Rust can turn <code>&amp;MyBox&lt;String&gt;</code> into <code>&amp;String</code>
-by calling <code>deref</code>. The standard library provides an implementation of <code>Deref</code>
-on <code>String</code> that returns a string slice, and this is in the API documentation
-for <code>Deref</code>. Rust calls <code>deref</code> again to turn the <code>&amp;String</code> into <code>&amp;str</code>, which
-matches the <code>hello</code> function’s definition.</p>
-<p>If Rust didn’t implement deref coercion, we would have to write the code in
-Listing 15-13 instead of the code in Listing 15-12 to call <code>hello</code> with a value
-of type <code>&amp;MyBox&lt;String&gt;</code>.</p>
+<p>Ở đây chúng ta đang gọi hàm <code>hello</code> với đối số <code>&amp;m</code>, vốn là một
+tham chiếu đến một giá trị <code>MyBox&lt;String&gt;</code>. Bởi vì chúng ta đã thực thi trait <code>Deref</code>
+trên <code>MyBox&lt;T&gt;</code> trong Liệt kê 15-10, Rust có thể biến <code>&amp;MyBox&lt;String&gt;</code> thành <code>&amp;String</code>
+bằng cách gọi <code>deref</code>. Thư viện tiêu chuẩn cung cấp một thực thi của <code>Deref</code>
+trên <code>String</code> trả về một string slice, và điều này có trong tài liệu API
+cho <code>Deref</code>. Rust gọi <code>deref</code> một lần nữa để biến <code>&amp;String</code> thành <code>&amp;str</code>, điều này
+khớp với định nghĩa của hàm <code>hello</code>.</p>
+<p>Nếu Rust không thực thi ép kiểu deref, chúng ta sẽ phải viết mã trong
+Liệt kê 15-13 thay vì mã trong Liệt kê 15-12 để gọi <code>hello</code> với một giá trị
+kiểu <code>&amp;MyBox&lt;String&gt;</code>.</p>
 <figure class="listing" id="listing-15-13">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><pre class="playground"><code class="language-rust edition2024"><span class="boring">use std::ops::Deref;
@@ -494,44 +489,43 @@ of type <code>&amp;MyBox&lt;String&gt;</code>.</p>
     let m = MyBox::new(String::from("Rust"));
     hello(&amp;(*m)[..]);
 }</code></pre></pre>
-<figcaption><a href="#listing-15-13">Listing 15-13</a>: The code we would have to write if Rust didn’t have deref coercion</figcaption>
+<figcaption><a href="#listing-15-13">Listing 15-13</a>: Mã chúng ta sẽ phải viết nếu Rust không có ép kiểu deref</figcaption>
 </figure>
-<p>The <code>(*m)</code> dereferences the <code>MyBox&lt;String&gt;</code> into a <code>String</code>. Then the <code>&amp;</code> and
-<code>[..]</code> take a string slice of the <code>String</code> that is equal to the whole string to
-match the signature of <code>hello</code>. This code without deref coercions is harder to
-read, write, and understand with all of these symbols involved. Deref coercion
-allows Rust to handle these conversions for us automatically.</p>
-<p>When the <code>Deref</code> trait is defined for the types involved, Rust will analyze the
-types and use <code>Deref::deref</code> as many times as necessary to get a reference to
-match the parameter’s type. The number of times that <code>Deref::deref</code> needs to be
-inserted is resolved at compile time, so there is no runtime penalty for taking
-advantage of deref coercion!</p>
-<h3 id="how-deref-coercion-interacts-with-mutability"><a class="header" href="#how-deref-coercion-interacts-with-mutability">How Deref Coercion Interacts with Mutability</a></h3>
-<p>Similar to how you use the <code>Deref</code> trait to override the <code>*</code> operator on
-immutable references, you can use the <code>DerefMut</code> trait to override the <code>*</code>
-operator on mutable references.</p>
-<p>Rust does deref coercion when it finds types and trait implementations in three
-cases:</p>
+<p><code>(*m)</code> giải tham chiếu <code>MyBox&lt;String&gt;</code> thành một <code>String</code>. Sau đó <code>&amp;</code> và
+<code>[..]</code> lấy một string slice của <code>String</code> bằng với toàn bộ chuỗi để
+khớp với chữ ký của <code>hello</code>. Mã này khi không có ép kiểu deref thì khó
+đọc, viết và hiểu hơn với tất cả các ký hiệu liên quan. Ép kiểu Deref
+cho phép Rust xử lý các chuyển đổi này cho chúng ta một cách tự động.</p>
+<p>Khi trait <code>Deref</code> được định nghĩa cho các kiểu liên quan, Rust sẽ phân tích các
+kiểu đó và sử dụng <code>Deref::deref</code> nhiều lần nếu cần thiết để lấy một tham chiếu
+khớp với kiểu của tham số. Số lần mà <code>Deref::deref</code> cần được
+chèn vào được giải quyết tại thời điểm biên dịch, vì vậy không có hình phạt về hiệu năng khi chạy (runtime penalty) khi
+tận dụng ép kiểu deref!</p>
+<h3 id="cách-Ép-kiểu-deref-tương-tác-với-tính-đột-biến"><a class="header" href="#cách-Ép-kiểu-deref-tương-tác-với-tính-đột-biến">Cách Ép kiểu Deref tương tác với Tính đột biến</a></h3>
+<p>Tương tự như cách bạn sử dụng trait <code>Deref</code> để ghi đè toán tử <code>*</code> trên
+các tham chiếu bất biến, bạn có thể sử dụng trait <code>DerefMut</code> để ghi đè toán tử <code>*</code>
+trên các tham chiếu có thể thay đổi (mutable references).</p>
+<p>Rust thực hiện ép kiểu deref khi nó tìm thấy các kiểu và thực thi trait trong ba
+trường hợp:</p>
 <ol>
-<li>From <code>&amp;T</code> to <code>&amp;U</code> when <code>T: Deref&lt;Target=U&gt;</code></li>
-<li>From <code>&amp;mut T</code> to <code>&amp;mut U</code> when <code>T: DerefMut&lt;Target=U&gt;</code></li>
-<li>From <code>&amp;mut T</code> to <code>&amp;U</code> when <code>T: Deref&lt;Target=U&gt;</code></li>
+<li>Từ <code>&amp;T</code> sang <code>&amp;U</code> khi <code>T: Deref&lt;Target=U&gt;</code></li>
+<li>Từ <code>&amp;mut T</code> sang <code>&amp;mut U</code> khi <code>T: DerefMut&lt;Target=U&gt;</code></li>
+<li>Từ <code>&amp;mut T</code> sang <code>&amp;U</code> khi <code>T: Deref&lt;Target=U&gt;</code></li>
 </ol>
-<p>The first two cases are the same except that the second implements mutability.
-The first case states that if you have a <code>&amp;T</code>, and <code>T</code> implements <code>Deref</code> to
-some type <code>U</code>, you can get a <code>&amp;U</code> transparently. The second case states that the
-same deref coercion happens for mutable references.</p>
-<p>The third case is trickier: Rust will also coerce a mutable reference to an
-immutable one. But the reverse is <em>not</em> possible: immutable references will
-never coerce to mutable references. Because of the borrowing rules, if you have
-a mutable reference, that mutable reference must be the only reference to that
-data (otherwise, the program wouldn’t compile). Converting one mutable
-reference to one immutable reference will never break the borrowing rules.
-Converting an immutable reference to a mutable reference would require that the
-initial immutable reference is the only immutable reference to that data, but
-the borrowing rules don’t guarantee that. Therefore, Rust can’t make the
-assumption that converting an immutable reference to a mutable reference is
-possible.</p>
+<p>Hai trường hợp đầu tiên là giống nhau ngoại trừ trường hợp thứ hai thực thi tính đột biến.
+Trường hợp đầu tiên phát biểu rằng nếu bạn có một <code>&amp;T</code>, và <code>T</code> thực thi <code>Deref</code> đến
+một kiểu <code>U</code> nào đó, bạn có thể lấy một <code>&amp;U</code> một cách minh bạch. Trường hợp thứ hai phát biểu rằng
+việc ép kiểu deref tương tự cũng xảy ra cho các tham chiếu có thể thay đổi.</p>
+<p>Trường hợp thứ ba lắt léo hơn: Rust cũng sẽ ép một tham chiếu có thể thay đổi thành một
+tham chiếu bất biến. Nhưng điều ngược lại là <em>không</em> thể: các tham chiếu bất biến sẽ
+không bao giờ ép kiểu thành các tham chiếu có thể thay đổi. Bởi vì các quy tắc mượn, nếu bạn có
+một tham chiếu có thể thay đổi, tham chiếu có thể thay đổi đó phải là tham chiếu duy nhất đến
+dữ liệu đó (nếu không, chương trình sẽ không biên dịch được). Chuyển đổi một tham chiếu
+có thể thay đổi thành một tham chiếu bất biến sẽ không bao giờ phá vỡ các quy tắc mượn.
+Chuyển đổi một tham chiếu bất biến thành một tham chiếu có thể thay đổi sẽ yêu cầu rằng
+tham chiếu bất biến ban đầu là tham chiếu bất biến duy nhất đến dữ liệu đó, nhưng
+các quy tắc mượn không đảm bảo điều đó. Do đó, Rust không thể đưa ra
+giả định rằng việc chuyển đổi một tham chiếu bất biến thành một tham chiếu có thể thay đổi là khả thi.</p>
 <div class="quiz-placeholder" data-quiz-name="&quot;ch15-02-deref&quot;" data-quiz-questions="{&quot;questions&quot;:[{&quot;context&quot;:&quot;The `AccessLogger` will print \&quot;deref\&quot; every time `n` is dereferenced, which occurs twice.\nNote that copying `n` to `n2` does not dereference `n`.\n&quot;,&quot;id&quot;:&quot;f4971d37-55d5-48c5-9966-a28b54ed3bee&quot;,&quot;type&quot;:&quot;Tracing&quot;,&quot;answer&quot;:{&quot;doesCompile&quot;:true,&quot;stdout&quot;:&quot;deref\nderef\n0 -1\n&quot;},&quot;prompt&quot;:{&quot;program&quot;:&quot;use std::ops::Deref;\n\n#[derive(Clone, Copy)]\nstruct AccessLogger(i32);\n\nimpl Deref for AccessLogger {\n    type Target = i32;\n    fn deref(&amp;self) -&gt; &amp;Self::Target {\n        println!(\&quot;deref\&quot;);\n        &amp;self.0\n    }\n}\n\nfn main() {\n  let n = AccessLogger(-1);\n  let x = *n + 1;\n  let n2 = n;\n  println!(\&quot;{} {}\&quot;, x, *n)\n}\n&quot;}}]}" data-quiz-fullscreen="true" data-quiz-cache-answers="true"></div>
 <script type="text/javascript" src="quiz/quiz-embed.iife.js"></script><link rel="stylesheet" type="text/css" href="quiz/style.css">
 

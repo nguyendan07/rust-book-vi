@@ -175,78 +175,78 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="refcellt-and-the-interior-mutability-pattern"><a class="header" href="#refcellt-and-the-interior-mutability-pattern"><code>RefCell&lt;T&gt;</code> and the Interior Mutability Pattern</a></h2>
-<p><em>Interior mutability</em> is a design pattern in Rust that allows you to mutate
-data even when there are immutable references to that data; normally, this
-action is disallowed by the borrowing rules. To mutate data, the pattern uses
-<code>unsafe</code> code inside a data structure to bend Rust’s usual rules that govern
-mutation and borrowing. Unsafe code indicates to the compiler that we’re
-checking the rules manually instead of relying on the compiler to check them
-for us; we will discuss unsafe code more in Chapter 20.</p>
-<p>We can use types that use the interior mutability pattern only when we can
-ensure that the borrowing rules will be followed at runtime, even though the
-compiler can’t guarantee that. The <code>unsafe</code> code involved is then wrapped in a
-safe API, and the outer type is still immutable.</p>
-<p>Let’s explore this concept by looking at the <code>RefCell&lt;T&gt;</code> type that follows the
-interior mutability pattern.</p>
-<h3 id="enforcing-borrowing-rules-at-runtime-with-refcellt"><a class="header" href="#enforcing-borrowing-rules-at-runtime-with-refcellt">Enforcing Borrowing Rules at Runtime with <code>RefCell&lt;T&gt;</code></a></h3>
-<p>Unlike <code>Rc&lt;T&gt;</code>, the <code>RefCell&lt;T&gt;</code> type represents single ownership over the data
-it holds. So what makes <code>RefCell&lt;T&gt;</code> different from a type like <code>Box&lt;T&gt;</code>?
-Recall the borrowing rules you learned in Chapter 4:</p>
+                        <h2 id="refcellt-và-mô-hình-có-thể-thay-đổi-từ-bên-trong-interior-mutability-pattern"><a class="header" href="#refcellt-và-mô-hình-có-thể-thay-đổi-từ-bên-trong-interior-mutability-pattern"><code>RefCell&lt;T&gt;</code> và mô hình “có thể thay đổi từ bên trong” (Interior Mutability Pattern)</a></h2>
+<p><em>Interior mutability</em> (interior mutability) là một mẫu thiết kế trong Rust cho phép bạn thay đổi
+dữ liệu ngay cả khi có các tham chiếu bất biến đến dữ liệu đó; thông thường,
+hành động này bị cấm bởi các quy tắc mượn. Để thay đổi dữ liệu, mô hình này sử dụng
+mã <code>unsafe</code> bên trong một cấu trúc dữ liệu để lách các quy tắc thông thường của Rust quản lý
+việc thay đổi và mượn. Mã không an toàn (unsafe code) chỉ ra cho trình biên dịch rằng chúng ta đang
+kiểm tra các quy tắc một cách thủ công thay vì dựa vào trình biên dịch để kiểm tra chúng
+cho chúng ta; chúng ta sẽ thảo luận về mã không an toàn nhiều hơn trong Chương 20.</p>
+<p>Chúng ta chỉ có thể sử dụng các kiểu sử dụng mô hình interior mutability khi chúng ta có thể
+đảm bảo rằng các quy tắc mượn sẽ được tuân thủ tại thời điểm chạy, ngay cả khi
+trình biên dịch không thể đảm bảo điều đó. Mã <code>unsafe</code> liên quan sau đó được gói trong một
+API an toàn, và kiểu bên ngoài vẫn là bất biến.</p>
+<p>Hãy cùng khám phá khái niệm này bằng cách xem xét kiểu <code>RefCell&lt;T&gt;</code> tuân theo
+mô hình interior mutability.</p>
+<h3 id="thực-thi-các-quy-tắc-mượn-tại-thời-điểm-chạy-với-refcellt"><a class="header" href="#thực-thi-các-quy-tắc-mượn-tại-thời-điểm-chạy-với-refcellt">Thực thi các quy tắc mượn tại thời điểm chạy với <code>RefCell&lt;T&gt;</code></a></h3>
+<p>Không giống như <code>Rc&lt;T&gt;</code>, kiểu <code>RefCell&lt;T&gt;</code> đại diện cho quyền sở hữu đơn lẻ đối với dữ liệu
+mà nó nắm giữ. Vậy điều gì làm cho <code>RefCell&lt;T&gt;</code> khác biệt với một kiểu như <code>Box&lt;T&gt;</code>?
+Hãy nhớ lại các quy tắc mượn bạn đã học ở Chương 4:</p>
 <ul>
-<li>At any given time, you can have <em>either</em> one mutable reference or any number
-of immutable references (but not both).</li>
-<li>References must always be valid.</li>
+<li>Tại bất kỳ thời điểm nào, bạn có thể có <em>hoặc</em> một tham chiếu có thể thay đổi hoặc bất kỳ số lượng
+tham chiếu bất biến nào (nhưng không phải cả hai).</li>
+<li>Các tham chiếu phải luôn hợp lệ.</li>
 </ul>
-<p>With references and <code>Box&lt;T&gt;</code>, the borrowing rules’ invariants are enforced at
-compile time. With <code>RefCell&lt;T&gt;</code>, these invariants are enforced <em>at runtime</em>.
-With references, if you break these rules, you’ll get a compiler error. With
-<code>RefCell&lt;T&gt;</code>, if you break these rules, your program will panic and exit.</p>
-<p>The advantages of checking the borrowing rules at compile time are that errors
-will be caught sooner in the development process, and there is no impact on
-runtime performance because all the analysis is completed beforehand. For those
-reasons, checking the borrowing rules at compile time is the best choice in the
-majority of cases, which is why this is Rust’s default.</p>
-<p>The advantage of checking the borrowing rules at runtime instead is that
-certain memory-safe scenarios are then allowed, where they would’ve been
-disallowed by the compile-time checks. Static analysis, like the Rust compiler,
-is inherently conservative. Some properties of code are impossible to detect by
-analyzing the code: the most famous example is the Halting Problem, which is
-beyond the scope of this book but is an interesting topic to research.</p>
-<p>Because some analysis is impossible, if the Rust compiler can’t be sure the
-code complies with the ownership rules, it might reject a correct program; in
-this way, it’s conservative. If Rust accepted an incorrect program, users
-wouldn’t be able to trust in the guarantees Rust makes. However, if Rust
-rejects a correct program, the programmer will be inconvenienced, but nothing
-catastrophic can occur. The <code>RefCell&lt;T&gt;</code> type is useful when you’re sure your
-code follows the borrowing rules but the compiler is unable to understand and
-guarantee that.</p>
-<p>Similar to <code>Rc&lt;T&gt;</code>, <code>RefCell&lt;T&gt;</code> is only for use in single-threaded scenarios
-and will give you a compile-time error if you try using it in a multithreaded
-context. We’ll talk about how to get the functionality of <code>RefCell&lt;T&gt;</code> in a
-multithreaded program in Chapter 16.</p>
-<p>Here is a recap of the reasons to choose <code>Box&lt;T&gt;</code>, <code>Rc&lt;T&gt;</code>, or <code>RefCell&lt;T&gt;</code>:</p>
+<p>Với các tham chiếu và <code>Box&lt;T&gt;</code>, các bất biến của quy tắc mượn được thực thi tại
+thời điểm biên dịch. Với <code>RefCell&lt;T&gt;</code>, các bất biến này được thực thi <em>tại thời điểm chạy</em>.
+Với các tham chiếu, nếu bạn vi phạm các quy tắc này, bạn sẽ nhận được lỗi trình biên dịch. Với
+<code>RefCell&lt;T&gt;</code>, nếu bạn vi phạm các quy tắc này, chương trình của bạn sẽ panic và thoát.</p>
+<p>Ưu điểm của việc kiểm tra các quy tắc mượn tại thời điểm biên dịch là các lỗi
+sẽ được phát hiện sớm hơn trong quá trình phát triển, và không có tác động nào đến
+hiệu suất thời gian chạy vì tất cả các phân tích đã được hoàn thành trước đó. Vì những
+lý do đó, kiểm tra các quy tắc mượn tại thời điểm biên dịch là lựa chọn tốt nhất trong
+phần lớn các trường hợp, đó là lý do tại sao đây là mặc định của Rust.</p>
+<p>Ưu điểm của việc kiểm tra các quy tắc mượn tại thời điểm chạy thay thế là
+một số kịch bản an toàn về bộ nhớ nhất định sau đó được cho phép, nơi mà chúng đáng lẽ đã bị
+cấm bởi các kiểm tra tại thời điểm biên dịch. Phân tích tĩnh, giống như trình biên dịch Rust,
+vốn dĩ có tính bảo thủ. Một số thuộc tính của mã là không thể phát hiện được bằng cách
+phân tích mã: ví dụ nổi tiếng nhất là Bài toán dừng (Halting Problem), nằm ngoài
+phạm vi của cuốn sách này nhưng là một chủ đề thú vị để nghiên cứu.</p>
+<p>Bởi vì một số phân tích là không thể, nếu trình biên dịch Rust không thể chắc chắn rằng
+mã tuân thủ các quy tắc quyền sở hữu, nó có thể từ chối một chương trình đúng; theo
+cách này, nó có tính bảo thủ. Nếu Rust chấp nhận một chương trình sai, người dùng
+sẽ không thể tin tưởng vào những đảm bảo mà Rust đưa ra. Tuy nhiên, nếu Rust
+từ chối một chương trình đúng, lập trình viên sẽ gặp bất tiện, nhưng không có gì
+thảm khốc có thể xảy ra. Kiểu <code>RefCell&lt;T&gt;</code> hữu ích khi bạn chắc chắn rằng mã của mình
+tuân thủ các quy tắc mượn nhưng trình biên dịch không thể hiểu và
+đảm bảo điều đó.</p>
+<p>Tương tự như <code>Rc&lt;T&gt;</code>, <code>RefCell&lt;T&gt;</code> chỉ được sử dụng trong các tình huống đơn luồng
+và sẽ báo lỗi biên dịch nếu bạn cố gắng sử dụng nó trong một ngữ cảnh đa luồng.
+Chúng ta sẽ nói về cách có được chức năng của <code>RefCell&lt;T&gt;</code> trong một
+chương trình đa luồng ở Chương 16.</p>
+<p>Dưới đây là bản tóm tắt các lý do để chọn <code>Box&lt;T&gt;</code>, <code>Rc&lt;T&gt;</code>, hoặc <code>RefCell&lt;T&gt;</code>:</p>
 <ul>
-<li><code>Rc&lt;T&gt;</code> enables multiple owners of the same data; <code>Box&lt;T&gt;</code> and <code>RefCell&lt;T&gt;</code>
-have single owners.</li>
-<li><code>Box&lt;T&gt;</code> allows immutable or mutable borrows checked at compile time; <code>Rc&lt;T&gt;</code>
-allows only immutable borrows checked at compile time; <code>RefCell&lt;T&gt;</code> allows
-immutable or mutable borrows checked at runtime.</li>
-<li>Because <code>RefCell&lt;T&gt;</code> allows mutable borrows checked at runtime, you can
-mutate the value inside the <code>RefCell&lt;T&gt;</code> even when the <code>RefCell&lt;T&gt;</code> is
-immutable.</li>
+<li><code>Rc&lt;T&gt;</code> cho phép nhiều chủ sở hữu của cùng một dữ liệu; <code>Box&lt;T&gt;</code> và <code>RefCell&lt;T&gt;</code>
+có chủ sở hữu đơn lẻ.</li>
+<li><code>Box&lt;T&gt;</code> cho phép mượn bất biến hoặc có thể thay đổi được kiểm tra tại thời điểm biên dịch; <code>Rc&lt;T&gt;</code>
+chỉ cho phép mượn bất biến được kiểm tra tại thời điểm biên dịch; <code>RefCell&lt;T&gt;</code> cho phép
+mượn bất biến hoặc có thể thay đổi được kiểm tra tại thời điểm chạy.</li>
+<li>Bởi vì <code>RefCell&lt;T&gt;</code> cho phép mượn có thể thay đổi được kiểm tra tại thời điểm chạy, bạn có thể
+thay đổi giá trị bên trong <code>RefCell&lt;T&gt;</code> ngay cả khi <code>RefCell&lt;T&gt;</code> là
+bất biến.</li>
 </ul>
-<p>Mutating the value inside an immutable value is the <em>interior mutability</em>
-pattern. Let’s look at a situation in which interior mutability is useful and
-examine how it’s possible.</p>
-<h3 id="interior-mutability-a-mutable-borrow-to-an-immutable-value"><a class="header" href="#interior-mutability-a-mutable-borrow-to-an-immutable-value">Interior Mutability: A Mutable Borrow to an Immutable Value</a></h3>
-<p>A consequence of the borrowing rules is that when you have an immutable value,
-you can’t borrow it mutably. For example, this code won’t compile:</p>
+<p>Việc thay đổi giá trị bên trong một giá trị bất biến là mô hình <em>interior mutability</em>.
+Hãy cùng xem xét một tình huống mà interior mutability hữu ích và
+tìm hiểu cách nó có thể thực hiện được.</p>
+<h3 id="interior-mutability-một-lần-mượn-có-thể-thay-đổi-đến-một-giá-trị-bất-biến"><a class="header" href="#interior-mutability-một-lần-mượn-có-thể-thay-đổi-đến-một-giá-trị-bất-biến">Interior mutability: Một lần mượn có thể thay đổi đến một giá trị bất biến</a></h3>
+<p>Một hệ quả của các quy tắc mượn là khi bạn có một giá trị bất biến,
+bạn không thể mượn nó một cách có thể thay đổi. Ví dụ, mã này sẽ không biên dịch được:</p>
 <pre><code class="language-rust ignore does_not_compile">fn main() {
     let x = 5;
     let y = &amp;mut x;
 }</code></pre>
-<p>If you tried to compile this code, you’d get the following error:</p>
+<p>Nếu bạn cố gắng biên dịch mã này, bạn sẽ nhận được lỗi sau:</p>
 <pre><code class="language-console">$ cargo run
    Compiling borrowing v0.1.0 (file:///projects/borrowing)
 error[E0596]: cannot borrow `x` as mutable, as it is not declared as mutable
@@ -263,40 +263,40 @@ help: consider changing this to be mutable
 For more information about this error, try `rustc --explain E0596`.
 error: could not compile `borrowing` (bin "borrowing") due to 1 previous error
 </code></pre>
-<p>However, there are situations in which it would be useful for a value to mutate
-itself in its methods but appear immutable to other code. Code outside the
-value’s methods would not be able to mutate the value. Using <code>RefCell&lt;T&gt;</code> is
-one way to get the ability to have interior mutability, but <code>RefCell&lt;T&gt;</code>
-doesn’t get around the borrowing rules completely: the borrow checker in the
-compiler allows this interior mutability, and the borrowing rules are checked
-at runtime instead. If you violate the rules, you’ll get a <code>panic!</code> instead of
-a compiler error.</p>
-<p>Let’s work through a practical example where we can use <code>RefCell&lt;T&gt;</code> to mutate
-an immutable value and see why that is useful.</p>
-<h4 id="a-use-case-for-interior-mutability-mock-objects"><a class="header" href="#a-use-case-for-interior-mutability-mock-objects">A Use Case for Interior Mutability: Mock Objects</a></h4>
-<p>Sometimes during testing a programmer will use a type in place of another type,
-in order to observe particular behavior and assert that it’s implemented
-correctly. This placeholder type is called a <em>test double</em>. Think of it in the
-sense of a stunt double in filmmaking, where a person steps in and substitutes
-for an actor to do a particularly tricky scene. Test doubles stand in for other
-types when we’re running tests. <em>Mock objects</em> are specific types of test
-doubles that record what happens during a test so you can assert that the
-correct actions took place.</p>
-<p>Rust doesn’t have objects in the same sense as other languages have objects,
-and Rust doesn’t have mock object functionality built into the standard library
-as some other languages do. However, you can definitely create a struct that
-will serve the same purposes as a mock object.</p>
-<p>Here’s the scenario we’ll test: we’ll create a library that tracks a value
-against a maximum value and sends messages based on how close to the maximum
-value the current value is. This library could be used to keep track of a
-user’s quota for the number of API calls they’re allowed to make, for example.</p>
-<p>Our library will only provide the functionality of tracking how close to the
-maximum a value is and what the messages should be at what times. Applications
-that use our library will be expected to provide the mechanism for sending the
-messages: the application could put a message in the application, send an email,
-send a text message, or do something else. The library doesn’t need to know that
-detail. All it needs is something that implements a trait we’ll provide called
-<code>Messenger</code>. Listing 15-20 shows the library code.</p>
+<p>Tuy nhiên, có những tình huống mà việc một giá trị tự thay đổi
+chính nó trong các phương thức của nó nhưng lại có vẻ bất biến đối với mã khác là rất hữu ích. Mã bên ngoài
+các phương thức của giá trị sẽ không thể thay đổi giá trị đó. Sử dụng <code>RefCell&lt;T&gt;</code> là
+một cách để có được khả năng interior mutability, nhưng <code>RefCell&lt;T&gt;</code>
+không hoàn toàn lách được các quy tắc mượn: bộ kiểm tra mượn (borrow checker) trong
+trình biên dịch cho phép interior mutability này, và các quy tắc mượn được kiểm tra
+tại thời điểm chạy thay thế. Nếu bạn vi phạm các quy tắc, bạn sẽ nhận được một <code>panic!</code> thay vì
+một lỗi trình biên dịch.</p>
+<p>Hãy cùng thực hiện một ví dụ thực tế nơi chúng ta có thể sử dụng <code>RefCell&lt;T&gt;</code> để thay đổi
+một giá trị bất biến và xem tại sao điều đó lại hữu ích.</p>
+<h4 id="một-trường-hợp-sử-dụng-cho-interior-mutability-mock-objects"><a class="header" href="#một-trường-hợp-sử-dụng-cho-interior-mutability-mock-objects">Một trường hợp sử dụng cho interior mutability: Mock Objects</a></h4>
+<p>Đôi khi trong quá trình thử nghiệm, một lập trình viên sẽ sử dụng một kiểu thay thế cho một kiểu khác,
+để quan sát hành vi cụ thể và khẳng định rằng nó được thực thi
+chính xác. Kiểu giữ chỗ này được gọi là một <em>test double</em>. Hãy nghĩ về nó theo nghĩa
+của một diễn viên đóng thế (stunt double) trong điện ảnh, nơi một người bước vào và thay thế
+cho một diễn viên để thực hiện một cảnh quay đặc biệt khó khăn. Test doubles thay thế cho các
+kiểu khác khi chúng ta đang chạy các bài kiểm tra. <em>Mock objects</em> là các loại test
+doubles cụ thể ghi lại những gì xảy ra trong một bài kiểm tra để bạn có thể khẳng định rằng
+các hành động chính xác đã diễn ra.</p>
+<p>Rust không có các đối tượng (objects) theo cùng nghĩa như các ngôn ngữ khác có các đối tượng,
+và Rust không có chức năng mock object được tích hợp sẵn trong thư viện tiêu chuẩn
+như một số ngôn ngữ khác. Tuy nhiên, bạn chắc chắn có thể tạo một struct
+phục vụ cùng mục đích như một mock object.</p>
+<p>Đây là kịch bản chúng ta sẽ kiểm tra: chúng ta sẽ tạo một thư viện theo dõi một giá trị
+so với một giá trị tối đa và gửi các thông báo dựa trên việc giá trị hiện tại
+gần với giá trị tối đa như thế nào. Thư viện này có thể được sử dụng để theo dõi
+quota của người dùng về số lượng lời gọi API mà họ được phép thực hiện, chẳng hạn.</p>
+<p>Thư viện của chúng ta sẽ chỉ cung cấp chức năng theo dõi mức độ gần
+với mức tối đa của một giá trị và các thông báo nên là gì vào thời điểm nào. Các ứng dụng
+sử dụng thư viện của chúng ta sẽ được mong đợi cung cấp cơ chế gửi các
+thông báo: ứng dụng có thể đặt một thông báo trong ứng dụng, gửi email,
+gửi tin nhắn văn bản, hoặc làm điều gì đó khác. Thư viện không cần biết
+chi tiết đó. Tất cả những gì nó cần là một cái gì đó thực thi một trait mà chúng ta sẽ cung cấp gọi là
+<code>Messenger</code>. Liệt kê 15-20 cho thấy mã thư viện.</p>
 <figure class="listing" id="listing-15-20">
 <span class="file-name">Filename: src/lib.rs</span>
 <pre><code class="language-rust noplayground">pub trait Messenger {
@@ -337,24 +337,24 @@ where
         }
     }
 }</code></pre>
-<figcaption><a href="#listing-15-20">Listing 15-20</a>: A library to keep track of how close a value is to a maximum value and warn when the value is at certain levels</figcaption>
+<figcaption><a href="#listing-15-20">Listing 15-20</a>: Một thư viện để theo dõi mức độ gần của một giá trị với giá trị tối đa và cảnh báo khi giá trị ở các mức nhất định</figcaption>
 </figure>
-<p>One important part of this code is that the <code>Messenger</code> trait has one method
-called <code>send</code> that takes an immutable reference to <code>self</code> and the text of the
-message. This trait is the interface our mock object needs to implement so that
-the mock can be used in the same way a real object is. The other important part
-is that we want to test the behavior of the <code>set_value</code> method on the
-<code>LimitTracker</code>. We can change what we pass in for the <code>value</code> parameter, but
-<code>set_value</code> doesn’t return anything for us to make assertions on. We want to be
-able to say that if we create a <code>LimitTracker</code> with something that implements
-the <code>Messenger</code> trait and a particular value for <code>max</code>, when we pass different
-numbers for <code>value</code>, the messenger is told to send the appropriate messages.</p>
-<p>We need a mock object that, instead of sending an email or text message when we
-call <code>send</code>, will only keep track of the messages it’s told to send. We can
-create a new instance of the mock object, create a <code>LimitTracker</code> that uses the
-mock object, call the <code>set_value</code> method on <code>LimitTracker</code>, and then check that
-the mock object has the messages we expect. Listing 15-21 shows an attempt to
-implement a mock object to do just that, but the borrow checker won’t allow it.</p>
+<p>Một phần quan trọng của mã này là trait <code>Messenger</code> có một phương thức
+tên là <code>send</code> nhận một tham chiếu bất biến đến <code>self</code> và văn bản của
+thông báo. Trait này là giao diện mà mock object của chúng ta cần thực thi để
+mock có thể được sử dụng theo cùng cách mà một đối tượng thật được sử dụng. Phần quan trọng khác
+là chúng ta muốn kiểm tra hành vi của phương thức <code>set_value</code> trên
+<code>LimitTracker</code>. Chúng ta có thể thay đổi những gì chúng ta truyền vào cho tham số <code>value</code>, nhưng
+<code>set_value</code> không trả về bất cứ thứ gì để chúng ta thực hiện các khẳng định. Chúng ta muốn có thể
+nói rằng nếu chúng ta tạo một <code>LimitTracker</code> với một cái gì đó thực thi
+trait <code>Messenger</code> và một giá trị cụ thể cho <code>max</code>, khi chúng ta truyền các số khác nhau
+cho <code>value</code>, messenger được yêu cầu gửi các thông báo thích hợp.</p>
+<p>Chúng ta cần một mock object mà thay vì gửi email hoặc tin nhắn văn bản khi chúng ta
+gọi <code>send</code>, nó sẽ chỉ theo dõi các thông báo mà nó được yêu cầu gửi. Chúng ta có thể
+tạo một instance mới của mock object, tạo một <code>LimitTracker</code> sử dụng
+mock object đó, gọi phương thức <code>set_value</code> trên <code>LimitTracker</code>, và sau đó kiểm tra xem
+mock object có các thông báo mà chúng ta mong đợi hay không. Liệt kê 15-21 cho thấy một nỗ lực
+thực thi một mock object để làm điều đó, nhưng bộ kiểm tra mượn sẽ không cho phép.</p>
 <figure class="listing" id="listing-15-21">
 <span class="file-name">Filename: src/lib.rs</span>
 <pre><code class="language-rust ignore does_not_compile"><span class="boring">pub trait Messenger {
@@ -428,25 +428,25 @@ mod tests {
         assert_eq!(mock_messenger.sent_messages.len(), 1);
     }
 }</code></pre>
-<figcaption><a href="#listing-15-21">Listing 15-21</a>: An attempt to implement a <code>MockMessenger</code> that isn’t allowed by the borrow checker</figcaption>
+<figcaption><a href="#listing-15-21">Listing 15-21</a>: Một nỗ lực thực thi một <code>MockMessenger</code> không được phép bởi bộ kiểm tra mượn</figcaption>
 </figure>
-<p>This test code defines a <code>MockMessenger</code> struct that has a <code>sent_messages</code>
-field with a <code>Vec</code> of <code>String</code> values to keep track of the messages it’s told
-to send. We also define an associated function <code>new</code> to make it convenient to
-create new <code>MockMessenger</code> values that start with an empty list of messages. We
-then implement the <code>Messenger</code> trait for <code>MockMessenger</code> so we can give a
-<code>MockMessenger</code> to a <code>LimitTracker</code>. In the definition of the <code>send</code> method, we
-take the message passed in as a parameter and store it in the <code>MockMessenger</code>
-list of <code>sent_messages</code>.</p>
-<p>In the test, we’re testing what happens when the <code>LimitTracker</code> is told to set
-<code>value</code> to something that is more than 75 percent of the <code>max</code> value. First, we
-create a new <code>MockMessenger</code>, which will start with an empty list of messages.
-Then we create a new <code>LimitTracker</code> and give it a reference to the new
-<code>MockMessenger</code> and a <code>max</code> value of <code>100</code>. We call the <code>set_value</code> method on
-the <code>LimitTracker</code> with a value of <code>80</code>, which is more than 75 percent of 100.
-Then we assert that the list of messages that the <code>MockMessenger</code> is keeping
-track of should now have one message in it.</p>
-<p>However, there’s one problem with this test, as shown here:</p>
+<p>Mã kiểm tra này định nghĩa một struct <code>MockMessenger</code> có một trường <code>sent_messages</code>
+với một <code>Vec</code> các giá trị <code>String</code> để theo dõi các thông báo mà nó được yêu cầu
+gửi. Chúng ta cũng định nghĩa một hàm liên kết <code>new</code> để thuận tiện cho việc
+tạo các giá trị <code>MockMessenger</code> mới bắt đầu với một danh sách thông báo trống. Sau đó chúng ta
+thực thi trait <code>Messenger</code> cho <code>MockMessenger</code> để chúng ta có thể đưa một
+<code>MockMessenger</code> cho một <code>LimitTracker</code>. Trong định nghĩa của phương thức <code>send</code>, chúng ta
+lấy thông báo được truyền vào dưới dạng tham số và lưu trữ nó trong danh sách <code>sent_messages</code>
+của <code>MockMessenger</code>.</p>
+<p>Trong bài kiểm tra, chúng ta đang kiểm tra điều gì xảy ra khi <code>LimitTracker</code> được yêu cầu đặt
+<code>value</code> thành một giá trị lớn hơn 75 phần trăm của giá trị <code>max</code>. Đầu tiên, chúng ta
+tạo một <code>MockMessenger</code> mới, nó sẽ bắt đầu với một danh sách thông báo trống.
+Sau đó chúng ta tạo một <code>LimitTracker</code> mới và đưa cho nó một tham chiếu đến <code>MockMessenger</code>
+mới và một giá trị <code>max</code> là <code>100</code>. Chúng ta gọi phương thức <code>set_value</code> trên
+<code>LimitTracker</code> với giá trị <code>80</code>, lớn hơn 75 phần trăm của 100.
+Sau đó chúng ta khẳng định rằng danh sách các thông báo mà <code>MockMessenger</code> đang theo dõi
+bây giờ nên có một thông báo trong đó.</p>
+<p>Tuy nhiên, có một vấn đề với bài kiểm tra này, như được hiển thị ở đây:</p>
 <pre><code class="language-console">$ cargo test
    Compiling limit-tracker v0.1.0 (file:///projects/limit-tracker)
 error[E0596]: cannot borrow `self.sent_messages` as mutable, as it is behind a `&amp;` reference
@@ -467,16 +467,16 @@ help: consider changing this to be a mutable reference in the `impl` method and 
 For more information about this error, try `rustc --explain E0596`.
 error: could not compile `limit-tracker` (lib test) due to 1 previous error
 </code></pre>
-<p>We can’t modify the <code>MockMessenger</code> to keep track of the messages, because the
-<code>send</code> method takes an immutable reference to <code>self</code>. We also can’t take the
-suggestion from the error text to use <code>&amp;mut self</code> in both the <code>impl</code> method and
-the <code>trait</code> definition. We do not want to change the <code>Messenger</code> trait solely
-for the sake of testing. Instead, we need to find a way to make our test code
-work correctly with our existing design.</p>
-<p>This is a situation in which interior mutability can help! We’ll store the
-<code>sent_messages</code> within a <code>RefCell&lt;T&gt;</code>, and then the <code>send</code> method will be
-able to modify <code>sent_messages</code> to store the messages we’ve seen. Listing 15-22
-shows what that looks like.</p>
+<p>Chúng ta không thể sửa đổi <code>MockMessenger</code> để theo dõi các thông báo, vì
+phương thức <code>send</code> nhận một tham chiếu bất biến đến <code>self</code>. Chúng ta cũng không thể thực hiện theo
+gợi ý từ văn bản lỗi để sử dụng <code>&amp;mut self</code> trong cả phương thức <code>impl</code> và
+định nghĩa <code>trait</code>. Chúng ta không muốn thay đổi trait <code>Messenger</code> chỉ vì
+mục đích kiểm tra. Thay vào đó, chúng ta cần tìm một cách để làm cho mã kiểm tra của chúng ta
+hoạt động chính xác với thiết kế hiện tại của mình.</p>
+<p>Đây là một tình huống mà interior mutability có thể giúp ích! Chúng ta sẽ lưu trữ
+<code>sent_messages</code> bên trong một <code>RefCell&lt;T&gt;</code>, và sau đó phương thức <code>send</code> sẽ có thể
+sửa đổi <code>sent_messages</code> để lưu trữ các thông báo chúng ta đã thấy. Liệt kê 15-22
+cho thấy điều đó trông như thế nào.</p>
 <figure class="listing" id="listing-15-22">
 <span class="file-name">Filename: src/lib.rs</span>
 <pre><code class="language-rust noplayground"><span class="boring">pub trait Messenger {
@@ -552,40 +552,40 @@ mod tests {
         assert_eq!(mock_messenger.sent_messages.borrow().len(), 1);
     }
 }</code></pre>
-<figcaption><a href="#listing-15-22">Listing 15-22</a>: Using <code>RefCell&lt;T&gt;</code> to mutate an inner value while the outer value is considered immutable</figcaption>
+<figcaption><a href="#listing-15-22">Listing 15-22</a>: Sử dụng <code>RefCell&lt;T&gt;</code> để thay đổi một giá trị bên trong trong khi giá trị bên ngoài được coi là bất biến</figcaption>
 </figure>
-<p>The <code>sent_messages</code> field is now of type <code>RefCell&lt;Vec&lt;String&gt;&gt;</code> instead of
-<code>Vec&lt;String&gt;</code>. In the <code>new</code> function, we create a new <code>RefCell&lt;Vec&lt;String&gt;&gt;</code>
-instance around the empty vector.</p>
-<p>For the implementation of the <code>send</code> method, the first parameter is still an
-immutable borrow of <code>self</code>, which matches the trait definition. We call
-<code>borrow_mut</code> on the <code>RefCell&lt;Vec&lt;String&gt;&gt;</code> in <code>self.sent_messages</code> to get a
-mutable reference to the value inside the <code>RefCell&lt;Vec&lt;String&gt;&gt;</code>, which is the
-vector. Then we can call <code>push</code> on the mutable reference to the vector to keep
-track of the messages sent during the test.</p>
-<p>The last change we have to make is in the assertion: to see how many items are
-in the inner vector, we call <code>borrow</code> on the <code>RefCell&lt;Vec&lt;String&gt;&gt;</code> to get an
-immutable reference to the vector.</p>
-<p>Now that you’ve seen how to use <code>RefCell&lt;T&gt;</code>, let’s dig into how it works!</p>
-<h4 id="keeping-track-of-borrows-at-runtime-with-refcellt"><a class="header" href="#keeping-track-of-borrows-at-runtime-with-refcellt">Keeping Track of Borrows at Runtime with <code>RefCell&lt;T&gt;</code></a></h4>
-<p>When creating immutable and mutable references, we use the <code>&amp;</code> and <code>&amp;mut</code>
-syntax, respectively. With <code>RefCell&lt;T&gt;</code>, we use the <code>borrow</code> and <code>borrow_mut</code>
-methods, which are part of the safe API that belongs to <code>RefCell&lt;T&gt;</code>. The
-<code>borrow</code> method returns the smart pointer type <code>Ref&lt;T&gt;</code>, and <code>borrow_mut</code>
-returns the smart pointer type <code>RefMut&lt;T&gt;</code>. Both types implement <code>Deref</code>, so we
-can treat them like regular references.</p>
-<p>The <code>RefCell&lt;T&gt;</code> keeps track of how many <code>Ref&lt;T&gt;</code> and <code>RefMut&lt;T&gt;</code> smart
-pointers are currently active. Every time we call <code>borrow</code>, the <code>RefCell&lt;T&gt;</code>
-increases its count of how many immutable borrows are active. When a <code>Ref&lt;T&gt;</code>
-value goes out of scope, the count of immutable borrows goes down by 1. Just
-like the compile-time borrowing rules, <code>RefCell&lt;T&gt;</code> lets us have many immutable
-borrows or one mutable borrow at any point in time.</p>
-<p>If we try to violate these rules, rather than getting a compiler error as we
-would with references, the implementation of <code>RefCell&lt;T&gt;</code> will panic at
-runtime. Listing 15-23 shows a modification of the implementation of <code>send</code> in
-Listing 15-22. We’re deliberately trying to create two mutable borrows active
-for the same scope to illustrate that <code>RefCell&lt;T&gt;</code> prevents us from doing this
-at runtime.</p>
+<p>Trường <code>sent_messages</code> bây giờ thuộc kiểu <code>RefCell&lt;Vec&lt;String&gt;&gt;</code> thay vì
+<code>Vec&lt;String&gt;</code>. Trong hàm <code>new</code>, chúng ta tạo một instance <code>RefCell&lt;Vec&lt;String&gt;&gt;</code>
+mới bao quanh vector trống.</p>
+<p>Đối với việc thực thi phương thức <code>send</code>, tham số đầu tiên vẫn là một
+lần mượn bất biến của <code>self</code>, khớp với định nghĩa trait. Chúng ta gọi
+<code>borrow_mut</code> trên <code>RefCell&lt;Vec&lt;String&gt;&gt;</code> trong <code>self.sent_messages</code> để lấy một
+tham chiếu có thể thay đổi đến giá trị bên trong <code>RefCell&lt;Vec&lt;String&gt;&gt;</code>, chính là
+vector. Sau đó chúng ta có thể gọi <code>push</code> trên tham chiếu có thể thay đổi đến vector để theo dõi
+các thông báo được gửi trong quá trình kiểm tra.</p>
+<p>Thay đổi cuối cùng chúng ta phải thực hiện là trong câu lệnh khẳng định: để xem có bao nhiêu mục
+trong vector bên trong, chúng ta gọi <code>borrow</code> trên <code>RefCell&lt;Vec&lt;String&gt;&gt;</code> để lấy một
+tham chiếu bất biến đến vector.</p>
+<p>Bây giờ bạn đã thấy cách sử dụng <code>RefCell&lt;T&gt;</code>, hãy cùng tìm hiểu cách nó hoạt động!</p>
+<h4 id="theo-dõi-các-lần-mượn-tại-thời-điểm-chạy-với-refcellt"><a class="header" href="#theo-dõi-các-lần-mượn-tại-thời-điểm-chạy-với-refcellt">Theo dõi các lần mượn tại thời điểm chạy với <code>RefCell&lt;T&gt;</code></a></h4>
+<p>Khi tạo các tham chiếu bất biến và có thể thay đổi, chúng ta sử dụng cú pháp <code>&amp;</code> và <code>&amp;mut</code>
+tương ứng. Với <code>RefCell&lt;T&gt;</code>, chúng ta sử dụng các phương thức <code>borrow</code> và <code>borrow_mut</code>,
+là một phần của API an toàn thuộc về <code>RefCell&lt;T&gt;</code>. Phương thức
+<code>borrow</code> trả về kiểu con trỏ thông minh <code>Ref&lt;T&gt;</code>, và <code>borrow_mut</code>
+trả về kiểu con trỏ thông minh <code>RefMut&lt;T&gt;</code>. Cả hai kiểu đều thực thi <code>Deref</code>, vì vậy chúng ta
+có thể đối xử với chúng như các tham chiếu thông thường.</p>
+<p><code>RefCell&lt;T&gt;</code> theo dõi có bao nhiêu con trỏ thông minh <code>Ref&lt;T&gt;</code> và <code>RefMut&lt;T&gt;</code>
+hiện đang hoạt động. Mỗi khi chúng ta gọi <code>borrow</code>, <code>RefCell&lt;T&gt;</code>
+tăng số lượng các lần mượn bất biến đang hoạt động. Khi một giá trị <code>Ref&lt;T&gt;</code>
+ra khỏi phạm vi, số lượng mượn bất biến giảm đi 1. Giống như
+các quy tắc mượn tại thời điểm biên dịch, <code>RefCell&lt;T&gt;</code> cho phép chúng ta có nhiều lần mượn bất biến
+hoặc một lần mượn có thể thay đổi tại bất kỳ thời điểm nào.</p>
+<p>Nếu chúng ta cố gắng vi phạm các quy tắc này, thay vì nhận được lỗi trình biên dịch như chúng ta
+thường thấy với các tham chiếu, thực thi của <code>RefCell&lt;T&gt;</code> sẽ panic tại
+thời điểm chạy. Liệt kê 15-23 cho thấy một sửa đổi của việc thực thi <code>send</code> trong
+Liệt kê 15-22. Chúng ta đang cố tình tạo ra hai lần mượn có thể thay đổi hoạt động
+trong cùng một phạm vi để minh họa rằng <code>RefCell&lt;T&gt;</code> ngăn chúng ta làm điều này
+tại thời điểm chạy.</p>
 <figure class="listing" id="listing-15-23">
 <span class="file-name">Filename: src/lib.rs</span>
 <pre><code class="language-rust ignore panics"><span class="boring">pub trait Messenger {
@@ -664,13 +664,13 @@ at runtime.</p>
 </span><span class="boring">        assert_eq!(mock_messenger.sent_messages.borrow().len(), 1);
 </span><span class="boring">    }
 </span><span class="boring">}</span></code></pre>
-<figcaption><a href="#listing-15-23">Listing 15-23</a>: Creating two mutable references in the same scope to see that <code>RefCell&lt;T&gt;</code> will panic</figcaption>
+<figcaption><a href="#listing-15-23">Listing 15-23</a>: Tạo hai tham chiếu có thể thay đổi trong cùng một phạm vi để thấy rằng <code>RefCell&lt;T&gt;</code> sẽ panic</figcaption>
 </figure>
-<p>We create a variable <code>one_borrow</code> for the <code>RefMut&lt;T&gt;</code> smart pointer returned
-from <code>borrow_mut</code>. Then we create another mutable borrow in the same way in the
-variable <code>two_borrow</code>. This makes two mutable references in the same scope,
-which isn’t allowed. When we run the tests for our library, the code in Listing
-15-23 will compile without any errors, but the test will fail:</p>
+<p>Chúng ta tạo một biến <code>one_borrow</code> cho con trỏ thông minh <code>RefMut&lt;T&gt;</code> được trả về
+từ <code>borrow_mut</code>. Sau đó chúng ta tạo một lần mượn có thể thay đổi khác theo cùng cách trong
+biến <code>two_borrow</code>. Điều này tạo ra hai tham chiếu có thể thay đổi trong cùng một phạm vi,
+điều này không được phép. Khi chúng ta chạy các bài kiểm tra cho thư viện của mình, mã trong Liệt kê
+15-23 sẽ biên dịch mà không có bất kỳ lỗi nào, nhưng bài kiểm tra sẽ thất bại:</p>
 <pre><code class="language-console">$ cargo test
    Compiling limit-tracker v0.1.0 (file:///projects/limit-tracker)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.91s
@@ -695,31 +695,31 @@ test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; 
 
 error: test failed, to rerun pass `--lib`
 </code></pre>
-<p>Notice that the code panicked with the message <code>already borrowed: BorrowMutError</code>. This is how <code>RefCell&lt;T&gt;</code> handles violations of the borrowing
-rules at runtime.</p>
-<p>Choosing to catch borrowing errors at runtime rather than compile time, as
-we’ve done here, means you’d potentially be finding mistakes in your code later
-in the development process: possibly not until your code was deployed to
-production. Also, your code would incur a small runtime performance penalty as
-a result of keeping track of the borrows at runtime rather than compile time.
-However, using <code>RefCell&lt;T&gt;</code> makes it possible to write a mock object that can
-modify itself to keep track of the messages it has seen while you’re using it
-in a context where only immutable values are allowed. You can use <code>RefCell&lt;T&gt;</code>
-despite its trade-offs to get more functionality than regular references
-provide.</p>
+<p>Lưu ý rằng mã đã bị panic với thông báo <code>already borrowed: BorrowMutError</code>. Đây là cách <code>RefCell&lt;T&gt;</code> xử lý các vi phạm của các quy tắc mượn
+tại thời điểm chạy.</p>
+<p>Việc chọn bắt các lỗi mượn tại thời điểm chạy thay vì thời điểm biên dịch, như
+chúng ta đã làm ở đây, có nghĩa là bạn có khả năng tìm thấy các lỗi trong mã của mình muộn hơn
+trong quá trình phát triển: có thể cho đến khi mã của bạn được triển khai lên
+môi trường production. Ngoài ra, mã của bạn sẽ chịu một hình phạt nhỏ về hiệu suất thời gian chạy như
+kết quả của việc theo dõi các lần mượn tại thời điểm chạy thay vì thời điểm biên dịch.
+Tuy nhiên, sử dụng <code>RefCell&lt;T&gt;</code> giúp có thể viết một mock object có thể
+tự sửa đổi để theo dõi các thông báo mà nó đã thấy trong khi bạn đang sử dụng nó
+trong một ngữ cảnh mà chỉ các giá trị bất biến được cho phép. Bạn có thể sử dụng <code>RefCell&lt;T&gt;</code>
+bất chấp những đánh đổi của nó để có được nhiều chức năng hơn những gì các tham chiếu thông thường
+cung cấp.</p>
 <!-- Old link, do not remove -->
 <p><a id="having-multiple-owners-of-mutable-data-by-combining-rc-t-and-ref-cell-t"></a></p>
-<h3 id="allowing-multiple-owners-of-mutable-data-with-rct-and-refcellt"><a class="header" href="#allowing-multiple-owners-of-mutable-data-with-rct-and-refcellt">Allowing Multiple Owners of Mutable Data with <code>Rc&lt;T&gt;</code> and <code>RefCell&lt;T&gt;</code></a></h3>
-<p>A common way to use <code>RefCell&lt;T&gt;</code> is in combination with <code>Rc&lt;T&gt;</code>. Recall that
-<code>Rc&lt;T&gt;</code> lets you have multiple owners of some data, but it only gives immutable
-access to that data. If you have an <code>Rc&lt;T&gt;</code> that holds a <code>RefCell&lt;T&gt;</code>, you can
-get a value that can have multiple owners <em>and</em> that you can mutate!</p>
-<p>For example, recall the cons list example in Listing 15-18 where we used <code>Rc&lt;T&gt;</code>
-to allow multiple lists to share ownership of another list. Because <code>Rc&lt;T&gt;</code>
-holds only immutable values, we can’t change any of the values in the list once
-we’ve created them. Let’s add in <code>RefCell&lt;T&gt;</code> for its ability to change the
-values in the lists. Listing 15-24 shows that by using a <code>RefCell&lt;T&gt;</code> in the
-<code>Cons</code> definition, we can modify the value stored in all the lists.</p>
+<h3 id="cho-phép-Đa-sở-hữu-dữ-liệu-có-thể-thay-đổi-với-rct-và-refcellt"><a class="header" href="#cho-phép-Đa-sở-hữu-dữ-liệu-có-thể-thay-đổi-với-rct-và-refcellt">Cho phép Đa sở hữu Dữ liệu có thể thay đổi với <code>Rc&lt;T&gt;</code> và <code>RefCell&lt;T&gt;</code></a></h3>
+<p>Một cách phổ biến để sử dụng <code>RefCell&lt;T&gt;</code> là kết hợp với <code>Rc&lt;T&gt;</code>. Hãy nhớ rằng
+<code>Rc&lt;T&gt;</code> cho phép bạn có nhiều chủ sở hữu đối với một số dữ liệu, nhưng nó chỉ cung cấp
+quyền truy cập bất biến vào dữ liệu đó. Nếu bạn có một <code>Rc&lt;T&gt;</code> nắm giữ một <code>RefCell&lt;T&gt;</code>, bạn có thể
+có được một giá trị có thể có nhiều chủ sở hữu <em>và</em> mà bạn có thể thay đổi!</p>
+<p>Ví dụ, hãy nhớ lại ví dụ cons list trong Liệt kê 15-18 nơi chúng ta đã sử dụng <code>Rc&lt;T&gt;</code>
+để cho phép nhiều danh sách chia sẻ quyền sở hữu một danh sách khác. Bởi vì <code>Rc&lt;T&gt;</code>
+chỉ nắm giữ các giá trị bất biến, chúng ta không thể thay đổi bất kỳ giá trị nào trong danh sách một khi
+chúng ta đã tạo ra chúng. Hãy thêm <code>RefCell&lt;T&gt;</code> vào vì khả năng thay đổi các
+giá trị trong danh sách của nó. Liệt kê 15-24 cho thấy rằng bằng cách sử dụng một <code>RefCell&lt;T&gt;</code> trong
+định nghĩa <code>Cons</code>, chúng ta có thể sửa đổi giá trị được lưu trữ trong tất cả các danh sách.</p>
 <figure class="listing" id="listing-15-24">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><pre class="playground"><code class="language-rust edition2024">#[derive(Debug)]
@@ -746,24 +746,24 @@ fn main() {
     println!("b after = {b:?}");
     println!("c after = {c:?}");
 }</code></pre></pre>
-<figcaption><a href="#listing-15-24">Listing 15-24</a>: Using <code>Rc&lt;RefCell&lt;i32&gt;&gt;</code> to create a <code>List</code> that we can mutate</figcaption>
+<figcaption><a href="#listing-15-24">Listing 15-24</a>: Sử dụng <code>Rc&lt;RefCell&lt;i32&gt;&gt;</code> để tạo một <code>List</code> mà chúng ta có thể thay đổi</figcaption>
 </figure>
-<p>We create a value that is an instance of <code>Rc&lt;RefCell&lt;i32&gt;&gt;</code> and store it in a
-variable named <code>value</code> so we can access it directly later. Then we create a
-<code>List</code> in <code>a</code> with a <code>Cons</code> variant that holds <code>value</code>. We need to clone
-<code>value</code> so both <code>a</code> and <code>value</code> have ownership of the inner <code>5</code> value rather
-than transferring ownership from <code>value</code> to <code>a</code> or having <code>a</code> borrow from
+<p>Chúng ta tạo một giá trị là một instance của <code>Rc&lt;RefCell&lt;i32&gt;&gt;</code> và lưu trữ nó trong một
+biến tên là <code>value</code> để chúng ta có thể truy cập trực tiếp sau này. Sau đó chúng ta tạo một
+<code>List</code> trong <code>a</code> với một biến thể <code>Cons</code> nắm giữ <code>value</code>. Chúng ta cần clone
+<code>value</code> để cả <code>a</code> và <code>value</code> đều có quyền sở hữu giá trị <code>5</code> bên trong thay vì
+chuyển giao quyền sở hữu từ <code>value</code> sang <code>a</code> hoặc để <code>a</code> mượn từ
 <code>value</code>.</p>
-<p>We wrap the list <code>a</code> in an <code>Rc&lt;T&gt;</code> so that when we create lists <code>b</code> and <code>c</code>,
-they can both refer to <code>a</code>, which is what we did in Listing 15-18.</p>
-<p>After we’ve created the lists in <code>a</code>, <code>b</code>, and <code>c</code>, we want to add 10 to the
-value in <code>value</code>. We do this by calling <code>borrow_mut</code> on <code>value</code>, which uses the
-automatic dereferencing feature we discussed in Chapter 4 to
-dereference the <code>Rc&lt;T&gt;</code> to the inner <code>RefCell&lt;T&gt;</code> value. The <code>borrow_mut</code>
-method returns a <code>RefMut&lt;T&gt;</code> smart pointer, and we use the dereference operator
-on it and change the inner value.</p>
-<p>When we print <code>a</code>, <code>b</code>, and <code>c</code>, we can see that they all have the modified
-value of <code>15</code> rather than <code>5</code>:</p>
+<p>Chúng ta bao bọc danh sách <code>a</code> trong một <code>Rc&lt;T&gt;</code> để khi chúng ta tạo các danh sách <code>b</code> và <code>c</code>,
+chúng đều có thể tham chiếu đến <code>a</code>, đó là những gì chúng ta đã làm trong Liệt kê 15-18.</p>
+<p>Sau khi chúng ta đã tạo các danh sách trong <code>a</code>, <code>b</code>, và <code>c</code>, chúng ta muốn cộng thêm 10 vào
+giá trị trong <code>value</code>. Chúng ta thực hiện điều này bằng cách gọi <code>borrow_mut</code> trên <code>value</code>, nó sử dụng
+tính năng tự động giải tham chiếu (automatic dereferencing) mà chúng ta đã thảo luận trong Chương 4 để
+giải tham chiếu <code>Rc&lt;T&gt;</code> thành giá trị <code>RefCell&lt;T&gt;</code> bên trong. Phương thức <code>borrow_mut</code>
+trả về một con trỏ thông minh <code>RefMut&lt;T&gt;</code>, và chúng ta sử dụng toán tử giải tham chiếu
+trên nó và thay đổi giá trị bên trong.</p>
+<p>Khi chúng ta in <code>a</code>, <code>b</code>, và <code>c</code>, chúng ta có thể thấy rằng tất cả chúng đều có giá trị đã sửa đổi
+là <code>15</code> thay vì <code>5</code>:</p>
 <pre><code class="language-console">$ cargo run
    Compiling cons-list v0.1.0 (file:///projects/cons-list)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.63s
@@ -772,14 +772,13 @@ a after = Cons(RefCell { value: 15 }, Nil)
 b after = Cons(RefCell { value: 3 }, Cons(RefCell { value: 15 }, Nil))
 c after = Cons(RefCell { value: 4 }, Cons(RefCell { value: 15 }, Nil))
 </code></pre>
-<p>This technique is pretty neat! By using <code>RefCell&lt;T&gt;</code>, we have an outwardly
-immutable <code>List</code> value. But we can use the methods on <code>RefCell&lt;T&gt;</code> that provide
-access to its interior mutability so we can modify our data when we need to.
-The runtime checks of the borrowing rules protect us from data races, and it’s
-sometimes worth trading a bit of speed for this flexibility in our data
-structures. Note that <code>RefCell&lt;T&gt;</code> does not work for multithreaded code!
-<code>Mutex&lt;T&gt;</code> is the thread-safe version of <code>RefCell&lt;T&gt;</code>, and we’ll discuss
-<code>Mutex&lt;T&gt;</code> in Chapter 16.</p>
+<p>Kỹ thuật này khá gọn gàng! Bằng cách sử dụng <code>RefCell&lt;T&gt;</code>, chúng ta có một giá trị <code>List</code> trông bề ngoài có vẻ
+bất biến. Nhưng chúng ta có thể sử dụng các phương thức trên <code>RefCell&lt;T&gt;</code> cung cấp
+quyền truy cập vào interior mutability của nó để chúng ta có thể sửa đổi dữ liệu của mình khi cần thiết.
+Các kiểm tra tại thời điểm chạy của các quy tắc mượn bảo vệ chúng ta khỏi việc chạy đua dữ liệu, và đôi khi
+đánh đổi một chút tốc độ lấy sự linh hoạt này trong các cấu trúc dữ liệu của chúng ta là xứng đáng. Lưu ý rằng <code>RefCell&lt;T&gt;</code> không hoạt động cho mã đa luồng!
+<code>Mutex&lt;T&gt;</code> là phiên bản an toàn luồng (thread-safe) của <code>RefCell&lt;T&gt;</code>, và chúng ta sẽ thảo luận về
+<code>Mutex&lt;T&gt;</code> trong Chương 16.</p>
 <div class="quiz-placeholder" data-quiz-name="&quot;ch15-05-interior-mutability&quot;" data-quiz-questions="{&quot;questions&quot;:[{&quot;context&quot;:&quot;The main idea of interior mutability is taking a value of type `&amp;T` and being able to \nsafely mutate data within `T`.\n&quot;,&quot;id&quot;:&quot;01904807-74c7-41ad-8d8b-cfb30e5ce10c&quot;,&quot;type&quot;:&quot;MultipleChoice&quot;,&quot;answer&quot;:{&quot;answer&quot;:&quot;Allowing data to be mutated through an immutable reference&quot;},&quot;prompt&quot;:{&quot;distractors&quot;:[&quot;Wrapping `unsafe` code in a safe API&quot;,&quot;Allowing data on the inside of a data structure to be mutated&quot;,&quot;Using the borrow checker to enforce memory safety at runtime&quot;],&quot;prompt&quot;:&quot;Which of the following best describes the concept of *interior mutability* in Rust?\n&quot;}},{&quot;context&quot;:&quot;Here a `RefCell` is useful to mutate an internal field even though `some_method` takes\nan immutable reference as input. If the internal field is just an integer, an even better choice of type\nwould be `Cell&lt;usize&gt;` or `AtomicUsize`.\n&quot;,&quot;id&quot;:&quot;380cd865-76c5-419c-8961-af4c59d2ab71&quot;,&quot;type&quot;:&quot;MultipleChoice&quot;,&quot;answer&quot;:{&quot;answer&quot;:&quot;`RefCell&lt;usize&gt;`&quot;},&quot;prompt&quot;:{&quot;distractors&quot;:[&quot;`Rc&lt;usize&gt;`&quot;,&quot;`Box&lt;usize&gt;`&quot;,&quot;None, `usize` is fine&quot;],&quot;prompt&quot;:&quot;Consider an API that tracks the number of calls to a particular method:\n\n```\nstruct Api {\n    count: ???\n}\n\nimpl Api {\n    fn some_method(&amp;self) {\n        // increment count\n        // rest of the method...\n    }    \n}\n```\n\nSay the count is represented as a `usize`. Which of the following would be the most appropriate wrapper type\nto use for this situation?\n&quot;}},{&quot;context&quot;:&quot;The `BadRefCell` allows us to have two mutable references to the underlying data at the same time,\nwhich permits a memory safety violation like reallocating a vector while holding a reference to its contents.\n&quot;,&quot;id&quot;:&quot;d4ae1b8e-79a7-4485-828f-fb30cdeb29d5&quot;,&quot;type&quot;:&quot;MultipleChoice&quot;,&quot;answer&quot;:{&quot;answer&quot;:&quot;```\nlet v1 = v.borrow_mut();\nlet n = &amp;v1[0];\nv.borrow_mut().push(0);\nprintln!(\&quot;{n}\&quot;);\n```\n&quot;},&quot;prompt&quot;:{&quot;distractors&quot;:[&quot;```\ndrop(v.borrow_mut());\ndrop(v.borrow_mut());\n```\n&quot;,&quot;```\nlet v1 = v.borrow_mut();\nlet v2 = v.borrow_mut();\nv1.push(0);\nv2.push(0);\n```\n&quot;,&quot;```\nv.borrow_mut().push(0);\nlet n = v.borrow_mut()[0];\nprintln!(\&quot;{n}\&quot;);\n```\n&quot;],&quot;prompt&quot;:&quot;Consider the following incorrect implementation of a `RefCell` that does not check\nwhether the interior value is borrowed:\n\n```\nuse std::cell::UnsafeCell;\nstruct BadRefCell&lt;T&gt;(UnsafeCell&lt;T&gt;);\nimpl&lt;T&gt; BadRefCell&lt;T&gt; {\n    pub fn borrow_mut(&amp;self) -&gt; &amp;mut T {\n        unsafe { &amp;mut *self.0.get() }\n    }\n}\n```\n\nNow say we have a `BadRefCell` like this:\n\n```\nlet v = BadRefCell(UnsafeCell::new(vec![1, 2, 3]));\n```\n\nWhich of the following snippets would violate memory safety using this API?\n&quot;}}]}" data-quiz-fullscreen="true" data-quiz-cache-answers="true"></div>
 <script type="text/javascript" src="quiz/quiz-embed.iife.js"></script><link rel="stylesheet" type="text/css" href="quiz/style.css">
                     </main>

@@ -175,33 +175,34 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="using-message-passing-to-transfer-data-between-threads"><a class="header" href="#using-message-passing-to-transfer-data-between-threads">Using Message Passing to Transfer Data Between Threads</a></h2>
-<p>One increasingly popular approach to ensuring safe concurrency is <em>message
-passing</em>, where threads or actors communicate by sending each other messages
-containing data. Here’s the idea in a slogan from <a href="https://golang.org/doc/effective_go.html#concurrency">the Go language documentation</a>:
-“Do not communicate by sharing memory; instead, share memory by communicating.”</p>
-<p>To accomplish message-sending concurrency, Rust’s standard library provides an
-implementation of channels. A <em>channel</em> is a general programming concept by
-which data is sent from one thread to another.</p>
-<p>You can imagine a channel in programming as being like a directional channel of
-water, such as a stream or a river. If you put something like a rubber duck
-into a river, it will travel downstream to the end of the waterway.</p>
-<p>A channel has two halves: a transmitter and a receiver. The transmitter half is
-the upstream location where you put the rubber duck into the river, and the
-receiver half is where the rubber duck ends up downstream. One part of your
-code calls methods on the transmitter with the data you want to send, and
-another part checks the receiving end for arriving messages. A channel is said
-to be <em>closed</em> if either the transmitter or receiver half is dropped.</p>
-<p>Here, we’ll work up to a program that has one thread to generate values and
-send them down a channel, and another thread that will receive the values and
-print them out. We’ll be sending simple values between threads using a channel
-to illustrate the feature. Once you’re familiar with the technique, you could
-use channels for any threads that need to communicate with each other, such as
-a chat system or a system where many threads perform parts of a calculation and
-send the parts to one thread that aggregates the results.</p>
-<p>First, in Listing 16-6, we’ll create a channel but not do anything with it.
-Note that this won’t compile yet because Rust can’t tell what type of values we
-want to send over the channel.</p>
+                        <h2 id="sử-dụng-truyền-thông-điệp-để-chuyển-dữ-liệu-giữa-các-luồng"><a class="header" href="#sử-dụng-truyền-thông-điệp-để-chuyển-dữ-liệu-giữa-các-luồng">Sử dụng truyền thông điệp để chuyển dữ liệu giữa các luồng</a></h2>
+<p>(Using Message Passing to Transfer Data Between Threads)</p>
+<p>Một cách tiếp cận ngày càng phổ biến để đảm bảo concurrency an toàn là <em>truyền thông
+điệp</em> (message passing), nơi các luồng hoặc actor giao tiếp bằng cách gửi cho nhau các thông điệp
+chứa dữ liệu. Đây là ý tưởng trong một câu khẩu hiệu từ <a href="https://golang.org/doc/effective_go.html#concurrency">tài liệu ngôn ngữ Go</a>:
+“Đừng giao tiếp bằng cách chia sẻ bộ nhớ; thay vào đó, hãy chia sẻ bộ nhớ bằng cách giao tiếp.”</p>
+<p>Để thực hiện concurrency gửi thông điệp, thư viện tiêu chuẩn của Rust cung cấp một
+triển khai của các kênh (channels). Một <em>kênh</em> là một khái niệm lập trình chung mà
+qua đó dữ liệu được gửi từ luồng này sang luồng khác.</p>
+<p>Bạn có thể tưởng tượng một kênh trong lập trình giống như một kênh nước có hướng,
+chẳng hạn như một con suối hoặc một con sông. Nếu bạn đặt một thứ gì đó như một con vịt cao su
+vào một con sông, nó sẽ trôi xuôi dòng đến cuối đường thủy.</p>
+<p>Một kênh có hai nửa: một bộ truyền (transmitter) và một bộ nhận (receiver). Nửa bộ truyền là
+vị trí thượng nguồn nơi bạn đặt con vịt cao su vào sông, và nửa
+bộ nhận là nơi con vịt cao su kết thúc ở hạ lưu. Một phần mã của
+bạn gọi các phương thức trên bộ truyền với dữ liệu bạn muốn gửi, và
+một phần khác kiểm tra đầu nhận để tìm các thông điệp đang đến. Một kênh được gọi là
+bị <em>đóng</em> (closed) nếu một trong hai nửa bộ truyền hoặc bộ nhận bị hủy (dropped).</p>
+<p>Tại đây, chúng ta sẽ xây dựng một chương trình có một luồng để tạo ra các giá trị và
+gửi chúng xuống một kênh, và một luồng khác sẽ nhận các giá trị đó và
+in chúng ra. Chúng ta sẽ gửi các giá trị đơn giản giữa các luồng bằng cách sử dụng một kênh
+để minh họa tính năng này. Khi bạn đã quen với kỹ thuật này, bạn có thể
+sử dụng các kênh cho bất kỳ luồng nào cần giao tiếp với nhau, chẳng hạn như
+một hệ thống trò chuyện hoặc một hệ thống nơi nhiều luồng thực hiện các phần của một phép tính và
+gửi các phần đó đến một luồng để tổng hợp kết quả.</p>
+<p>Đầu tiên, trong Listing 16-6, chúng ta sẽ tạo một kênh nhưng chưa làm gì với nó.
+Lưu ý rằng điều này sẽ chưa biên dịch được vì Rust không thể biết loại giá trị nào chúng ta
+muốn gửi qua kênh.</p>
 <figure class="listing" id="listing-16-6">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><code class="language-rust ignore does_not_compile">use std::sync::mpsc;
@@ -209,29 +210,29 @@ want to send over the channel.</p>
 fn main() {
     let (tx, rx) = mpsc::channel();
 }</code></pre>
-<figcaption><a href="#listing-16-6">Listing 16-6</a>: Creating a channel and assigning the two halves to <code>tx</code> and <code>rx</code></figcaption>
+<figcaption><a href="#listing-16-6">Listing 16-6</a>: Tạo một kênh và gán hai nửa cho <code>tx</code> và <code>rx</code></figcaption>
 </figure>
-<p>We create a new channel using the <code>mpsc::channel</code> function; <code>mpsc</code> stands for
-<em>multiple producer, single consumer</em>. In short, the way Rust’s standard library
-implements channels means a channel can have multiple <em>sending</em> ends that
-produce values but only one <em>receiving</em> end that consumes those values. Imagine
-multiple streams flowing together into one big river: everything sent down any
-of the streams will end up in one river at the end. We’ll start with a single
-producer for now, but we’ll add multiple producers when we get this example
-working.</p>
-<p>The <code>mpsc::channel</code> function returns a tuple, the first element of which is the
-sending end—the transmitter—and the second element of which is the receiving
-end—the receiver. The abbreviations <code>tx</code> and <code>rx</code> are traditionally used in many
-fields for <em>transmitter</em> and <em>receiver</em>, respectively, so we name our variables
-as such to indicate each end. We’re using a <code>let</code> statement with a pattern that
-destructures the tuples; we’ll discuss the use of patterns in <code>let</code> statements
-and destructuring in Chapter 19. For now, know that using a <code>let</code> statement this
-way is a convenient approach to extract the pieces of the tuple returned by
+<p>Chúng ta tạo một kênh mới bằng hàm <code>mpsc::channel</code>; <code>mpsc</code> là viết tắt của
+<em>nhiều nhà sản xuất, một người tiêu dùng</em> (multiple producer, single consumer). Tóm lại, cách thư viện tiêu chuẩn của Rust
+triển khai các kênh có nghĩa là một kênh có thể có nhiều đầu <em>gửi</em>
+tạo ra các giá trị nhưng chỉ có một đầu <em>nhận</em> tiêu thụ các giá trị đó. Hãy tưởng tượng
+nhiều dòng suối cùng chảy vào một con sông lớn: mọi thứ được gửi xuống bất kỳ
+dòng suối nào cũng sẽ kết thúc ở một con sông duy nhất. Chúng ta sẽ bắt đầu với một nhà sản xuất
+duy nhất vào lúc này, nhưng chúng ta sẽ thêm nhiều nhà sản xuất khi ví dụ này
+hoạt động.</p>
+<p>Hàm <code>mpsc::channel</code> trả về một tuple, phần tử đầu tiên trong đó là
+đầu gửi—bộ truyền—và phần tử thứ hai là đầu nhận—
+bộ nhận. Các từ viết tắt <code>tx</code> và <code>rx</code> theo truyền thống được sử dụng trong nhiều
+lĩnh vực tương ứng cho <em>transmitter</em> (bộ truyền) và <em>receiver</em> (bộ nhận), vì vậy chúng ta đặt tên các biến của mình
+như vậy để chỉ ra mỗi đầu. Chúng ta đang sử dụng một câu lệnh <code>let</code> với một pattern thực hiện
+giải cấu trúc (destructures) các tuple; chúng ta sẽ thảo luận về việc sử dụng các pattern trong câu lệnh <code>let</code>
+và giải cấu trúc trong Chương 19. Hiện tại, hãy biết rằng việc sử dụng câu lệnh <code>let</code> theo cách này
+là một cách tiếp cận thuận tiện để trích xuất các phần của tuple được trả về bởi
 <code>mpsc::channel</code>.</p>
-<p>Let’s move the transmitting end into a spawned thread and have it send one
-string so the spawned thread is communicating with the main thread, as shown in
-Listing 16-7. This is like putting a rubber duck in the river upstream or
-sending a chat message from one thread to another.</p>
+<p>Hãy di chuyển đầu truyền vào một luồng được tạo và để nó gửi một
+chuỗi để luồng được tạo giao tiếp với luồng chính, như được hiển thị trong
+Listing 16-7. Điều này giống như việc đặt một con vịt cao su lên thượng nguồn con sông hoặc
+gửi một tin nhắn trò chuyện từ luồng này sang luồng khác.</p>
 <figure class="listing" id="listing-16-7">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><pre class="playground"><code class="language-rust edition2024">use std::sync::mpsc;
@@ -245,21 +246,21 @@ fn main() {
         tx.send(val).unwrap();
     });
 }</code></pre></pre>
-<figcaption><a href="#listing-16-7">Listing 16-7</a>: Moving <code>tx</code> to a spawned thread and sending <code>"hi"</code></figcaption>
+<figcaption><a href="#listing-16-7">Listing 16-7</a>: Di chuyển <code>tx</code> sang một luồng được tạo và gửi <code>"hi"</code></figcaption>
 </figure>
-<p>Again, we’re using <code>thread::spawn</code> to create a new thread and then using <code>move</code>
-to move <code>tx</code> into the closure so the spawned thread owns <code>tx</code>. The spawned
-thread needs to own the transmitter to be able to send messages through the
-channel.</p>
-<p>The transmitter has a <code>send</code> method that takes the value we want to send. The
-<code>send</code> method returns a <code>Result&lt;T, E&gt;</code> type, so if the receiver has already
-been dropped and there’s nowhere to send a value, the send operation will
-return an error. In this example, we’re calling <code>unwrap</code> to panic in case of an
-error. But in a real application, we would handle it properly: return to
-Chapter 9 to review strategies for proper error handling.</p>
-<p>In Listing 16-8, we’ll get the value from the receiver in the main thread. This
-is like retrieving the rubber duck from the water at the end of the river or
-receiving a chat message.</p>
+<p>Một lần nữa, chúng ta sử dụng <code>thread::spawn</code> để tạo một luồng mới và sau đó sử dụng <code>move</code>
+để di chuyển <code>tx</code> vào closure để luồng được tạo sở hữu <code>tx</code>. Luồng được
+tạo cần sở hữu bộ truyền để có thể gửi thông điệp qua
+kênh.</p>
+<p>Bộ truyền có một phương thức <code>send</code> nhận giá trị chúng ta muốn gửi. Phương thức
+<code>send</code> trả về một kiểu <code>Result&lt;T, E&gt;</code>, vì vậy nếu bộ nhận đã
+bị hủy và không còn nơi nào để gửi giá trị, thao tác gửi sẽ
+trả về một lỗi. Trong ví dụ này, chúng ta đang gọi <code>unwrap</code> để gây hoảng loạn (panic) trong trường hợp có
+lỗi. Nhưng trong một ứng dụng thực tế, chúng ta sẽ xử lý nó một cách thích hợp: hãy quay lại
+Chương 9 để xem lại các chiến lược xử lý lỗi thích hợp.</p>
+<p>Trong Listing 16-8, chúng ta sẽ lấy giá trị từ bộ nhận trong luồng chính. Điều này
+giống như việc lấy con vịt cao su ra khỏi nước ở cuối con sông hoặc
+nhận một tin nhắn trò chuyện.</p>
 <figure class="listing" id="listing-16-8">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><pre class="playground"><code class="language-rust edition2024">use std::sync::mpsc;
@@ -276,39 +277,39 @@ fn main() {
     let received = rx.recv().unwrap();
     println!("Got: {received}");
 }</code></pre></pre>
-<figcaption><a href="#listing-16-8">Listing 16-8</a>: Receiving the value <code>"hi"</code> in the main thread and printing it</figcaption>
+<figcaption><a href="#listing-16-8">Listing 16-8</a>: Nhận giá trị <code>"hi"</code> trong luồng chính và in nó ra</figcaption>
 </figure>
-<p>The receiver has two useful methods: <code>recv</code> and <code>try_recv</code>. We’re using <code>recv</code>,
-short for <em>receive</em>, which will block the main thread’s execution and wait
-until a value is sent down the channel. Once a value is sent, <code>recv</code> will
-return it in a <code>Result&lt;T, E&gt;</code>. When the transmitter closes, <code>recv</code> will return
-an error to signal that no more values will be coming.</p>
-<p>The <code>try_recv</code> method doesn’t block, but will instead return a <code>Result&lt;T, E&gt;</code>
-immediately: an <code>Ok</code> value holding a message if one is available and an <code>Err</code>
-value if there aren’t any messages this time. Using <code>try_recv</code> is useful if
-this thread has other work to do while waiting for messages: we could write a
-loop that calls <code>try_recv</code> every so often, handles a message if one is
-available, and otherwise does other work for a little while until checking
-again.</p>
-<p>We’ve used <code>recv</code> in this example for simplicity; we don’t have any other work
-for the main thread to do other than wait for messages, so blocking the main
-thread is appropriate.</p>
-<p>When we run the code in Listing 16-8, we’ll see the value printed from the main
-thread:</p>
+<p>Bộ nhận có hai phương thức hữu ích: <code>recv</code> và <code>try_recv</code>. Chúng ta đang sử dụng <code>recv</code>,
+viết tắt của <em>receive</em> (nhận), nó sẽ chặn việc thực thi của luồng chính và đợi
+cho đến khi một giá trị được gửi xuống kênh. Khi một giá trị được gửi, <code>recv</code> sẽ
+trả về nó trong một <code>Result&lt;T, E&gt;</code>. Khi bộ truyền đóng lại, <code>recv</code> sẽ trả về
+một lỗi để báo hiệu rằng sẽ không còn giá trị nào đến nữa.</p>
+<p>Phương thức <code>try_recv</code> không chặn, mà thay vào đó sẽ trả về một <code>Result&lt;T, E&gt;</code>
+ngay lập tức: một giá trị <code>Ok</code> chứa thông điệp nếu có sẵn và một giá trị <code>Err</code>
+nếu lần này không có bất kỳ thông điệp nào. Sử dụng <code>try_recv</code> rất hữu ích nếu
+luồng này có công việc khác phải làm trong khi chờ đợi thông điệp: chúng ta có thể viết một
+vòng lặp gọi <code>try_recv</code> thường xuyên, xử lý thông điệp nếu có,
+và ngược lại thì làm công việc khác trong một lúc cho đến khi kiểm tra
+lại.</p>
+<p>Chúng ta đã sử dụng <code>recv</code> trong ví dụ này cho đơn giản; chúng ta không có bất kỳ công việc nào khác
+cho luồng chính làm ngoài việc chờ đợi thông điệp, vì vậy việc chặn luồng
+chính là phù hợp.</p>
+<p>Khi chúng ta chạy mã trong Listing 16-8, chúng ta sẽ thấy giá trị được in từ luồng
+chính:</p>
 <!-- Not extracting output because changes to this output aren't significant;
 the changes are likely to be due to the threads running differently rather than
 changes in the compiler -->
 <pre><code class="language-text">Got: hi
 </code></pre>
-<p>Perfect!</p>
-<h3 id="channels-and-ownership-transference"><a class="header" href="#channels-and-ownership-transference">Channels and Ownership Transference</a></h3>
-<p>The ownership rules play a vital role in message sending because they help you
-write safe, concurrent code. Preventing errors in concurrent programming is the
-advantage of thinking about ownership throughout your Rust programs. Let’s do
-an experiment to show how channels and ownership work together to prevent
-problems: we’ll try to use a <code>val</code> value in the spawned thread <em>after</em> we’ve
-sent it down the channel. Try compiling the code in Listing 16-9 to see why
-this code isn’t allowed.</p>
+<p>Hoàn hảo!</p>
+<h3 id="các-kênh-và-sự-chuyển-giao-quyền-sở-hữu"><a class="header" href="#các-kênh-và-sự-chuyển-giao-quyền-sở-hữu">Các kênh và sự chuyển giao quyền sở hữu</a></h3>
+<p>Các quy tắc sở hữu đóng một vai trò quan trọng trong việc gửi thông điệp vì chúng giúp bạn
+viết mã đồng thời an toàn. Ngăn chặn các lỗi trong lập trình đồng thời là
+lợi thế của việc suy nghĩ về quyền sở hữu xuyên suốt các chương trình Rust của bạn. Hãy làm
+một thử nghiệm để xem các kênh và quyền sở hữu hoạt động cùng nhau như thế nào để ngăn chặn
+các vấn đề: chúng ta sẽ thử sử dụng một giá trị <code>val</code> trong luồng được tạo <em>sau khi</em> chúng ta đã
+gửi nó xuống kênh. Hãy thử biên dịch mã trong Listing 16-9 để xem tại sao
+mã này không được phép.</p>
 <figure class="listing" id="listing-16-9">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><code class="language-rust ignore does_not_compile">use std::sync::mpsc;
@@ -326,14 +327,14 @@ fn main() {
     let received = rx.recv().unwrap();
     println!("Got: {received}");
 }</code></pre>
-<figcaption><a href="#listing-16-9">Listing 16-9</a>: Attempting to use <code>val</code> after we’ve sent it down the channel</figcaption>
+<figcaption><a href="#listing-16-9">Listing 16-9</a>: Cố gắng sử dụng <code>val</code> sau khi chúng ta đã gửi nó xuống kênh</figcaption>
 </figure>
-<p>Here, we try to print <code>val</code> after we’ve sent it down the channel via <code>tx.send</code>.
-Allowing this would be a bad idea: once the value has been sent to another
-thread, that thread could modify or drop it before we try to use the value
-again. Potentially, the other thread’s modifications could cause errors or
-unexpected results due to inconsistent or nonexistent data. However, Rust gives
-us an error if we try to compile the code in Listing 16-9:</p>
+<p>Ở đây, chúng ta cố gắng in <code>val</code> sau khi chúng ta đã gửi nó xuống kênh qua <code>tx.send</code>.
+Cho phép điều này sẽ là một ý tưởng tồi: một khi giá trị đã được gửi đến một luồng
+khác, luồng đó có thể sửa đổi hoặc hủy nó trước khi chúng ta cố gắng sử dụng lại giá trị
+đó. Tiềm ẩn khả năng, những sửa đổi của luồng khác có thể gây ra lỗi hoặc
+kết quả không mong muốn do dữ liệu không nhất quán hoặc không tồn tại. Tuy nhiên, Rust đưa
+ra một lỗi nếu chúng ta cố gắng biên dịch mã trong Listing 16-9:</p>
 <pre><code class="language-console">$ cargo run
    Compiling message-passing v0.1.0 (file:///projects/message-passing)
 error[E0382]: borrow of moved value: `val`
@@ -351,16 +352,16 @@ error[E0382]: borrow of moved value: `val`
 For more information about this error, try `rustc --explain E0382`.
 error: could not compile `message-passing` (bin "message-passing") due to 1 previous error
 </code></pre>
-<p>Our concurrency mistake has caused a compile time error. The <code>send</code> function
-takes ownership of its parameter, and when the value is moved, the receiver
-takes ownership of it. This stops us from accidentally using the value again
-after sending it; the ownership system checks that everything is okay.</p>
-<h3 id="sending-multiple-values-and-seeing-the-receiver-waiting"><a class="header" href="#sending-multiple-values-and-seeing-the-receiver-waiting">Sending Multiple Values and Seeing the Receiver Waiting</a></h3>
-<p>The code in Listing 16-8 compiled and ran, but it didn’t clearly show us that
-two separate threads were talking to each other over the channel. In Listing
-16-10 we’ve made some modifications that will prove the code in Listing 16-8 is
-running concurrently: the spawned thread will now send multiple messages and
-pause for a second between each message.</p>
+<p>Sai lầm về concurrency của chúng ta đã gây ra một lỗi thời điểm biên dịch. Hàm <code>send</code>
+lấy quyền sở hữu tham số của nó, và khi giá trị được di chuyển, bộ nhận
+lấy quyền sở hữu nó. Điều này ngăn chúng ta vô tình sử dụng lại giá trị
+sau khi gửi nó; hệ thống sở hữu kiểm tra xem mọi thứ có ổn không.</p>
+<h3 id="gửi-nhiều-giá-trị-và-thấy-bộ-nhận-đang-chờ"><a class="header" href="#gửi-nhiều-giá-trị-và-thấy-bộ-nhận-đang-chờ">Gửi nhiều giá trị và thấy bộ nhận đang chờ</a></h3>
+<p>Mã trong Listing 16-8 đã biên dịch và chạy, nhưng nó không cho chúng ta thấy rõ ràng rằng
+hai luồng riêng biệt đang nói chuyện với nhau qua kênh. Trong Listing
+16-10 chúng ta đã thực hiện một số sửa đổi sẽ chứng minh mã trong Listing 16-8 đang
+chạy đồng thời: luồng được tạo bây giờ sẽ gửi nhiều thông điệp và
+tạm dừng một giây giữa mỗi thông điệp.</p>
 <figure class="listing" id="listing-16-10">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><code class="language-rust noplayground">use std::sync::mpsc;
@@ -388,17 +389,17 @@ fn main() {
         println!("Got: {received}");
     }
 }</code></pre>
-<figcaption><a href="#listing-16-10">Listing 16-10</a>: Sending multiple messages and pausing between each one</figcaption>
+<figcaption><a href="#listing-16-10">Listing 16-10</a>: Gửi nhiều thông điệp và tạm dừng giữa mỗi thông điệp</figcaption>
 </figure>
-<p>This time, the spawned thread has a vector of strings that we want to send to
-the main thread. We iterate over them, sending each individually, and pause
-between each by calling the <code>thread::sleep</code> function with a <code>Duration</code> value of
-one second.</p>
-<p>In the main thread, we’re not calling the <code>recv</code> function explicitly anymore:
-instead, we’re treating <code>rx</code> as an iterator. For each value received, we’re
-printing it. When the channel is closed, iteration will end.</p>
-<p>When running the code in Listing 16-10, you should see the following output
-with a one-second pause in between each line:</p>
+<p>Lần này, luồng được tạo có một vector các chuỗi mà chúng ta muốn gửi đến
+luồng chính. Chúng ta lặp qua chúng, gửi từng cái riêng lẻ, và tạm dừng
+giữa mỗi lần bằng cách gọi hàm <code>thread::sleep</code> với một giá trị <code>Duration</code> là
+một giây.</p>
+<p>Trong luồng chính, chúng ta không gọi hàm <code>recv</code> một cách rõ ràng nữa:
+thay vào đó, chúng ta coi <code>rx</code> như một iterator. Đối với mỗi giá trị nhận được, chúng ta
+in nó ra. Khi kênh bị đóng, việc lặp sẽ kết thúc.</p>
+<p>Khi chạy mã trong Listing 16-10, bạn sẽ thấy đầu ra sau đây
+với một giây tạm dừng giữa mỗi dòng:</p>
 <!-- Not extracting output because changes to this output aren't significant;
 the changes are likely to be due to the threads running differently rather than
 changes in the compiler -->
@@ -407,14 +408,14 @@ Got: from
 Got: the
 Got: thread
 </code></pre>
-<p>Because we don’t have any code that pauses or delays in the <code>for</code> loop in the
-main thread, we can tell that the main thread is waiting to receive values from
-the spawned thread.</p>
-<h3 id="creating-multiple-producers-by-cloning-the-transmitter"><a class="header" href="#creating-multiple-producers-by-cloning-the-transmitter">Creating Multiple Producers by Cloning the Transmitter</a></h3>
-<p>Earlier we mentioned that <code>mpsc</code> was an acronym for <em>multiple producer,
-single consumer</em>. Let’s put <code>mpsc</code> to use and expand the code in Listing 16-10
-to create multiple threads that all send values to the same receiver. We can do
-so by cloning the transmitter, as shown in Listing 16-11.</p>
+<p>Bởi vì chúng ta không có bất kỳ mã nào tạm dừng hoặc trì hoãn trong vòng lặp <code>for</code> ở
+luồng chính, chúng ta có thể thấy rằng luồng chính đang chờ để nhận các giá trị từ
+luồng được tạo.</p>
+<h3 id="tạo-nhiều-nhà-sản-xuất-bằng-cách-nhân-bản-bộ-truyền"><a class="header" href="#tạo-nhiều-nhà-sản-xuất-bằng-cách-nhân-bản-bộ-truyền">Tạo nhiều nhà sản xuất bằng cách nhân bản bộ truyền</a></h3>
+<p>Trước đó chúng ta đã đề cập rằng <code>mpsc</code> là viết tắt của <em>nhiều nhà sản xuất,
+một người tiêu dùng</em>. Hãy đưa <code>mpsc</code> vào sử dụng và mở rộng mã trong Listing 16-10
+để tạo nhiều luồng mà tất cả đều gửi giá trị đến cùng một bộ nhận. Chúng ta có thể làm
+như vậy bằng cách nhân bản (cloning) bộ truyền, như được hiển thị trong Listing 16-11.</p>
 <figure class="listing" id="listing-16-11">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><code class="language-rust noplayground"><span class="boring">use std::sync::mpsc;
@@ -461,13 +462,13 @@ so by cloning the transmitter, as shown in Listing 16-11.</p>
 
     // --snip--
 <span class="boring">}</span></code></pre>
-<figcaption><a href="#listing-16-11">Listing 16-11</a>: Sending multiple messages from multiple producers</figcaption>
+<figcaption><a href="#listing-16-11">Listing 16-11</a>: Gửi nhiều thông điệp từ nhiều nhà sản xuất</figcaption>
 </figure>
-<p>This time, before we create the first spawned thread, we call <code>clone</code> on the
-transmitter. This will give us a new transmitter we can pass to the first
-spawned thread. We pass the original transmitter to a second spawned thread.
-This gives us two threads, each sending different messages to the one receiver.</p>
-<p>When you run the code, your output should look something like this:</p>
+<p>Lần này, trước khi chúng ta tạo luồng đầu tiên, chúng ta gọi <code>clone</code> trên
+bộ truyền. Điều này sẽ cung cấp cho chúng ta một bộ truyền mới mà chúng ta có thể truyền cho
+luồng được tạo đầu tiên. Chúng ta truyền bộ truyền ban đầu cho luồng được tạo thứ hai.
+Điều này cung cấp cho chúng ta hai luồng, mỗi luồng gửi các thông điệp khác nhau đến một bộ nhận duy nhất.</p>
+<p>Khi bạn chạy mã, đầu ra của bạn sẽ trông giống như thế này:</p>
 <!-- Not extracting output because changes to this output aren't significant;
 the changes are likely to be due to the threads running differently rather than
 changes in the compiler -->
@@ -480,11 +481,11 @@ Got: the
 Got: thread
 Got: you
 </code></pre>
-<p>You might see the values in another order, depending on your system. This is
-what makes concurrency interesting as well as difficult. If you experiment with
-<code>thread::sleep</code>, giving it various values in the different threads, each run
-will be more nondeterministic and create different output each time.</p>
-<p>Now that we’ve looked at how channels work, let’s look at a different method of
+<p>Bạn có thể thấy các giá trị theo một thứ tự khác, tùy thuộc vào hệ thống của bạn. Đây là
+điều làm cho concurrency trở nên thú vị cũng như khó khăn. Nếu bạn thử nghiệm với
+<code>thread::sleep</code>, cung cấp cho nó các giá trị khác nhau trong các luồng khác nhau, mỗi lần chạy
+sẽ mang tính bất định (nondeterministic) hơn và tạo ra đầu ra khác nhau mỗi lần.</p>
+<p>Bây giờ chúng ta đã xem xét cách thức hoạt động của các kênh, hãy xem xét một phương pháp khác của
 concurrency.</p>
 <div class="quiz-placeholder" data-quiz-name="&quot;ch16-02-message-passing&quot;" data-quiz-questions="{&quot;questions&quot;:[{&quot;context&quot;:&quot;This is an example of how to use enums to send different kinds of messages over a channel.\nHere, the client increments a number, retrieves the number, then exits the server.\n&quot;,&quot;id&quot;:&quot;5b117680-87a5-4b18-abba-3415602477eb&quot;,&quot;type&quot;:&quot;Tracing&quot;,&quot;answer&quot;:{&quot;doesCompile&quot;:true,&quot;stdout&quot;:&quot;1&quot;},&quot;prompt&quot;:{&quot;program&quot;:&quot;use std::{sync::mpsc, thread};\n\nenum ClientMessage { Incr, Get, Quit }\nenum ServerMessage { Get(usize) }\n\nfn main() {\n    let (server_tx, client_rx) = mpsc::channel();\n    let (client_tx, server_rx) = mpsc::channel();\n    let server = thread::spawn(move || {\n        let mut n = 0;\n        loop {\n            match server_rx.recv().unwrap() {\n                ClientMessage::Quit =&gt; break,\n                ClientMessage::Incr =&gt; n += 1,\n                ClientMessage::Get =&gt; server_tx.send(ServerMessage::Get(n)).unwrap()\n            }\n        }\n    });\n\n    for msg in [ClientMessage::Incr, ClientMessage::Get, ClientMessage::Quit] {\n        client_tx.send(msg).unwrap();\n    }\n\n    if let ServerMessage::Get(n) = client_rx.recv().unwrap() {\n        println!(\&quot;{}\&quot;, n)\n    }\n\n    server.join().unwrap();\n}\n\n&quot;}},{&quot;context&quot;:&quot;Channels can only send values of a single type, so `tx.send(s.len())` is a type error.\nIf you want to send values of multiple types, you can use either an enum or the \n[`Any`](https://doc.rust-lang.org/std/any/trait.Any.html) trait.\n&quot;,&quot;id&quot;:&quot;94934f0f-4db9-48ee-b63e-198ad1a9ffc8&quot;,&quot;type&quot;:&quot;Tracing&quot;,&quot;answer&quot;:{&quot;doesCompile&quot;:false,&quot;lineNumber&quot;:8},&quot;prompt&quot;:{&quot;program&quot;:&quot;use std::{sync::mpsc, thread};\n\nfn main() {\n    let (tx, rx) = mpsc::channel();\n    thread::spawn(move || {\n        let s = String::from(\&quot;Hello world\&quot;);\n        tx.send(s.clone()).unwrap();\n        tx.send(s.len()).unwrap();\n    });\n    let s = rx.recv().unwrap();\n    let n = rx.recv().unwrap();\n    println!(\&quot;{s} {n}\&quot;);\n}\n&quot;}}]}" data-quiz-fullscreen="true" data-quiz-cache-answers="true"></div>
 <script type="text/javascript" src="quiz/quiz-embed.iife.js"></script><link rel="stylesheet" type="text/css" href="quiz/style.css">

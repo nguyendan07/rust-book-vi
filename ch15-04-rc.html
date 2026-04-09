@@ -175,44 +175,44 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="rct-the-reference-counted-smart-pointer"><a class="header" href="#rct-the-reference-counted-smart-pointer"><code>Rc&lt;T&gt;</code>, the Reference Counted Smart Pointer</a></h2>
-<p>In the majority of cases, ownership is clear: you know exactly which variable
-owns a given value. However, there are cases when a single value might have
-multiple owners. For example, in graph data structures, multiple edges might
-point to the same node, and that node is conceptually owned by all of the edges
-that point to it. A node shouldn’t be cleaned up unless it doesn’t have any
-edges pointing to it and so has no owners.</p>
-<p>You have to enable multiple ownership explicitly by using the Rust type
-<code>Rc&lt;T&gt;</code>, which is an abbreviation for <em>reference counting</em>. The <code>Rc&lt;T&gt;</code> type
-keeps track of the number of references to a value to determine whether or not
-the value is still in use. If there are zero references to a value, the value
-can be cleaned up without any references becoming invalid.</p>
-<p>Imagine <code>Rc&lt;T&gt;</code> as a TV in a family room. When one person enters to watch TV,
-they turn it on. Others can come into the room and watch the TV. When the last
-person leaves the room, they turn off the TV because it’s no longer being used.
-If someone turns off the TV while others are still watching it, there would be
-an uproar from the remaining TV watchers!</p>
-<p>We use the <code>Rc&lt;T&gt;</code> type when we want to allocate some data on the heap for
-multiple parts of our program to read and we can’t determine at compile time
-which part will finish using the data last. If we knew which part would finish
-last, we could just make that part the data’s owner, and the normal ownership
-rules enforced at compile time would take effect.</p>
-<p>Note that <code>Rc&lt;T&gt;</code> is only for use in single-threaded scenarios. When we discuss
-concurrency in Chapter 16, we’ll cover how to do reference counting in
-multithreaded programs.</p>
-<h3 id="using-rct-to-share-data"><a class="header" href="#using-rct-to-share-data">Using <code>Rc&lt;T&gt;</code> to Share Data</a></h3>
-<p>Let’s return to our cons list example in Listing 15-5. Recall that we defined
-it using <code>Box&lt;T&gt;</code>. This time, we’ll create two lists that both share ownership
-of a third list. Conceptually, this looks similar to Figure 15-3.</p>
+                        <h2 id="rct-con-trỏ-thông-minh-đếm-tham-chiếu"><a class="header" href="#rct-con-trỏ-thông-minh-đếm-tham-chiếu"><code>Rc&lt;T&gt;</code>, con trỏ thông minh đếm tham chiếu</a></h2>
+<p>Trong phần lớn các trường hợp, quyền sở hữu là rõ ràng: bạn biết chính xác biến nào
+sở hữu một giá trị cho trước. Tuy nhiên, có những trường hợp khi một giá trị duy nhất có thể có
+nhiều chủ sở hữu. Ví dụ, trong các cấu trúc dữ liệu đồ thị (graph), nhiều cạnh có thể
+trỏ đến cùng một nút, và nút đó về mặt khái niệm được sở hữu bởi tất cả các cạnh
+trỏ đến nó. Một nút không nên bị dọn dẹp trừ khi nó không có bất kỳ
+cạnh nào trỏ đến nó và do đó không còn chủ sở hữu nào.</p>
+<p>Bạn phải cho phép đa sở hữu một cách rõ ràng bằng cách sử dụng kiểu Rust
+<code>Rc&lt;T&gt;</code>, là viết tắt của <em>reference counting</em> (đếm tham chiếu). Kiểu <code>Rc&lt;T&gt;</code>
+theo dõi số lượng tham chiếu đến một giá trị để xác định liệu
+giá trị đó có còn đang được sử dụng hay không. Nếu có không tham chiếu nào đến một giá trị, giá trị đó
+có thể được dọn dẹp mà không có tham chiếu nào trở nên không hợp lệ.</p>
+<p>Hãy tưởng tượng <code>Rc&lt;T&gt;</code> giống như một chiếc TV trong phòng sinh hoạt chung của gia đình. Khi một người bước vào để xem TV,
+họ bật nó lên. Những người khác có thể vào phòng và xem TV. Khi người
+cuối cùng rời khỏi phòng, họ tắt TV vì nó không còn được sử dụng nữa.
+Nếu ai đó tắt TV trong khi những người khác vẫn đang xem, sẽ có một
+sự phản đối từ những người xem TV còn lại!</p>
+<p>Chúng ta sử dụng kiểu <code>Rc&lt;T&gt;</code> khi chúng ta muốn cấp phát một số dữ liệu trên heap cho
+nhiều phần của chương trình để đọc và chúng ta không thể xác định tại thời điểm biên dịch
+phần nào sẽ kết thúc việc sử dụng dữ liệu cuối cùng. Nếu chúng ta biết phần nào sẽ kết thúc
+cuối cùng, chúng ta chỉ cần đặt phần đó làm chủ sở hữu của dữ liệu, và các quy tắc quyền sở hữu
+thông thường được thực thi tại thời điểm biên dịch sẽ có hiệu lực.</p>
+<p>Lưu ý rằng <code>Rc&lt;T&gt;</code> chỉ được sử dụng trong các tình huống đơn luồng (single-threaded). Khi chúng ta thảo luận
+về tính đồng thời (concurrency) trong Chương 16, chúng ta sẽ đề cập đến cách thực hiện đếm tham chiếu trong
+các chương trình đa luồng.</p>
+<h3 id="sử-dụng-rct-để-chia-sẻ-dữ-liệu"><a class="header" href="#sử-dụng-rct-để-chia-sẻ-dữ-liệu">Sử dụng <code>Rc&lt;T&gt;</code> để chia sẻ dữ liệu</a></h3>
+<p>Hãy quay lại ví dụ cons list của chúng ta trong Liệt kê 15-5. Nhớ lại rằng chúng ta đã định nghĩa
+nó bằng cách sử dụng <code>Box&lt;T&gt;</code>. Lần này, chúng ta sẽ tạo hai danh sách mà cả hai đều chia sẻ quyền sở hữu
+của một danh sách thứ ba. Về mặt khái niệm, điều này trông giống như Hình 15-3.</p>
 <img alt="Two lists that share ownership of a third list" src="img/trpl15-03.svg" class="center" />
-<p><span class="caption">Figure 15-3: Two lists, <code>b</code> and <code>c</code>, sharing ownership of
-a third list, <code>a</code></span></p>
-<p>We’ll create list <code>a</code> that contains <code>5</code> and then <code>10</code>. Then we’ll make two more
-lists: <code>b</code> that starts with <code>3</code> and <code>c</code> that starts with <code>4</code>. Both <code>b</code> and <code>c</code>
-lists will then continue on to the first <code>a</code> list containing <code>5</code> and <code>10</code>. In
-other words, both lists will share the first list containing <code>5</code> and <code>10</code>.</p>
-<p>Trying to implement this scenario using our definition of <code>List</code> with <code>Box&lt;T&gt;</code>
-won’t work, as shown in Listing 15-17:</p>
+<p><span class="caption">Hình 15-3: Hai danh sách, <code>b</code> và <code>c</code>, chia sẻ quyền sở hữu của
+một danh sách thứ ba, <code>a</code></span></p>
+<p>Chúng ta sẽ tạo danh sách <code>a</code> chứa <code>5</code> và sau đó là <code>10</code>. Sau đó chúng ta sẽ tạo thêm hai
+danh sách: <code>b</code> bắt đầu với <code>3</code> và <code>c</code> bắt đầu với <code>4</code>. Cả hai danh sách <code>b</code> và <code>c</code>
+sau đó sẽ tiếp tục đến danh sách <code>a</code> đầu tiên chứa <code>5</code> và <code>10</code>. Nói cách
+khác, cả hai danh sách sẽ chia sẻ danh sách đầu tiên chứa <code>5</code> và <code>10</code>.</p>
+<p>Cố gắng thực thi kịch bản này bằng cách sử dụng định nghĩa <code>List</code> với <code>Box&lt;T&gt;</code> của chúng ta
+sẽ không hoạt động, như được hiển thị trong Liệt kê 15-17:</p>
 <figure class="listing" id="listing-15-17">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><code class="language-rust ignore does_not_compile">enum List {
@@ -227,9 +227,9 @@ fn main() {
     let b = Cons(3, Box::new(a));
     let c = Cons(4, Box::new(a));
 }</code></pre>
-<figcaption><a href="#listing-15-17">Listing 15-17</a>: Demonstrating we’re not allowed to have two lists using <code>Box&lt;T&gt;</code> that try to share ownership of a third list</figcaption>
+<figcaption><a href="#listing-15-17">Listing 15-17</a>: Chứng minh chúng ta không được phép có hai danh sách sử dụng <code>Box&lt;T&gt;</code> cố gắng chia sẻ quyền sở hữu của một danh sách thứ ba</figcaption>
 </figure>
-<p>When we compile this code, we get this error:</p>
+<p>Khi chúng ta biên dịch mã này, chúng ta nhận được lỗi này:</p>
 <pre><code class="language-console">$ cargo run
    Compiling cons-list v0.1.0 (file:///projects/cons-list)
 error[E0382]: use of moved value: `a`
@@ -245,24 +245,24 @@ error[E0382]: use of moved value: `a`
 For more information about this error, try `rustc --explain E0382`.
 error: could not compile `cons-list` (bin "cons-list") due to 1 previous error
 </code></pre>
-<p>The <code>Cons</code> variants own the data they hold, so when we create the <code>b</code> list, <code>a</code>
-is moved into <code>b</code> and <code>b</code> owns <code>a</code>. Then, when we try to use <code>a</code> again when
-creating <code>c</code>, we’re not allowed to because <code>a</code> has been moved.</p>
-<p>We could change the definition of <code>Cons</code> to hold references instead, but then
-we would have to specify lifetime parameters. By specifying lifetime
-parameters, we would be specifying that every element in the list will live at
-least as long as the entire list. This is the case for the elements and lists
-in Listing 15-17, but not in every scenario.</p>
-<p>Instead, we’ll change our definition of <code>List</code> to use <code>Rc&lt;T&gt;</code> in place of
-<code>Box&lt;T&gt;</code>, as shown in Listing 15-18. Each <code>Cons</code> variant will now hold a value
-and an <code>Rc&lt;T&gt;</code> pointing to a <code>List</code>. When we create <code>b</code>, instead of taking
-ownership of <code>a</code>, we’ll clone the <code>Rc&lt;List&gt;</code> that <code>a</code> is holding, thereby
-increasing the number of references from one to two and letting <code>a</code> and <code>b</code>
-share ownership of the data in that <code>Rc&lt;List&gt;</code>. We’ll also clone <code>a</code> when
-creating <code>c</code>, increasing the number of references from two to three. Every time
-we call <code>Rc::clone</code>, the reference count to the data within the <code>Rc&lt;List&gt;</code> will
-increase, and the data won’t be cleaned up unless there are zero references to
-it.</p>
+<p>Các biến thể <code>Cons</code> sở hữu dữ liệu mà chúng nắm giữ, vì vậy khi chúng ta tạo danh sách <code>b</code>, <code>a</code>
+bị di chuyển (moved) vào <code>b</code> và <code>b</code> sở hữu <code>a</code>. Sau đó, khi chúng ta cố gắng sử dụng lại <code>a</code> khi
+tạo <code>c</code>, chúng ta không được phép vì <code>a</code> đã bị di chuyển.</p>
+<p>Chúng ta có thể thay đổi định nghĩa của <code>Cons</code> để giữ các tham chiếu thay thế, nhưng sau đó
+chúng ta sẽ phải chỉ định các tham số lifetime. Bằng cách chỉ định các tham số
+lifetime, chúng ta sẽ chỉ định rằng mọi phần tử trong danh sách sẽ sống
+ít nhất là lâu bằng toàn bộ danh sách. Đây là trường hợp của các phần tử và danh sách
+trong Liệt kê 15-17, nhưng không phải trong mọi kịch bản.</p>
+<p>Thay vào đó, chúng ta sẽ thay đổi định nghĩa <code>List</code> để sử dụng <code>Rc&lt;T&gt;</code> thay cho
+<code>Box&lt;T&gt;</code>, như được hiển thị trong Liệt kê 15-18. Mỗi biến thể <code>Cons</code> bây giờ sẽ giữ một giá trị
+và một <code>Rc&lt;T&gt;</code> trỏ đến một <code>List</code>. Khi chúng ta tạo <code>b</code>, thay vì lấy
+quyền sở hữu của <code>a</code>, chúng ta sẽ clone <code>Rc&lt;List&gt;</code> mà <code>a</code> đang nắm giữ, từ đó
+tăng số lượng tham chiếu từ một lên hai và cho phép <code>a</code> và <code>b</code>
+chia sẻ quyền sở hữu dữ liệu trong <code>Rc&lt;List&gt;</code> đó. Chúng ta cũng sẽ clone <code>a</code> khi
+tạo <code>c</code>, tăng số lượng tham chiếu từ hai lên ba. Mỗi khi
+chúng ta gọi <code>Rc::clone</code>, số lượng tham chiếu đến dữ liệu bên trong <code>Rc&lt;List&gt;</code> sẽ
+tăng lên, và dữ liệu sẽ không bị dọn dẹp trừ khi có không tham chiếu nào đến
+nó.</p>
 <figure class="listing" id="listing-15-18">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><pre class="playground"><code class="language-rust edition2024">enum List {
@@ -278,28 +278,28 @@ fn main() {
     let b = Cons(3, Rc::clone(&amp;a));
     let c = Cons(4, Rc::clone(&amp;a));
 }</code></pre></pre>
-<figcaption><a href="#listing-15-18">Listing 15-18</a>: A definition of <code>List</code> that uses <code>Rc&lt;T&gt;</code></figcaption>
+<figcaption><a href="#listing-15-18">Listing 15-18</a>: Một định nghĩa của <code>List</code> sử dụng <code>Rc&lt;T&gt;</code></figcaption>
 </figure>
-<p>We need to add a <code>use</code> statement to bring <code>Rc&lt;T&gt;</code> into scope because it’s not
-in the prelude. In <code>main</code>, we create the list holding 5 and 10 and store it in
-a new <code>Rc&lt;List&gt;</code> in <code>a</code>. Then when we create <code>b</code> and <code>c</code>, we call the
-<code>Rc::clone</code> function and pass a reference to the <code>Rc&lt;List&gt;</code> in <code>a</code> as an
-argument.</p>
-<p>We could have called <code>a.clone()</code> rather than <code>Rc::clone(&amp;a)</code>, but Rust’s
-convention is to use <code>Rc::clone</code> in this case. The implementation of
-<code>Rc::clone</code> doesn’t make a deep copy of all the data like most types’
-implementations of <code>clone</code> do. The call to <code>Rc::clone</code> only increments the
-reference count, which doesn’t take much time. Deep copies of data can take a
-lot of time. By using <code>Rc::clone</code> for reference counting, we can visually
-distinguish between the deep-copy kinds of clones and the kinds of clones that
-increase the reference count. When looking for performance problems in the
-code, we only need to consider the deep-copy clones and can disregard calls to
+<p>Chúng ta cần thêm một câu lệnh <code>use</code> để đưa <code>Rc&lt;T&gt;</code> vào phạm vi vì nó không
+nằm trong prelude. Trong <code>main</code>, chúng ta tạo danh sách chứa 5 và 10 và lưu trữ nó trong
+một <code>Rc&lt;List&gt;</code> mới trong <code>a</code>. Sau đó khi chúng ta tạo <code>b</code> và <code>c</code>, chúng ta gọi
+hàm <code>Rc::clone</code> và truyền một tham chiếu đến <code>Rc&lt;List&gt;</code> trong <code>a</code> như một
+đối số.</p>
+<p>Chúng ta có thể đã gọi <code>a.clone()</code> thay vì <code>Rc::clone(&amp;a)</code>, nhưng quy ước của Rust
+là sử dụng <code>Rc::clone</code> trong trường hợp này. Việc thực thi
+<code>Rc::clone</code> không tạo ra một bản sao sâu (deep copy) của tất cả dữ liệu giống như hầu hết các thực thi
+<code>clone</code> của các kiểu khác. Việc gọi <code>Rc::clone</code> chỉ làm tăng số lượng tham chiếu,
+việc này không tốn nhiều thời gian. Các bản sao sâu của dữ liệu có thể tốn
+nhiều thời gian. Bằng cách sử dụng <code>Rc::clone</code> để đếm tham chiếu, chúng ta có thể phân biệt
+trực quan giữa các loại clone sao chép sâu và các loại clone
+làm tăng số lượng tham chiếu. Khi tìm kiếm các vấn đề về hiệu suất trong
+mã, chúng ta chỉ cần xem xét các bản sao sâu và có thể bỏ qua các lời gọi đến
 <code>Rc::clone</code>.</p>
-<h3 id="cloning-an-rct-increases-the-reference-count"><a class="header" href="#cloning-an-rct-increases-the-reference-count">Cloning an <code>Rc&lt;T&gt;</code> Increases the Reference Count</a></h3>
-<p>Let’s change our working example in Listing 15-18 so we can see the reference
-counts changing as we create and drop references to the <code>Rc&lt;List&gt;</code> in <code>a</code>.</p>
-<p>In Listing 15-19, we’ll change <code>main</code> so it has an inner scope around list <code>c</code>;
-then we can see how the reference count changes when <code>c</code> goes out of scope.</p>
+<h3 id="việc-clone-một-rct-làm-tăng-số-lượng-tham-chiếu"><a class="header" href="#việc-clone-một-rct-làm-tăng-số-lượng-tham-chiếu">Việc Clone một <code>Rc&lt;T&gt;</code> làm tăng số lượng tham chiếu</a></h3>
+<p>Hãy thay đổi ví dụ đang làm việc của chúng ta trong Liệt kê 15-18 để chúng ta có thể thấy số lượng
+tham chiếu thay đổi khi chúng ta tạo và hủy các tham chiếu đến <code>Rc&lt;List&gt;</code> trong <code>a</code>.</p>
+<p>Trong Liệt kê 15-19, chúng ta sẽ thay đổi <code>main</code> để nó có một phạm vi bên trong bao quanh danh sách <code>c</code>;
+sau đó chúng ta có thể thấy số lượng tham chiếu thay đổi như thế nào khi <code>c</code> ra khỏi phạm vi.</p>
 <figure class="listing" id="listing-15-19">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><pre class="playground"><code class="language-rust edition2024"><span class="boring">enum List {
@@ -321,14 +321,14 @@ then we can see how the reference count changes when <code>c</code> goes out of 
     }
     println!("count after c goes out of scope = {}", Rc::strong_count(&amp;a));
 }</code></pre></pre>
-<figcaption><a href="#listing-15-19">Listing 15-19</a>: Printing the reference count</figcaption>
+<figcaption><a href="#listing-15-19">Listing 15-19</a>: In ra số lượng tham chiếu</figcaption>
 </figure>
-<p>At each point in the program where the reference count changes, we print the
-reference count, which we get by calling the <code>Rc::strong_count</code> function. This
-function is named <code>strong_count</code> rather than <code>count</code> because the <code>Rc&lt;T&gt;</code> type
-also has a <code>weak_count</code>; we’ll see what <code>weak_count</code> is used for in <a href="ch15-06-reference-cycles.html#preventing-reference-cycles-turning-an-rct-into-a-weakt">“Preventing
-Reference Cycles Using <code>Weak&lt;T&gt;</code>”</a><!-- ignore -->.</p>
-<p>This code prints the following:</p>
+<p>Tại mỗi điểm trong chương trình nơi số lượng tham chiếu thay đổi, chúng ta in ra
+số lượng tham chiếu, cái mà chúng ta lấy được bằng cách gọi hàm <code>Rc::strong_count</code>. Hàm
+này được đặt tên là <code>strong_count</code> thay vì <code>count</code> vì kiểu <code>Rc&lt;T&gt;</code>
+cũng có một <code>weak_count</code>; chúng ta sẽ xem <code>weak_count</code> được sử dụng để làm gì trong <a href="ch15-06-reference-cycles.html#preventing-reference-cycles-turning-an-rct-into-a-weakt">“Ngăn chặn
+chu kỳ tham chiếu bằng cách sử dụng <code>Weak&lt;T&gt;</code>”</a><!-- ignore -->.</p>
+<p>Mã này in ra những nội dung sau:</p>
 <pre><code class="language-console">$ cargo run
    Compiling cons-list v0.1.0 (file:///projects/cons-list)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.45s
@@ -338,25 +338,25 @@ count after creating b = 2
 count after creating c = 3
 count after c goes out of scope = 2
 </code></pre>
-<p>We can see that the <code>Rc&lt;List&gt;</code> in <code>a</code> has an initial reference count of 1; then
-each time we call <code>clone</code>, the count goes up by 1. When <code>c</code> goes out of scope,
-the count goes down by 1. We don’t have to call a function to decrease the
-reference count like we have to call <code>Rc::clone</code> to increase the reference
-count: the implementation of the <code>Drop</code> trait decreases the reference count
-automatically when an <code>Rc&lt;T&gt;</code> value goes out of scope.</p>
-<p>What we can’t see in this example is that when <code>b</code> and then <code>a</code> go out of scope
-at the end of <code>main</code>, the count is then 0, and the <code>Rc&lt;List&gt;</code> is cleaned up
-completely. Using <code>Rc&lt;T&gt;</code> allows a single value to have multiple owners, and
-the count ensures that the value remains valid as long as any of the owners
-still exist.</p>
-<p>Via immutable references, <code>Rc&lt;T&gt;</code> allows you to share data between multiple
-parts of your program for reading only. If <code>Rc&lt;T&gt;</code> allowed you to have multiple
-mutable references too, you might violate one of the borrowing rules discussed
-in Chapter 4: multiple mutable borrows to the same place can cause data races
-and inconsistencies. But being able to mutate data is very useful! In the next
-section, we’ll discuss the interior mutability pattern and the <code>RefCell&lt;T&gt;</code>
-type that you can use in conjunction with an <code>Rc&lt;T&gt;</code> to work with this
-immutability restriction.</p>
+<p>Chúng ta có thể thấy rằng <code>Rc&lt;List&gt;</code> trong <code>a</code> có số lượng tham chiếu ban đầu là 1; sau đó
+mỗi khi chúng ta gọi <code>clone</code>, con số này tăng thêm 1. Khi <code>c</code> ra khỏi phạm vi,
+con số này giảm đi 1. Chúng ta không phải gọi một hàm để giảm
+số lượng tham chiếu giống như chúng ta phải gọi <code>Rc::clone</code> để tăng số lượng
+tham chiếu: việc thực thi trait <code>Drop</code> sẽ tự động giảm số lượng tham chiếu
+khi một giá trị <code>Rc&lt;T&gt;</code> ra khỏi phạm vi.</p>
+<p>Những gì chúng ta không thể thấy trong ví dụ này là khi <code>b</code> và sau đó là <code>a</code> ra khỏi phạm vi
+ở cuối <code>main</code>, số lượng tham chiếu sau đó là 0, và <code>Rc&lt;List&gt;</code> được dọn dẹp
+hoàn toàn. Việc sử dụng <code>Rc&lt;T&gt;</code> cho phép một giá trị duy nhất có nhiều chủ sở hữu, và
+số lượng tham chiếu đảm bảo rằng giá trị đó vẫn hợp lệ miễn là bất kỳ chủ sở hữu nào
+vẫn còn tồn tại.</p>
+<p>Thông qua các tham chiếu bất biến, <code>Rc&lt;T&gt;</code> cho phép bạn chia sẻ dữ liệu giữa nhiều
+phần của chương trình chỉ để đọc. Nếu <code>Rc&lt;T&gt;</code> cũng cho phép bạn có nhiều
+tham chiếu có thể thay đổi, bạn có thể vi phạm một trong các quy tắc mượn đã thảo luận
+trong Chương 4: nhiều lần mượn có thể thay đổi đến cùng một chỗ có thể gây ra chạy đua dữ liệu (data races)
+và sự không nhất quán. Nhưng khả năng thay đổi dữ liệu là rất hữu ích! Trong phần
+tiếp theo, chúng ta sẽ thảo luận về mô hình tính đột biến nội thất và kiểu <code>RefCell&lt;T&gt;</code>
+mà bạn có thể sử dụng kết hợp với một <code>Rc&lt;T&gt;</code> để làm việc với hạn chế
+tính bất biến này.</p>
 <div class="quiz-placeholder" data-quiz-name="&quot;ch15-04-rc&quot;" data-quiz-questions="{&quot;questions&quot;:[{&quot;context&quot;:&quot;Data inside an `Rc` cannot be mutated without the use of interior mutability (seen next section). `Rc` enforces this property\nby implementing the `Deref` trait, but not implementing the `DerefMut` trait.\n&quot;,&quot;id&quot;:&quot;e127342d-7ad2-4730-b930-774411e1872d&quot;,&quot;type&quot;:&quot;Tracing&quot;,&quot;answer&quot;:{&quot;doesCompile&quot;:false,&quot;lineNumber&quot;:5},&quot;prompt&quot;:{&quot;program&quot;:&quot;use std::rc::Rc;\nfn main() {\n    let n = Rc::new(1);\n    let mut n2 = Rc::clone(&amp;n);\n    *n2 += 1;\n    println!(\&quot;{}\&quot;, n);\n}\n&quot;}},{&quot;context&quot;:&quot;The value inside a reference-counted pointer is only ever dropped once, so \&quot;drop\&quot; is only printed once.\nThe initial `drop(x)` decrements the reference count, but does not drop the value because `y` is still live.\nThen dropping `y` finds that the reference count is 0, and drops `Example`.\n&quot;,&quot;id&quot;:&quot;3b43eb45-3400-4555-b605-9ae1cde7c80c&quot;,&quot;type&quot;:&quot;Tracing&quot;,&quot;answer&quot;:{&quot;doesCompile&quot;:true,&quot;stdout&quot;:&quot;A\nB\ndrop\nC\n&quot;},&quot;prompt&quot;:{&quot;program&quot;:&quot;use std::rc::Rc;\nstruct Example;\nimpl Drop for Example {\n    fn drop(&amp;mut self) {\n        println!(\&quot;drop\&quot;);\n    }\n}\nfn main() {\n    let x = Rc::new(Example);    \n    let y = Rc::clone(&amp;x);    \n    println!(\&quot;A\&quot;);\n    drop(x);\n    println!(\&quot;B\&quot;);\n    drop(y);    \n    println!(\&quot;C\&quot;);\n}\n&quot;}}]}" data-quiz-fullscreen="true" data-quiz-cache-answers="true"></div>
 <script type="text/javascript" src="quiz/quiz-embed.iife.js"></script><link rel="stylesheet" type="text/css" href="quiz/style.css">
 

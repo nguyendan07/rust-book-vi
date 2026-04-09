@@ -175,30 +175,30 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="running-code-on-cleanup-with-the-drop-trait"><a class="header" href="#running-code-on-cleanup-with-the-drop-trait">Running Code on Cleanup with the <code>Drop</code> Trait</a></h2>
-<p>The second trait important to the smart pointer pattern is <code>Drop</code>, which lets
-you customize what happens when a value is about to go out of scope. You can
-provide an implementation for the <code>Drop</code> trait on any type, and that code can
-be used to release resources like files or network connections.</p>
-<p>We’re introducing <code>Drop</code> in the context of smart pointers because the
-functionality of the <code>Drop</code> trait is almost always used when implementing a
-smart pointer. For example, when a <code>Box&lt;T&gt;</code> is dropped it will deallocate the
-space on the heap that the box points to.</p>
-<p>In some languages, for some types, the programmer must call code to free memory
-or resources every time they finish using an instance of those types. Examples
-include file handles, sockets, and locks. If they forget, the system might
-become overloaded and crash. In Rust, you can specify that a particular bit of
-code be run whenever a value goes out of scope, and the compiler will insert
-this code automatically. As a result, you don’t need to be careful about
-placing cleanup code everywhere in a program that an instance of a particular
-type is finished with—you still won’t leak resources!</p>
-<p>You specify the code to run when a value goes out of scope by implementing the
-<code>Drop</code> trait. The <code>Drop</code> trait requires you to implement one method named
-<code>drop</code> that takes a mutable reference to <code>self</code>. To see when Rust calls <code>drop</code>,
-let’s implement <code>drop</code> with <code>println!</code> statements for now.</p>
-<p>Listing 15-14 shows a <code>CustomSmartPointer</code> struct whose only custom
-functionality is that it will print <code>Dropping CustomSmartPointer!</code> when the
-instance goes out of scope, to show when Rust runs the <code>drop</code> method.</p>
+                        <h2 id="thực-thi-mã-khi-dọn-dẹp-giải-phóng-với-trait-drop"><a class="header" href="#thực-thi-mã-khi-dọn-dẹp-giải-phóng-với-trait-drop">Thực thi mã khi dọn dẹp (giải phóng) với trait <code>Drop</code></a></h2>
+<p>Trait quan trọng thứ hai đối với mô hình con trỏ thông minh là <code>Drop</code>, nó cho phép
+bạn tùy chỉnh những gì xảy ra khi một giá trị sắp ra khỏi phạm vi (scope). Bạn có thể
+cung cấp một thực thi cho trait <code>Drop</code> trên bất kỳ kiểu nào, và mã đó có thể
+được sử dụng để giải phóng các tài nguyên như tệp hoặc kết nối mạng.</p>
+<p>Chúng tôi giới thiệu <code>Drop</code> trong ngữ cảnh của con trỏ thông minh vì
+chức năng của trait <code>Drop</code> hầu như luôn được sử dụng khi thực thi một
+con trỏ thông minh. Ví dụ, khi một <code>Box&lt;T&gt;</code> bị hủy (dropped), nó sẽ giải phóng
+không gian trên heap mà box đó trỏ tới.</p>
+<p>Trong một số ngôn ngữ, đối với một số kiểu, lập trình viên phải gọi mã để giải phóng bộ nhớ
+hoặc tài nguyên mỗi khi họ sử dụng xong một instance của các kiểu đó. Các ví dụ
+bao gồm file handles, sockets, và locks. Nếu họ quên, hệ thống có thể
+trở nên quá tải và bị treo. Trong Rust, bạn có thể chỉ định một đoạn mã
+cụ thể sẽ được chạy bất cứ khi nào một giá trị ra khỏi phạm vi, và trình biên dịch sẽ tự động
+chèn mã này. Kết quả là, bạn không cần phải cẩn thận về việc
+sử dụng code dọn dẹp ở khắp mọi nơi trong chương trình khi một instance của một kiểu cụ thể
+đã kết thúc—tài nguyên vẫn được giải phóng an toàn, không bị rò rỉ!</p>
+<p>Bạn chỉ định mã sẽ chạy khi một giá trị ra khỏi phạm vi bằng cách thực thi
+trait <code>Drop</code>. Trait <code>Drop</code> yêu cầu bạn thực thi một phương thức tên là
+<code>drop</code> nhận một tham chiếu có thể thay đổi (mutable reference) đến <code>self</code>. Để xem khi nào Rust gọi <code>drop</code>,
+hãy thực thi <code>drop</code> với các câu lệnh <code>println!</code> ngay bây giờ.</p>
+<p>Liệt kê 15-14 cho thấy một struct <code>CustomSmartPointer</code> có chức năng tùy chỉnh
+duy nhất là nó sẽ in ra <code>Dropping CustomSmartPointer!</code> khi
+instance ra khỏi phạm vi, để cho thấy khi nào Rust chạy phương thức <code>drop</code>.</p>
 <figure class="listing" id="listing-15-14">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><pre class="playground"><code class="language-rust edition2024">struct CustomSmartPointer {
@@ -220,20 +220,20 @@ fn main() {
     };
     println!("CustomSmartPointers created.");
 }</code></pre></pre>
-<figcaption><a href="#listing-15-14">Listing 15-14</a>: A <code>CustomSmartPointer</code> struct that implements the <code>Drop</code> trait where we would put our cleanup code</figcaption>
+<figcaption><a href="#listing-15-14">Listing 15-14</a>: Một struct <code>CustomSmartPointer</code> thực thi trait <code>Drop</code> nơi chúng ta sẽ đặt mã dọn dẹp của mình</figcaption>
 </figure>
-<p>The <code>Drop</code> trait is included in the prelude, so we don’t need to bring it into
-scope. We implement the <code>Drop</code> trait on <code>CustomSmartPointer</code> and provide an
-implementation for the <code>drop</code> method that calls <code>println!</code>. The body of the
-<code>drop</code> method is where you would place any logic that you wanted to run when an
-instance of your type goes out of scope. We’re printing some text here to
-demonstrate visually when Rust will call <code>drop</code>.</p>
-<p>In <code>main</code>, we create two instances of <code>CustomSmartPointer</code> and then print
-<code>CustomSmartPointers created</code>. At the end of <code>main</code>, our instances of
-<code>CustomSmartPointer</code> will go out of scope, and Rust will call the code we put
-in the <code>drop</code> method, printing our final message. Note that we didn’t need to
-call the <code>drop</code> method explicitly.</p>
-<p>When we run this program, we’ll see the following output:</p>
+<p>Trait <code>Drop</code> được bao gồm trong prelude, vì vậy chúng ta không cần phải đưa nó vào
+phạm vi. Chúng ta thực thi trait <code>Drop</code> trên <code>CustomSmartPointer</code> và cung cấp một
+thực thi cho phương thức <code>drop</code> có gọi <code>println!</code>. Thân của phương thức
+<code>drop</code> là nơi bạn sẽ đặt bất kỳ logic nào mà bạn muốn chạy khi một
+instance của kiểu của bạn ra khỏi phạm vi. Chúng ta đang in một số văn bản ở đây để
+minh họa trực quan khi nào Rust sẽ gọi <code>drop</code>.</p>
+<p>Trong <code>main</code>, chúng ta tạo hai instance của <code>CustomSmartPointer</code> và sau đó in
+<code>CustomSmartPointers created</code>. Ở cuối <code>main</code>, các instance của
+<code>CustomSmartPointer</code> của chúng ta sẽ ra khỏi phạm vi, và Rust sẽ gọi mã chúng ta đã đặt
+trong phương thức <code>drop</code>, in ra thông báo cuối cùng của chúng ta. Lưu ý rằng chúng ta không cần phải
+gọi phương thức <code>drop</code> một cách rõ ràng.</p>
+<p>Khi chúng ta chạy chương trình này, chúng ta sẽ thấy kết quả sau:</p>
 <pre><code class="language-console">$ cargo run
    Compiling drop-example v0.1.0 (file:///projects/drop-example)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.60s
@@ -242,26 +242,25 @@ CustomSmartPointers created.
 Dropping CustomSmartPointer with data `other stuff`!
 Dropping CustomSmartPointer with data `my stuff`!
 </code></pre>
-<p>Rust automatically called <code>drop</code> for us when our instances went out of scope,
-calling the code we specified. Variables are dropped in the reverse order of
-their creation, so <code>d</code> was dropped before <code>c</code>. This example’s purpose is to
-give you a visual guide to how the <code>drop</code> method works; usually you would
-specify the cleanup code that your type needs to run rather than a print
-message.</p>
+<p>Rust đã tự động gọi <code>drop</code> cho chúng ta khi các instance của chúng ta ra khỏi phạm vi,
+chạy mã mà chúng ta đã chỉ định. Các biến được hủy theo thứ tự ngược lại
+với lúc chúng được tạo ra, vì vậy <code>d</code> đã bị hủy trước <code>c</code>. Mục đích của ví dụ này là
+để cung cấp cho bạn một hướng dẫn trực quan về cách phương thức <code>drop</code> hoạt động; thông thường bạn sẽ
+chỉ định mã dọn dẹp mà kiểu của bạn cần chạy thay vì một thông báo in ra.</p>
 <!-- Old link, do not remove -->
 <p><a id="dropping-a-value-early-with-std-mem-drop"></a></p>
-<p>Unfortunately, it’s not straightforward to disable the automatic <code>drop</code>
-functionality. Disabling <code>drop</code> isn’t usually necessary; the whole point of the
-<code>Drop</code> trait is that it’s taken care of automatically. Occasionally, however,
-you might want to clean up a value early. One example is when using smart
-pointers that manage locks: you might want to force the <code>drop</code> method that
-releases the lock so that other code in the same scope can acquire the lock.
-Rust doesn’t let you call the <code>Drop</code> trait’s <code>drop</code> method manually; instead,
-you have to call the <code>std::mem::drop</code> function provided by the standard library
-if you want to force a value to be dropped before the end of its scope.</p>
-<p>If we try to call the <code>Drop</code> trait’s <code>drop</code> method manually by modifying the
-<code>main</code> function from Listing 15-14, as shown in Listing 15-15, we’ll get a
-compiler error.</p>
+<p>Thật không may, không dễ dàng để vô hiệu hóa chức năng <code>drop</code>
+tự động. Việc vô hiệu hóa <code>drop</code> thường không cần thiết; toàn bộ ý nghĩa của
+trait <code>Drop</code> là nó được tự động xử lý. Tuy nhiên, đôi khi,
+bạn có thể muốn dọn dẹp một giá trị sớm hơn. Một ví dụ là khi sử dụng các con trỏ
+thông minh quản lý các khóa (locks): bạn có thể muốn ép buộc phương thức <code>drop</code>
+giải phóng khóa để mã khác trong cùng phạm vi có thể lấy được khóa đó.
+Rust không cho phép bạn gọi phương thức <code>drop</code> của trait <code>Drop</code> một cách thủ công; thay vào đó,
+bạn phải gọi hàm <code>std::mem::drop</code> được cung cấp bởi thư viện tiêu chuẩn
+nếu bạn muốn ép buộc một giá trị bị hủy trước khi kết thúc phạm vi của nó.</p>
+<p>Nếu chúng ta cố gắng gọi phương thức <code>drop</code> của trait <code>Drop</code> một cách thủ công bằng cách sửa đổi
+hàm <code>main</code> từ Liệt kê 15-14, như được hiển thị trong Liệt kê 15-15, chúng ta sẽ nhận được một
+lỗi trình biên dịch.</p>
 <figure class="listing" id="listing-15-15">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><code class="language-rust ignore does_not_compile"><span class="boring">struct CustomSmartPointer {
@@ -282,9 +281,9 @@ compiler error.</p>
     c.drop();
     println!("CustomSmartPointer dropped before the end of main.");
 }</code></pre>
-<figcaption><a href="#listing-15-15">Listing 15-15</a>: Attempting to call the <code>drop</code> method from the <code>Drop</code> trait manually to clean up early</figcaption>
+<figcaption><a href="#listing-15-15">Listing 15-15</a>: Cố gắng gọi phương thức <code>drop</code> từ trait <code>Drop</code> một cách thủ công để dọn dẹp sớm</figcaption>
 </figure>
-<p>When we try to compile this code, we’ll get this error:</p>
+<p>Khi chúng ta cố gắng biên dịch mã này, chúng ta sẽ nhận được lỗi này:</p>
 <pre><code class="language-console">$ cargo run
    Compiling drop-example v0.1.0 (file:///projects/drop-example)
 error[E0040]: explicit use of destructor method
@@ -301,22 +300,22 @@ help: consider using `drop` function
 For more information about this error, try `rustc --explain E0040`.
 error: could not compile `drop-example` (bin "drop-example") due to 1 previous error
 </code></pre>
-<p>This error message states that we’re not allowed to explicitly call <code>drop</code>. The
-error message uses the term <em>destructor</em>, which is the general programming term
-for a function that cleans up an instance. A <em>destructor</em> is analogous to a
-<em>constructor</em>, which creates an instance. The <code>drop</code> function in Rust is one
-particular destructor.</p>
-<p>Rust doesn’t let us call <code>drop</code> explicitly because Rust would still
-automatically call <code>drop</code> on the value at the end of <code>main</code>. This would cause a
-<em>double free</em> error because Rust would be trying to clean up the same value
-twice.</p>
-<p>We can’t disable the automatic insertion of <code>drop</code> when a value goes out of
-scope, and we can’t call the <code>drop</code> method explicitly. So, if we need to force
-a value to be cleaned up early, we use the <code>std::mem::drop</code> function.</p>
-<p>The <code>std::mem::drop</code> function is different from the <code>drop</code> method in the <code>Drop</code>
-trait. We call it by passing as an argument the value we want to force-drop.
-The function is in the prelude, so we can modify <code>main</code> in Listing 15-15 to
-call the <code>drop</code> function, as shown in Listing 15-16.</p>
+<p>Thông báo lỗi này cho biết rằng chúng ta không được phép gọi <code>drop</code> một cách rõ ràng.
+Thông báo lỗi sử dụng thuật ngữ <em>destructor</em> (hàm hủy), đây là thuật ngữ lập trình chung
+cho một hàm dọn dẹp một instance. Một <em>destructor</em> tương tự như một
+<em>constructor</em> (hàm khởi tạo), cái tạo ra một instance. Hàm <code>drop</code> trong Rust là một
+destructor cụ thể.</p>
+<p>Rust không cho phép chúng ta gọi <code>drop</code> một cách rõ ràng vì Rust vẫn sẽ
+tự động gọi <code>drop</code> trên giá trị đó ở cuối <code>main</code>. Điều này sẽ gây ra một
+lỗi <em>double free</em> (giải phóng hai lần) vì Rust sẽ cố gắng dọn dẹp cùng một giá trị
+hai lần.</p>
+<p>Chúng ta không thể vô hiệu hóa việc tự động chèn <code>drop</code> khi một giá trị ra khỏi
+phạm vi, và chúng ta không thể gọi phương thức <code>drop</code> một cách rõ ràng. Vì vậy, nếu chúng ta cần ép buộc
+một giá trị được dọn dẹp sớm, chúng ta sử dụng hàm <code>std::mem::drop</code>.</p>
+<p>Hàm <code>std::mem::drop</code> khác với phương thức <code>drop</code> trong trait <code>Drop</code>.
+Chúng ta gọi nó bằng cách truyền vào dưới dạng một đối số giá trị mà chúng ta muốn ép buộc hủy.
+Hàm này nằm trong prelude, vì vậy chúng ta có thể sửa đổi <code>main</code> trong Liệt kê 15-15 để
+gọi hàm <code>drop</code>, như được hiển thị trong Liệt kê 15-16.</p>
 <figure class="listing" id="listing-15-16">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><pre class="playground"><code class="language-rust edition2024"><span class="boring">struct CustomSmartPointer {
@@ -337,9 +336,9 @@ call the <code>drop</code> function, as shown in Listing 15-16.</p>
     drop(c);
     println!("CustomSmartPointer dropped before the end of main.");
 }</code></pre></pre>
-<figcaption><a href="#listing-15-16">Listing 15-16</a>: Calling <code>std::mem::drop</code> to explicitly drop a value before it goes out of scope</figcaption>
+<figcaption><a href="#listing-15-16">Listing 15-16</a>: Gọi <code>std::mem::drop</code> để hủy một giá trị một cách rõ ràng trước khi nó ra khỏi phạm vi</figcaption>
 </figure>
-<p>Running this code will print the following:</p>
+<p>Chạy mã này sẽ in ra những nội dung sau:</p>
 <pre><code class="language-console">$ cargo run
    Compiling drop-example v0.1.0 (file:///projects/drop-example)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.73s
@@ -348,20 +347,20 @@ CustomSmartPointer created.
 Dropping CustomSmartPointer with data `some data`!
 CustomSmartPointer dropped before the end of main.
 </code></pre>
-<p>The text <code>Dropping CustomSmartPointer with data `some data`!</code> is printed
-between the <code>CustomSmartPointer created.</code> and <code>CustomSmartPointer dropped before the end of main.</code> text, showing that the <code>drop</code> method code is called to
-drop <code>c</code> at that point.</p>
-<p>You can use code specified in a <code>Drop</code> trait implementation in many ways to
-make cleanup convenient and safe: for instance, you could use it to create your
-own memory allocator! With the <code>Drop</code> trait and Rust’s ownership system, you
-don’t have to remember to clean up because Rust does it automatically.</p>
-<p>You also don’t have to worry about problems resulting from accidentally
-cleaning up values still in use: the ownership system that makes sure
-references are always valid also ensures that <code>drop</code> gets called only once when
-the value is no longer being used.</p>
-<p>Now that we’ve examined <code>Box&lt;T&gt;</code> and some of the characteristics of smart
-pointers, let’s look at a few other smart pointers defined in the standard
-library.</p>
+<p>Dòng chữ <code>Dropping CustomSmartPointer with data `some data`!</code> được in ra
+giữa văn bản <code>CustomSmartPointer created.</code> và <code>CustomSmartPointer dropped before the end of main.</code>, cho thấy mã phương thức <code>drop</code> được gọi để
+hủy <code>c</code> tại thời điểm đó.</p>
+<p>Bạn có thể sử dụng mã được chỉ định trong một thực thi trait <code>Drop</code> theo nhiều cách để
+làm cho việc dọn dẹp trở nên thuận tiện và an toàn: ví dụ, bạn có thể sử dụng nó để tạo
+trình cấp phát bộ nhớ (memory allocator) của riêng mình! Với trait <code>Drop</code> và hệ thống quyền sở hữu của Rust,
+bạn không cần phải nhớ dọn dẹp vì Rust thực hiện việc đó một cách tự động.</p>
+<p>Bạn cũng không phải lo lắng về các vấn đề phát sinh từ việc vô tình
+dọn dẹp các giá trị vẫn còn đang được sử dụng: hệ thống quyền sở hữu đảm bảo
+các tham chiếu luôn hợp lệ cũng đảm bảo rằng <code>drop</code> chỉ được gọi một lần khi
+giá trị không còn được sử dụng nữa.</p>
+<p>Bây giờ chúng ta đã xem xét <code>Box&lt;T&gt;</code> và một số đặc điểm của con trỏ
+thông minh, hãy cùng xem xét một vài con trỏ thông minh khác được định nghĩa trong thư viện
+tiêu chuẩn.</p>
 <div class="quiz-placeholder" data-quiz-name="&quot;ch15-03-drop&quot;" data-quiz-questions="{&quot;questions&quot;:[{&quot;context&quot;:&quot;An owned value cannot be dropped twice, so it is a compiler error to call a drop the second time.\n&quot;,&quot;id&quot;:&quot;8282968d-b1d3-42b4-b128-f97b951db4c6&quot;,&quot;type&quot;:&quot;Tracing&quot;,&quot;answer&quot;:{&quot;doesCompile&quot;:false,&quot;lineNumber&quot;:11},&quot;prompt&quot;:{&quot;program&quot;:&quot;struct Example(i32);\nimpl Drop for Example {\n    fn drop(&amp;mut self) {\n        self.0 += 1;\n        println!(\&quot;drop {}\&quot;, self.0);\n    }\n}\nfn main() {\n    let e = Example(0);\n    drop(e);\n    drop(e);\n}\n&quot;}},{&quot;context&quot;:&quot;Any use of `s` that moves it and discards the result will cause `s` to be dropped. However, `s.drop()` cannot be\ncalled directly.\n&quot;,&quot;id&quot;:&quot;b9121273-1c1e-4e99-9cff-a23f845aaeeb&quot;,&quot;type&quot;:&quot;MultipleChoice&quot;,&quot;answer&quot;:{&quot;answer&quot;:[&quot;`drop(s);`&quot;,&quot;`(|_| ())(s);`&quot;,&quot;`{ s };`&quot;]},&quot;prompt&quot;:{&quot;distractors&quot;:[&quot;`s.drop();`&quot;],&quot;prompt&quot;:&quot;Consider this snippet that allocates a string:\n\n```rust\nfn main() {\n    let mut s = String::new();\n    ____\n}\n```\n\nWhich of the following are valid operations to fill in the underscore that would cause `s` to be dropped?\n&quot;}}]}" data-quiz-fullscreen="true" data-quiz-cache-answers="true"></div>
 <script type="text/javascript" src="quiz/quiz-embed.iife.js"></script><link rel="stylesheet" type="text/css" href="quiz/style.css">
                     </main>
