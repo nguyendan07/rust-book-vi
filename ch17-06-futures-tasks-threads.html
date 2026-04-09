@@ -175,32 +175,32 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="putting-it-all-together-futures-tasks-and-threads"><a class="header" href="#putting-it-all-together-futures-tasks-and-threads">Putting It All Together: Futures, Tasks, and Threads</a></h2>
-<p>As we saw in <a href="http://localhost:3000/ch16-00-concurrency.html">Chapter 16</a><!-- ignore -->, threads provide one approach to
-concurrency. We’ve seen another approach in this chapter: using async with
-futures and streams. If you‘re wondering when to choose method over the other,
-the answer is: it depends! And in many cases, the choice isn’t threads <em>or</em>
-async but rather threads <em>and</em> async.</p>
-<p>Many operating systems have supplied threading-based concurrency models for
-decades now, and many programming languages support them as a result. However,
-these models are not without their tradeoffs. On many operating systems, they
-use a fair bit of memory for each thread, and they come with some overhead for
-starting up and shutting down. Threads are also only an option when your
-operating system and hardware support them. Unlike mainstream desktop and mobile
-computers, some embedded systems don’t have an OS at all, so they also don’t
-have threads.</p>
-<p>The async model provides a different—and ultimately complementary—set of
-tradeoffs. In the async model, concurrent operations don’t require their own
-threads. Instead, they can run on tasks, as when we used <code>trpl::spawn_task</code> to
-kick off work from a synchronous function in the streams section. A task is
-similar to a thread, but instead of being managed by the operating system, it’s
-managed by library-level code: the runtime.</p>
-<p>In the previous section, we saw that we could build a stream by using an async
-channel and spawning an async task we could call from synchronous code. We can
-do the exact same thing with a thread. In Listing 17-40, we used
-<code>trpl::spawn_task</code> and <code>trpl::sleep</code>. In Listing 17-41, we replace those with
-the <code>thread::spawn</code> and <code>thread::sleep</code> APIs from the standard library in the
-<code>get_intervals</code> function.</p>
+                        <h2 id="tổng-kết-futures-tasks-và-threads"><a class="header" href="#tổng-kết-futures-tasks-và-threads">Tổng kết: Futures, Tasks và Threads</a></h2>
+<p>Như chúng ta đã thấy trong <a href="http://localhost:3000/ch16-00-concurrency.html">Chương 16</a><!-- ignore -->, các luồng (threads) cung cấp một hướng tiếp cận tới
+tính đồng thời. Chúng ta đã thấy một hướng tiếp cận khác trong chương này: sử dụng async với
+futures và streams. Nếu bạn đang tự hỏi khi nào nên chọn phương pháp này hơn phương pháp kia,
+câu trả lời là: nó tùy thuộc vào từng trường hợp! Và trong nhiều trường hợp, sự lựa chọn không phải là threads <em>hay</em>
+async mà là threads <em>và</em> async.</p>
+<p>Nhiều hệ điều hành đã cung cấp các mô hình đồng thời dựa trên luồng trong
+nhiều thập kỷ qua, và kết quả là nhiều ngôn ngữ lập trình hỗ trợ chúng. Tuy nhiên,
+những mô hình này không phải là không có những sự đánh đổi. Trên nhiều hệ điều hành, chúng
+sử dụng khá nhiều bộ nhớ cho mỗi luồng, và chúng đi kèm với một số chi phí (overhead) để
+khởi động và tắt. Các luồng cũng chỉ là một lựa chọn khi
+hệ điều hành và phần cứng của bạn hỗ trợ chúng. Không giống như các máy tính để bàn và di động
+phổ biến, một số hệ thống nhúng hoàn toàn không có hệ điều hành (OS), vì vậy chúng cũng không
+có các luồng.</p>
+<p>Mô hình async cung cấp một tập hợp các sự đánh đổi khác biệt—và cuối cùng là bổ trợ—.
+Trong mô hình async, các thao tác đồng thời không yêu cầu các luồng riêng của chúng.
+Thay vào đó, chúng có thể chạy trên các tác vụ (tasks), như khi chúng ta sử dụng <code>trpl::spawn_task</code> để
+bắt đầu công việc từ một hàm đồng bộ trong phần streams. Một task là
+tương tự như một luồng, nhưng thay vì được quản lý bởi hệ điều hành, nó được
+quản lý bởi mã ở cấp độ thư viện: runtime.</p>
+<p>Trong phần trước, chúng ta thấy rằng chúng ta có thể xây dựng một stream bằng cách sử dụng một async
+channel và tạo ra (spawn) một async task chúng ta có thể gọi từ mã đồng bộ. Chúng ta có thể
+làm điều tương tự y hệt với một luồng. Trong Liệt kê 17-40, chúng ta đã sử dụng
+<code>trpl::spawn_task</code> và <code>trpl::sleep</code>. Trong Liệt kê 17-41, chúng ta thay thế chúng bằng
+các API <code>thread::spawn</code> và <code>thread::sleep</code> từ thư viện tiêu chuẩn trong
+hàm <code>get_intervals</code>.</p>
 <figure class="listing" id="listing-17-41">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><pre class="playground"><code class="language-rust edition2024"><span class="boring">extern crate trpl; // required for mdbook test
@@ -268,63 +268,62 @@ the <code>thread::spawn</code> and <code>thread::sleep</code> APIs from the stan
 
     ReceiverStream::new(rx)
 }</code></pre></pre>
-<figcaption><a href="#listing-17-41">Listing 17-41</a>: Using the <code>std::thread</code> APIs instead of the async <code>trpl</code> APIs for the <code>get_intervals</code> function</figcaption>
+<figcaption><a href="#listing-17-41">Listing 17-41</a>: Sử dụng các API <code>std::thread</code> thay vì các API <code>trpl</code> async cho hàm <code>get_intervals</code></figcaption>
 </figure>
-<p>If you run this code, the output is identical to that of Listing 17-40. And
-notice how little changes here from the perspective of the calling code. What’s
-more, even though one of our functions spawned an async task on the runtime and
-the other spawned an OS thread, the resulting streams were unaffected by the
-differences.</p>
-<p>Despite their similarities, these two approaches behave very differently,
-although we might have a hard time measuring it in this very simple example. We
-could spawn millions of async tasks on any modern personal computer. If we tried
-to do that with threads, we would literally run out of memory!</p>
-<p>However, there’s a reason these APIs are so similar. Threads act as a boundary
-for sets of synchronous operations; concurrency is possible <em>between</em> threads.
-Tasks act as a boundary for sets of <em>asynchronous</em> operations; concurrency is
-possible both <em>between</em> and <em>within</em> tasks, because a task can switch between
-futures in its body. Finally, futures are Rust’s most granular unit of
-concurrency, and each future may represent a tree of other futures. The
-runtime—specifically, its executor—manages tasks, and tasks manage futures. In
-that regard, tasks are similar to lightweight, runtime-managed threads with
-added capabilities that come from being managed by a runtime instead of by the
-operating system.</p>
-<p>This doesn’t mean that async tasks are always better than threads (or vice
-versa). Concurrency with threads is in some ways a simpler programming model
-than concurrency with <code>async</code>. That can be a strength or a weakness. Threads are
-somewhat “fire and forget”; they have no native equivalent to a future, so they
-simply run to completion without being interrupted except by the operating
-system itself. That is, they have no built-in support for <em>intratask
-concurrency</em> the way futures do. Threads in Rust also have no mechanisms for
-cancellation—a subject we haven’t covered explicitly in this chapter but was
-implied by the fact that whenever we ended a future, its state got cleaned up
-correctly.</p>
-<p>These limitations also make threads harder to compose than futures. It’s much
-more difficult, for example, to use threads to build helpers such as the
-<code>timeout</code> and <code>throttle</code> methods we built earlier in this chapter. The fact that
-futures are richer data structures means they can be composed together more
-naturally, as we have seen.</p>
-<p>Tasks, then, give us <em>additional</em> control over futures, allowing us to choose
-where and how to group them. And it turns out that threads and tasks often work
-very well together, because tasks can (at least in some runtimes) be moved
-around between threads. In fact, under the hood, the runtime we’ve been
-using—including the <code>spawn_blocking</code> and <code>spawn_task</code> functions—is multithreaded
-by default! Many runtimes use an approach called <em>work stealing</em> to
-transparently move tasks around between threads, based on how the threads are
-currently being utilized, to improve the system’s overall performance. That
-approach actually requires threads <em>and</em> tasks, and therefore futures.</p>
-<p>When thinking about which method to use when, consider these rules of thumb:</p>
+<p>Nếu bạn chạy mã này, kết quả đầu ra giống hệt với Liệt kê 17-40. Và
+hãy lưu ý rằng có rất ít thay đổi ở đây từ góc độ của mã gọi. Hơn
+thế nữa, ngay cả khi một trong các hàm của chúng ta đã tạo ra một async task trên runtime và
+hàm kia tạo ra một luồng hệ điều hành, các streams kết quả vẫn không bị ảnh hưởng bởi
+những sự khác biệt đó.</p>
+<p>Bất chấp những điểm tương đồng của chúng, hai cách tiếp cận này hoạt động rất khác nhau,
+mặc dù chúng ta có thể gặp khó khăn trong việc đo lường nó trong ví dụ rất đơn giản này. Chúng ta
+có thể tạo ra hàng triệu async tasks trên bất kỳ máy tính cá nhân hiện đại nào. Nếu chúng ta cố gắng
+làm điều đó với các luồng, chúng ta sẽ thực sự bị hết bộ nhớ!</p>
+<p>Tuy nhiên, có một lý do tại sao các API này lại giống nhau đến vậy. Các luồng hoạt động như một ranh giới
+cho các tập hợp các thao tác đồng bộ; tính đồng thời là có thể <em>giữa</em> các luồng.
+Các tác vụ hoạt động như một ranh giới cho các tập hợp các thao tác <em>bất đồng bộ</em>; tính đồng thời là
+có thể cả <em>giữa</em> và <em>trong</em> các tác vụ, bởi vì một tác vụ có thể chuyển đổi giữa các
+futures trong thân của nó. Cuối cùng, futures là đơn vị đồng thời chi tiết nhất của Rust,
+và mỗi future có thể đại diện cho một cây của các futures khác.
+Runtime—cụ thể là executor (bộ thực thi) của nó—quản lý các tasks, và các tasks quản lý các futures. Về
+mặt đó, các tasks tương tự như các luồng nhẹ, do runtime quản lý với
+các khả năng bổ sung đến từ việc được quản lý bởi một runtime thay vì bởi hệ điều hành.</p>
+<p>Điều này không có nghĩa là async tasks luôn tốt hơn threads (hoặc ngược
+lại). Tính đồng thời với threads theo một số cách là một mô hình lập trình đơn giản hơn
+so với tính đồng thời với <code>async</code>. Đó có thể là một thế mạnh hoặc một điểm yếu. Các luồng
+phần nào mang tính “kích hoạt và quên đi” (fire and forget); chúng không có khái niệm tương đương bản địa với một future, vì vậy chúng
+đơn giản là chạy cho đến khi hoàn thành mà không bị ngắt quãng ngoại trừ bởi chính hệ điều hành.
+Nghĩa là, chúng không có hỗ trợ tích hợp cho <em>tính đồng thời nội trong tác vụ</em> (intratask concurrency)
+theo cách các futures có. Các luồng trong Rust cũng không có cơ chế để
+hủy bỏ (cancellation)—một chủ đề chúng ta chưa đề cập rõ ràng trong chương này nhưng đã được
+ngầm định bởi thực tế là bất cứ khi nào chúng ta kết thúc một future, trạng thái của nó sẽ được dọn dẹp
+một cách chính xác.</p>
+<p>Những hạn chế này cũng làm cho các luồng khó kết hợp hơn các futures. Sẽ khó
+hơn nhiều, ví dụ, để sử dụng các luồng để xây dựng các trình trợ giúp như các phương thức
+<code>timeout</code> và <code>throttle</code> chúng ta đã xây dựng trước đó trong chương này. Thực tế là
+các futures là các cấu trúc dữ liệu phong phú hơn có nghĩa là chúng có thể được kết hợp với nhau một cách
+tự nhiên hơn, như chúng ta đã thấy.</p>
+<p>Khi đó, các tác vụ cho chúng ta sự kiểm soát <em>bổ sung</em> đối với các futures, cho phép chúng ta chọn
+nơi nào và cách nào để nhóm chúng lại. Và hóa ra các luồng và các tác vụ thường làm việc
+rất tốt cùng nhau, bởi vì các tác vụ có thể (ít nhất là trong một số runtimes) được di chuyển
+qua lại giữa các luồng. Trong thực tế, đằng sau hậu trường, runtime mà chúng ta đã
+sử dụng—bao gồm cả các hàm <code>spawn_blocking</code> và <code>spawn_task</code>—mặc định là đa luồng!
+Nhiều runtimes sử dụng một phương pháp gọi là <em>đánh cắp công việc</em> (work stealing) để
+di chuyển các tác vụ qua lại giữa các luồng một cách thầm lặng, dựa trên việc các luồng đang được
+sử dụng như thế nào vào lúc đó, để cải thiện hiệu suất tổng thể của hệ thống.
+Cách tiếp cận đó thực sự yêu cầu các luồng <em>và</em> các tác vụ, và do đó là các futures.</p>
+<p>Khi suy nghĩ về việc sử dụng phương pháp nào khi nào, hãy xem xét các quy tắc kinh nghiệm (rules of thumb) sau:</p>
 <ul>
-<li>If the work is <em>very parallelizable</em>, such as processing a bunch of data where
-each part can be processed separately, threads are a better choice.</li>
-<li>If the work is <em>very concurrent</em>, such as handling messages from a bunch of
-different sources that may come in at different intervals or different rates,
-async is a better choice.</li>
+<li>Nếu công việc là <em>rất có khả năng song song hóa</em> (very parallelizable), chẳng hạn như xử lý một đống dữ liệu mà ở đó
+mỗi phần có thể được xử lý riêng biệt, các luồng là lựa chọn tốt hơn.</li>
+<li>Nếu công việc là <em>rất đồng thời</em> (very concurrent), chẳng hạn như xử lý tin nhắn từ một đống các
+nguồn khác nhau có thể đến vào những khoảng thời gian khác nhau hoặc tốc độ khác nhau,
+async là lựa chọn tốt hơn.</li>
 </ul>
-<p>And if you need both parallelism and concurrency, you don’t have to choose
-between threads and async. You can use them together freely, letting each one
-play the part it’s best at. For example, Listing 17-42 shows a fairly common
-example of this kind of mix in real-world Rust code.</p>
+<p>Và nếu bạn cần cả tính song song và tính đồng thời, bạn không cần phải chọn
+giữa luồng và async. Bạn có thể sử dụng chúng cùng nhau một cách tự do, để mỗi cái
+đóng vai trò mà nó giỏi nhất. Ví dụ, Liệt kê 17-42 cho thấy một ví dụ khá phổ biến
+của loại kết hợp này trong mã Rust thực tế.</p>
 <figure class="listing" id="listing-17-42">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><pre class="playground"><code class="language-rust edition2024"><span class="boring">extern crate trpl; // for mdbook test
@@ -347,28 +346,28 @@ fn main() {
         }
     });
 }</code></pre></pre>
-<figcaption><a href="#listing-17-42">Listing 17-42</a>: Sending messages with blocking code in a thread and awaiting the messages in an async block</figcaption>
+<figcaption><a href="#listing-17-42">Listing 17-42</a>: Gửi tin nhắn với mã gây chặn trong một luồng và await các tin nhắn trong một khối async</figcaption>
 </figure>
-<p>We begin by creating an async channel, then spawn a thread that takes
-ownership of the sender side of the channel. Within the thread, we send the
-numbers 1 through 10, sleeping for a second between each. Finally, we run a
-future created with an async block passed to <code>trpl::run</code> just as we have
-throughout the chapter. In that future, we await those messages, just as in
-the other message-passing examples we have seen.</p>
-<p>To return to the scenario we opened the chapter with, imagine running a set of
-video encoding tasks using a dedicated thread (because video encoding is
-compute-bound) but notifying the UI that those operations are done with an async
-channel. There are countless examples of these kinds of combinations in
-real-world use cases.</p>
-<h2 id="summary"><a class="header" href="#summary">Summary</a></h2>
-<p>This isn’t the last you’ll see of concurrency in this book. The project in
-<a href="ch21-00-final-project-a-web-server.html">Chapter 21</a> will apply these concepts in a more realistic situation
-than the simpler examples discussed here and compare problem-solving with threading versus tasks more directly.</p>
-<p>No matter which of these approaches you choose, Rust gives you the tools you need to write safe, fast, concurrent
-code—whether for a high-throughput web server or an embedded operating system.</p>
-<p>Next, we’ll talk about idiomatic ways to model problems and structure solutions
-as your Rust programs get bigger. In addition, we’ll discuss how Rust’s idioms
-relate to those you might be familiar with from object-oriented programming.</p>
+<p>Chúng ta bắt đầu bằng cách tạo một kênh async, sau đó tạo ra một luồng (spawn a thread) lấy
+quyền sở hữu phía người gửi (sender side) của kênh. Trong luồng đó, chúng ta gửi các
+số từ 1 đến 10, ngủ một giây giữa mỗi lần. Cuối cùng, chúng ta chạy một
+future được tạo ra bằng một khối async được truyền vào <code>trpl::run</code> giống như chúng ta đã làm
+suốt chương này. Trong future đó, chúng ta await những tin nhắn đó, giống như trong
+các ví dụ truyền tin nhắn khác mà chúng ta đã thấy.</p>
+<p>Để quay lại kịch bản mà chúng ta đã mở đầu chương, hãy tưởng tượng việc chạy một bộ các
+tác vụ mã hóa video sử dụng một luồng chuyên dụng (bởi vì mã hóa video là
+compute-bound) nhưng thông báo cho giao diện người dùng rằng những thao tác đó đã hoàn thành bằng một
+kênh async. Có vô số ví dụ về những loại kết hợp này trong
+các trường hợp sử dụng thực tế.</p>
+<h2 id="tóm-tắt"><a class="header" href="#tóm-tắt">Tóm tắt</a></h2>
+<p>Đây không phải là lần cuối cùng bạn thấy tính đồng thời trong cuốn sách này. Dự án trong
+<a href="ch21-00-final-project-a-web-server.html">Chương 21</a> sẽ áp dụng các khái niệm này trong một tình huống thực tế hơn
+so với các ví dụ đơn giản hơn được thảo luận ở đây và so sánh việc giải quyết vấn đề với luồng so với tác vụ trực tiếp hơn.</p>
+<p>Dù bạn chọn cách tiếp cận nào trong số này, Rust cung cấp cho bạn các công cụ cần thiết để viết mã đồng thời
+an toàn và nhanh chóng—cho dù dành cho một máy chủ web thông lượng cao hay một hệ điều hành nhúng.</p>
+<p>Tiếp theo, chúng ta sẽ nói về những cách viết mã chuẩn mực (idiomatic ways) để mô hình hóa các vấn đề và cấu trúc các giải pháp
+khi các chương trình Rust của bạn lớn dần lên. Ngoài ra, chúng ta sẽ thảo luận về cách các thành ngữ (idioms) của Rust
+liên quan đến những thứ bạn có thể đã quen thuộc từ lập trình hướng đối tượng.</p>
 
                     </main>
 

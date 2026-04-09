@@ -175,30 +175,29 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="streams-futures-in-sequence"><a class="header" href="#streams-futures-in-sequence">Streams: Futures in Sequence</a></h2>
+                        <h2 id="streams-các-future-theo-chuỗi-futures-in-sequence"><a class="header" href="#streams-các-future-theo-chuỗi-futures-in-sequence">Streams: Các Future theo chuỗi (Futures in Sequence)</a></h2>
 <!-- Old headings. Do not remove or links may break. -->
 <p><a id="streams"></a></p>
-<p>So far in this chapter, we’ve mostly stuck to individual futures. The one big
-exception was the async channel we used. Recall how we used the receiver for our
-async channel earlier in this chapter in the <a href="ch17-02-concurrency-with-async.html#message-passing">“Message
-Passing”</a><!-- ignore --> section. The async <code>recv</code> method
-produces a sequence of items over time. This is an instance of a much more
-general pattern known as a <em>stream</em>.</p>
-<p>We saw a sequence of items back in Chapter 13, when we looked at the <code>Iterator</code>
-trait in <a href="ch13-02-iterators.html#the-iterator-trait-and-the-next-method">The Iterator Trait and the <code>next</code> Method</a><!-- ignore
---> section, but there are two differences between iterators and the async
-channel receiver. The first difference is time: iterators are synchronous, while
-the channel receiver is asynchronous. The second is the API. When working
-directly with <code>Iterator</code>, we call its synchronous <code>next</code> method. With the
-<code>trpl::Receiver</code> stream in particular, we called an asynchronous <code>recv</code> method
-instead. Otherwise, these APIs feel very similar, and that similarity
-isn’t a coincidence. A stream is like an asynchronous form of iteration. Whereas
-the <code>trpl::Receiver</code> specifically waits to receive messages, though, the
-general-purpose stream API is much broader: it provides the next item the
-way <code>Iterator</code> does, but asynchronously.</p>
-<p>The similarity between iterators and streams in Rust means we can actually
-create a stream from any iterator. As with an iterator, we can work with a
-stream by calling its <code>next</code> method and then awaiting the output, as in Listing
+<p>Cho đến nay trong chương này, chúng ta chủ yếu tập trung vào các future riêng lẻ. Một
+ngoại lệ lớn là kênh (channel) async mà chúng ta đã sử dụng. Hãy nhớ lại cách chúng ta đã sử dụng bộ nhận (receiver) cho
+kênh async của mình ở phần trước trong chương này tại phần <a href="ch17-02-concurrency-with-async.html#message-passing">“Truyền
+tin nhắn”</a><!-- ignore -->. Phương thức <code>recv</code> async
+tạo ra một chuỗi các mục theo thời gian. Đây là một thực thể của một mô hình tổng quát hơn
+được gọi là một <em>stream</em>.</p>
+<p>Chúng ta đã thấy một chuỗi các mục trong Chương 13, khi chúng ta xem xét
+trait <code>Iterator</code> trong phần <a href="ch13-02-iterators.html#the-iterator-trait-and-the-next-method">Trait Iterator và Phương thức <code>next</code></a><!-- ignore
+-->, nhưng có hai điểm khác biệt giữa iterators và bộ nhận kênh async. Điểm khác biệt đầu tiên là thời gian: iterators là đồng bộ, trong khi
+bộ nhận kênh là bất đồng bộ. Điểm thứ hai là API. Khi làm việc
+trực tiếp với <code>Iterator</code>, chúng ta gọi phương thức <code>next</code> đồng bộ của nó. Với
+stream <code>trpl::Receiver</code> nói riêng, chúng ta đã gọi một phương thức <code>recv</code> bất đồng bộ
+thay thế. Ngoài ra, các API này cảm giác rất giống nhau, và sự tương đồng đó
+không phải là ngẫu nhiên. Một stream giống như một dạng lặp bất đồng bộ. Trong khi
+<code>trpl::Receiver</code> cụ thể là đợi để nhận tin nhắn, thì
+API stream đa năng rộng hơn nhiều: nó cung cấp mục tiếp theo theo
+cách mà <code>Iterator</code> làm, nhưng theo cách bất đồng bộ.</p>
+<p>Sự tương đồng giữa iterators và streams trong Rust có nghĩa là chúng ta thực sự có thể
+tạo ra một stream từ bất kỳ iterator nào. Tương tự như với một iterator, chúng ta có thể làm việc với một
+stream bằng cách gọi phương thức <code>next</code> của nó và sau đó await kết quả đầu ra, như trong Liệt kê
 17-30.</p>
 <figure class="listing" id="listing-17-30">
 <span class="file-name">Filename: src/main.rs</span>
@@ -215,14 +214,14 @@ stream by calling its <code>next</code> method and then awaiting the output, as 
         }
 <span class="boring">    });
 </span><span class="boring">}</span></code></pre>
-<figcaption><a href="#listing-17-30">Listing 17-30</a>: Creating a stream from an iterator and printing its values</figcaption>
+<figcaption><a href="#listing-17-30">Listing 17-30</a>: Tạo một stream từ một iterator và in các giá trị của nó</figcaption>
 </figure>
-<p>We start with an array of numbers, which we convert to an iterator and then call
-<code>map</code> on to double all the values. Then we convert the iterator into a stream
-using the <code>trpl::stream_from_iter</code> function. Next, we loop over the items in the
-stream as they arrive with the <code>while let</code> loop.</p>
-<p>Unfortunately, when we try to run the code, it doesn’t compile, but instead it
-reports that there’s no <code>next</code> method available:</p>
+<p>Chúng ta bắt đầu với một mảng các số, chúng ta chuyển đổi nó thành một iterator và sau đó gọi
+<code>map</code> trên nó để nhân đôi tất cả các giá trị. Sau đó, chúng ta chuyển đổi iterator thành một stream
+bằng cách sử dụng hàm <code>trpl::stream_from_iter</code>. Tiếp theo, chúng ta lặp qua các mục trong
+stream khi chúng đến bằng vòng lặp <code>while let</code>.</p>
+<p>Thật không may, khi chúng ta cố gắng chạy mã, nó không biên dịch được, mà thay vào đó nó
+báo cáo rằng không có phương thức <code>next</code> nào khả dụng:</p>
 <!-- manual-regeneration
 cd listings/ch17-async-await/listing-17-30
 cargo build
@@ -252,21 +251,21 @@ help: there is a method `try_next` with a similar name
 10 |         while let Some(value) = stream.try_next().await {
    |                                        ~~~~~~~~
 </code></pre>
-<p>As this output explains, the reason for the compiler error is that we need the
-right trait in scope to be able to use the <code>next</code> method. Given our discussion
-so far, you might reasonably expect that trait to be <code>Stream</code>, but it’s actually
-<code>StreamExt</code>. Short for <em>extension</em>, <code>Ext</code> is a common pattern in the
-Rust community for extending one trait with another.</p>
-<p>We’ll explain the <code>Stream</code> and <code>StreamExt</code> traits in a bit more detail at the
-end of the chapter, but for now all you need to know is that the <code>Stream</code> trait
-defines a low-level interface that effectively combines the <code>Iterator</code> and
-<code>Future</code> traits. <code>StreamExt</code> supplies a higher-level set of APIs on top of
-<code>Stream</code>, including the <code>next</code> method as well as other utility methods similar
-to those provided by the <code>Iterator</code> trait. <code>Stream</code> and <code>StreamExt</code> are not yet
-part of Rust’s standard library, but most ecosystem crates use the same
-definition.</p>
-<p>The fix to the compiler error is to add a <code>use</code> statement for <code>trpl::StreamExt</code>,
-as in Listing 17-31.</p>
+<p>Như kết quả đầu ra này giải thích, lý do cho lỗi trình biên dịch là chúng ta cần có
+trait phù hợp trong phạm vi (scope) để có thể sử dụng phương thức <code>next</code>. Với những thảo luận của chúng ta
+cho đến nay, bạn có thể mong đợi một cách hợp lý rằng trait đó là <code>Stream</code>, nhưng thực tế nó là
+<code>StreamExt</code>. Là viết tắt của <em>extension</em> (mở rộng), <code>Ext</code> là một mô hình phổ biến trong
+cộng đồng Rust để mở rộng một trait này với một trait khác.</p>
+<p>Chúng tôi sẽ giải thích các trait <code>Stream</code> và <code>StreamExt</code> chi tiết hơn một chút ở
+cuối chương, nhưng bây giờ tất cả những gì bạn cần biết là trait <code>Stream</code>
+định nghĩa một giao diện cấp thấp kết hợp hiệu quả các trait <code>Iterator</code> và
+<code>Future</code>. <code>StreamExt</code> cung cấp một tập hợp các API cấp cao hơn trên nền tảng của
+<code>Stream</code>, bao gồm phương thức <code>next</code> cũng như các phương thức tiện ích khác tương tự
+như những phương thức được cung cấp bởi trait <code>Iterator</code>. <code>Stream</code> và <code>StreamExt</code> vẫn chưa phải là
+một phần của thư viện tiêu chuẩn của Rust, nhưng hầu hết các crate trong hệ sinh thái đều sử dụng cùng
+một định nghĩa.</p>
+<p>Cách khắc phục lỗi trình biên dịch là thêm một câu lệnh <code>use</code> cho <code>trpl::StreamExt</code>,
+như trong Liệt kê 17-31.</p>
 <figure class="listing" id="listing-17-31">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><pre class="playground"><code class="language-rust edition2024"><span class="boring">extern crate trpl; // required for mdbook test
@@ -284,12 +283,12 @@ fn main() {
         }
     });
 }</code></pre></pre>
-<figcaption><a href="#listing-17-31">Listing 17-31</a>: Successfully using an iterator as the basis for a stream</figcaption>
+<figcaption><a href="#listing-17-31">Listing 17-31</a>: Sử dụng thành công một iterator làm cơ sở cho một stream</figcaption>
 </figure>
-<p>With all those pieces put together, this code works the way we want! What’s
-more, now that we have <code>StreamExt</code> in scope, we can use all of its utility
-methods, just as with iterators. For example, in Listing 17-32, we use the
-<code>filter</code> method to filter out everything but multiples of three and five.</p>
+<p>Với tất cả các phần đó được ghép lại với nhau, mã này hoạt động theo cách chúng ta muốn! Hơn
+thế nữa, bây giờ khi chúng ta đã có <code>StreamExt</code> trong phạm vi, chúng ta có thể sử dụng tất cả các phương thức
+tiện ích của nó, giống như với iterators. Ví dụ, trong Liệt kê 17-32, chúng ta sử dụng
+phương thức <code>filter</code> để lọc bỏ mọi thứ trừ các bội số của ba và năm.</p>
 <figure class="listing" id="listing-17-32">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><pre class="playground"><code class="language-rust edition2024"><span class="boring">extern crate trpl; // required for mdbook test
@@ -310,23 +309,23 @@ fn main() {
         }
     });
 }</code></pre></pre>
-<figcaption><a href="#listing-17-32">Listing 17-32</a>: Filtering a stream with the <code>StreamExt::filter</code> method</figcaption>
+<figcaption><a href="#listing-17-32">Listing 17-32</a>: Lọc một stream bằng phương thức <code>StreamExt::filter</code></figcaption>
 </figure>
-<p>Of course, this isn’t very interesting, since we could do the same with normal
-iterators and without any async at all. Let’s look at what
-we can do that <em>is</em> unique to streams.</p>
-<h3 id="composing-streams"><a class="header" href="#composing-streams">Composing Streams</a></h3>
-<p>Many concepts are naturally represented as streams: items becoming available in
-a queue, chunks of data being pulled incrementally from the filesystem when the
-full data set is too large for the computer’s memory, or data arriving over the
-network over time. Because streams are futures, we can use them with any other
-kind of future and combine them in interesting ways. For example, we can batch
-up events to avoid triggering too many network calls, set timeouts on sequences
-of long-running operations, or throttle user interface events to avoid doing
-needless work.</p>
-<p>Let’s start by building a little stream of messages as a stand-in for a stream
-of data we might see from a WebSocket or another real-time communication
-protocol, as shown in Listing 17-33.</p>
+<p>Tất nhiên, điều này không thú vị lắm, vì chúng ta có thể làm điều tương tự với
+iterators bình thường và không cần bất kỳ async nào cả. Hãy xem
+chúng ta có thể làm gì mà <em>thực sự</em> là duy nhất đối với streams.</p>
+<h3 id="kết-hợp-các-stream"><a class="header" href="#kết-hợp-các-stream">Kết hợp các Stream</a></h3>
+<p>Nhiều khái niệm được biểu diễn một cách tự nhiên dưới dạng streams: các mục trở nên có sẵn trong
+một hàng đợi (queue), các khối dữ liệu được lấy dần dần từ hệ thống tệp khi
+toàn bộ tập dữ liệu quá lớn so với bộ nhớ của máy tính, hoặc dữ liệu đến qua
+mạng theo thời gian. Bởi vì streams là các future, chúng ta có thể sử dụng chúng với bất kỳ loại
+future nào khác và kết hợp chúng theo những cách thú vị. Ví dụ, chúng ta có thể gom
+nhóm các sự kiện (batch up) để tránh kích hoạt quá nhiều lệnh gọi mạng, đặt thời gian chờ (timeout) cho các chuỗi
+thao tác chạy lâu, hoặc tiết lưu (throttle) các sự kiện giao diện người dùng để tránh thực hiện
+các công việc vô ích.</p>
+<p>Hãy bắt đầu bằng cách xây dựng một stream tin nhắn nhỏ để thay thế cho một stream
+dữ liệu mà chúng ta có thể thấy từ một WebSocket hoặc một giao thức giao tiếp thời gian thực
+khác, như được hiển thị trong Liệt kê 17-33.</p>
 <figure class="listing" id="listing-17-33">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><pre class="playground"><code class="language-rust edition2024"><span class="boring">extern crate trpl; // required for mdbook test
@@ -353,14 +352,14 @@ fn get_messages() -&gt; impl Stream&lt;Item = String&gt; {
 
     ReceiverStream::new(rx)
 }</code></pre></pre>
-<figcaption><a href="#listing-17-33">Listing 17-33</a>: Using the <code>rx</code> receiver as a <code>ReceiverStream</code></figcaption>
+<figcaption><a href="#listing-17-33">Listing 17-33</a>: Sử dụng bộ nhận <code>rx</code> như một <code>ReceiverStream</code></figcaption>
 </figure>
-<p>First, we create a function called <code>get_messages</code> that returns <code>impl Stream&lt;Item = String&gt;</code>. For its implementation, we create an async channel, loop over the
-first 10 letters of the English alphabet, and send them across the channel.</p>
-<p>We also use a new type: <code>ReceiverStream</code>, which converts the <code>rx</code> receiver from
-the <code>trpl::channel</code> into a <code>Stream</code> with a <code>next</code> method. Back in <code>main</code>, we use
-a <code>while let</code> loop to print all the messages from the stream.</p>
-<p>When we run this code, we get exactly the results we would expect:</p>
+<p>Đầu tiên, chúng ta tạo một hàm gọi là <code>get_messages</code> trả về <code>impl Stream&lt;Item = String&gt;</code>. Đối với phần triển khai của nó, chúng ta tạo một kênh async, lặp qua
+10 chữ cái đầu tiên của bảng chữ cái tiếng Anh và gửi chúng qua kênh.</p>
+<p>Chúng ta cũng sử dụng một kiểu dữ liệu mới: <code>ReceiverStream</code>, cái giúp chuyển đổi bộ nhận <code>rx</code> từ
+<code>trpl::channel</code> thành một <code>Stream</code> với phương thức <code>next</code>. Quay lại <code>main</code>, chúng ta sử dụng
+vòng lặp <code>while let</code> để in tất cả các tin nhắn từ stream.</p>
+<p>Khi chúng ta chạy mã này, chúng ta nhận được chính xác các kết quả mà chúng ta mong đợi:</p>
 <!-- Not extracting output because changes to this output aren't significant;
 the changes are likely to be due to the threads running differently rather than
 changes in the compiler -->
@@ -375,10 +374,10 @@ Message: 'h'
 Message: 'i'
 Message: 'j'
 </code></pre>
-<p>Again, we could do this with the regular <code>Receiver</code> API or even the regular
-<code>Iterator</code> API, though, so let’s add a feature that requires streams: adding a
-timeout that applies to every item in the stream, and a delay on the items we
-emit, as shown in Listing 17-34.</p>
+<p>Một lần nữa, chúng ta có thể làm điều này với API <code>Receiver</code> thông thường hoặc thậm chí là API <code>Iterator</code>
+thông thường, vì vậy hãy thêm một tính năng yêu cầu streams: thêm một
+timeout áp dụng cho mọi mục trong stream, và một độ trễ cho các mục mà chúng ta
+phát ra, như được hiển thị trong Liệt kê 17-34.</p>
 <figure class="listing" id="listing-17-34">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><pre class="playground"><code class="language-rust edition2024"><span class="boring">extern crate trpl; // required for mdbook test
@@ -410,20 +409,20 @@ fn main() {
 </span><span class="boring">
 </span><span class="boring">    ReceiverStream::new(rx)
 </span><span class="boring">}</span></code></pre></pre>
-<figcaption><a href="#listing-17-34">Listing 17-34</a>: Using the <code>StreamExt::timeout</code> method to set a time limit on the items in a stream</figcaption>
+<figcaption><a href="#listing-17-34">Listing 17-34</a>: Sử dụng phương thức <code>StreamExt::timeout</code> để đặt giới hạn thời gian cho các mục trong một stream</figcaption>
 </figure>
-<p>We start by adding a timeout to the stream with the <code>timeout</code> method, which
-comes from the <code>StreamExt</code> trait. Then we update the body of the <code>while let</code>
-loop, because the stream now returns a <code>Result</code>. The <code>Ok</code> variant indicates a
-message arrived in time; the <code>Err</code> variant indicates that the timeout elapsed
-before any message arrived. We <code>match</code> on that result and either print the
-message when we receive it successfully or print a notice about the timeout.
-Finally, notice that we pin the messages after applying the timeout to them,
-because the timeout helper produces a stream that needs to be pinned to be
-polled.</p>
-<p>However, because there are no delays between messages, this timeout does not
-change the behavior of the program. Let’s add a variable delay to the messages
-we send, as shown in Listing 17-35.</p>
+<p>Chúng ta bắt đầu bằng cách thêm một timeout vào stream bằng phương thức <code>timeout</code>, phương thức
+đến từ trait <code>StreamExt</code>. Sau đó, chúng ta cập nhật thân của vòng lặp <code>while let</code>,
+bởi vì stream bây giờ trả về một <code>Result</code>. Biến thể <code>Ok</code> cho biết một
+tin nhắn đã đến đúng giờ; biến thể <code>Err</code> cho biết rằng timeout đã hết
+trước khi bất kỳ tin nhắn nào đến. Chúng ta <code>match</code> trên kết quả đó và in ra
+tin nhắn khi chúng ta nhận được thành công hoặc in ra một thông báo về timeout.
+Cuối cùng, lưu ý rằng chúng ta ghim (pin) các tin nhắn sau khi áp dụng timeout cho chúng,
+bởi vì trình trợ giúp timeout tạo ra một stream cần được ghim để có thể
+được thăm dò (poll).</p>
+<p>Tuy nhiên, vì không có độ trễ giữa các tin nhắn, timeout này không
+làm thay đổi hành vi của chương trình. Hãy thêm một độ trễ thay đổi cho các tin nhắn
+mà chúng ta gửi, như được hiển thị trong Liệt kê 17-35.</p>
 <figure class="listing" id="listing-17-35">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><pre class="playground"><code class="language-rust edition2024"><span class="boring">extern crate trpl; // required for mdbook test
@@ -461,36 +460,36 @@ we send, as shown in Listing 17-35.</p>
 
     ReceiverStream::new(rx)
 }</code></pre></pre>
-<figcaption><a href="#listing-17-35">Listing 17-35</a>: Sending messages through <code>tx</code> with an async delay without making <code>get_messages</code> an async function</figcaption>
+<figcaption><a href="#listing-17-35">Listing 17-35</a>: Gửi tin nhắn qua <code>tx</code> với một độ trễ async mà không làm cho <code>get_messages</code> thành một hàm async</figcaption>
 </figure>
-<p>In <code>get_messages</code>, we use the <code>enumerate</code> iterator method with the <code>messages</code>
-array so that we can get the index of each item we’re sending along with the
-item itself. Then we apply a 100-millisecond delay to even-index items and a
-300-millisecond delay to odd-index items to simulate the different delays we
-might see from a stream of messages in the real world. Because our timeout is
-for 200 milliseconds, this should affect half of the messages.</p>
-<p>To sleep between messages in the <code>get_messages</code> function without blocking, we
-need to use async. However, we can’t make <code>get_messages</code> itself into an async
-function, because then we’d return a <code>Future&lt;Output = Stream&lt;Item = String&gt;&gt;</code>
-instead of a <code>Stream&lt;Item = String&gt;&gt;</code>. The caller would have to await
-<code>get_messages</code> itself to get access to the stream. But remember: everything in a
-given future happens linearly; concurrency happens <em>between</em> futures. Awaiting
-<code>get_messages</code> would require it to send all the messages, including the sleep
-delay between each message, before returning the receiver stream. As a result,
-the timeout would be useless. There would be no delays in the stream itself;
-they would all happen before the stream was even available.</p>
-<p>Instead, we leave <code>get_messages</code> as a regular function that returns a stream,
-and we spawn a task to handle the async <code>sleep</code> calls.</p>
-<section class="note" aria-role="note">
-<p>Note: Calling <code>spawn_task</code> in this way works because we already set up our
-runtime; had we not, it would cause a panic. Other implementations choose
-different tradeoffs: they might spawn a new runtime and avoid the panic but
-end up with a bit of extra overhead, or they may simply not provide a
-standalone way to spawn tasks without reference to a runtime. Make sure you
-know what tradeoff your runtime has chosen and write your code accordingly!</p>
-</section>
-<p>Now our code has a much more interesting result. Between every other pair of
-messages, a <code>Problem: Elapsed(())</code> error.</p>
+<p>Trong <code>get_messages</code>, chúng ta sử dụng phương thức iterator <code>enumerate</code> với mảng <code>messages</code>
+để chúng ta có thể lấy chỉ số (index) của mỗi mục chúng ta đang gửi cùng với chính
+mục đó. Sau đó, chúng ta áp dụng một độ trễ 100 mili giây cho các mục có chỉ số chẵn và
+độ trễ 300 mili giây cho các mục có chỉ số lẻ để mô phỏng các độ trễ khác nhau mà chúng ta
+có thể thấy từ một stream tin nhắn trong thế giới thực. Vì timeout của chúng ta là
+200 mili giây, điều này sẽ ảnh hưởng đến một nửa số tin nhắn.</p>
+<p>Để ngủ giữa các tin nhắn trong hàm <code>get_messages</code> mà không gây chặn, chúng ta
+cần sử dụng async. Tuy nhiên, chúng ta không thể biến chính <code>get_messages</code> thành một hàm
+async, vì khi đó chúng ta sẽ trả về một <code>Future&lt;Output = Stream&lt;Item = String&gt;&gt;</code>
+thay vì một <code>Stream&lt;Item = String&gt;&gt;</code>. Người gọi sẽ phải await
+chính <code>get_messages</code> để có quyền truy cập vào stream. Nhưng hãy nhớ rằng: mọi thứ trong một
+future cụ thể diễn ra tuyến tính; tính đồng thời xảy ra <em>giữa</em> các future. Việc await
+<code>get_messages</code> sẽ yêu cầu nó gửi tất cả các tin nhắn, bao gồm cả
+độ trễ khi ngủ giữa mỗi tin nhắn, trước khi trả về stream bộ nhận. Kết quả là,
+timeout sẽ trở nên vô dụng. Sẽ không có độ trễ nào trong chính stream;
+tất cả chúng sẽ xảy ra trước khi stream thực sự khả dụng.</p>
+<p>Thay vào đó, chúng ta để <code>get_messages</code> là một hàm thông thường trả về một stream,
+và chúng ta tạo ra một task (spawn a task) để xử lý các lời gọi <code>sleep</code> async.</p>
+<blockquote>
+<p>Ghi chú: Việc gọi <code>spawn_task</code> theo cách này hoạt động vì chúng ta đã thiết lập
+runtime của mình; nếu không, nó sẽ gây ra lỗi panic. Các bản triển khai khác chọn
+những sự đánh đổi khác nhau: chúng có thể tạo ra một runtime mới và tránh lỗi panic nhưng
+cuối cùng lại có một chút chi phí overhead dư thừa, hoặc đơn giản là không cung cấp một
+cách độc lập để tạo ra các task mà không tham chiếu đến một runtime. Hãy đảm bảo bạn
+biết sự đánh đổi nào mà runtime của bạn đã chọn và viết mã cho phù hợp!</p>
+</blockquote>
+<p>Bây giờ mã của chúng ta có một kết quả thú vị hơn nhiều. Xen kẽ giữa mỗi cặp
+tin nhắn là một lỗi <code>Problem: Elapsed(())</code>.</p>
 <!-- Not extracting output because changes to this output aren't significant;
 the changes are likely to be due to the threads running differently rather than
 changes in the compiler -->
@@ -510,22 +509,22 @@ Message: 'i'
 Problem: Elapsed(())
 Message: 'j'
 </code></pre>
-<p>The timeout doesn’t prevent the messages from arriving in the end. We still get
-all of the original messages, because our channel is <em>unbounded</em>: it can hold as
-many messages as we can fit in memory. If the message doesn’t arrive before the
-timeout, our stream handler will account for that, but when it polls the stream
-again, the message may now have arrived.</p>
-<p>You can get different behavior if needed by using other kinds of channels or
-other kinds of streams more generally. Let’s see one of those in practice by
-combining a stream of time intervals with this stream of messages.</p>
-<h3 id="merging-streams"><a class="header" href="#merging-streams">Merging Streams</a></h3>
-<p>First, let’s create another stream, which will emit an item every millisecond if
-we let it run directly. For simplicity, we can use the <code>sleep</code> function to send
-a message on a delay and combine it with the same approach we used in
-<code>get_messages</code> of creating a stream from a channel. The difference is that this
-time, we’re going to send back the count of intervals that have elapsed, so the
-return type will be <code>impl Stream&lt;Item = u32&gt;</code>, and we can call the function
-<code>get_intervals</code> (see Listing 17-36).</p>
+<p>Timeout không ngăn cản các tin nhắn đến cuối cùng. Chúng ta vẫn nhận được
+tất cả các tin nhắn ban đầu, vì kênh của chúng ta là <em>không giới hạn</em> (unbounded): nó có thể chứa bao
+nhiêu tin nhắn tùy thích trong bộ nhớ. Nếu tin nhắn không đến trước
+timeout, trình xử lý stream của chúng ta sẽ giải quyết vấn đề đó, nhưng khi nó thăm dò lại stream
+một lần nữa, tin nhắn bây giờ có thể đã đến.</p>
+<p>Bạn có thể có được các hành vi khác nhau nếu cần bằng cách sử dụng các loại kênh khác hoặc
+các loại stream khác nói chung. Hãy xem một trong số đó trong thực tế bằng cách
+kết hợp một stream của các khoảng thời gian với stream tin nhắn này.</p>
+<h3 id="trộn-các-stream"><a class="header" href="#trộn-các-stream">Trộn các Stream</a></h3>
+<p>Đầu tiên, hãy tạo một stream khác, cái sẽ phát ra một mục sau mỗi mili giây nếu
+chúng ta để nó chạy trực tiếp. Để đơn giản, chúng ta có thể sử dụng hàm <code>sleep</code> để gửi
+một tin nhắn với một độ trễ và kết hợp nó với cùng một cách tiếp cận mà chúng ta đã sử dụng trong
+<code>get_messages</code> để tạo ra một stream từ một kênh. Điểm khác biệt là lần này,
+chúng ta sẽ gửi lại số lượng các khoảng thời gian đã trôi qua, vì vậy kiểu trả về
+sẽ là <code>impl Stream&lt;Item = u32&gt;</code>, và chúng ta có thể gọi hàm là
+<code>get_intervals</code> (xem Liệt kê 17-36).</p>
 <figure class="listing" id="listing-17-36">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><pre class="playground"><code class="language-rust edition2024"><span class="boring">extern crate trpl; // required for mdbook test
@@ -578,20 +577,20 @@ return type will be <code>impl Stream&lt;Item = u32&gt;</code>, and we can call 
 
     ReceiverStream::new(rx)
 }</code></pre></pre>
-<figcaption><a href="#listing-17-36">Listing 17-36</a>: Creating a stream with a counter that will be emitted once every millisecond</figcaption>
+<figcaption><a href="#listing-17-36">Listing 17-36</a>: Tạo một stream với một bộ đếm sẽ được phát ra mỗi mili giây một lần</figcaption>
 </figure>
-<p>We start by defining a <code>count</code> in the task. (We could define it outside the
-task, too, but it’s clearer to limit the scope of any given variable.) Then we
-create an infinite loop. Each iteration of the loop asynchronously sleeps for
-one millisecond, increments the count, and then sends it over the channel.
-Because this is all wrapped in the task created by <code>spawn_task</code>, all of
-it—including the infinite loop—will get cleaned up along with the runtime.</p>
-<p>This kind of infinite loop, which ends only when the whole runtime gets torn
-down, is fairly common in async Rust: many programs need to keep running
-indefinitely. With async, this doesn’t block anything else, as long as there is
-at least one await point in each iteration through the loop.</p>
-<p>Now, back in our main function’s async block, we can attempt to merge the
-<code>messages</code> and <code>intervals</code> streams, as shown in Listing 17-37.</p>
+<p>Chúng ta bắt đầu bằng cách định nghĩa một <code>count</code> trong task. (Chúng ta cũng có thể định nghĩa nó bên ngoài
+task, nhưng sẽ rõ ràng hơn nếu giới hạn phạm vi của bất kỳ biến nào cho trước.) Sau đó, chúng ta
+tạo một vòng lặp vô hạn. Mỗi lần lặp của vòng lặp sẽ ngủ một cách bất đồng bộ trong
+một mili giây, tăng bộ đếm và sau đó gửi nó qua kênh.
+Bởi vì tất cả những điều này được bao bọc trong task được tạo ra bởi <code>spawn_task</code>, tất cả
+nó—bao gồm cả vòng lặp vô hạn—sẽ được dọn dẹp cùng với runtime.</p>
+<p>Loại vòng lặp vô hạn này, cái chỉ kết thúc khi toàn bộ runtime bị phá hủy,
+khá phổ biến trong async Rust: nhiều chương trình cần tiếp tục chạy
+vô thời hạn. Với async, điều này không chặn bất cứ thứ gì khác, miễn là có
+ít nhất một điểm await trong mỗi lần lặp qua vòng lặp.</p>
+<p>Bây giờ, quay lại khối async của hàm main, chúng ta có thể cố gắng trộn các
+stream <code>messages</code> và <code>intervals</code>, như được hiển thị trong Liệt kê 17-37.</p>
 <figure class="listing" id="listing-17-37">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><code class="language-rust ignore does_not_compile"><span class="boring">extern crate trpl; // required for mdbook test
@@ -645,21 +644,22 @@ at least one await point in each iteration through the loop.</p>
 </span><span class="boring">
 </span><span class="boring">    ReceiverStream::new(rx)
 </span><span class="boring">}</span></code></pre>
-<figcaption><a href="#listing-17-37">Listing 17-37</a>: Attempting to merge the <code>messages</code> and <code>intervals</code> streams</figcaption>
+<figcaption><a href="#listing-17-37">Listing 17-37</a>: Cố gắng trộn các stream <code>messages</code> và <code>intervals</code></figcaption>
 </figure>
-<p>We start by calling <code>get_intervals</code>. Then we merge the <code>messages</code> and
-<code>intervals</code> streams with the <code>merge</code> method, which combines multiple streams
-into one stream that produces items from any of the source streams as soon as
-the items are available, without imposing any particular ordering. Finally, we
-loop over that combined stream instead of over <code>messages</code>.</p>
-<p>At this point, neither <code>messages</code> nor <code>intervals</code> needs to be pinned or mutable,
-because both will be combined into the single <code>merged</code> stream. However, this
-call to <code>merge</code> doesn’t compile! (Neither does the <code>next</code> call in the <code>while let</code> loop, but we’ll come back to that.) This is because the two streams have
-different types. The <code>messages</code> stream has the type <code>Timeout&lt;impl Stream&lt;Item = String&gt;&gt;</code>, where <code>Timeout</code> is the type that implements <code>Stream</code> for a <code>timeout</code>
-call. The <code>intervals</code> stream has the type <code>impl Stream&lt;Item = u32&gt;</code>. To merge
-these two streams, we need to transform one of them to match the other. We’ll
-rework the intervals stream, because messages is already in the basic format we
-want and has to handle timeout errors (see Listing 17-38).</p>
+<p>Chúng ta bắt đầu bằng cách gọi <code>get_intervals</code>. Sau đó, chúng ta trộn các stream <code>messages</code> và
+<code>intervals</code> bằng phương thức <code>merge</code>, cái kết hợp nhiều streams
+thành một stream tạo ra các mục từ bất kỳ nguồn stream nào ngay khi
+các mục đó có sẵn, mà không áp đặt bất kỳ thứ tự cụ thể nào. Cuối cùng, chúng ta
+lặp qua stream đã trộn đó thay vì qua <code>messages</code>.</p>
+<p>Tại thời điểm này, cả <code>messages</code> và <code>intervals</code> đều không cần phải được ghim hoặc mutable,
+vì cả hai sẽ được kết hợp thành một stream <code>merged</code> duy nhất. Tuy nhiên, lời gọi
+<code>merge</code> này không biên dịch được! (Lời gọi <code>next</code> trong vòng lặp <code>while let</code> cũng không,
+nhưng chúng ta sẽ quay lại vấn đề đó sau.) Điều này là do hai streams có
+các kiểu dữ liệu khác nhau. Stream <code>messages</code> có kiểu <code>Timeout&lt;impl Stream&lt;Item = String&gt;&gt;</code>, trong đó <code>Timeout</code> là kiểu triển khai <code>Stream</code> cho một lời gọi
+<code>timeout</code>. Stream <code>intervals</code> có kiểu <code>impl Stream&lt;Item = u32&gt;</code>. Để trộn
+hai streams này, chúng ta cần chuyển đổi một trong số chúng để khớp với cái còn lại. Chúng ta sẽ
+làm lại stream intervals, vì messages đã ở định dạng cơ bản mà chúng ta
+muốn và phải xử lý các lỗi timeout (xem Liệt kê 17-38).</p>
 <!-- We cannot directly test this one, because it never stops. -->
 <figure class="listing" id="listing-17-38">
 <span class="file-name">Filename: src/main.rs</span>
@@ -717,19 +717,19 @@ want and has to handle timeout errors (see Listing 17-38).</p>
 </span><span class="boring">
 </span><span class="boring">    ReceiverStream::new(rx)
 </span><span class="boring">}</span></code></pre>
-<figcaption><a href="#listing-17-38">Listing 17-38</a>: Aligning the type of the the <code>intervals</code> stream with the type of the <code>messages</code> stream</figcaption>
+<figcaption><a href="#listing-17-38">Listing 17-38</a>: Căn chỉnh kiểu dữ liệu của stream <code>intervals</code> với kiểu của stream <code>messages</code></figcaption>
 </figure>
-<p>First, we can use the <code>map</code> helper method to transform the <code>intervals</code> into a
-string. Second, we need to match the <code>Timeout</code> from <code>messages</code>. Because we don’t
-actually <em>want</em> a timeout for <code>intervals</code>, though, we can just create a timeout
-which is longer than the other durations we are using. Here, we create a
-10-second timeout with <code>Duration::from_secs(10)</code>. Finally, we need to make
-<code>stream</code> mutable, so that the <code>while let</code> loop’s <code>next</code> calls can iterate
-through the stream, and pin it so that it’s safe to do so. That gets us <em>almost</em>
-to where we need to be. Everything type checks. If you run this, though, there
-will be two problems. First, it will never stop! You’ll need to stop it with
-<span class="keystroke">ctrl-c</span>. Second, the messages from the English
-alphabet will be buried in the midst of all the interval counter messages:</p>
+<p>Đầu tiên, chúng ta có thể sử dụng phương thức trợ giúp <code>map</code> để chuyển đổi các <code>intervals</code> thành một
+chuỗi. Thứ hai, chúng ta cần khớp với <code>Timeout</code> từ <code>messages</code>. Tuy nhiên, vì chúng ta không thực sự
+<em>muốn</em> một timeout cho <code>intervals</code>, chúng ta chỉ có thể tạo ra một timeout
+dài hơn các khoảng thời gian khác mà chúng ta đang sử dụng. Ở đây, chúng ta tạo một
+timeout 10 giây với <code>Duration::from_secs(10)</code>. Cuối cùng, chúng ta cần làm cho
+<code>stream</code> là mutable, để các lời gọi <code>next</code> của vòng lặp <code>while let</code> có thể lặp qua
+stream, và ghim nó để đảm bảo an toàn khi làm như vậy. Điều đó đưa chúng ta <em>gần như</em>
+đến nơi chúng ta cần. Mọi thứ đều được kiểm tra kiểu dữ liệu. Tuy nhiên, nếu bạn chạy cái này,
+sẽ có hai vấn đề. Đầu tiên, nó sẽ không bao giờ dừng lại! Bạn sẽ cần phải dừng nó bằng
+<span class="keystroke">ctrl-c</span>. Thứ hai, các tin nhắn từ bảng chữ cái tiếng Anh
+sẽ bị vùi lấp giữa tất cả các tin nhắn của bộ đếm interval:</p>
 <!-- Not extracting output because changes to this output aren't significant;
 the changes are likely to be due to the tasks running differently rather than
 changes in the compiler -->
@@ -743,7 +743,7 @@ Interval: 42
 Interval: 43
 --snip--
 </code></pre>
-<p>Listing 17-39 shows one way to solve these last two problems.</p>
+<p>Liệt kê 17-39 cho thấy một cách để giải quyết hai vấn đề cuối cùng này.</p>
 <figure class="listing" id="listing-17-39">
 <span class="file-name">Filename: src/main.rs</span>
 <pre><pre class="playground"><code class="language-rust edition2024"><span class="boring">extern crate trpl; // required for mdbook test
@@ -801,25 +801,25 @@ Interval: 43
 </span><span class="boring">
 </span><span class="boring">    ReceiverStream::new(rx)
 </span><span class="boring">}</span></code></pre></pre>
-<figcaption><a href="#listing-17-39">Listing 17-39</a>: Using <code>throttle</code> and <code>take</code> to manage the merged streams</figcaption>
+<figcaption><a href="#listing-17-39">Listing 17-39</a>: Sử dụng <code>throttle</code> và <code>take</code> để quản lý các streams đã trộn</figcaption>
 </figure>
-<p>First, we use the <code>throttle</code> method on the <code>intervals</code> stream so that it doesn’t
-overwhelm the <code>messages</code> stream. <em>Throttling</em> is a way of limiting the rate at
-which a function will be called—or, in this case, how often the stream will be
-polled. Once every 100 milliseconds should do, because that’s roughly how often
-our messages arrive.</p>
-<p>To limit the number of items we will accept from a stream, we apply the <code>take</code>
-method to the <code>merged</code> stream, because we want to limit the final output, not
-just one stream or the other.</p>
-<p>Now when we run the program, it stops after pulling 20 items from the stream,
-and the intervals don’t overwhelm the messages. We also don’t get <code>Interval: 100</code> or <code>Interval: 200</code> or so on, but instead get <code>Interval: 1</code>, <code>Interval: 2</code>,
-and so on—even though we have a source stream that <em>can</em> produce an event every
-millisecond. That’s because the <code>throttle</code> call produces a new stream that wraps
-the original stream so that the original stream gets polled only at the throttle
-rate, not its own “native” rate. We don’t have a bunch of unhandled interval
-messages we’re choosing to ignore. Instead, we never produce those interval
-messages in the first place! This is the inherent “laziness” of Rust’s futures
-at work again, allowing us to choose our performance characteristics.</p>
+<p>Đầu tiên, chúng ta sử dụng phương thức <code>throttle</code> trên stream <code>intervals</code> để nó không
+lấn át stream <code>messages</code>. <em>Tiết lưu</em> (throttling) là một cách để giới hạn tốc độ
+mà một hàm sẽ được gọi—hoặc, trong trường hợp này, tần suất stream sẽ được
+thăm dò (poll). Mỗi 100 mili giây một lần là đủ, vì đó là tốc độ xấp xỉ mà
+các tin nhắn của chúng ta đến.</p>
+<p>Để giới hạn số lượng mục mà chúng ta sẽ chấp nhận từ một stream, chúng ta áp dụng phương thức
+<code>take</code> cho stream <code>merged</code>, vì chúng ta muốn giới hạn đầu ra cuối cùng, chứ không
+chỉ một stream hay stream kia.</p>
+<p>Bây giờ khi chúng ta chạy chương trình, nó dừng lại sau khi lấy 20 mục từ stream,
+và các intervals không lấn át các tin nhắn. Chúng ta cũng không nhận được <code>Interval: 100</code> hay <code>Interval: 200</code> v.v., mà thay vào đó nhận được <code>Interval: 1</code>, <code>Interval: 2</code>,
+v.v.—ngay cả khi chúng ta có một stream nguồn <em>có thể</em> tạo ra một sự kiện mỗi
+mili giây. Đó là bởi vì lời gọi <code>throttle</code> tạo ra một stream mới bao bọc
+stream ban đầu để stream ban đầu chỉ được thăm dò ở tốc độ tiết lưu, chứ không
+phải tốc độ “tự nhiên” của chính nó. Chúng ta không có một đống tin nhắn interval chưa xử lý
+mà chúng ta đang chọn bỏ qua. Thay vào đó, chúng ta thậm chí không bao giờ tạo ra những tin nhắn
+interval đó ngay từ đầu! Đây chính là “tính lười biếng” (laziness) vốn có của các futures trong Rust
+đang hoạt động, cho phép chúng ta lựa chọn các đặc tính hiệu suất của mình.</p>
 <!-- Not extracting output because changes to this output aren't significant;
 the changes are likely to be due to the threads running differently rather than
 changes in the compiler -->
@@ -844,14 +844,14 @@ Interval: 11
 Problem: Elapsed(())
 Interval: 12
 </code></pre>
-<p>There’s one last thing we need to handle: errors! With both of these
-channel-based streams, the <code>send</code> calls could fail when the other side of the
-channel closes—and that’s just a matter of how the runtime executes the futures
-that make up the stream. Up until now, we’ve ignored this possibility by calling
-<code>unwrap</code>, but in a well-behaved app, we should explicitly handle the error, at
-minimum by ending the loop so we don’t try to send any more messages. Listing
-17-40 shows a simple error strategy: print the issue and then <code>break</code> from the
-loops.</p>
+<p>Có một điều cuối cùng chúng ta cần xử lý: các lỗi! Với cả hai
+streams dựa trên kênh này, các lời gọi <code>send</code> có thể thất bại khi phía bên kia của
+kênh đóng lại—và đó chỉ là vấn đề về cách runtime thực thi các futures
+tạo nên stream. Cho đến tận bây giờ, chúng ta đã bỏ qua khả năng này bằng cách gọi
+<code>unwrap</code>, nhưng trong một ứng dụng được viết tốt, chúng ta nên xử lý lỗi một cách rõ ràng, ít nhất là
+bằng cách kết thúc vòng lặp để không cố gửi thêm bất kỳ tin nhắn nào nữa. Liệt kê
+17-40 cho thấy một chiến lược xử lý lỗi đơn giản: in ra vấn đề và sau đó <code>break</code> khỏi các
+vòng lặp.</p>
 <figure class="listing" id="listing-17-40">
 <pre><pre class="playground"><code class="language-rust edition2024"><span class="boring">extern crate trpl; // required for mdbook test
 </span><span class="boring">
@@ -916,13 +916,13 @@ fn get_intervals() -&gt; impl Stream&lt;Item = u32&gt; {
 
     ReceiverStream::new(rx)
 }</code></pre></pre>
-<figcaption><a href="#listing-17-40">Listing 17-40</a>: Handling errors and shutting down the loops</figcaption>
+<figcaption><a href="#listing-17-40">Listing 17-40</a>: Xử lý lỗi và tắt các vòng lặp</figcaption>
 </figure>
-<p>As usual, the correct way to handle a message send error will vary; just make
-sure you have a strategy.</p>
-<p>Now that we’ve seen a bunch of async in practice, let’s take a step back and dig
-into a few of the details of how <code>Future</code>, <code>Stream</code>, and the other key traits
-Rust uses to make async work.</p>
+<p>Như thường lệ, cách đúng đắn để xử lý lỗi gửi tin nhắn sẽ khác nhau; chỉ cần đảm bảo
+bạn có một chiến lược.</p>
+<p>Bây giờ chúng ta đã thấy rất nhiều ví dụ async trong thực tế, hãy lùi lại một bước và tìm hiểu
+một vài chi tiết về cách <code>Future</code>, <code>Stream</code>, và các trait then chốt khác mà
+Rust sử dụng để làm cho async hoạt động.</p>
 <div class="quiz-placeholder" data-quiz-name="&quot;async-04-streams&quot;" data-quiz-questions="{&quot;questions&quot;:[{&quot;context&quot;:&quot;The `Stream` trait provides an asynchronous version of a Rust iterator.\n&quot;,&quot;id&quot;:&quot;f94a87f0-a4d6-4cd6-bcee-dfcc606f8ec2&quot;,&quot;type&quot;:&quot;MultipleChoice&quot;,&quot;answer&quot;:{&quot;answer&quot;:&quot;`Iterator`&quot;},&quot;prompt&quot;:{&quot;distractors&quot;:[&quot;`Write`&quot;,&quot;`Index`&quot;,&quot;`Sync`&quot;],&quot;prompt&quot;:&quot;The `Stream` trait is most analogous to which non-async trait in the Rust standard library?\n&quot;}},{&quot;context&quot;:&quot;Merging will always respect ordering in each stream, so for example \&quot;B\&quot; cannot occur before \&quot;C\&quot;.\n&quot;,&quot;id&quot;:&quot;84452eff-13df-4fcb-91ea-1f504d5bfaf0&quot;,&quot;type&quot;:&quot;MultipleChoice&quot;,&quot;answer&quot;:{&quot;answer&quot;:[&quot;ABDEFC&quot;,&quot;DEFABC&quot;]},&quot;prompt&quot;:{&quot;distractors&quot;:[&quot;ACBDEF&quot;,&quot;CFBEAD&quot;],&quot;prompt&quot;:&quot;Say you have a stream that produces the sequence `[\&quot;A\&quot;, \&quot;B\&quot;, \&quot;C\&quot;]` and another stream that produces the sequence [\&quot;D\&quot;, \&quot;E\&quot;, \&quot;F\&quot;].\nYou do not know when each stream will emit each character, only that it occurs in the specified sequences.\nConsider merging these streams and printing each character. Then select each of the following output strings that could print.\n&quot;}}]}" data-quiz-fullscreen="true" data-quiz-cache-answers="true"></div>
 <script type="text/javascript" src="quiz/quiz-embed.iife.js"></script><link rel="stylesheet" type="text/css" href="quiz/style.css">
 
