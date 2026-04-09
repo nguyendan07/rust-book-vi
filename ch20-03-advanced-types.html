@@ -175,39 +175,39 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="advanced-types"><a class="header" href="#advanced-types">Advanced Types</a></h2>
-<p>The Rust type system has some features that we’ve so far mentioned but haven’t
-yet discussed. We’ll start by discussing newtypes in general as we examine why
-newtypes are useful as types. Then we’ll move on to type aliases, a feature
-similar to newtypes but with slightly different semantics. We’ll also discuss
-the <code>!</code> type and dynamically sized types.</p>
-<h3 id="using-the-newtype-pattern-for-type-safety-and-abstraction"><a class="header" href="#using-the-newtype-pattern-for-type-safety-and-abstraction">Using the Newtype Pattern for Type Safety and Abstraction</a></h3>
-<p>This section assumes you’ve read the earlier section <a href="ch20-02-advanced-traits.html#using-the-newtype-pattern-to-implement-external-traits-on-external-types">“Using the Newtype Pattern
-to Implement External Traits on External Types.”</a><!--
-ignore --> The newtype pattern is also useful for tasks beyond those we’ve
-discussed so far, including statically enforcing that values are never confused
-and indicating the units of a value. You saw an example of using newtypes to
-indicate units in Listing 20-16: recall that the <code>Millimeters</code> and <code>Meters</code>
-structs wrapped <code>u32</code> values in a newtype. If we wrote a function with a
-parameter of type <code>Millimeters</code>, we wouldn’t be able to compile a program that
-accidentally tried to call that function with a value of type <code>Meters</code> or a
-plain <code>u32</code>.</p>
-<p>We can also use the newtype pattern to abstract away some implementation
-details of a type: the new type can expose a public API that is different from
-the API of the private inner type.</p>
-<p>Newtypes can also hide internal implementation. For example, we could provide a
-<code>People</code> type to wrap a <code>HashMap&lt;i32, String&gt;</code> that stores a person’s ID
-associated with their name. Code using <code>People</code> would only interact with the
-public API we provide, such as a method to add a name string to the <code>People</code>
-collection; that code wouldn’t need to know that we assign an <code>i32</code> ID to names
-internally. The newtype pattern is a lightweight way to achieve encapsulation to
-hide implementation details, which we discussed in <a href="ch18-01-what-is-oo.html#encapsulation-that-hides-implementation-details">“Encapsulation That Hides
-Implementation Details”</a><!--
-ignore --> in Chapter 18.</p>
-<h3 id="creating-type-synonyms-with-type-aliases"><a class="header" href="#creating-type-synonyms-with-type-aliases">Creating Type Synonyms with Type Aliases</a></h3>
-<p>Rust provides the ability to declare a <em>type alias</em> to give an existing type
-another name. For this we use the <code>type</code> keyword. For example, we can create
-the alias <code>Kilometers</code> to <code>i32</code> like so:</p>
+                        <h2 id="các-kiểu-nâng-cao"><a class="header" href="#các-kiểu-nâng-cao">Các kiểu nâng cao</a></h2>
+<p>Hệ thống kiểu của Rust có một số tính năng mà cho đến nay chúng ta đã đề cập nhưng vẫn chưa
+thảo luận. Chúng ta sẽ bắt đầu bằng cách thảo luận về các newtype nói chung khi chúng ta xem xét lý do tại sao
+newtype lại hữu ích dưới dạng các kiểu dữ liệu. Sau đó chúng ta sẽ chuyển sang bí danh kiểu (type aliases), một tính năng
+tương tự như newtype nhưng có ngữ nghĩa hơi khác một chút. Chúng ta cũng sẽ thảo luận về
+kiểu <code>!</code> và các kiểu có kích thước động (dynamically sized types).</p>
+<h3 id="sử-dụng-mẫu-newtype-cho-tính-an-toàn-kiểu-và-tính-trừu-tượng"><a class="header" href="#sử-dụng-mẫu-newtype-cho-tính-an-toàn-kiểu-và-tính-trừu-tượng">Sử dụng mẫu Newtype cho tính an toàn kiểu và tính trừu tượng</a></h3>
+<p>Phần này giả định rằng bạn đã đọc phần trước <a href="ch20-02-advanced-traits.html#using-the-newtype-pattern-to-implement-external-traits-on-external-types">“Sử dụng mẫu Newtype
+để thực thi các Trait bên ngoài trên các kiểu bên ngoài.”</a><!--
+ignore --> Mẫu newtype cũng hữu ích cho các tác vụ ngoài những tác vụ mà chúng ta đã
+thảo luận cho đến nay, bao gồm việc thực thi một cách tĩnh rằng các giá trị không bao giờ bị nhầm lẫn
+và chỉ ra các đơn vị của một giá trị. Bạn đã thấy một ví dụ về việc sử dụng newtype để
+chỉ ra các đơn vị trong Danh sách 20-16: hãy nhớ lại rằng các struct <code>Millimeters</code> và <code>Meters</code>
+đã bao bọc các giá trị <code>u32</code> trong một newtype. Nếu chúng ta viết một hàm với một
+tham số kiểu <code>Millimeters</code>, chúng ta sẽ không thể biên dịch một chương trình mà
+vô tình cố gắng gọi hàm đó với một giá trị có kiểu <code>Meters</code> hoặc một
+kiểu <code>u32</code> thuần túy.</p>
+<p>Chúng ta cũng có thể sử dụng mẫu newtype để trừu tượng hóa một số chi tiết triển khai
+của một kiểu: kiểu mới có thể để lộ một API công khai (public API) khác với
+API của kiểu bên trong riêng tư (private inner type).</p>
+<p>Các newtype cũng có thể che giấu việc triển khai nội bộ. Ví dụ, chúng ta có thể cung cấp một
+kiểu <code>People</code> để bao bọc một <code>HashMap&lt;i32, String&gt;</code> lưu trữ ID của một người
+liên kết với tên của họ. Mã sử dụng <code>People</code> sẽ chỉ tương tác với API công khai mà
+chúng ta cung cấp, chẳng hạn như một phương thức để thêm một chuỗi tên vào bộ sưu tập <code>People</code>;
+mã đó sẽ không cần biết rằng chúng ta gán một ID <code>i32</code> cho các tên
+ở nội bộ. Mẫu newtype là một cách nhẹ nhàng để đạt được sự đóng gói (encapsulation) nhằm
+che giấu các chi tiết triển khai, điều mà chúng ta đã thảo luận trong <a href="ch18-01-what-is-oo.html#encapsulation-that-hides-implementation-details">“Sự đóng gói che giấu
+các chi tiết triển khai”</a><!--
+ignore --> ở Chương 18.</p>
+<h3 id="tạo-các-từ-đồng-nghĩa-kiểu-với-bí-danh-kiểu"><a class="header" href="#tạo-các-từ-đồng-nghĩa-kiểu-với-bí-danh-kiểu">Tạo các từ đồng nghĩa kiểu với bí danh kiểu</a></h3>
+<p>Rust cung cấp khả năng khai báo một <em>bí danh kiểu</em> (type alias) để đặt cho một kiểu hiện có
+một cái tên khác. Để làm việc này, chúng ta sử dụng từ khóa <code>type</code>. Ví dụ, chúng ta có thể tạo
+bí danh <code>Kilometers</code> cho <code>i32</code> như sau:</p>
 <pre><pre class="playground"><code class="language-rust edition2024"><span class="boring">fn main() {
 </span>    type Kilometers = i32;
 <span class="boring">
@@ -216,10 +216,10 @@ the alias <code>Kilometers</code> to <code>i32</code> like so:</p>
 </span><span class="boring">
 </span><span class="boring">    println!("x + y = {}", x + y);
 </span><span class="boring">}</span></code></pre></pre>
-<p>Now, the alias <code>Kilometers</code> is a <em>synonym</em> for <code>i32</code>; unlike the <code>Millimeters</code>
-and <code>Meters</code> types we created in Listing 20-16, <code>Kilometers</code> is not a separate,
-new type. Values that have the type <code>Kilometers</code> will be treated the same as
-values of type <code>i32</code>:</p>
+<p>Bây giờ, bí danh <code>Kilometers</code> là một <em>từ đồng nghĩa</em> (synonym) cho <code>i32</code>; không giống như các kiểu
+<code>Millimeters</code> và <code>Meters</code> mà chúng ta đã tạo trong Danh sách 20-16, <code>Kilometers</code> không phải là một
+kiểu mới, riêng biệt. Các giá trị có kiểu <code>Kilometers</code> sẽ được đối xử giống như
+các giá trị có kiểu <code>i32</code>:</p>
 <pre><pre class="playground"><code class="language-rust edition2024"><span class="boring">fn main() {
 </span>    type Kilometers = i32;
 
@@ -228,18 +228,18 @@ values of type <code>i32</code>:</p>
 
     println!("x + y = {}", x + y);
 <span class="boring">}</span></code></pre></pre>
-<p>Because <code>Kilometers</code> and <code>i32</code> are the same type, we can add values of both
-types and we can pass <code>Kilometers</code> values to functions that take <code>i32</code>
-parameters. However, using this method, we don’t get the type-checking benefits
-that we get from the newtype pattern discussed earlier. In other words, if we
-mix up <code>Kilometers</code> and <code>i32</code> values somewhere, the compiler will not give us
-an error.</p>
-<p>The main use case for type synonyms is to reduce repetition. For example, we
-might have a lengthy type like this:</p>
+<p>Bởi vì <code>Kilometers</code> và <code>i32</code> là cùng một kiểu, chúng ta có thể cộng các giá trị của cả hai
+kiểu và chúng ta có thể truyền các giá trị <code>Kilometers</code> vào các hàm nhận các tham số
+<code>i32</code>. Tuy nhiên, khi sử dụng phương pháp này, chúng ta không nhận được các lợi ích về kiểm tra kiểu
+mà chúng ta nhận được từ mẫu newtype đã thảo luận trước đó. Nói cách khác, nếu chúng ta
+trộn lẫn các giá trị <code>Kilometers</code> và <code>i32</code> ở đâu đó, trình biên dịch sẽ không đưa ra
+lỗi cho chúng ta.</p>
+<p>Trường hợp sử dụng chính cho các từ đồng nghĩa kiểu là để giảm bớt sự lặp lại. Ví dụ, chúng ta
+có thể có một kiểu dài như thế này:</p>
 <pre><code class="language-rust ignore">Box&lt;dyn Fn() + Send + 'static&gt;</code></pre>
-<p>Writing this lengthy type in function signatures and as type annotations all
-over the code can be tiresome and error prone. Imagine having a project full of
-code like that in Listing 20-25.</p>
+<p>Việc viết kiểu dài này trong các chữ ký hàm và dưới dạng các chú thích kiểu ở khắp mọi
+nơi trong mã nguồn có thể gây mệt mỏi và dễ xảy ra sai sót. Hãy tưởng tượng việc có một dự án đầy
+mã nguồn như trong Danh sách 20-25.</p>
 <figure class="listing" id="listing-20-25">
 <pre><pre class="playground"><code class="language-rust edition2024"><span class="boring">fn main() {
 </span>    let f: Box&lt;dyn Fn() + Send + 'static&gt; = Box::new(|| println!("hi"));
@@ -253,11 +253,11 @@ code like that in Listing 20-25.</p>
 <span class="boring">        Box::new(|| ())
 </span>    }
 <span class="boring">}</span></code></pre></pre>
-<figcaption><a href="#listing-20-25">Listing 20-25</a>: Using a long type in many places</figcaption>
+<figcaption><a href="#listing-20-25">Listing 20-25</a>: Sử dụng một kiểu dài ở nhiều nơi</figcaption>
 </figure>
-<p>A type alias makes this code more manageable by reducing the repetition. In
-Listing 20-26, we’ve introduced an alias named <code>Thunk</code> for the verbose type and
-can replace all uses of the type with the shorter alias <code>Thunk</code>.</p>
+<p>Một bí danh kiểu làm cho mã này dễ quản lý hơn bằng cách giảm bớt sự lặp lại. Trong
+Danh sách 20-26, chúng ta đã giới thiệu một bí danh tên là <code>Thunk</code> cho kiểu dài dòng đó và
+có thể thay thế tất cả các lần sử dụng kiểu đó bằng bí danh ngắn hơn <code>Thunk</code>.</p>
 <figure class="listing" id="listing-20-26">
 <pre><pre class="playground"><code class="language-rust edition2024"><span class="boring">fn main() {
 </span>    type Thunk = Box&lt;dyn Fn() + Send + 'static&gt;;
@@ -273,19 +273,19 @@ can replace all uses of the type with the shorter alias <code>Thunk</code>.</p>
 <span class="boring">        Box::new(|| ())
 </span>    }
 <span class="boring">}</span></code></pre></pre>
-<figcaption><a href="#listing-20-26">Listing 20-26</a>: Introducing a type alias <code>Thunk</code> to reduce repetition</figcaption>
+<figcaption><a href="#listing-20-26">Listing 20-26</a>: Giới thiệu một bí danh kiểu <code>Thunk</code> để giảm bớt sự lặp lại</figcaption>
 </figure>
-<p>This code is much easier to read and write! Choosing a meaningful name for a
-type alias can help communicate your intent as well (<em>thunk</em> is a word for code
-to be evaluated at a later time, so it’s an appropriate name for a closure that
-gets stored).</p>
-<p>Type aliases are also commonly used with the <code>Result&lt;T, E&gt;</code> type for reducing
-repetition. Consider the <code>std::io</code> module in the standard library. I/O
-operations often return a <code>Result&lt;T, E&gt;</code> to handle situations when operations
-fail to work. This library has a <code>std::io::Error</code> struct that represents all
-possible I/O errors. Many of the functions in <code>std::io</code> will be returning
-<code>Result&lt;T, E&gt;</code> where the <code>E</code> is <code>std::io::Error</code>, such as these functions in
-the <code>Write</code> trait:</p>
+<p>Mã này dễ đọc và dễ viết hơn nhiều! Việc chọn một cái tên có ý nghĩa cho một
+bí danh kiểu cũng có thể giúp truyền đạt ý định của bạn (<em>thunk</em> là một từ dùng để chỉ mã nguồn
+sẽ được đánh giá vào một thời điểm sau đó, vì vậy nó là một cái tên thích hợp cho một closure
+được lưu trữ).</p>
+<p>Các bí danh kiểu cũng thường được sử dụng với kiểu <code>Result&lt;T, E&gt;</code> để giảm bớt
+sự lặp lại. Hãy xem xét module <code>std::io</code> trong thư viện chuẩn. Các thao tác
+I/O thường trả về một <code>Result&lt;T, E&gt;</code> để xử lý các tình huống khi các thao tác
+thất bại. Thư viện này có một struct <code>std::io::Error</code> đại diện cho tất cả
+các lỗi I/O có thể xảy ra. Nhiều hàm trong <code>std::io</code> sẽ trả về
+<code>Result&lt;T, E&gt;</code> trong đó <code>E</code> là <code>std::io::Error</code>, chẳng hạn như các hàm này trong
+trait <code>Write</code>:</p>
 <pre><code class="language-rust noplayground">use std::fmt;
 use std::io::Error;
 
@@ -296,8 +296,8 @@ pub trait Write {
     fn write_all(&amp;mut self, buf: &amp;[u8]) -&gt; Result&lt;(), Error&gt;;
     fn write_fmt(&amp;mut self, fmt: fmt::Arguments) -&gt; Result&lt;(), Error&gt;;
 }</code></pre>
-<p>The <code>Result&lt;..., Error&gt;</code> is repeated a lot. As such, <code>std::io</code> has this type
-alias declaration:</p>
+<p>Cụm <code>Result&lt;..., Error&gt;</code> được lặp lại rất nhiều. Do đó, <code>std::io</code> có khai báo
+bí danh kiểu này:</p>
 <pre><code class="language-rust noplayground"><span class="boring">use std::fmt;
 </span><span class="boring">
 </span>type Result&lt;T&gt; = std::result::Result&lt;T, std::io::Error&gt;;
@@ -309,10 +309,10 @@ alias declaration:</p>
 </span><span class="boring">    fn write_all(&amp;mut self, buf: &amp;[u8]) -&gt; Result&lt;()&gt;;
 </span><span class="boring">    fn write_fmt(&amp;mut self, fmt: fmt::Arguments) -&gt; Result&lt;()&gt;;
 </span><span class="boring">}</span></code></pre>
-<p>Because this declaration is in the <code>std::io</code> module, we can use the fully
-qualified alias <code>std::io::Result&lt;T&gt;</code>; that is, a <code>Result&lt;T, E&gt;</code> with the <code>E</code>
-filled in as <code>std::io::Error</code>. The <code>Write</code> trait function signatures end up
-looking like this:</p>
+<p>Bởi vì khai báo này nằm trong module <code>std::io</code>, chúng ta có thể sử dụng bí danh
+định danh đầy đủ <code>std::io::Result&lt;T&gt;</code>; nghĩa là, một <code>Result&lt;T, E&gt;</code> với <code>E</code> được
+điền sẵn là <code>std::io::Error</code>. Các chữ ký hàm của trait <code>Write</code> cuối cùng
+trông như thế này:</p>
 <pre><code class="language-rust noplayground"><span class="boring">use std::fmt;
 </span><span class="boring">
 </span><span class="boring">type Result&lt;T&gt; = std::result::Result&lt;T, std::io::Error&gt;;
@@ -324,25 +324,25 @@ looking like this:</p>
     fn write_all(&amp;mut self, buf: &amp;[u8]) -&gt; Result&lt;()&gt;;
     fn write_fmt(&amp;mut self, fmt: fmt::Arguments) -&gt; Result&lt;()&gt;;
 }</code></pre>
-<p>The type alias helps in two ways: it makes code easier to write <em>and</em> it gives
-us a consistent interface across all of <code>std::io</code>. Because it’s an alias, it’s
-just another <code>Result&lt;T, E&gt;</code>, which means we can use any methods that work on
-<code>Result&lt;T, E&gt;</code> with it, as well as special syntax like the <code>?</code> operator.</p>
-<h3 id="the-never-type-that-never-returns"><a class="header" href="#the-never-type-that-never-returns">The Never Type That Never Returns</a></h3>
-<p>Rust has a special type named <code>!</code> that’s known in type theory lingo as the
-<em>empty type</em> because it has no values. We prefer to call it the <em>never type</em>
-because it stands in the place of the return type when a function will never
-return. Here is an example:</p>
+<p>Bí danh kiểu giúp ích theo hai cách: nó làm cho mã dễ viết hơn <em>và</em> nó mang lại cho
+chúng ta một giao diện nhất quán trong toàn bộ <code>std::io</code>. Bởi vì nó là một bí danh, nó
+chỉ là một <code>Result&lt;T, E&gt;</code> khác, có nghĩa là chúng ta có thể sử dụng bất kỳ phương thức nào hoạt động trên
+<code>Result&lt;T, E&gt;</code> với nó, cũng như cú pháp đặc biệt như toán tử <code>?</code>.</p>
+<h3 id="kiểu-never-không-bao-giờ-trả-về"><a class="header" href="#kiểu-never-không-bao-giờ-trả-về">Kiểu Never không bao giờ trả về</a></h3>
+<p>Rust có một kiểu đặc biệt tên là <code>!</code> được gọi trong thuật ngữ lý thuyết kiểu là
+<em>kiểu trống</em> (empty type) vì nó không có giá trị nào. Chúng ta thích gọi nó là <em>kiểu never</em>
+bởi vì nó đứng ở vị trí của kiểu trả về khi một hàm sẽ không bao giờ
+trả về. Đây là một ví dụ:</p>
 <pre><code class="language-rust noplayground">fn bar() -&gt; ! {
     // --snip--
 <span class="boring">    panic!();
 </span>}</code></pre>
-<p>This code is read as “the function <code>bar</code> returns never.” Functions that return
-never are called <em>diverging functions</em>. We can’t create values of the type <code>!</code>
-so <code>bar</code> can never possibly return.</p>
-<p>But what use is a type you can never create values for? Recall the code from
-Listing 2-5, part of the number-guessing game; we’ve reproduced a bit of it
-here in Listing 20-27.</p>
+<p>Mã này được đọc là “hàm <code>bar</code> không bao giờ trả về.” Các hàm không bao giờ trả về
+được gọi là <em>các hàm phân kỳ</em> (diverging functions). Chúng ta không thể tạo ra các giá trị thuộc kiểu <code>!</code>
+vì vậy <code>bar</code> không bao giờ có thể trả về.</p>
+<p>Nhưng một kiểu mà bạn không bao giờ có thể tạo ra các giá trị cho nó thì có ích gì? Hãy nhớ lại mã từ
+Danh sách 2-5, một phần của trò chơi đoán số; chúng ta đã tái hiện một phần của nó
+ở đây trong Danh sách 20-27.</p>
 <figure class="listing" id="listing-20-27">
 <pre><code class="language-rust ignore"><span class="boring">use std::cmp::Ordering;
 </span><span class="boring">use std::io;
@@ -386,12 +386,12 @@ here in Listing 20-27.</p>
 </span><span class="boring">        }
 </span><span class="boring">    }
 </span><span class="boring">}</span></code></pre>
-<figcaption><a href="#listing-20-27">Listing 20-27</a>: A <code>match</code> with an arm that ends in <code>continue</code></figcaption>
+<figcaption><a href="#listing-20-27">Listing 20-27</a>: Một <code>match</code> với một nhánh (arm) kết thúc bằng <code>continue</code></figcaption>
 </figure>
-<p>At the time, we skipped over some details in this code. In <a href="ch06-02-match.html#the-match-control-flow-operator">“The <code>match</code> Control
-Flow Operator”</a><!-- ignore --> in Chapter 6, we
-discussed that <code>match</code> arms must all return the same type. So, for example, the
-following code doesn’t work:</p>
+<p>Vào lúc đó, chúng ta đã bỏ qua một số chi tiết trong mã này. Trong <a href="ch06-02-match.html#the-match-control-flow-operator">“Toán tử điều khiển
+luồng <code>match</code>”</a><!-- ignore --> ở Chương 6, chúng ta
+đã thảo luận rằng các nhánh của <code>match</code> đều phải trả về cùng một kiểu. Vì vậy, ví dụ,
+mã sau đây không hoạt động:</p>
 <pre><code class="language-rust ignore does_not_compile"><span class="boring">fn main() {
 </span><span class="boring">    let guess = "3";
 </span>    let guess = match guess.trim().parse() {
@@ -399,22 +399,22 @@ following code doesn’t work:</p>
         Err(_) =&gt; "hello",
     };
 <span class="boring">}</span></code></pre>
-<p>The type of <code>guess</code> in this code would have to be an integer <em>and</em> a string,
-and Rust requires that <code>guess</code> have only one type. So what does <code>continue</code>
-return? How were we allowed to return a <code>u32</code> from one arm and have another arm
-that ends with <code>continue</code> in Listing 20-27?</p>
-<p>As you might have guessed, <code>continue</code> has a <code>!</code> value. That is, when Rust
-computes the type of <code>guess</code>, it looks at both match arms, the former with a
-value of <code>u32</code> and the latter with a <code>!</code> value. Because <code>!</code> can never have a
-value, Rust decides that the type of <code>guess</code> is <code>u32</code>.</p>
-<p>The formal way of describing this behavior is that expressions of type <code>!</code> can
-be coerced into any other type. We’re allowed to end this <code>match</code> arm with
-<code>continue</code> because <code>continue</code> doesn’t return a value; instead, it moves control
-back to the top of the loop, so in the <code>Err</code> case, we never assign a value to
+<p>Kiểu của <code>guess</code> trong mã này sẽ phải vừa là một số nguyên <em>vừa</em> là một chuỗi,
+và Rust yêu cầu <code>guess</code> chỉ có một kiểu. Vậy <code>continue</code> trả về
+gì? Làm thế nào chúng ta được phép trả về một <code>u32</code> từ một nhánh và có một nhánh khác
+kết thúc bằng <code>continue</code> trong Danh sách 20-27?</p>
+<p>Như bạn có thể đã đoán, <code>continue</code> có giá trị <code>!</code>. Nghĩa là, khi Rust
+tính toán kiểu của <code>guess</code>, nó nhìn vào cả hai nhánh match, nhánh trước có một
+giá trị kiểu <code>u32</code> và nhánh sau có một giá trị kiểu <code>!</code>. Bởi vì <code>!</code> không bao giờ có thể có
+một giá trị, Rust quyết định rằng kiểu của <code>guess</code> là <code>u32</code>.</p>
+<p>Cách mô tả chính thức về hành vi này là các biểu thức kiểu <code>!</code> có thể
+được ép kiểu (coerced) thành bất kỳ kiểu nào khác. Chúng ta được phép kết thúc nhánh <code>match</code> này bằng
+<code>continue</code> bởi vì <code>continue</code> không trả về một giá trị; thay vào đó, nó di chuyển quyền điều khiển
+trở lại đầu vòng lặp, vì vậy trong trường hợp <code>Err</code>, chúng ta không bao giờ gán một giá trị cho
 <code>guess</code>.</p>
-<p>The never type is useful with the <code>panic!</code> macro as well. Recall the <code>unwrap</code>
-function that we call on <code>Option&lt;T&gt;</code> values to produce a value or panic with
-this definition:</p>
+<p>Kiểu never cũng hữu ích với macro <code>panic!</code>. Hãy nhớ lại hàm <code>unwrap</code>
+mà chúng ta gọi trên các giá trị <code>Option&lt;T&gt;</code> để tạo ra một giá trị hoặc panic với
+định nghĩa này:</p>
 <pre><code class="language-rust ignore"><span class="boring">enum Option&lt;T&gt; {
 </span><span class="boring">    Some(T),
 </span><span class="boring">    None,
@@ -430,12 +430,12 @@ this definition:</p>
         }
     }
 }</code></pre>
-<p>In this code, the same thing happens as in the <code>match</code> in Listing 20-27: Rust
-sees that <code>val</code> has the type <code>T</code> and <code>panic!</code> has the type <code>!</code>, so the result
-of the overall <code>match</code> expression is <code>T</code>. This code works because <code>panic!</code>
-doesn’t produce a value; it ends the program. In the <code>None</code> case, we won’t be
-returning a value from <code>unwrap</code>, so this code is valid.</p>
-<p>One final expression that has the type <code>!</code> is a <code>loop</code>:</p>
+<p>Trong mã này, điều tương tự cũng xảy ra như trong <code>match</code> ở Danh sách 20-27: Rust
+thấy rằng <code>val</code> có kiểu <code>T</code> và <code>panic!</code> có kiểu <code>!</code>, vì vậy kết quả
+của biểu thức <code>match</code> tổng thể là <code>T</code>. Mã này hoạt động vì <code>panic!</code>
+không tạo ra một giá trị; nó kết thúc chương trình. Trong trường hợp <code>None</code>, chúng ta sẽ không
+trả về một giá trị từ <code>unwrap</code>, vì vậy mã này là hợp lệ.</p>
+<p>Một biểu thức cuối cùng có kiểu <code>!</code> là một <code>loop</code>:</p>
 <pre><code class="language-rust ignore"><span class="boring">fn main() {
 </span>    print!("forever ");
 
@@ -443,78 +443,77 @@ returning a value from <code>unwrap</code>, so this code is valid.</p>
         print!("and ever ");
     }
 <span class="boring">}</span></code></pre>
-<p>Here, the loop never ends, so <code>!</code> is the value of the expression. However, this
-wouldn’t be true if we included a <code>break</code>, because the loop would terminate
-when it got to the <code>break</code>.</p>
-<h3 id="dynamically-sized-types-and-the-sized-trait"><a class="header" href="#dynamically-sized-types-and-the-sized-trait">Dynamically Sized Types and the <code>Sized</code> Trait</a></h3>
-<p>Rust needs to know certain details about its types, such as how much space to
-allocate for a value of a particular type. This leaves one corner of its type
-system a little confusing at first: the concept of <em>dynamically sized types</em>.
-Sometimes referred to as <em>DSTs</em> or <em>unsized types</em>, these types let us write
-code using values whose size we can know only at runtime.</p>
-<p>Let’s dig into the details of a dynamically sized type called <code>str</code>, which
-we’ve been using throughout the book. That’s right, not <code>&amp;str</code>, but <code>str</code> on
-its own, is a DST. We can’t know how long the string is until runtime, meaning
-we can’t create a variable of type <code>str</code>, nor can we take an argument of type
-<code>str</code>. Consider the following code, which does not work:</p>
+<p>Ở đây, vòng lặp không bao giờ kết thúc, vì vậy <code>!</code> là giá trị của biểu thức. Tuy nhiên, điều này
+sẽ không đúng nếu chúng ta bao gồm một <code>break</code>, bởi vì vòng lặp sẽ kết thúc
+khi nó gặp <code>break</code>.</p>
+<h3 id="các-kiểu-có-kích-thước-động-và-trait-sized"><a class="header" href="#các-kiểu-có-kích-thước-động-và-trait-sized">Các kiểu có kích thước động và Trait <code>Sized</code></a></h3>
+<p>Rust cần biết một số chi tiết nhất định về các kiểu của nó, chẳng hạn như cần bao nhiêu không gian để
+cấp phát cho một giá trị của một kiểu cụ thể. Điều này để lại một góc trong hệ thống kiểu của nó
+hơi khó hiểu lúc đầu: khái niệm về <em>các kiểu có kích thước động</em> (dynamically sized types).
+Đôi khi được gọi là <em>DSTs</em> hoặc <em>các kiểu không có kích thước</em> (unsized types), các kiểu này cho phép chúng ta viết
+mã sử dụng các giá trị mà kích thước của chúng chúng ta chỉ có thể biết được lúc thực thi.</p>
+<p>Hãy đi sâu vào chi tiết của một kiểu có kích thước động tên là <code>str</code>, cái mà
+chúng ta đã sử dụng xuyên suốt cuốn sách. Đúng vậy, không phải <code>&amp;str</code>, mà là bản thân <code>str</code>,
+là một DST. Chúng ta không thể biết chuỗi dài bao nhiêu cho đến lúc thực thi, nghĩa
+là chúng ta không thể tạo một biến kiểu <code>str</code>, chúng ta cũng không thể nhận một đối số kiểu
+<code>str</code>. Hãy xem xét mã sau đây, cái mà không hoạt động:</p>
 <pre><code class="language-rust ignore does_not_compile"><span class="boring">fn main() {
 </span>    let s1: str = "Hello there!";
     let s2: str = "How's it going?";
 <span class="boring">}</span></code></pre>
-<p>Rust needs to know how much memory to allocate for any value of a particular
-type, and all values of a type must use the same amount of memory. If Rust
-allowed us to write this code, these two <code>str</code> values would need to take up the
-same amount of space. But they have different lengths: <code>s1</code> needs 12 bytes of
-storage and <code>s2</code> needs 15. This is why it’s not possible to create a variable
-holding a dynamically sized type.</p>
-<p>So what do we do? In this case, you already know the answer: we make the types
-of <code>s1</code> and <code>s2</code> a <code>&amp;str</code> rather than a <code>str</code>. Recall from <a href="ch04-04-slices.html#string-slices">“String
-Slices”</a><!-- ignore --> in Chapter 4 that the slice data
-structure just stores the starting position and the length of the slice. So
-although a <code>&amp;T</code> is a single value that stores the memory address of where the
-<code>T</code> is located, a <code>&amp;str</code> is <em>two</em> values: the address of the <code>str</code> and its
-length. As such, we can know the size of a <code>&amp;str</code> value at compile time: it’s
-twice the length of a <code>usize</code>. That is, we always know the size of a <code>&amp;str</code>, no
-matter how long the string it refers to is. In general, this is the way in which
-dynamically sized types are used in Rust: they have an extra bit of metadata
-that stores the size of the dynamic information. The golden rule of dynamically
-sized types is that we must always put values of dynamically sized types behind
-a pointer of some kind.</p>
-<p>We can combine <code>str</code> with all kinds of pointers: for example, <code>Box&lt;str&gt;</code> or
-<code>Rc&lt;str&gt;</code>. In fact, you’ve seen this before but with a different dynamically
-sized type: traits. Every trait is a dynamically sized type we can refer to by
-using the name of the trait. In <a href="ch18-02-trait-objects.html#using-trait-objects-that-allow-for-values-of-different-types">“Using Trait Objects That Allow for Values of
-Different
-Types”</a><!-- ignore
---> in Chapter 18, we mentioned that to use traits as trait objects, we must put
-them behind a pointer, such as <code>&amp;dyn Trait</code> or <code>Box&lt;dyn Trait&gt;</code> (<code>Rc&lt;dyn Trait&gt;</code>
-would work too).</p>
-<p>To work with DSTs, Rust provides the <code>Sized</code> trait to determine whether or not
-a type’s size is known at compile time. This trait is automatically implemented
-for everything whose size is known at compile time. In addition, Rust
-implicitly adds a bound on <code>Sized</code> to every generic function. That is, a
-generic function definition like this:</p>
+<p>Rust cần biết cần cấp phát bao nhiêu bộ nhớ cho bất kỳ giá trị nào của một kiểu
+cụ thể, và tất cả các giá trị của một kiểu phải sử dụng cùng một lượng bộ nhớ. Nếu Rust
+cho phép chúng ta viết mã này, hai giá trị <code>str</code> này sẽ cần chiếm cùng một
+lượng không gian. Nhưng chúng có độ dài khác nhau: <code>s1</code> cần 12 byte để lưu trữ
+và <code>s2</code> cần 15 byte. Đây là lý do tại sao không thể tạo một biến
+giữ một kiểu có kích thước động.</p>
+<p>Vậy chúng ta phải làm gì? Trong trường hợp này, bạn đã biết câu trả lời: chúng ta tạo kiểu
+của <code>s1</code> và <code>s2</code> là một <code>&amp;str</code> thay vì một <code>str</code>. Hãy nhớ lại từ <a href="ch04-04-slices.html#string-slices">“String
+Slices”</a><!-- ignore --> ở Chương 4 rằng cấu trúc dữ liệu slice
+chỉ lưu trữ vị trí bắt đầu và độ dài của slice. Vì vậy
+mặc dù một <code>&amp;T</code> là một giá trị đơn lẻ lưu trữ địa chỉ bộ nhớ nơi
+<code>T</code> tọa lạc, một <code>&amp;str</code> là <em>hai</em> giá trị: địa chỉ của <code>str</code> và độ dài của nó.
+Như vậy, chúng ta có thể biết kích thước của một giá trị <code>&amp;str</code> tại thời điểm biên dịch: nó bằng
+hai lần độ dài của một <code>usize</code>. Nghĩa là, chúng ta luôn biết kích thước của một <code>&amp;str</code>, bất kể
+chuỗi mà nó tham chiếu đến dài bao nhiêu. Nói chung, đây là cách mà
+các kiểu có kích thước động được sử dụng trong Rust: chúng có thêm một chút siêu dữ liệu (metadata)
+để lưu trữ kích thước của thông tin động. Quy tắc vàng của các kiểu có kích thước động
+là chúng ta phải luôn đặt các giá trị của các kiểu có kích thước động đằng sau
+một con trỏ thuộc loại nào đó.</p>
+<p>Chúng ta có thể kết hợp <code>str</code> với tất cả các loại con trỏ: ví dụ, <code>Box&lt;str&gt;</code> hoặc
+<code>Rc&lt;str&gt;</code>. Trên thực tế, bạn đã thấy điều này trước đây nhưng với một kiểu có kích thước động
+khác: các trait. Mọi trait là một kiểu có kích thước động mà chúng ta có thể tham chiếu đến bằng cách
+sử dụng tên của trait đó. Trong <a href="ch18-02-trait-objects.html#using-trait-objects-that-allow-for-values-of-different-types">“Sử dụng các đối tượng Trait cho phép các giá trị thuộc
+các kiểu khác nhau”</a><!-- ignore
+--> ở Chương 18, chúng ta đã đề cập rằng để sử dụng các trait như các đối tượng trait, chúng ta phải đặt
+chúng đằng sau một con trỏ, chẳng hạn như <code>&amp;dyn Trait</code> hoặc <code>Box&lt;dyn Trait&gt;</code> (<code>Rc&lt;dyn Trait&gt;</code>
+cũng sẽ hoạt động).</p>
+<p>Để làm việc với các DST, Rust cung cấp trait <code>Sized</code> để xác định xem kích thước của
+một kiểu có được biết tại thời điểm biên dịch hay không. Trait này được tự động thực thi
+cho mọi thứ mà kích thước của nó được biết tại thời điểm biên dịch. Ngoài ra, Rust
+ngầm định thêm một ràng buộc (bound) trên <code>Sized</code> cho mọi hàm generic. Nghĩa là, một
+định nghĩa hàm generic như thế này:</p>
 <pre><code class="language-rust ignore">fn generic&lt;T&gt;(t: T) {
     // --snip--
 }</code></pre>
-<p>is actually treated as though we had written this:</p>
+<p>thực sự được đối xử như thể chúng ta đã viết thế này:</p>
 <pre><code class="language-rust ignore">fn generic&lt;T: Sized&gt;(t: T) {
     // --snip--
 }</code></pre>
-<p>By default, generic functions will work only on types that have a known size at
-compile time. However, you can use the following special syntax to relax this
-restriction:</p>
+<p>Theo mặc định, các hàm generic sẽ chỉ hoạt động trên các kiểu có kích thước đã biết tại
+thời điểm biên dịch. Tuy nhiên, bạn có thể sử dụng cú pháp đặc biệt sau đây để nới lỏng
+hạn chế này:</p>
 <pre><code class="language-rust ignore">fn generic&lt;T: ?Sized&gt;(t: &amp;T) {
     // --snip--
 }</code></pre>
-<p>A trait bound on <code>?Sized</code> means “<code>T</code> may or may not be <code>Sized</code>” and this
-notation overrides the default that generic types must have a known size at
-compile time. The <code>?Trait</code> syntax with this meaning is only available for
-<code>Sized</code>, not any other traits.</p>
-<p>Also note that we switched the type of the <code>t</code> parameter from <code>T</code> to <code>&amp;T</code>.
-Because the type might not be <code>Sized</code>, we need to use it behind some kind of
-pointer. In this case, we’ve chosen a reference.</p>
-<p>Next, we’ll talk about functions and closures!</p>
+<p>Một trait bound trên <code>?Sized</code> có nghĩa là “<code>T</code> có thể hoặc không thể là <code>Sized</code>” và ký hiệu
+này ghi đè lên mặc định rằng các kiểu generic phải có kích thước đã biết tại
+thời điểm biên dịch. Cú pháp <code>?Trait</code> với ý nghĩa này chỉ khả dụng cho
+<code>Sized</code>, không phải bất kỳ trait nào khác.</p>
+<p>Cũng lưu ý rằng chúng ta đã chuyển kiểu của tham số <code>t</code> từ <code>T</code> sang <code>&amp;T</code>.
+Bởi vì kiểu đó có thể không phải là <code>Sized</code>, chúng ta cần sử dụng nó đằng sau một loại
+con trỏ nào đó. Trong trường hợp này, chúng ta đã chọn một tham chiếu.</p>
+<p>Tiếp theo, chúng ta sẽ nói về các hàm và closure!</p>
 <div class="quiz-placeholder" data-quiz-name="&quot;ch19-04-advanced-types&quot;" data-quiz-questions="{&quot;questions&quot;:[{&quot;context&quot;:&quot;The `!` type is not an appropriate return type for this function because it only panics\nsome of the time, not all of the time.\n&quot;,&quot;id&quot;:&quot;d3d9197f-8baf-4ec5-9988-282c67636d3c&quot;,&quot;type&quot;:&quot;Tracing&quot;,&quot;answer&quot;:{&quot;doesCompile&quot;:false,&quot;lineNumber&quot;:4},&quot;prompt&quot;:{&quot;program&quot;:&quot;fn expect_none(x: Option&lt;i32&gt;) -&gt; ! {\n    match x {\n        Some(n) =&gt; panic!(\&quot;Expected none, found Some({n})\&quot;),\n        None =&gt; ()\n    }\n}\n\nfn main() {\n    println!(\&quot;{:?}\&quot;, expect_none(None));\n}\n&quot;}},{&quot;context&quot;:&quot;The call to `is_equal` passes values of type `&amp;str`. That means `T = str`. However, `str`\nis only allowed to be used in such a generic function if `T` is marked as `?Sized`.\n&quot;,&quot;id&quot;:&quot;5c5cb765-a561-459f-8223-9e72e824c5da&quot;,&quot;type&quot;:&quot;Tracing&quot;,&quot;answer&quot;:{&quot;doesCompile&quot;:false,&quot;lineNumber&quot;:6},&quot;prompt&quot;:{&quot;program&quot;:&quot;fn is_equal&lt;T: Eq&gt;(t1: &amp;T, t2: &amp;T) -&gt; bool {\n  t1 == t2\n}\n\nfn main() {\n  println!(\&quot;{}\&quot;, is_equal(\&quot;Hello\&quot;, \&quot;world\&quot;));\n}\n\n&quot;}}]}" data-quiz-fullscreen="true" data-quiz-cache-answers="true"></div>
 <script type="text/javascript" src="quiz/quiz-embed.iife.js"></script><link rel="stylesheet" type="text/css" href="quiz/style.css">
 
