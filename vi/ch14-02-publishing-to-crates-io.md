@@ -1,32 +1,32 @@
-## Publishing a Crate to Crates.io
+## Xuất bản một Crate lên Crates.io
 
-We’ve used packages from [crates.io](https://crates.io/)<!-- ignore --> as
-dependencies of our project, but you can also share your code with other people
-by publishing your own packages. The crate registry at
-[crates.io](https://crates.io/)<!-- ignore --> distributes the source code of
-your packages, so it primarily hosts code that is open source.
+Chúng ta đã sử dụng các gói từ [crates.io](https://crates.io/)<!-- ignore --> như là
+các phụ thuộc (dependencies) của dự án của mình, nhưng bạn cũng có thể chia sẻ mã nguồn của mình với người khác
+bằng cách xuất bản các gói của riêng bạn. Sổ đăng ký crate (crate registry) tại
+[crates.io](https://crates.io/)<!-- ignore --> phân phối mã nguồn của các gói của bạn,
+vì vậy nó chủ yếu lưu trữ mã nguồn mở.
 
-Rust and Cargo have features that make your published package easier for people
-to find and use. We’ll talk about some of these features next and then explain
-how to publish a package.
+Rust và Cargo có các tính năng giúp gói đã xuất bản của bạn dễ dàng được mọi người
+tìm thấy và sử dụng hơn. Chúng ta sẽ thảo luận về một số tính năng này tiếp theo và sau đó giải thích
+cách xuất bản một gói.
 
-### Making Useful Documentation Comments
+### Tạo các Chú thích Tài liệu Hữu ích
 
-Accurately documenting your packages will help other users know how and when to
-use them, so it’s worth investing the time to write documentation. In Chapter
-3, we discussed how to comment Rust code using two slashes, `//`. Rust also has
-a particular kind of comment for documentation, known conveniently as a
-_documentation comment_, that will generate HTML documentation. The HTML
-displays the contents of documentation comments for public API items intended
-for programmers interested in knowing how to _use_ your crate as opposed to how
-your crate is _implemented_.
+Việc lập tài liệu chính xác cho các gói của bạn sẽ giúp những người dùng khác biết cách thức và thời điểm
+sử dụng chúng, vì vậy việc đầu tư thời gian để viết tài liệu là rất xứng đáng. Trong Chương
+3, chúng ta đã thảo luận về cách chú thích mã Rust bằng hai dấu gạch chéo, `//`. Rust cũng có
+một loại chú thích đặc biệt dành cho tài liệu, được gọi một cách thuận tiện là
+_chú thích tài liệu_ (documentation comment), sẽ tạo ra tài liệu HTML. HTML
+hiển thị nội dung của các chú thích tài liệu cho các mục API công khai dành cho
+các lập trình viên quan tâm đến việc biết cách _sử dụng_ crate của bạn thay vì cách
+crate của bạn được _triển khai_.
 
-Documentation comments use three slashes, `///`, instead of two and support
-Markdown notation for formatting the text. Place documentation comments just
-before the item they’re documenting. Listing 14-1 shows documentation comments
-for an `add_one` function in a crate named `my_crate`.
+Các chú thích tài liệu sử dụng ba dấu gạch chéo, `///`, thay vì hai và hỗ trợ
+ký hiệu Markdown để định dạng văn bản. Đặt các chú thích tài liệu ngay
+trước mục mà chúng đang lập tài liệu. Liệt kê 14-1 hiển thị các chú thích tài liệu
+cho một hàm `add_one` trong một crate tên là `my_crate`.
 
-<Listing number="14-1" file-name="src/lib.rs" caption="A documentation comment for a function">
+<Listing number="14-1" file-name="src/lib.rs" caption="Một chú thích tài liệu cho một hàm">
 
 ```rust,ignore
 {{#rustdoc_include ../listings/ch14-more-about-cargo/listing-14-01/src/lib.rs}}
@@ -34,55 +34,54 @@ for an `add_one` function in a crate named `my_crate`.
 
 </Listing>
 
-Here, we give a description of what the `add_one` function does, start a
-section with the heading `Examples`, and then provide code that demonstrates
-how to use the `add_one` function. We can generate the HTML documentation from
-this documentation comment by running `cargo doc`. This command runs the
-`rustdoc` tool distributed with Rust and puts the generated HTML documentation
-in the _target/doc_ directory.
+Ở đây, chúng ta đưa ra một mô tả về những gì hàm `add_one` thực hiện, bắt đầu một
+phần với tiêu đề `Examples`, và sau đó cung cấp mã minh họa
+cách sử dụng hàm `add_one`. Chúng ta có thể tạo tài liệu HTML từ
+chú thích tài liệu này bằng cách chạy `cargo doc`. Lệnh này chạy công cụ
+`rustdoc` được phân phối cùng với Rust và đặt tài liệu HTML đã tạo
+vào thư mục _target/doc_.
 
-For convenience, running `cargo doc --open` will build the HTML for your
-current crate’s documentation (as well as the documentation for all of your
-crate’s dependencies) and open the result in a web browser. Navigate to the
-`add_one` function and you’ll see how the text in the documentation comments is
-rendered, as shown in Figure 14-1:
+Để thuận tiện, chạy `cargo doc --open` sẽ xây dựng HTML cho tài liệu của
+crate hiện tại (cũng như tài liệu cho tất cả các phụ thuộc của
+crate của bạn) và mở kết quả trong trình duyệt web. Điều hướng đến
+hàm `add_one` và bạn sẽ thấy văn bản trong các chú thích tài liệu được
+kết xuất như thế nào, như được hiển thị trong Hình 14-1:
 
 <img alt="Rendered HTML documentation for the `add_one` function of `my_crate`" src="img/trpl14-01.png" class="center" />
 
-<span class="caption">Figure 14-1: HTML documentation for the `add_one`
-function</span>
+<span class="caption">Hình 14-1: Tài liệu HTML cho hàm `add_one`</span>
 
-#### Commonly Used Sections
+#### Các phần thường được sử dụng
 
-We used the `# Examples` Markdown heading in Listing 14-1 to create a section
-in the HTML with the title “Examples.” Here are some other sections that crate
-authors commonly use in their documentation:
+Chúng ta đã sử dụng tiêu đề Markdown `# Examples` trong Liệt kê 14-1 để tạo một phần
+trong HTML với tiêu đề “Examples.” Dưới đây là một số phần khác mà các tác giả crate
+thường sử dụng trong tài liệu của họ:
 
-- **Panics**: The scenarios in which the function being documented could
-  panic. Callers of the function who don’t want their programs to panic should
-  make sure they don’t call the function in these situations.
-- **Errors**: If the function returns a `Result`, describing the kinds of
-  errors that might occur and what conditions might cause those errors to be
-  returned can be helpful to callers so they can write code to handle the
-  different kinds of errors in different ways.
-- **Safety**: If the function is `unsafe` to call (we discuss unsafety in
-  Chapter 20), there should be a section explaining why the function is unsafe
-  and covering the invariants that the function expects callers to uphold.
+- **Panics**: Các tình huống mà hàm đang được lập tài liệu có thể
+  gây ra panic. Những người gọi hàm không muốn chương trình của họ bị panic nên
+  đảm bảo rằng họ không gọi hàm trong các tình huống này.
+- **Errors**: Nếu hàm trả về một `Result`, việc mô tả các loại
+  lỗi có thể xảy ra và những điều kiện nào có thể khiến những lỗi đó được
+  trả về có thể hữu ích cho người gọi để họ có thể viết mã xử lý các
+  loại lỗi khác nhau theo những cách khác nhau.
+- **Safety**: Nếu hàm là `unsafe` để gọi (chúng ta thảo luận về sự không an toàn trong
+  Chương 20), nên có một phần giải thích tại sao hàm đó không an toàn
+  và bao gồm các bất biến (invariants) mà hàm mong muốn người gọi phải duy trì.
 
-Most documentation comments don’t need all of these sections, but this is a
-good checklist to remind you of the aspects of your code users will be
-interested in knowing about.
+Hầu hết các chú thích tài liệu không cần tất cả các phần này, nhưng đây là
+một danh sách kiểm tra tốt để nhắc nhở bạn về các khía cạnh của mã mà người dùng sẽ
+quan tâm muốn biết.
 
-#### Documentation Comments as Tests
+#### Chú thích tài liệu dưới dạng các bài kiểm tra
 
-Adding example code blocks in your documentation comments can help demonstrate
-how to use your library, and doing so has an additional bonus: running `cargo
-test` will run the code examples in your documentation as tests! Nothing is
-better than documentation with examples. But nothing is worse than examples
-that don’t work because the code has changed since the documentation was
-written. If we run `cargo test` with the documentation for the `add_one`
-function from Listing 14-1, we will see a section in the test results that looks
-like this:
+Việc thêm các khối mã ví dụ trong các chú thích tài liệu của bạn có thể giúp minh họa
+cách sử dụng thư viện của bạn và việc làm này mang lại một phần thưởng bổ sung: chạy `cargo test`
+sẽ chạy các ví dụ mã trong tài liệu của bạn dưới dạng các bài kiểm tra! Không có gì
+tốt hơn tài liệu có ví dụ. Nhưng không có gì tệ hơn các ví dụ
+không hoạt động vì mã đã thay đổi kể từ khi tài liệu được
+viết. Nếu chúng ta chạy `cargo test` với tài liệu cho hàm
+`add_one` từ Liệt kê 14-1, chúng ta sẽ thấy một phần trong kết quả kiểm tra trông
+như thế này:
 
 <!-- manual-regeneration
 cd listings/ch14-more-about-cargo/listing-14-01/
@@ -99,23 +98,23 @@ test src/lib.rs - add_one (line 5) ... ok
 test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.27s
 ```
 
-Now, if we change either the function or the example so the `assert_eq!` in the
-example panics and run `cargo test` again, we’ll see that the doc tests catch
-that the example and the code are out of sync with each other!
+Bây giờ, nếu chúng ta thay đổi hàm hoặc ví dụ sao cho `assert_eq!` trong
+ví dụ gây ra panic và chạy lại `cargo test`, chúng ta sẽ thấy rằng các bài kiểm tra tài liệu (doc tests) bắt được
+việc ví dụ và mã không còn khớp với nhau nữa!
 
-#### Commenting Contained Items
+#### Chú thích các mục chứa bên trong
 
-The style of doc comment `//!` adds documentation to the item that contains the
-comments rather than to the items following the comments. We typically use
-these doc comments inside the crate root file (_src/lib.rs_ by convention) or
-inside a module to document the crate or the module as a whole.
+Kiểu chú thích tài liệu `//!` thêm tài liệu vào mục chứa
+chú thích thay vì vào các mục theo sau chú thích. Chúng ta thường sử dụng
+những chú thích tài liệu này bên trong tệp gốc của crate (_src/lib.rs_ theo quy ước) hoặc
+bên trong một mô-đun để lập tài liệu cho crate hoặc mô-đun đó một cách tổng thể.
 
-For example, to add documentation that describes the purpose of the `my_crate`
-crate that contains the `add_one` function, we add documentation comments that
-start with `//!` to the beginning of the _src/lib.rs_ file, as shown in Listing
+Ví dụ, để thêm tài liệu mô tả mục đích của crate `my_crate`
+chứa hàm `add_one`, chúng ta thêm các chú thích tài liệu
+bắt đầu bằng `//!` vào đầu tệp _src/lib.rs_, như được hiển thị trong Liệt kê
 14-2:
 
-<Listing number="14-2" file-name="src/lib.rs" caption="Documentation for the `my_crate` crate as a whole">
+<Listing number="14-2" file-name="src/lib.rs" caption="Tài liệu cho toàn bộ crate `my_crate`">
 
 ```rust,ignore
 {{#rustdoc_include ../listings/ch14-more-about-cargo/listing-14-02/src/lib.rs:here}}
@@ -123,57 +122,57 @@ start with `//!` to the beginning of the _src/lib.rs_ file, as shown in Listing
 
 </Listing>
 
-Notice there isn’t any code after the last line that begins with `//!`. Because
-we started the comments with `//!` instead of `///`, we’re documenting the item
-that contains this comment rather than an item that follows this comment. In
-this case, that item is the _src/lib.rs_ file, which is the crate root. These
-comments describe the entire crate.
+Lưu ý rằng không có bất kỳ mã nào sau dòng cuối cùng bắt đầu bằng `//!`. Bởi vì
+chúng ta đã bắt đầu các chú thích bằng `//!` thay vì `///`, chúng ta đang lập tài liệu cho mục
+chứa chú thích này thay vì một mục theo sau chú thích này. Trong
+trường hợp này, mục đó là tệp _src/lib.rs_, vốn là gốc của crate. Những
+chú thích này mô tả toàn bộ crate.
 
-When we run `cargo doc --open`, these comments will display on the front
-page of the documentation for `my_crate` above the list of public items in the
-crate, as shown in Figure 14-2.
+Khi chúng ta chạy `cargo doc --open`, các chú thích này sẽ hiển thị trên trang
+đầu của tài liệu cho `my_crate` phía trên danh sách các mục công khai trong
+crate, như được hiển thị trong Hình 14-2.
 
 <img alt="Rendered HTML documentation with a comment for the crate as a whole" src="img/trpl14-02.png" class="center" />
 
-<span class="caption">Figure 14-2: Rendered documentation for `my_crate`,
-including the comment describing the crate as a whole</span>
+<span class="caption">Hình 14-2: Tài liệu được kết xuất cho `my_crate`,
+bao gồm chú thích mô tả toàn bộ crate</span>
 
-Documentation comments within items are useful for describing crates and
-modules especially. Use them to explain the overall purpose of the container to
-help your users understand the crate’s organization.
+Các chú thích tài liệu bên trong các mục đặc biệt hữu ích để mô tả các crate và
+mô-đun. Hãy sử dụng chúng để giải thích mục đích tổng thể của vật chứa để
+giúp người dùng của bạn hiểu về tổ chức của crate.
 
 {{#quiz ../quizzes/ch14-02-publishing-to-crates-io-sec1.toml}}
 
-### Exporting a Convenient Public API with `pub use`
+### Xuất khẩu một API công khai thuận tiện với `pub use`
 
-The structure of your public API is a major consideration when publishing a
-crate. People who use your crate are less familiar with the structure than you
-are and might have difficulty finding the pieces they want to use if your crate
-has a large module hierarchy.
+Cấu trúc API công khai của bạn là một cân nhắc chính khi xuất bản một
+crate. Những người sử dụng crate của bạn ít quen thuộc với cấu trúc này hơn bạn
+và có thể gặp khó khăn khi tìm các phần họ muốn sử dụng nếu crate của bạn
+có một hệ thống phân cấp mô-đun lớn.
 
-In Chapter 7, we covered how to make items public using the `pub` keyword, and
-bring items into a scope with the `use` keyword. However, the structure that
-makes sense to you while you’re developing a crate might not be very convenient
-for your users. You might want to organize your structs in a hierarchy
-containing multiple levels, but then people who want to use a type you’ve
-defined deep in the hierarchy might have trouble finding out that type exists.
-They might also be annoyed at having to enter `use`
-`my_crate::some_module::another_module::UsefulType;` rather than `use`
+Trong Chương 7, chúng ta đã đề cập đến cách làm cho các mục ở trạng thái công khai bằng từ khóa `pub`, và
+đưa các mục vào một phạm vi bằng từ khóa `use`. Tuy nhiên, cấu trúc
+có ý nghĩa đối với bạn trong khi bạn đang phát triển một crate có thể không thuận tiện
+cho người dùng của bạn. Bạn có thể muốn tổ chức các struct của mình trong một hệ thống phân cấp
+chứa nhiều cấp độ, nhưng sau đó những người muốn sử dụng một kiểu dữ liệu bạn đã
+định nghĩa sâu trong hệ thống phân cấp có thể gặp khó khăn khi tìm hiểu xem kiểu đó có tồn tại hay không.
+Họ cũng có thể cảm thấy khó chịu khi phải nhập `use`
+`my_crate::some_module::another_module::UsefulType;` thay vì `use`
 `my_crate::UsefulType;`.
 
-The good news is that if the structure _isn’t_ convenient for others to use
-from another library, you don’t have to rearrange your internal organization:
-instead, you can re-export items to make a public structure that’s different
-from your private structure by using `pub use`. *Re-exporting* takes a public
-item in one location and makes it public in another location, as if it were
-defined in the other location instead.
+Tin tốt là nếu cấu trúc _không_ thuận tiện cho người khác sử dụng
+từ một thư viện khác, bạn không cần phải sắp xếp lại tổ chức nội bộ của mình:
+thay vào đó, bạn có thể tái xuất khẩu (re-export) các mục để tạo ra một cấu trúc công khai khác
+với cấu trúc riêng tư của bạn bằng cách sử dụng `pub use`. _Tái xuất khẩu_ lấy một mục công khai
+ở một vị trí và làm cho nó ở trạng thái công khai ở một vị trí khác, như thể nó được
+định nghĩa ở vị trí khác đó.
 
-For example, say we made a library named `art` for modeling artistic concepts.
-Within this library are two modules: a `kinds` module containing two enums
-named `PrimaryColor` and `SecondaryColor` and a `utils` module containing a
-function named `mix`, as shown in Listing 14-3:
+Ví dụ, giả sử chúng ta đã tạo một thư viện tên là `art` để mô hình hóa các khái niệm nghệ thuật.
+Trong thư viện này có hai mô-đun: một mô-đun `kinds` chứa hai enum
+tên là `PrimaryColor` và `SecondaryColor` và một mô-đun `utils` chứa một
+hàm tên là `mix`, như được hiển thị trong Liệt kê 14-3:
 
-<Listing number="14-3" file-name="src/lib.rs" caption="An `art` library with items organized into `kinds` and `utils` modules">
+<Listing number="14-3" file-name="src/lib.rs" caption="Một thư viện `art` với các mục được tổ chức thành các mô-đun `kinds` và `utils`">
 
 ```rust,noplayground,test_harness
 {{#rustdoc_include ../listings/ch14-more-about-cargo/listing-14-03/src/lib.rs:here}}
@@ -181,24 +180,24 @@ function named `mix`, as shown in Listing 14-3:
 
 </Listing>
 
-Figure 14-3 shows what the front page of the documentation for this crate
-generated by `cargo doc` would look like:
+Hình 14-3 cho thấy trang đầu của tài liệu cho crate này được
+tạo bởi `cargo doc` sẽ trông như thế nào:
 
 <img alt="Rendered documentation for the `art` crate that lists the `kinds` and `utils` modules" src="img/trpl14-03.png" class="center" />
 
-<span class="caption">Figure 14-3: Front page of the documentation for `art`
-that lists the `kinds` and `utils` modules</span>
+<span class="caption">Hình 14-3: Trang đầu của tài liệu cho `art`
+liệt kê các mô-đun `kinds` và `utils`</span>
 
-Note that the `PrimaryColor` and `SecondaryColor` types aren’t listed on the
-front page, nor is the `mix` function. We have to click `kinds` and `utils` to
-see them.
+Lưu ý rằng các kiểu `PrimaryColor` và `SecondaryColor` không được liệt kê trên
+trang đầu, và hàm `mix` cũng vậy. Chúng ta phải nhấp vào `kinds` và `utils` để
+thấy chúng.
 
-Another crate that depends on this library would need `use` statements that
-bring the items from `art` into scope, specifying the module structure that’s
-currently defined. Listing 14-4 shows an example of a crate that uses the
-`PrimaryColor` and `mix` items from the `art` crate:
+Một crate khác phụ thuộc vào thư viện này sẽ cần các câu lệnh `use`
+đưa các mục từ `art` vào phạm vi, chỉ định cấu trúc mô-đun
+hiện đang được định nghĩa. Liệt kê 14-4 cho thấy một ví dụ về một crate
+sử dụng các mục `PrimaryColor` và `mix` từ crate `art`:
 
-<Listing number="14-4" file-name="src/main.rs" caption="A crate using the `art` crate’s items with its internal structure exported">
+<Listing number="14-4" file-name="src/main.rs" caption="Một crate sử dụng các mục của crate `art` với cấu trúc nội bộ của nó được xuất khẩu">
 
 ```rust,ignore
 {{#rustdoc_include ../listings/ch14-more-about-cargo/listing-14-04/src/main.rs}}
@@ -206,20 +205,20 @@ currently defined. Listing 14-4 shows an example of a crate that uses the
 
 </Listing>
 
-The author of the code in Listing 14-4, which uses the `art` crate, had to
-figure out that `PrimaryColor` is in the `kinds` module and `mix` is in the
-`utils` module. The module structure of the `art` crate is more relevant to
-developers working on the `art` crate than to those using it. The internal
-structure doesn’t contain any useful information for someone trying to
-understand how to use the `art` crate, but rather causes confusion because
-developers who use it have to figure out where to look, and must specify the
-module names in the `use` statements.
+Tác giả của mã trong Liệt kê 14-4, người sử dụng crate `art`, đã phải
+tìm ra rằng `PrimaryColor` nằm trong mô-đun `kinds` và `mix` nằm trong
+mô-đun `utils`. Cấu trúc mô-đun của crate `art` phù hợp với
+các nhà phát triển đang làm việc trên crate `art` hơn là những người sử dụng nó. Cấu trúc
+nội bộ không chứa bất kỳ thông tin hữu ích nào cho ai đó đang cố gắng
+hiểu cách sử dụng crate `art`, mà đúng hơn là gây ra sự nhầm lẫn vì
+các nhà phát triển sử dụng nó phải tìm xem nên xem ở đâu, và phải chỉ định
+tên mô-đun trong các câu lệnh `use`.
 
-To remove the internal organization from the public API, we can modify the
-`art` crate code in Listing 14-3 to add `pub use` statements to re-export the
-items at the top level, as shown in Listing 14-5:
+Để loại bỏ tổ chức nội bộ khỏi API công khai, chúng ta có thể sửa đổi
+mã crate `art` trong Liệt kê 14-3 để thêm các câu lệnh `pub use` nhằm tái xuất khẩu
+các mục ở cấp cao nhất, như được hiển thị trong Liệt kê 14-5:
 
-<Listing number="14-5" file-name="src/lib.rs" caption="Adding `pub use` statements to re-export items">
+<Listing number="14-5" file-name="src/lib.rs" caption="Thêm các câu lệnh `pub use` để tái xuất khẩu các mục">
 
 ```rust,ignore
 {{#rustdoc_include ../listings/ch14-more-about-cargo/listing-14-05/src/lib.rs:here}}
@@ -227,20 +226,20 @@ items at the top level, as shown in Listing 14-5:
 
 </Listing>
 
-The API documentation that `cargo doc` generates for this crate will now list
-and link re-exports on the front page, as shown in Figure 14-4, making the
-`PrimaryColor` and `SecondaryColor` types and the `mix` function easier to find.
+Tài liệu API mà `cargo doc` tạo ra cho crate này bây giờ sẽ liệt kê
+và liên kết các mục tái xuất khẩu trên trang đầu, như được hiển thị trong Hình 14-4, giúp cho
+các kiểu `PrimaryColor` và `SecondaryColor` và hàm `mix` dễ tìm hơn.
 
 <img alt="Rendered documentation for the `art` crate with the re-exports on the front page" src="img/trpl14-04.png" class="center" />
 
-<span class="caption">Figure 14-4: The front page of the documentation for `art`
-that lists the re-exports</span>
+<span class="caption">Hình 14-4: Trang đầu của tài liệu cho `art`
+liệt kê các mục tái xuất khẩu</span>
 
-The `art` crate users can still see and use the internal structure from Listing
-14-3 as demonstrated in Listing 14-4, or they can use the more convenient
-structure in Listing 14-5, as shown in Listing 14-6:
+Người dùng crate `art` vẫn có thể thấy và sử dụng cấu trúc nội bộ từ Liệt kê
+14-3 như được minh họa trong Liệt kê 14-4, hoặc họ có thể sử dụng
+cấu trúc thuận tiện hơn trong Liệt kê 14-5, như được hiển thị trong Liệt kê 14-6:
 
-<Listing number="14-6" file-name="src/main.rs" caption="A program using the re-exported items from the `art` crate">
+<Listing number="14-6" file-name="src/main.rs" caption="Một chương trình sử dụng các mục tái xuất khẩu từ crate `art`">
 
 ```rust,ignore
 {{#rustdoc_include ../listings/ch14-more-about-cargo/listing-14-06/src/main.rs:here}}
@@ -248,55 +247,55 @@ structure in Listing 14-5, as shown in Listing 14-6:
 
 </Listing>
 
-In cases where there are many nested modules, re-exporting the types at the top
-level with `pub use` can make a significant difference in the experience of
-people who use the crate. Another common use of `pub use` is to re-export
-definitions of a dependency in the current crate to make that crate's
-definitions part of your crate’s public API.
+Trong các trường hợp có nhiều mô-đun lồng nhau, việc tái xuất khẩu các kiểu dữ liệu ở cấp
+cao nhất với `pub use` có thể tạo ra sự khác biệt đáng kể trong trải nghiệm của
+những người sử dụng crate. Một cách sử dụng phổ biến khác của `pub use` là tái xuất khẩu
+các định nghĩa của một phụ thuộc trong crate hiện tại để làm cho định nghĩa của crate đó
+trở thành một phần của API công khai của crate của bạn.
 
-Creating a useful public API structure is more of an art than a science, and
-you can iterate to find the API that works best for your users. Choosing `pub
-use` gives you flexibility in how you structure your crate internally and
-decouples that internal structure from what you present to your users. Look at
-some of the code of crates you’ve installed to see if their internal structure
-differs from their public API.
+Tạo ra một cấu trúc API công khai hữu ích mang tính nghệ thuật hơn là khoa học, và
+bạn có thể lặp lại để tìm ra API phù hợp nhất cho người dùng của mình. Việc chọn `pub
+use` mang lại cho bạn sự linh hoạt trong cách bạn cấu trúc crate của mình ở bên trong và
+tách biệt cấu trúc nội bộ đó khỏi những gì bạn trình bày cho người dùng. Hãy xem
+một số mã của các crate bạn đã cài đặt để xem liệu cấu trúc nội bộ của chúng
+có khác với API công khai của chúng hay không.
 
-### Setting Up a Crates.io Account
+### Thiết lập một tài khoản Crates.io
 
-Before you can publish any crates, you need to create an account on
-[crates.io](https://crates.io/)<!-- ignore --> and get an API token. To do so,
-visit the home page at [crates.io](https://crates.io/)<!-- ignore --> and log
-in via a GitHub account. (The GitHub account is currently a requirement, but
-the site might support other ways of creating an account in the future.) Once
-you’re logged in, visit your account settings at
-[https://crates.io/me/](https://crates.io/me/)<!-- ignore --> and retrieve your
-API key. Then run the `cargo login` command and paste your API key when prompted, like this:
+Trước khi bạn có thể xuất bản bất kỳ crate nào, bạn cần tạo một tài khoản trên
+[crates.io](https://crates.io/)<!-- ignore --> và lấy một mã thông báo (token) API. Để làm như vậy,
+hãy truy cập trang chủ tại [crates.io](https://crates.io/)<!-- ignore --> và đăng
+nhập thông qua tài khoản GitHub. (Tài khoản GitHub hiện là một yêu cầu, nhưng
+trang web có thể hỗ trợ các cách tạo tài khoản khác trong tương lai.) Sau khi
+bạn đã đăng nhập, hãy truy cập cài đặt tài khoản của bạn tại
+[https://crates.io/me/](https://crates.io/me/)<!-- ignore --> và lấy
+khóa API của bạn. Sau đó chạy lệnh `cargo login` và dán khóa API của bạn khi được nhắc, như thế này:
 
 ```console
 $ cargo login
 abcdefghijklmnopqrstuvwxyz012345
 ```
 
-This command will inform Cargo of your API token and store it locally in
-_~/.cargo/credentials_. Note that this token is a _secret_: do not share it
-with anyone else. If you do share it with anyone for any reason, you should
-revoke it and generate a new token on [crates.io](https://crates.io/)<!-- ignore
+Lệnh này sẽ thông báo cho Cargo về mã thông báo API của bạn và lưu trữ nó cục bộ trong
+_~/.cargo/credentials_. Lưu ý rằng mã thông báo này là một _bí mật_: đừng chia sẻ nó
+với bất kỳ ai khác. Nếu bạn vô tình chia sẻ nó với bất kỳ ai vì bất kỳ lý do gì, bạn nên
+thu hồi nó và tạo một mã thông báo mới trên [crates.io](https://crates.io/)<!-- ignore
 -->.
 
-### Adding Metadata to a New Crate
+### Thêm siêu dữ liệu vào một Crate mới
 
-Let’s say you have a crate you want to publish. Before publishing, you’ll need
-to add some metadata in the `[package]` section of the crate’s _Cargo.toml_
-file.
+Giả sử bạn có một crate muốn xuất bản. Trước khi xuất bản, bạn sẽ cần
+thêm một số siêu dữ liệu (metadata) trong phần `[package]` của tệp _Cargo.toml_
+của crate.
 
-Your crate will need a unique name. While you’re working on a crate locally,
-you can name a crate whatever you’d like. However, crate names on
-[crates.io](https://crates.io/)<!-- ignore --> are allocated on a first-come,
-first-served basis. Once a crate name is taken, no one else can publish a crate
-with that name. Before attempting to publish a crate, search for the name you
-want to use. If the name has been used, you will need to find another name and
-edit the `name` field in the _Cargo.toml_ file under the `[package]` section to
-use the new name for publishing, like so:
+Crate của bạn sẽ cần một cái tên duy nhất. Trong khi bạn đang làm việc trên một crate cục bộ,
+bạn có thể đặt tên crate bất cứ thứ gì bạn muốn. Tuy nhiên, tên crate trên
+[crates.io](https://crates.io/)<!-- ignore --> được cấp phát theo nguyên tắc ai đến trước được trước.
+Một khi tên crate đã được lấy, không ai khác có thể xuất bản một crate
+với tên đó. Trước khi cố gắng xuất bản một crate, hãy tìm kiếm tên bạn
+muốn sử dụng. Nếu tên đó đã được sử dụng, bạn sẽ cần tìm một tên khác và
+chỉnh sửa trường `name` trong tệp _Cargo.toml_ dưới phần `[package]` để
+sử dụng tên mới để xuất bản, như sau:
 
 <span class="filename">Filename: Cargo.toml</span>
 
@@ -305,8 +304,8 @@ use the new name for publishing, like so:
 name = "guessing_game"
 ```
 
-Even if you’ve chosen a unique name, when you run `cargo publish` to publish
-the crate at this point, you’ll get a warning and then an error:
+Ngay cả khi bạn đã chọn một tên duy nhất, khi bạn chạy `cargo publish` để xuất bản
+crate tại thời điểm này, bạn sẽ nhận được một cảnh báo và sau đó là một lỗi:
 
 <!-- manual-regeneration
 Create a new package with an unregistered name, making no further modifications
@@ -327,14 +326,14 @@ Caused by:
   the remote server responded with an error (status 400 Bad Request): missing or empty metadata fields: description, license. Please see https://doc.rust-lang.org/cargo/reference/manifest.html for more information on configuring these fields
 ```
 
-This results in an error because you’re missing some crucial information: a
-description and license are required so people will know what your crate does
-and under what terms they can use it. In _Cargo.toml_, add a description that's
-just a sentence or two, because it will appear with your crate in search
-results. For the `license` field, you need to give a _license identifier value_.
-The [Linux Foundation’s Software Package Data Exchange (SPDX)][spdx] lists the
-identifiers you can use for this value. For example, to specify that you’ve
-licensed your crate using the MIT License, add the `MIT` identifier:
+Điều này dẫn đến một lỗi vì bạn đang thiếu một số thông tin quan trọng: một
+mô tả và giấy phép là bắt buộc để mọi người biết crate của bạn làm gì
+và theo các điều khoản nào họ có thể sử dụng nó. Trong _Cargo.toml_, hãy thêm một mô tả chỉ
+khoảng một hoặc hai câu, vì nó sẽ xuất hiện cùng với crate của bạn trong kết quả tìm kiếm.
+Đối với trường `license`, bạn cần cung cấp một _giá trị định danh giấy phép_.
+[Software Package Data Exchange (SPDX) của Linux Foundation][spdx] liệt kê các
+định danh bạn có thể sử dụng cho giá trị này. Ví dụ, để chỉ định rằng bạn đã
+cấp phép cho crate của mình bằng Giấy phép MIT, hãy thêm định danh `MIT`:
 
 <span class="filename">Filename: Cargo.toml</span>
 
@@ -344,19 +343,19 @@ name = "guessing_game"
 license = "MIT"
 ```
 
-If you want to use a license that doesn’t appear in the SPDX, you need to place
-the text of that license in a file, include the file in your project, and then
-use `license-file` to specify the name of that file instead of using the
-`license` key.
+Nếu bạn muốn sử dụng một giấy phép không xuất hiện trong SPDX, bạn cần đặt
+văn bản của giấy phép đó vào một tệp, đưa tệp đó vào dự án của bạn, và sau đó
+sử dụng `license-file` để chỉ định tên của tệp đó thay vì sử dụng
+khóa `license`.
 
-Guidance on which license is appropriate for your project is beyond the scope
-of this book. Many people in the Rust community license their projects in the
-same way as Rust by using a dual license of `MIT OR Apache-2.0`. This practice
-demonstrates that you can also specify multiple license identifiers separated
-by `OR` to have multiple licenses for your project.
+Hướng dẫn về việc giấy phép nào là phù hợp cho dự án của bạn nằm ngoài phạm vi
+của cuốn sách này. Nhiều người trong cộng đồng Rust cấp phép cho các dự án của họ theo
+cùng một cách như Rust bằng cách sử dụng giấy phép kép `MIT OR Apache-2.0`. Cách làm này
+chứng minh rằng bạn cũng có thể chỉ định nhiều định danh giấy phép được phân tách
+bởi `OR` để có nhiều giấy phép cho dự án của mình.
 
-With a unique name, the version, your description, and a license added, the
-_Cargo.toml_ file for a project that is ready to publish might look like this:
+Với một tên duy nhất, phiên bản, mô tả của bạn và một giấy phép được thêm vào, tệp
+_Cargo.toml_ cho một dự án đã sẵn sàng để xuất bản có thể trông như thế này:
 
 <span class="filename">Filename: Cargo.toml</span>
 
@@ -371,26 +370,26 @@ license = "MIT OR Apache-2.0"
 [dependencies]
 ```
 
-[Cargo’s documentation](https://doc.rust-lang.org/cargo/) describes other
-metadata you can specify to ensure others can discover and use your crate more
-easily.
+[Tài liệu của Cargo](https://doc.rust-lang.org/cargo/) mô tả các
+siêu dữ liệu khác bạn có thể chỉ định để đảm bảo những người khác có thể khám phá và sử dụng crate của bạn
+dễ dàng hơn.
 
-### Publishing to Crates.io
+### Xuất bản lên Crates.io
 
-Now that you’ve created an account, saved your API token, chosen a name for
-your crate, and specified the required metadata, you’re ready to publish!
-Publishing a crate uploads a specific version to
-[crates.io](https://crates.io/)<!-- ignore --> for others to use.
+Bây giờ bạn đã tạo một tài khoản, lưu mã thông báo API, chọn tên cho
+crate của mình và chỉ định siêu dữ liệu được yêu cầu, bạn đã sẵn sàng để xuất bản!
+Việc xuất bản một crate sẽ tải một phiên bản cụ thể lên
+[crates.io](https://crates.io/)<!-- ignore --> để người khác sử dụng.
 
-Be careful, because a publish is _permanent_. The version can never be
-overwritten, and the code cannot be deleted. One major goal of
-[crates.io](https://crates.io/)<!-- ignore --> is to act as a permanent archive
-of code so that builds of all projects that depend on crates from
-[crates.io](https://crates.io/)<!-- ignore --> will continue to work. Allowing
-version deletions would make fulfilling that goal impossible. However, there is
-no limit to the number of crate versions you can publish.
+Hãy cẩn thận, vì việc xuất bản là _vĩnh viễn_. Phiên bản đó không bao giờ có thể bị
+ghi đè, và mã nguồn không thể bị xóa. Một mục tiêu chính của
+[crates.io](https://crates.io/)<!-- ignore --> là hoạt động như một kho lưu trữ mã nguồn vĩnh viễn
+để các bản dựng của tất cả các dự án phụ thuộc vào các crate từ
+[crates.io](https://crates.io/)<!-- ignore --> sẽ tiếp tục hoạt động. Việc cho phép
+xóa phiên bản sẽ khiến việc thực hiện mục tiêu đó trở nên bất khả thi. Tuy nhiên, không có
+giới hạn về số lượng phiên bản crate bạn có thể xuất bản.
 
-Run the `cargo publish` command again. It should succeed now:
+Chạy lệnh `cargo publish` một lần nữa. Bây giờ nó sẽ thành công:
 
 <!-- manual-regeneration
 go to some valid crate, publish a new version
@@ -409,38 +408,38 @@ $ cargo publish
    Uploading guessing_game v0.1.0 (file:///projects/guessing_game)
 ```
 
-Congratulations! You’ve now shared your code with the Rust community, and
-anyone can easily add your crate as a dependency of their project.
+Chúc mừng! Bây giờ bạn đã chia sẻ mã nguồn của mình với cộng đồng Rust, và
+bất kỳ ai cũng có thể dễ dàng thêm crate của bạn làm phụ thuộc cho dự án của họ.
 
-### Publishing a New Version of an Existing Crate
+### Xuất bản một phiên bản mới của một Crate hiện có
 
-When you’ve made changes to your crate and are ready to release a new version,
-you change the `version` value specified in your _Cargo.toml_ file and
-republish. Use the [Semantic Versioning rules][semver] to decide what an
-appropriate next version number is based on the kinds of changes you’ve made.
-Then run `cargo publish` to upload the new version.
+Khi bạn đã thực hiện các thay đổi đối với crate của mình và sẵn sàng phát hành một phiên bản mới,
+bạn thay đổi giá trị `version` được chỉ định trong tệp _Cargo.toml_ của mình và
+xuất bản lại. Sử dụng [các quy tắc Semantic Versioning][semver] để quyết định xem
+số phiên bản tiếp theo phù hợp là gì dựa trên các loại thay đổi bạn đã thực hiện.
+Sau đó chạy `cargo publish` để tải lên phiên bản mới.
 
 <!-- Old link, do not remove -->
 
 <a id="removing-versions-from-cratesio-with-cargo-yank"></a>
 
-### Deprecating Versions from Crates.io with `cargo yank`
+### Phản đối các phiên bản từ Crates.io với `cargo yank`
 
-Although you can’t remove previous versions of a crate, you can prevent any
-future projects from adding them as a new dependency. This is useful when a
-crate version is broken for one reason or another. In such situations, Cargo
-supports yanking a crate version.
+Mặc dù bạn không thể xóa các phiên bản trước đó của một crate, nhưng bạn có thể ngăn chặn bất kỳ
+dự án nào trong tương lai thêm chúng làm một phụ thuộc mới. Điều này hữu ích khi một
+phiên bản crate bị hỏng vì lý do này hay lý do khác. Trong những tình huống như vậy, Cargo
+hỗ trợ việc yanking (thu hồi) một phiên bản crate.
 
-_Yanking_ a version prevents new projects from depending on that version while
-allowing all existing projects that depend on it to continue. Essentially, a
-yank means that all projects with a _Cargo.lock_ will not break, and any future
-_Cargo.lock_ files generated will not use the yanked version.
+_Yanking_ một phiên bản ngăn chặn các dự án mới phụ thuộc vào phiên bản đó trong khi
+vẫn cho phép tất cả các dự án hiện tại đang phụ thuộc vào nó tiếp tục hoạt động. Về cơ bản, một
+lệnh yank có nghĩa là tất cả các dự án có tệp _Cargo.lock_ sẽ không bị hỏng, và bất kỳ tệp
+_Cargo.lock_ nào được tạo ra trong tương lai sẽ không sử dụng phiên bản đã bị yank.
 
-To yank a version of a crate, in the directory of the crate that you’ve
-previously published, run `cargo yank` and specify which version you want to
-yank. For example, if we've published a crate named `guessing_game` version
-1.0.1 and we want to yank it, in the project directory for `guessing_game` we'd
-run:
+Để yank một phiên bản của một crate, trong thư mục của crate mà bạn đã
+xuất bản trước đó, hãy chạy `cargo yank` và chỉ định phiên bản bạn muốn
+yank. Ví dụ, nếu chúng ta đã xuất bản một crate tên là `guessing_game` phiên bản
+1.0.1 và chúng ta muốn yank nó, trong thư mục dự án của `guessing_game`, chúng ta sẽ
+chạy:
 
 <!-- manual-regeneration:
 cargo yank carol-test --version 2.1.0
@@ -453,8 +452,8 @@ $ cargo yank --vers 1.0.1
         Yank guessing_game@1.0.1
 ```
 
-By adding `--undo` to the command, you can also undo a yank and allow projects
-to start depending on a version again:
+Bằng cách thêm `--undo` vào lệnh, bạn cũng có thể hoàn tác một lệnh yank và cho phép các dự án
+bắt đầu phụ thuộc vào một phiên bản một lần nữa:
 
 ```console
 $ cargo yank --vers 1.0.1 --undo
@@ -462,8 +461,8 @@ $ cargo yank --vers 1.0.1 --undo
       Unyank guessing_game@1.0.1
 ```
 
-A yank _does not_ delete any code. It cannot, for example, delete accidentally
-uploaded secrets. If that happens, you must reset those secrets immediately.
+Một lệnh yank _không_ xóa bất kỳ mã nào. Ví dụ, nó không thể xóa các bí mật
+vô tình được tải lên. Nếu điều đó xảy ra, bạn phải đặt lại các bí mật đó ngay lập tức.
 
 {{#quiz ../quizzes/ch14-02-publishing-to-crates-io-sec2.toml}}
 
