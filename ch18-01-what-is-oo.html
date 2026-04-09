@@ -175,58 +175,57 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="characteristics-of-object-oriented-languages"><a class="header" href="#characteristics-of-object-oriented-languages">Characteristics of Object-Oriented Languages</a></h2>
-<p>There is no consensus in the programming community about what features a
-language must have to be considered object oriented. Rust is influenced by many
-programming paradigms, including OOP; for example, we explored the features
-that came from functional programming in Chapter 13. Arguably, OOP languages
-share certain common characteristics, namely objects, encapsulation, and
-inheritance. Let’s look at what each of those characteristics means and whether
-Rust supports it.</p>
-<h3 id="objects-contain-data-and-behavior"><a class="header" href="#objects-contain-data-and-behavior">Objects Contain Data and Behavior</a></h3>
-<p>The book <em>Design Patterns: Elements of Reusable Object-Oriented Software</em> by
-Erich Gamma, Richard Helm, Ralph Johnson, and John Vlissides (Addison-Wesley,
-1994), colloquially referred to as <em>The Gang of Four</em> book, is a catalog of
-object-oriented design patterns. It defines OOP in this way:</p>
+                        <h2 id="các-đặc-tính-của-các-ngôn-ngữ-hướng-đối-tượng"><a class="header" href="#các-đặc-tính-của-các-ngôn-ngữ-hướng-đối-tượng">Các đặc tính của các ngôn ngữ hướng đối tượng</a></h2>
+<p>Không có sự đồng thuận trong cộng đồng lập trình về những tính năng mà một
+ngôn ngữ phải có để được coi là hướng đối tượng. Rust bị ảnh hưởng bởi nhiều
+mô hình lập trình, bao gồm cả OOP; ví dụ, chúng ta đã khám phá các tính năng
+đến từ lập trình hàm trong Chương 13. Có thể cho rằng, các ngôn ngữ OOP
+chia sẻ một số đặc tính chung nhất định, cụ thể là đối tượng (objects), tính đóng gói (encapsulation), và tính kế thừa (inheritance). Hãy xem mỗi
+đặc tính đó có nghĩa là gì và liệu Rust có hỗ trợ nó hay không.</p>
+<h3 id="Đối-tượng-chứa-dữ-liệu-và-hành-vi"><a class="header" href="#Đối-tượng-chứa-dữ-liệu-và-hành-vi">Đối tượng chứa dữ liệu và hành vi</a></h3>
+<p>Cuốn sách <em>Design Patterns: Elements of Reusable Object-Oriented Software</em> của
+Erich Gamma, Richard Helm, Ralph Johnson, và John Vlissides (Addison-Wesley,
+1994), thường được gọi là cuốn sách <em>The Gang of Four</em> (Bộ tứ), là một danh mục các
+mẫu thiết kế hướng đối tượng. Nó định nghĩa OOP theo cách này:</p>
 <blockquote>
-<p>Object-oriented programs are made up of objects. An <strong>object</strong> packages both
-data and the procedures that operate on that data. The procedures are
-typically called <strong>methods</strong> or <strong>operations</strong>.</p>
+<p>Các chương trình hướng đối tượng được tạo thành từ các đối tượng. Một <strong>đối tượng</strong> (object) đóng gói cả
+dữ liệu và các thủ tục hoạt động trên dữ liệu đó. Các thủ tục thường
+được gọi là <strong>phương thức</strong> (methods) hoặc <strong>thao tác</strong> (operations).</p>
 </blockquote>
-<p>Using this definition, Rust is object oriented: structs and enums have data,
-and <code>impl</code> blocks provide methods on structs and enums. Even though structs and
-enums with methods aren’t <em>called</em> objects, they provide the same
-functionality, according to the Gang of Four’s definition of objects.</p>
-<h3 id="encapsulation-that-hides-implementation-details"><a class="header" href="#encapsulation-that-hides-implementation-details">Encapsulation That Hides Implementation Details</a></h3>
-<p>Another aspect commonly associated with OOP is the idea of <em>encapsulation</em>,
-which means that the implementation details of an object aren’t accessible to
-code using that object. Therefore, the only way to interact with an object is
-through its public API; code using the object shouldn’t be able to reach into
-the object’s internals and change data or behavior directly. This enables the
-programmer to change and refactor an object’s internals without needing to
-change the code that uses the object.</p>
-<p>We discussed how to control encapsulation in Chapter 7: we can use the <code>pub</code>
-keyword to decide which modules, types, functions, and methods in our code
-should be public, and by default everything else is private. For example, we
-can define a struct <code>AveragedCollection</code> that has a field containing a vector
-of <code>i32</code> values. The struct can also have a field that contains the average of
-the values in the vector, meaning the average doesn’t have to be computed
-on demand whenever anyone needs it. In other words, <code>AveragedCollection</code> will
-cache the calculated average for us. Listing 18-1 has the definition of the
-<code>AveragedCollection</code> struct:</p>
+<p>Sử dụng định nghĩa này, Rust là hướng đối tượng: các <code>struct</code> và <code>enum</code> có dữ liệu,
+và các khối <code>impl</code> cung cấp các phương thức trên các <code>struct</code> và <code>enum</code> đó. Mặc dù các <code>struct</code> và
+<code>enum</code> với các phương thức không được <em>gọi</em> là đối tượng, nhưng chúng cung cấp các
+chức năng tương tự, theo định nghĩa về đối tượng của Bộ tứ.</p>
+<h3 id="tính-đóng-gói-che-giấu-chi-tiết-triển-khai"><a class="header" href="#tính-đóng-gói-che-giấu-chi-tiết-triển-khai">Tính đóng gói che giấu chi tiết triển khai</a></h3>
+<p>Một khía cạnh khác thường được liên kết với OOP là ý tưởng về <em>tính đóng gói</em> (encapsulation),
+nghĩa là các chi tiết triển khai của một đối tượng không thể truy cập được bởi mã nguồn
+sử dụng đối tượng đó. Do đó, cách duy nhất để tương tác với một đối tượng là
+thông qua API công khai của nó; mã sử dụng đối tượng không nên có khả năng đi sâu vào
+bên trong đối tượng và thay đổi dữ liệu hoặc hành vi trực tiếp. Điều này cho phép
+lập trình viên thay đổi và cấu trúc lại các phần bên trong của một đối tượng mà không cần
+thay đổi mã nguồn sử dụng đối tượng đó.</p>
+<p>Chúng ta đã thảo luận về cách kiểm soát tính đóng gói trong Chương 7: chúng ta có thể sử dụng từ khóa <code>pub</code>
+để quyết định mô-đun, kiểu dữ liệu, hàm và phương thức nào trong mã của chúng ta
+nên là công khai (public), và theo mặc định mọi thứ khác là riêng tư (private). Ví dụ, chúng ta
+có thể định nghĩa một struct <code>AveragedCollection</code> có một trường chứa một vector
+gồm các giá trị <code>i32</code>. Struct này cũng có thể có một trường chứa giá trị trung bình của
+các giá trị trong vector, nghĩa là giá trị trung bình không cần phải được tính toán
+theo yêu cầu bất cứ khi nào ai đó cần nó. Nói cách khác, <code>AveragedCollection</code> sẽ
+lưu bộ nhớ đệm (cache) giá trị trung bình đã tính toán cho chúng ta. Liệt kê 18-1 có định nghĩa của
+struct <code>AveragedCollection</code>:</p>
 <figure class="listing" id="listing-18-1">
 <span class="file-name">Filename: src/lib.rs</span>
 <pre><code class="language-rust noplayground">pub struct AveragedCollection {
     list: Vec&lt;i32&gt;,
     average: f64,
 }</code></pre>
-<figcaption><a href="#listing-18-1">Listing 18-1</a>: An <code>AveragedCollection</code> struct that maintains a list of integers and the average of the items in the collection</figcaption>
+<figcaption><a href="#listing-18-1">Listing 18-1</a>: Một struct <code>AveragedCollection</code> duy trì một danh sách các số nguyên và giá trị trung bình của các mục trong bộ sưu tập</figcaption>
 </figure>
-<p>The struct is marked <code>pub</code> so that other code can use it, but the fields within
-the struct remain private. This is important in this case because we want to
-ensure that whenever a value is added or removed from the list, the average is
-also updated. We do this by implementing <code>add</code>, <code>remove</code>, and <code>average</code> methods
-on the struct, as shown in Listing 18-2:</p>
+<p>Struct này được đánh dấu <code>pub</code> để mã khác có thể sử dụng nó, nhưng các trường bên trong
+struct vẫn ở chế độ riêng tư. Điều này quan trọng trong trường hợp này vì chúng ta muốn
+đảm bảo rằng bất cứ khi nào một giá trị được thêm vào hoặc xóa khỏi danh sách, giá trị trung bình
+cũng được cập nhật. Chúng ta thực hiện việc này bằng cách triển khai các phương thức <code>add</code>, <code>remove</code>, và <code>average</code>
+trên struct, như được hiển thị trong Liệt kê 18-2:</p>
 <figure class="listing" id="listing-18-2">
 <span class="file-name">Filename: src/lib.rs</span>
 <pre><code class="language-rust noplayground"><span class="boring">pub struct AveragedCollection {
@@ -260,76 +259,76 @@ on the struct, as shown in Listing 18-2:</p>
         self.average = total as f64 / self.list.len() as f64;
     }
 }</code></pre>
-<figcaption><a href="#listing-18-2">Listing 18-2</a>: Implementations of the public methods <code>add</code>, <code>remove</code>, and <code>average</code> on <code>AveragedCollection</code></figcaption>
+<figcaption><a href="#listing-18-2">Listing 18-2</a>: Triển khai các phương thức công khai <code>add</code>, <code>remove</code>, và <code>average</code> trên <code>AveragedCollection</code></figcaption>
 </figure>
-<p>The public methods <code>add</code>, <code>remove</code>, and <code>average</code> are the only ways to access
-or modify data in an instance of <code>AveragedCollection</code>. When an item is added
-to <code>list</code> using the <code>add</code> method or removed using the <code>remove</code> method, the
-implementations of each call the private <code>update_average</code> method that handles
-updating the <code>average</code> field as well.</p>
-<p>We leave the <code>list</code> and <code>average</code> fields private so there is no way for
-external code to add or remove items to or from the <code>list</code> field directly;
-otherwise, the <code>average</code> field might become out of sync when the <code>list</code>
-changes. The <code>average</code> method returns the value in the <code>average</code> field,
-allowing external code to read the <code>average</code> but not modify it.</p>
-<p>Because we’ve encapsulated the implementation details of the struct
-<code>AveragedCollection</code>, we can easily change aspects, such as the data structure,
-in the future. For instance, we could use a <code>HashSet&lt;i32&gt;</code> instead of a
-<code>Vec&lt;i32&gt;</code> for the <code>list</code> field. As long as the signatures of the <code>add</code>,
-<code>remove</code>, and <code>average</code> public methods stayed the same, code using
-<code>AveragedCollection</code> wouldn’t need to change. If we made <code>list</code> public instead,
-this wouldn’t necessarily be the case: <code>HashSet&lt;i32&gt;</code> and <code>Vec&lt;i32&gt;</code> have
-different methods for adding and removing items, so the external code would
-likely have to change if it were modifying <code>list</code> directly.</p>
-<p>If encapsulation is a required aspect for a language to be considered
-object oriented, then Rust meets that requirement. The option to use <code>pub</code> or
-not for different parts of code enables encapsulation of implementation details.</p>
-<h3 id="inheritance-as-a-type-system-and-as-code-sharing"><a class="header" href="#inheritance-as-a-type-system-and-as-code-sharing">Inheritance as a Type System and as Code Sharing</a></h3>
-<p><em>Inheritance</em> is a mechanism whereby an object can inherit elements from
-another object’s definition, thus gaining the parent object’s data and behavior
-without you having to define them again.</p>
-<p>If a language must have inheritance to be object oriented, then Rust is not such
-a language. There is no way to define a struct that inherits the parent struct’s
-fields and method implementations without using a macro.</p>
-<p>However, if you’re used to having inheritance in your programming toolbox, you
-can use other solutions in Rust, depending on your reason for reaching for
-inheritance in the first place.</p>
-<p>You would choose inheritance for two main reasons. One is for reuse of code:
-you can implement particular behavior for one type, and inheritance enables you
-to reuse that implementation for a different type. You can do this in a limited
-way in Rust code using default trait method implementations, which you saw in
-Listing 10-14 when we added a default implementation of the <code>summarize</code> method
-on the <code>Summary</code> trait. Any type implementing the <code>Summary</code> trait would have
-the <code>summarize</code> method available on it without any further code. This is
-similar to a parent class having an implementation of a method and an
-inheriting child class also having the implementation of the method. We can
-also override the default implementation of the <code>summarize</code> method when we
-implement the <code>Summary</code> trait, which is similar to a child class overriding the
-implementation of a method inherited from a parent class.</p>
-<p>The other reason to use inheritance relates to the type system: to enable a
-child type to be used in the same places as the parent type. This is also
-called <em>polymorphism</em>, which means that you can substitute multiple objects for
-each other at runtime if they share certain characteristics.</p>
+<p>Các phương thức công khai <code>add</code>, <code>remove</code>, và <code>average</code> là những cách duy nhất để truy cập
+hoặc sửa đổi dữ liệu trong một thực thể (instance) của <code>AveragedCollection</code>. Khi một mục được thêm
+vào <code>list</code> bằng phương thức <code>add</code> hoặc bị xóa bằng phương thức <code>remove</code>, các
+triển khai của mỗi phương thức sẽ gọi phương thức riêng tư <code>update_average</code> để xử lý
+việc cập nhật trường <code>average</code>.</p>
+<p>Chúng ta để các trường <code>list</code> và <code>average</code> ở chế độ riêng tư để mã bên ngoài không có cách nào
+thêm hoặc xóa các mục vào hoặc từ trường <code>list</code> một cách trực tiếp;
+nếu không, trường <code>average</code> có thể bị mất đồng bộ khi <code>list</code>
+thay đổi. Phương thức <code>average</code> trả về giá trị trong trường <code>average</code>,
+cho phép mã bên ngoài đọc <code>average</code> nhưng không được sửa đổi nó.</p>
+<p>Bởi vì chúng ta đã đóng gói các chi tiết triển khai của struct
+<code>AveragedCollection</code>, chúng ta có thể dễ dàng thay đổi các khía cạnh, chẳng hạn như cấu trúc dữ liệu,
+trong tương lai. Ví dụ, chúng ta có thể sử dụng một <code>HashSet&lt;i32&gt;</code> thay vì một
+<code>Vec&lt;i32&gt;</code> cho trường <code>list</code>. Miễn là chữ ký của các phương thức công khai <code>add</code>,
+<code>remove</code>, và <code>average</code> được giữ nguyên, mã sử dụng
+<code>AveragedCollection</code> sẽ không cần phải thay đổi. Nếu chúng ta để <code>list</code> ở chế độ công khai,
+điều này chưa chắc đã đúng: <code>HashSet&lt;i32&gt;</code> và <code>Vec&lt;i32&gt;</code> có các
+phương thức khác nhau để thêm và xóa các mục, vì vậy mã bên ngoài có thể sẽ phải thay đổi
+nếu nó đang sửa đổi trực tiếp <code>list</code>.</p>
+<p>Nếu tính đóng gói là một khía cạnh bắt buộc để một ngôn ngữ được coi là
+hướng đối tượng, thì Rust đáp ứng yêu cầu đó. Tùy chọn sử dụng <code>pub</code> hoặc
+không cho các phần khác nhau của mã cho phép đóng gói các chi tiết triển khai.</p>
+<h3 id="kế-thừa-như-một-hệ-thống-kiểu-và-như-việc-chia-sẻ-mã-nguồn"><a class="header" href="#kế-thừa-như-một-hệ-thống-kiểu-và-như-việc-chia-sẻ-mã-nguồn">Kế thừa như một Hệ thống kiểu và như việc Chia sẻ mã nguồn</a></h3>
+<p><em>Tính kế thừa</em> (Inheritance) là một cơ chế mà theo đó một đối tượng có thể kế thừa các thành phần từ
+định nghĩa của một đối tượng khác, từ đó có được dữ liệu và hành vi của đối tượng cha
+mà bạn không cần phải định nghĩa lại chúng.</p>
+<p>Nếu một ngôn ngữ phải có tính kế thừa để được coi là hướng đối tượng, thì Rust không phải là một
+ngôn ngữ như vậy. Không có cách nào để định nghĩa một struct kế thừa các trường và
+triển khai phương thức của struct cha mà không sử dụng macro.</p>
+<p>Tuy nhiên, nếu bạn đã quen với việc có tính kế thừa trong hộp công cụ lập trình của mình, bạn
+có thể sử dụng các giải pháp khác trong Rust, tùy thuộc vào lý do bạn tìm đến
+kế thừa ngay từ đầu.</p>
+<p>Bạn sẽ chọn kế thừa vì hai lý do chính. Một là để tái sử dụng mã:
+bạn có thể triển khai hành vi cụ thể cho một kiểu, và tính kế thừa cho phép bạn
+tái sử dụng triển khai đó cho một kiểu khác. Bạn có thể làm điều này theo một cách hạn chế
+trong mã Rust bằng cách sử dụng các triển khai phương thức trait mặc định, mà bạn đã thấy trong
+Liệt kê 10-14 khi chúng ta thêm một triển khai mặc định của phương thức <code>summarize</code>
+trên trait <code>Summary</code>. Bất kỳ kiểu nào triển khai trait <code>Summary</code> đều sẽ có
+phương thức <code>summarize</code> khả dụng mà không cần thêm bất kỳ mã nào. Điều này
+tương tự như một lớp cha có một triển khai của một phương thức và một
+lớp con kế thừa cũng có triển khai của phương thức đó. Chúng ta cũng có thể
+ghi đè (override) triển khai mặc định của phương thức <code>summarize</code> khi chúng ta
+triển khai trait <code>Summary</code>, điều này tương tự như một lớp con ghi đè
+triển khai của một phương thức được kế thừa từ một lớp cha.</p>
+<p>Lý do khác để sử dụng tính kế thừa liên quan đến hệ thống kiểu: để cho phép một
+kiểu con có thể được sử dụng ở cùng những nơi như kiểu cha. Điều này còn được
+gọi là <em>tính đa hình</em> (polymorphism), có nghĩa là bạn có thể thay thế nhiều đối tượng cho
+nhau tại thời điểm chạy (runtime) nếu chúng chia sẻ một số đặc tính nhất định.</p>
 <section class="note" aria-role="note">
-<h3 id="polymorphism"><a class="header" href="#polymorphism">Polymorphism</a></h3>
-<p>To many people, polymorphism is synonymous with inheritance. But it’s
-actually a more general concept that refers to code that can work with data
-of multiple types. For inheritance, those types are generally subclasses.</p>
-<p>Rust instead uses generics to abstract over different possible types and
-trait bounds to impose constraints on what those types must provide. This is
-sometimes called <em>bounded parametric polymorphism</em>.</p>
+<h3 id="tính-đa-hình"><a class="header" href="#tính-đa-hình">Tính đa hình</a></h3>
+<p>Đối với nhiều người, tính đa hình đồng nghĩa với tính kế thừa. Nhưng nó
+thực sự là một khái niệm tổng quát hơn, đề cập đến mã có thể hoạt động với dữ liệu
+thuộc nhiều kiểu khác nhau. Đối với tính kế thừa, những kiểu đó thường là các lớp con.</p>
+<p>Thay vào đó, Rust sử dụng generics để trừu tượng hóa các kiểu có thể có khác nhau và
+trait bounds để áp đặt các ràng buộc về những gì các kiểu đó phải cung cấp. Điều này
+đôi khi được gọi là <em>đa hình tham số có giới hạn</em> (bounded parametric polymorphism).</p>
 </section>
-<p>Inheritance has recently fallen out of favor as a programming design solution in
-many programming languages because it’s often at risk of sharing more code than
-necessary. Subclasses shouldn’t always share all characteristics of their parent
-class but will do so with inheritance. This can make a program’s design less
-flexible. It also introduces the possibility of calling methods on subclasses
-that don’t make sense or that cause errors because the methods don’t apply to
-the subclass. In addition, some languages will only allow single inheritance
-(meaning a subclass can only inherit from one class), further restricting the
-flexibility of a program’s design.</p>
-<p>For these reasons, Rust takes the different approach of using trait objects
-instead of inheritance. Let’s look at how trait objects enable polymorphism in
+<p>Tính kế thừa gần đây đã không còn được ưa chuộng như một giải pháp thiết kế lập trình trong
+nhiều ngôn ngữ lập trình vì nó thường có nguy cơ chia sẻ nhiều mã hơn
+mức cần thiết. Các lớp con không phải lúc nào cũng nên chia sẻ tất cả các đặc tính của lớp cha
+nhưng sẽ làm như vậy với tính kế thừa. Điều này có thể làm cho thiết kế của chương trình
+kém linh hoạt hơn. Nó cũng dẫn đến khả năng gọi các phương thức trên các lớp con
+mà không có ý nghĩa hoặc gây ra lỗi vì các phương thức đó không áp dụng cho
+lớp con. Ngoài ra, một số ngôn ngữ sẽ chỉ cho phép đơn kế thừa (nghĩa là một
+lớp con chỉ có thể kế thừa từ một lớp), làm hạn chế thêm tính linh hoạt của
+thiết kế chương trình.</p>
+<p>Vì những lý do này, Rust thực hiện cách tiếp cận khác là sử dụng trait object
+thay vì tính kế thừa. Hãy xem cách trait object cho phép tính đa hình trong
 Rust.</p>
 <div class="quiz-placeholder" data-quiz-name="&quot;ch17-01-what-is-oo&quot;" data-quiz-questions="{&quot;questions&quot;:[{&quot;context&quot;:&quot;Rust contains objects (i.e. structs) and encapsulation (via the `pub` keyword), but not inheritance.\n&quot;,&quot;id&quot;:&quot;a4680619-9533-4cbb-a785-7b73570168af&quot;,&quot;type&quot;:&quot;MultipleChoice&quot;,&quot;answer&quot;:{&quot;answer&quot;:[&quot;Objects with methods&quot;,&quot;Encapsulation of private data&quot;]},&quot;prompt&quot;:{&quot;distractors&quot;:[&quot;Inheritance of superclass methods&quot;],&quot;prompt&quot;:&quot;Which of the following aspects of object-oriented programming does Rust implement?\n&quot;}}]}" data-quiz-fullscreen="true" data-quiz-cache-answers="true"></div>
 <script type="text/javascript" src="quiz/quiz-embed.iife.js"></script><link rel="stylesheet" type="text/css" href="quiz/style.css">
