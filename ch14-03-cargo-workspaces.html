@@ -175,37 +175,37 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="cargo-workspaces"><a class="header" href="#cargo-workspaces">Cargo Workspaces</a></h2>
-<p>In Chapter 12, we built a package that included a binary crate and a library
-crate. As your project develops, you might find that the library crate
-continues to get bigger and you want to split your package further into
-multiple library crates. Cargo offers a feature called <em>workspaces</em> that can
-help manage multiple related packages that are developed in tandem.</p>
-<h3 id="creating-a-workspace"><a class="header" href="#creating-a-workspace">Creating a Workspace</a></h3>
-<p>A <em>workspace</em> is a set of packages that share the same <em>Cargo.lock</em> and output
-directory. Let’s make a project using a workspace—we’ll use trivial code so we
-can concentrate on the structure of the workspace. There are multiple ways to
-structure a workspace, so we’ll just show one common way. We’ll have a
-workspace containing a binary and two libraries. The binary, which will provide
-the main functionality, will depend on the two libraries. One library will
-provide an <code>add_one</code> function and the other library an <code>add_two</code> function.
-These three crates will be part of the same workspace. We’ll start by creating
-a new directory for the workspace:</p>
+                        <h2 id="không-gian-làm-việc-cargo-cargo-workspaces"><a class="header" href="#không-gian-làm-việc-cargo-cargo-workspaces">Không gian làm việc Cargo (Cargo Workspaces)</a></h2>
+<p>Trong Chương 12, chúng ta đã xây dựng một gói bao gồm một crate nhị phân và một crate thư viện.
+Khi dự án của bạn phát triển, bạn có thể thấy rằng crate thư viện
+tiếp tục lớn dần và bạn muốn chia nhỏ gói của mình hơn nữa thành
+nhiều crate thư viện. Cargo cung cấp một tính năng gọi là <em>không gian làm việc</em> (workspaces) có thể
+giúp quản lý nhiều gói liên quan được phát triển song song.</p>
+<h3 id="tạo-một-không-gian-làm-việc"><a class="header" href="#tạo-một-không-gian-làm-việc">Tạo một Không gian làm việc</a></h3>
+<p>Một <em>không gian làm việc</em> là một tập hợp các gói dùng chung cùng một tệp <em>Cargo.lock</em> và thư mục
+đầu ra. Hãy cùng tạo một dự án sử dụng không gian làm việc—chúng ta sẽ sử dụng mã nguồn đơn giản để
+có thể tập trung vào cấu trúc của không gian làm việc. Có nhiều cách để
+cấu trúc một không gian làm việc, vì vậy chúng ta sẽ chỉ trình bày một cách phổ biến. Chúng ta sẽ có một
+không gian làm việc chứa một tệp nhị phân và hai thư viện. Tệp nhị phân, cái sẽ cung cấp
+chức năng chính, sẽ phụ thuộc vào hai thư viện. Một thư viện sẽ
+cung cấp một hàm <code>add_one</code> và thư viện còn lại cung cấp một hàm <code>add_two</code>.
+Ba crate này sẽ là một phần của cùng một không gian làm việc. Chúng ta sẽ bắt đầu bằng cách tạo
+một thư mục mới cho không gian làm việc:</p>
 <pre><code class="language-console">$ mkdir add
 $ cd add
 </code></pre>
-<p>Next, in the <em>add</em> directory, we create the <em>Cargo.toml</em> file that will
-configure the entire workspace. This file won’t have a <code>[package]</code> section.
-Instead, it will start with a <code>[workspace]</code> section that will allow us to add
-members to the workspace. We also make a point to use the latest and greatest
-version of Cargo’s resolver algorithm in our workspace by setting the
-<code>resolver</code> to <code>"3"</code>.</p>
+<p>Tiếp theo, trong thư mục <em>add</em>, chúng ta tạo tệp <em>Cargo.toml</em> để
+cấu hình toàn bộ không gian làm việc. Tệp này sẽ không có phần <code>[package]</code>.
+Thay vào đó, nó sẽ bắt đầu với một phần <code>[workspace]</code> cho phép chúng ta thêm
+các thành viên vào không gian làm việc. Chúng ta cũng lưu ý sử dụng phiên bản mới nhất và tốt nhất
+của thuật toán giải quyết (resolver) của Cargo trong không gian làm việc của mình bằng cách đặt
+<code>resolver</code> thành <code>"3"</code>.</p>
 <p><span class="filename">Filename: Cargo.toml</span></p>
 <pre><code class="language-toml">[workspace]
 resolver = "3"
 </code></pre>
-<p>Next, we’ll create the <code>adder</code> binary crate by running <code>cargo new</code> within the
-<em>add</em> directory:</p>
+<p>Tiếp theo, chúng ta sẽ tạo crate nhị phân <code>adder</code> bằng cách chạy lệnh <code>cargo new</code> bên trong
+thư mục <em>add</em>:</p>
 <!-- manual-regeneration
 cd listings/ch14-more-about-cargo/output-only-01-adder-crate/add
 remove `members = ["adder"]` from Cargo.toml
@@ -217,15 +217,15 @@ copy output below
     Creating binary (application) `adder` package
       Adding `adder` as member of workspace at `file:///projects/add`
 </code></pre>
-<p>Running <code>cargo new</code> inside a workspace also automatically adds the newly created
-package to the <code>members</code> key in the <code>[workspace]</code> definition in the workspace
-<code>Cargo.toml</code>, like this:</p>
+<p>Chạy <code>cargo new</code> bên trong một không gian làm việc cũng tự động thêm gói vừa được tạo
+vào khóa <code>members</code> trong định nghĩa <code>[workspace]</code> trong tệp <code>Cargo.toml</code> của không gian làm việc,
+như thế này:</p>
 <pre><code class="language-toml">[workspace]
 resolver = "3"
 members = ["adder"]
 </code></pre>
-<p>At this point, we can build the workspace by running <code>cargo build</code>. The files
-in your <em>add</em> directory should look like this:</p>
+<p>Tại thời điểm này, chúng ta có thể xây dựng không gian làm việc bằng cách chạy <code>cargo build</code>. Các tệp
+trong thư mục <em>add</em> của bạn sẽ trông như thế này:</p>
 <pre><code class="language-text">├── Cargo.lock
 ├── Cargo.toml
 ├── adder
@@ -234,19 +234,19 @@ in your <em>add</em> directory should look like this:</p>
 │       └── main.rs
 └── target
 </code></pre>
-<p>The workspace has one <em>target</em> directory at the top level that the compiled
-artifacts will be placed into; the <code>adder</code> package doesn’t have its own
-<em>target</em> directory. Even if we were to run <code>cargo build</code> from inside the
-<em>adder</em> directory, the compiled artifacts would still end up in <em>add/target</em>
-rather than <em>add/adder/target</em>. Cargo structures the <em>target</em> directory in a
-workspace like this because the crates in a workspace are meant to depend on
-each other. If each crate had its own <em>target</em> directory, each crate would have
-to recompile each of the other crates in the workspace to place the artifacts
-in its own <em>target</em> directory. By sharing one <em>target</em> directory, the crates
-can avoid unnecessary rebuilding.</p>
-<h3 id="creating-the-second-package-in-the-workspace"><a class="header" href="#creating-the-second-package-in-the-workspace">Creating the Second Package in the Workspace</a></h3>
-<p>Next, let’s create another member package in the workspace and call it
-<code>add_one</code>. Generate a new library crate named <code>add_one</code>:</p>
+<p>Không gian làm việc có một thư mục <em>target</em> ở cấp cao nhất để các thành phần đã biên dịch
+được đặt vào đó; gói <code>adder</code> không có thư mục <em>target</em> riêng của nó. Ngay cả khi chúng ta chạy
+<code>cargo build</code> từ bên trong thư mục
+<em>adder</em>, các thành phần đã biên dịch vẫn sẽ nằm trong <em>add/target</em>
+thay vì <em>add/adder/target</em>. Cargo cấu trúc thư mục <em>target</em> trong một
+không gian làm việc như thế này vì các crate trong một không gian làm việc được thiết kế để phụ thuộc vào
+nhau. Nếu mỗi crate có thư mục <em>target</em> riêng, mỗi crate sẽ phải
+biên dịch lại từng crate khác trong không gian làm việc để đặt các thành phần
+vào thư mục <em>target</em> của riêng nó. Bằng cách dùng chung một thư mục <em>target</em>, các crate
+có thể tránh việc xây dựng lại không cần thiết.</p>
+<h3 id="tạo-gói-thứ-hai-trong-không-gian-làm-việc"><a class="header" href="#tạo-gói-thứ-hai-trong-không-gian-làm-việc">Tạo Gói Thứ Hai trong Không gian làm việc</a></h3>
+<p>Tiếp theo, hãy tạo một gói thành viên khác trong không gian làm việc và gọi nó là
+<code>add_one</code>. Tạo một crate thư viện mới tên là <code>add_one</code>:</p>
 <!-- manual-regeneration
 cd listings/ch14-more-about-cargo/output-only-02-add-one/add
 remove `"add_one"` from `members` list in Cargo.toml
@@ -258,14 +258,14 @@ copy output below
     Creating library `add_one` package
       Adding `add_one` as member of workspace at `file:///projects/add`
 </code></pre>
-<p>The top-level <em>Cargo.toml</em> will now include the <em>add_one</em> path in the <code>members</code>
-list:</p>
+<p>Tệp <em>Cargo.toml</em> ở cấp cao nhất bây giờ sẽ bao gồm đường dẫn <em>add_one</em> trong danh sách
+<code>members</code>:</p>
 <p><span class="filename">Filename: Cargo.toml</span></p>
 <pre><code class="language-toml">[workspace]
 resolver = "3"
 members = ["adder", "add_one"]
 </code></pre>
-<p>Your <em>add</em> directory should now have these directories and files:</p>
+<p>Thư mục <em>add</em> của bạn bây giờ sẽ có các thư mục và tệp này:</p>
 <pre><code class="language-text">├── Cargo.lock
 ├── Cargo.toml
 ├── add_one
@@ -278,33 +278,33 @@ members = ["adder", "add_one"]
 │       └── main.rs
 └── target
 </code></pre>
-<p>In the <em>add_one/src/lib.rs</em> file, let’s add an <code>add_one</code> function:</p>
+<p>Trong tệp <em>add_one/src/lib.rs</em>, hãy thêm một hàm <code>add_one</code>:</p>
 <p><span class="filename">Filename: add_one/src/lib.rs</span></p>
 <pre><code class="language-rust noplayground">pub fn add_one(x: i32) -&gt; i32 {
     x + 1
 }</code></pre>
-<p>Now we can have the <code>adder</code> package with our binary depend on the <code>add_one</code>
-package that has our library. First we’ll need to add a path dependency on
-<code>add_one</code> to <em>adder/Cargo.toml</em>.</p>
+<p>Bây giờ chúng ta có thể làm cho gói <code>adder</code> với tệp nhị phân của mình phụ thuộc vào gói <code>add_one</code>
+chứa thư viện của chúng ta. Trước tiên chúng ta sẽ cần thêm một phụ thuộc đường dẫn (path dependency) vào
+<code>add_one</code> trong tệp <em>adder/Cargo.toml</em>.</p>
 <p><span class="filename">Filename: adder/Cargo.toml</span></p>
 <pre><code class="language-toml">[dependencies]
 add_one = { path = "../add_one" }
 </code></pre>
-<p>Cargo doesn’t assume that crates in a workspace will depend on each other, so
-we need to be explicit about the dependency relationships.</p>
-<p>Next, let’s use the <code>add_one</code> function (from the <code>add_one</code> crate) in the
-<code>adder</code> crate. Open the <em>adder/src/main.rs</em> file and change the <code>main</code>
-function to call the <code>add_one</code> function, as in Listing 14-7.</p>
+<p>Cargo không giả định rằng các crate trong một không gian làm việc sẽ phụ thuộc vào nhau, vì vậy
+chúng ta cần phải chỉ rõ các mối quan hệ phụ thuộc.</p>
+<p>Tiếp theo, hãy sử dụng hàm <code>add_one</code> (từ crate <code>add_one</code>) trong
+crate <code>adder</code>. Mở tệp <em>adder/src/main.rs</em> và thay đổi hàm <code>main</code>
+để gọi hàm <code>add_one</code>, như trong Liệt kê 14-7.</p>
 <figure class="listing" id="listing-14-7">
 <span class="file-name">Filename: adder/src/main.rs</span>
 <pre><code class="language-rust ignore">fn main() {
     let num = 10;
     println!("Hello, world! {num} plus one is {}!", add_one::add_one(num));
 }</code></pre>
-<figcaption><a href="#listing-14-7">Listing 14-7</a>: Using the <code>add_one</code> library crate in the <code>adder</code> crate</figcaption>
+<figcaption><a href="#listing-14-7">Listing 14-7</a>: Sử dụng crate thư viện <code>add_one</code> trong crate <code>adder</code></figcaption>
 </figure>
-<p>Let’s build the workspace by running <code>cargo build</code> in the top-level <em>add</em>
-directory!</p>
+<p>Hãy xây dựng không gian làm việc bằng cách chạy <code>cargo build</code> trong thư mục <em>add</em>
+ở cấp cao nhất!</p>
 <!-- manual-regeneration
 cd listings/ch14-more-about-cargo/listing-14-07/add
 cargo build
@@ -315,9 +315,9 @@ copy output below; the output updating script doesn't handle subdirectories in p
    Compiling adder v0.1.0 (file:///projects/add/adder)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.22s
 </code></pre>
-<p>To run the binary crate from the <em>add</em> directory, we can specify which
-package in the workspace we want to run by using the <code>-p</code> argument and the
-package name with <code>cargo run</code>:</p>
+<p>Để chạy crate nhị phân từ thư mục <em>add</em>, chúng ta có thể chỉ định
+gói nào trong không gian làm việc mà chúng ta muốn chạy bằng cách sử dụng đối số <code>-p</code> và
+tên gói với lệnh <code>cargo run</code>:</p>
 <!-- manual-regeneration
 cd listings/ch14-more-about-cargo/listing-14-07/add
 cargo run -p adder
@@ -328,17 +328,17 @@ copy output below; the output updating script doesn't handle subdirectories in p
      Running `target/debug/adder`
 Hello, world! 10 plus one is 11!
 </code></pre>
-<p>This runs the code in <em>adder/src/main.rs</em>, which depends on the <code>add_one</code> crate.</p>
-<h4 id="depending-on-an-external-package-in-a-workspace"><a class="header" href="#depending-on-an-external-package-in-a-workspace">Depending on an External Package in a Workspace</a></h4>
-<p>Notice that the workspace has only one <em>Cargo.lock</em> file at the top level,
-rather than having a <em>Cargo.lock</em> in each crate’s directory. This ensures that
-all crates are using the same version of all dependencies. If we add the <code>rand</code>
-package to the <em>adder/Cargo.toml</em> and <em>add_one/Cargo.toml</em> files, Cargo will
-resolve both of those to one version of <code>rand</code> and record that in the one
-<em>Cargo.lock</em>. Making all crates in the workspace use the same dependencies
-means the crates will always be compatible with each other. Let’s add the
-<code>rand</code> crate to the <code>[dependencies]</code> section in the <em>add_one/Cargo.toml</em> file
-so we can use the <code>rand</code> crate in the <code>add_one</code> crate:</p>
+<p>Lệnh này chạy mã trong <em>adder/src/main.rs</em>, cái phụ thuộc vào crate <code>add_one</code>.</p>
+<h4 id="phụ-thuộc-vào-một-gói-bên-ngoài-trong-một-không-gian-làm-việc"><a class="header" href="#phụ-thuộc-vào-một-gói-bên-ngoài-trong-một-không-gian-làm-việc">Phụ thuộc vào một Gói Bên ngoài trong một Không gian làm việc</a></h4>
+<p>Lưu ý rằng không gian làm việc chỉ có một tệp <em>Cargo.lock</em> duy nhất ở cấp cao nhất,
+thay vì có một tệp <em>Cargo.lock</em> trong thư mục của mỗi crate. Điều này đảm bảo rằng
+tất cả các crate đang sử dụng cùng một phiên bản của tất cả các phụ thuộc. Nếu chúng ta thêm gói <code>rand</code>
+vào các tệp <em>adder/Cargo.toml</em> và <em>add_one/Cargo.toml</em>, Cargo sẽ
+giải quyết cả hai thành một phiên bản của <code>rand</code> và ghi lại điều đó trong một tệp
+<em>Cargo.lock</em> duy nhất. Việc làm cho tất cả các crate trong không gian làm việc sử dụng cùng các phụ thuộc
+có nghĩa là các crate sẽ luôn tương thích với nhau. Hãy thêm
+crate <code>rand</code> vào phần <code>[dependencies]</code> trong tệp <em>add_one/Cargo.toml</em>
+để chúng ta có thể sử dụng crate <code>rand</code> trong crate <code>add_one</code>:</p>
 <!-- When updating the version of `rand` used, also update the version of
 `rand` used in these files so they all match:
 * ch02-00-guessing-game-tutorial.md
@@ -348,10 +348,10 @@ so we can use the <code>rand</code> crate in the <code>add_one</code> crate:</p>
 <pre><code class="language-toml">[dependencies]
 rand = "0.8.5"
 </code></pre>
-<p>We can now add <code>use rand;</code> to the <em>add_one/src/lib.rs</em> file, and building the
-whole workspace by running <code>cargo build</code> in the <em>add</em> directory will bring in
-and compile the <code>rand</code> crate. We will get one warning because we aren’t
-referring to the <code>rand</code> we brought into scope:</p>
+<p>Bây giờ chúng ta có thể thêm <code>use rand;</code> vào tệp <em>add_one/src/lib.rs</em>, và việc xây dựng
+toàn bộ không gian làm việc bằng cách chạy <code>cargo build</code> trong thư mục <em>add</em> sẽ tải về
+và biên dịch crate <code>rand</code>. Chúng ta sẽ nhận được một cảnh báo vì chúng ta không
+tham chiếu đến <code>rand</code> mà chúng ta đã đưa vào phạm vi:</p>
 <!-- manual-regeneration
 cd listings/ch14-more-about-cargo/no-listing-03-workspace-with-external-dependency/add
 cargo build
@@ -375,11 +375,11 @@ warning: `add_one` (lib) generated 1 warning (run `cargo fix --lib -p add_one` t
    Compiling adder v0.1.0 (file:///projects/add/adder)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.95s
 </code></pre>
-<p>The top-level <em>Cargo.lock</em> now contains information about the dependency of
-<code>add_one</code> on <code>rand</code>. However, even though <code>rand</code> is used somewhere in the
-workspace, we can’t use it in other crates in the workspace unless we add
-<code>rand</code> to their <em>Cargo.toml</em> files as well. For example, if we add <code>use rand;</code>
-to the <em>adder/src/main.rs</em> file for the <code>adder</code> package, we’ll get an error:</p>
+<p>Tệp <em>Cargo.lock</em> ở cấp cao nhất bây giờ chứa thông tin về phụ thuộc của
+<code>add_one</code> vào <code>rand</code>. Tuy nhiên, mặc dù <code>rand</code> được sử dụng ở đâu đó trong
+không gian làm việc, chúng ta không thể sử dụng nó trong các crate khác trong không gian làm việc trừ khi chúng ta thêm
+<code>rand</code> vào các tệp <em>Cargo.toml</em> của chúng nữa. Ví dụ, nếu chúng ta thêm <code>use rand;</code>
+vào tệp <em>adder/src/main.rs</em> cho gói <code>adder</code>, chúng ta sẽ gặp lỗi:</p>
 <!-- manual-regeneration
 cd listings/ch14-more-about-cargo/output-only-03-use-rand/add
 cargo build
@@ -394,26 +394,26 @@ error[E0432]: unresolved import `rand`
 2 | use rand;
   |     ^^^^ no external crate `rand`
 </code></pre>
-<p>To fix this, edit the <em>Cargo.toml</em> file for the <code>adder</code> package and indicate
-that <code>rand</code> is a dependency for it as well. Building the <code>adder</code> package will
-add <code>rand</code> to the list of dependencies for <code>adder</code> in <em>Cargo.lock</em>, but no
-additional copies of <code>rand</code> will be downloaded. Cargo will ensure that every
-crate in every package in the workspace using the <code>rand</code> package will use the
-same version as long as they specify compatible versions of <code>rand</code>, saving us
-space and ensuring that the crates in the workspace will be compatible with each
-other.</p>
-<p>If crates in the workspace specify incompatible versions of the same dependency,
-Cargo will resolve each of them, but will still try to resolve as few versions
-as possible.</p>
-<p>Note that Cargo only ensures compatibility within the rules of <a href="https://semver.org/">Semantic Versioning</a>.
-For example, say a workspace has one crate that depends on <code>rand</code> 0.8.0, and another crate
-that depends on <code>rand</code> 0.8.1. The semver rules say that 0.8.1 is compatible with 0.8.0,
-so both crates will depend on 0.8.1 (or potentially a more recent patch, like 0.8.2). But if
-one crate depends on <code>rand</code> 0.7.0 and another on <code>rand</code> 0.8.0, those versions are semver-incompatible.
-Therefore, Cargo will use a different version of <code>rand</code> for each crate.</p>
-<h4 id="adding-a-test-to-a-workspace"><a class="header" href="#adding-a-test-to-a-workspace">Adding a Test to a Workspace</a></h4>
-<p>For another enhancement, let’s add a test of the <code>add_one::add_one</code> function
-within the <code>add_one</code> crate:</p>
+<p>Để khắc phục điều này, hãy chỉnh sửa tệp <em>Cargo.toml</em> cho gói <code>adder</code> và chỉ ra
+rằng <code>rand</code> cũng là một phụ thuộc của nó. Việc xây dựng gói <code>adder</code> sẽ
+thêm <code>rand</code> vào danh sách các phụ thuộc cho <code>adder</code> trong <em>Cargo.lock</em>, nhưng không có
+bản sao bổ sung nào của <code>rand</code> được tải xuống. Cargo sẽ đảm bảo rằng mọi
+crate trong mọi gói trong không gian làm việc sử dụng gói <code>rand</code> sẽ sử dụng
+cùng một phiên bản miễn là chúng chỉ định các phiên bản tương thích của <code>rand</code>, giúp chúng ta tiết kiệm
+không gian và đảm bảo rằng các crate trong không gian làm việc sẽ tương thích với
+nhau.</p>
+<p>Nếu các crate trong không gian làm việc chỉ định các phiên bản không tương thích của cùng một phụ thuộc,
+Cargo sẽ giải quyết từng phiên bản trong số chúng, nhưng vẫn sẽ cố gắng giải quyết ít phiên bản nhất
+có thể.</p>
+<p>Lưu ý rằng Cargo chỉ đảm bảo tính tương thích trong các quy tắc của <a href="https://semver.org/---">Semantic Versioning</a>.
+Ví dụ, giả sử một không gian làm việc có một crate phụ thuộc vào <code>rand</code> 0.8.0, và một crate khác
+phụ thuộc vào <code>rand</code> 0.8.1. Các quy tắc semver nói rằng 0.8.1 tương thích với 0.8.0,
+so với cả hai crate sẽ phụ thuộc vào 0.8.1 (hoặc có khả năng là một bản vá gần đây hơn, như 0.8.2). Nhưng nếu
+một crate phụ thuộc vào <code>rand</code> 0.7.0 và crate khác vào <code>rand</code> 0.8.0, những phiên bản đó không tương thích semver.
+Do đó, Cargo sẽ sử dụng một phiên bản <code>rand</code> khác nhau cho mỗi crate.</p>
+<h4 id="thêm-một-bài-kiểm-tra-vào-một-không-gian-làm-việc"><a class="header" href="#thêm-một-bài-kiểm-tra-vào-một-không-gian-làm-việc">Thêm một Bài kiểm tra vào một Không gian làm việc</a></h4>
+<p>Để thực hiện một cải tiến khác, hãy thêm một bài kiểm tra cho hàm <code>add_one::add_one</code>
+bên trong crate <code>add_one</code>:</p>
 <p><span class="filename">Filename: add_one/src/lib.rs</span></p>
 <pre><code class="language-rust noplayground">pub fn add_one(x: i32) -&gt; i32 {
     x + 1
@@ -428,9 +428,9 @@ mod tests {
         assert_eq!(3, add_one(2));
     }
 }</code></pre>
-<p>Now run <code>cargo test</code> in the top-level <em>add</em> directory. Running <code>cargo test</code> in
-a workspace structured like this one will run the tests for all the crates in
-the workspace:</p>
+<p>Bây giờ hãy chạy <code>cargo test</code> trong thư mục <em>add</em> ở cấp cao nhất. Chạy <code>cargo test</code> trong
+một không gian làm việc được cấu trúc như thế này sẽ chạy các bài kiểm tra cho tất cả các crate trong
+không gian làm việc:</p>
 <!-- manual-regeneration
 cd listings/ch14-more-about-cargo/no-listing-04-workspace-with-tests/add
 cargo test
@@ -460,13 +460,13 @@ running 0 tests
 
 test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 </code></pre>
-<p>The first section of the output shows that the <code>it_works</code> test in the <code>add_one</code>
-crate passed. The next section shows that zero tests were found in the <code>adder</code>
-crate, and then the last section shows zero documentation tests were found in
-the <code>add_one</code> crate.</p>
-<p>We can also run tests for one particular crate in a workspace from the
-top-level directory by using the <code>-p</code> flag and specifying the name of the crate
-we want to test:</p>
+<p>Phần đầu tiên của đầu ra cho thấy bài kiểm tra <code>it_works</code> trong crate <code>add_one</code>
+đã vượt qua. Phần tiếp theo cho thấy không có bài kiểm tra nào được tìm thấy trong crate <code>adder</code>,
+và sau đó phần cuối cùng cho thấy không có bài kiểm tra tài liệu nào được tìm thấy trong
+crate <code>add_one</code>.</p>
+<p>Chúng ta cũng có thể chạy các bài kiểm tra cho một crate cụ thể trong một không gian làm việc từ
+thư mục cấp cao nhất bằng cách sử dụng cờ <code>-p</code> và chỉ định tên của crate
+mà chúng ta muốn kiểm tra:</p>
 <!-- manual-regeneration
 cd listings/ch14-more-about-cargo/no-listing-04-workspace-with-tests/add
 cargo test -p add_one
@@ -487,17 +487,18 @@ running 0 tests
 
 test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 </code></pre>
-<p>This output shows <code>cargo test</code> only ran the tests for the <code>add_one</code> crate and
-didn’t run the <code>adder</code> crate tests.</p>
-<p>If you publish the crates in the workspace to <a href="https://crates.io/">crates.io</a>,
-each crate in the workspace will need to be published separately. Like <code>cargo test</code>, we can publish a particular crate in our workspace by using the <code>-p</code>
-flag and specifying the name of the crate we want to publish.</p>
-<p>For additional practice, add an <code>add_two</code> crate to this workspace in a similar
-way as the <code>add_one</code> crate!</p>
-<p>As your project grows, consider using a workspace: it enables you to work with
-smaller, easier-to-understand components than one big blob of code. Furthermore,
-keeping the crates in a workspace can make coordination between crates easier if
-they are often changed at the same time.</p>
+<p>Đầu ra này cho thấy <code>cargo test</code> chỉ chạy các bài kiểm tra cho crate <code>add_one</code> và
+không chạy các bài kiểm tra của crate <code>adder</code>.</p>
+<p>Nếu bạn xuất bản các crate trong không gian làm việc lên <a href="https://crates.io/">crates.io</a>,
+mỗi crate trong không gian làm việc sẽ cần được xuất bản riêng biệt. Giống như <code>cargo</code>
+test, chúng ta có thể xuất bản một crate cụ thể trong không gian làm việc của mình bằng cách sử dụng cờ <code>-p</code>
+và chỉ định tên của crate mà chúng ta muốn xuất bản.</p>
+<p>Để thực hành thêm, hãy thêm một crate <code>add_two</code> vào không gian làm việc này theo cách tương tự
+như crate <code>add_one</code>!</p>
+<p>Khi dự án của bạn phát triển, hãy cân nhắc sử dụng một không gian làm việc: nó cho phép bạn làm việc với
+các thành phần nhỏ hơn, dễ hiểu hơn thay vì một khối mã lớn. Hơn nữa,
+việc giữ các crate trong một không gian làm việc có thể giúp việc phối hợp giữa các crate dễ dàng hơn nếu
+chúng thường xuyên được thay đổi cùng một lúc.</p>
 <div class="quiz-placeholder" data-quiz-name="&quot;ch14-03-cargo-workspaces&quot;" data-quiz-questions="{&quot;questions&quot;:[{&quot;context&quot;:&quot;From the perspective of `a`, `b` is an external crate like any other, so you don't use a prefix to access its items.\n&quot;,&quot;id&quot;:&quot;20846719-fe7b-48b8-abfd-9c5f1174472f&quot;,&quot;type&quot;:&quot;MultipleChoice&quot;,&quot;answer&quot;:{&quot;answer&quot;:&quot;`b::f`&quot;},&quot;prompt&quot;:{&quot;distractors&quot;:[&quot;`crates::b::f`&quot;,&quot;`workspace::b::f`&quot;,&quot;`super::b::f`&quot;],&quot;prompt&quot;:&quot;Consider a workspace with the following structure:\n\n```\n├── Cargo.lock\n├── Cargo.toml\n└── crates\n    ├── a\n    |   ├── lib.rs\n    |   └── Cargo.toml\n    └── b\n        ├── lib.rs\n        └── Cargo.toml\n```\n\nWith the following content in each file:\n\n```\n// crates/b/lib.rs\npub fn f() {}\n```\n\n```toml\n# crates/a/Cargo.toml\n[dependencies]\nb = {path = \&quot;../b\&quot;}\n```\n\nWhich of the following is the correct path to refer to `f` inside of `a/lib.rs`?\n&quot;}},{&quot;context&quot;:&quot;According to the rules of semantic versioning, `a` and `c` will both share the latest patch of the minor version `0.8`.\n`b` will use the latest patch of the minor version `0.7`. So two versions in total will be used.\n&quot;,&quot;id&quot;:&quot;bc8a69b2-d9a8-4438-8657-391c3fda5ed9&quot;,&quot;type&quot;:&quot;ShortAnswer&quot;,&quot;answer&quot;:{&quot;answer&quot;:&quot;2&quot;},&quot;prompt&quot;:{&quot;prompt&quot;:&quot;Consider a workspace with three packages `a`, `b`, and `c`. Their respective manifests are:\n\n```toml\n# a/Cargo.toml\n[dependencies]\nrand = \&quot;0.8.4\&quot;\n\n# b/Cargo.toml\n[dependencies]\nrand = \&quot;0.7.3\&quot;\n\n# c/Cargo.toml\n[dependencies]\nrand = \&quot;0.8.5\&quot;\n```\n\nHow many different versions of `rand` will be used when compiling all packages in the workspace? \nWrite your answer as a digit, e.g. 0, 1, so on.\n&quot;}}]}" data-quiz-fullscreen="true" data-quiz-cache-answers="true"></div>
 <script type="text/javascript" src="quiz/quiz-embed.iife.js"></script><link rel="stylesheet" type="text/css" href="quiz/style.css">
 

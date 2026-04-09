@@ -177,24 +177,24 @@
                     <main>
                         <!-- Old link, do not remove -->
 <p><a id="installing-binaries-from-cratesio-with-cargo-install"></a></p>
-<h2 id="installing-binaries-with-cargo-install"><a class="header" href="#installing-binaries-with-cargo-install">Installing Binaries with <code>cargo install</code></a></h2>
-<p>The <code>cargo install</code> command allows you to install and use binary crates
-locally. This isn’t intended to replace system packages; it’s meant to be a
-convenient way for Rust developers to install tools that others have shared on
-<a href="https://crates.io/">crates.io</a><!-- ignore -->. Note that you can only install
-packages that have binary targets. A <em>binary target</em> is the runnable program
-that is created if the crate has a <em>src/main.rs</em> file or another file specified
-as a binary, as opposed to a library target that isn’t runnable on its own but
-is suitable for including within other programs. Usually, crates have
-information in the <em>README</em> file about whether a crate is a library, has a
-binary target, or both.</p>
-<p>All binaries installed with <code>cargo install</code> are stored in the installation
-root’s <em>bin</em> folder. If you installed Rust using <em>rustup.rs</em> and don’t have any
-custom configurations, this directory will be <em>$HOME/.cargo/bin</em>. Ensure that
-directory is in your <code>$PATH</code>to be able to run programs you’ve installed with<code>cargo install</code>.</p>
-<p>For example, in Chapter 12 we mentioned that there’s a Rust implementation of
-the <code>grep</code> tool called <code>ripgrep</code> for searching files. To install <code>ripgrep</code>, we
-can run the following:</p>
+<h2 id="cài-đặt-các-tệp-nhị-phân-với-cargo-install"><a class="header" href="#cài-đặt-các-tệp-nhị-phân-với-cargo-install">Cài đặt các tệp nhị phân với <code>cargo install</code></a></h2>
+<p>Lệnh <code>cargo install</code> cho phép bạn cài đặt và sử dụng các crate nhị phân
+tại địa phương. Điều này không nhằm mục đích thay thế các gói hệ thống; nó được thiết kế để trở thành một
+cách thuận tiện cho các nhà phát triển Rust cài đặt các công cụ mà những người khác đã chia sẻ trên
+<a href="https://crates.io/">crates.io</a><!-- ignore -->. Lưu ý rằng bạn chỉ có thể cài đặt
+các gói có các mục tiêu nhị phân (binary targets). Một <em>mục tiêu nhị phân</em> là chương trình có thể chạy được
+được tạo ra nếu crate có tệp <em>src/main.rs</em> hoặc một tệp khác được chỉ định
+là một tệp nhị phân, trái ngược với mục tiêu thư viện không thể tự chạy được nhưng
+phù hợp để đưa vào bên trong các chương trình khác. Thông thường, các crate có
+thông tin trong tệp <em>README</em> về việc liệu một crate là một thư viện, có một
+mục tiêu nhị phân, hoặc cả hai.</p>
+<p>Tất cả các tệp nhị phân được cài đặt với <code>cargo install</code> được lưu trữ trong thư mục <em>bin</em>
+của gốc cài đặt. Nếu bạn đã cài đặt Rust bằng <em>rustup.rs</em> và không có bất kỳ
+cấu hình tùy chỉnh nào, thư mục này sẽ là <em>$HOME/.cargo/bin</em>. Hãy đảm bảo rằng
+thư mục đó nằm trong <code>$PATH</code> để có thể chạy các chương trình bạn đã cài đặt bằng <code>cargo install</code>.</p>
+<p>Ví dụ, trong Chương 12 chúng ta đã đề cập rằng có một bản triển khai bằng Rust của
+công cụ <code>grep</code> được gọi là <code>ripgrep</code> để tìm kiếm các tệp. Để cài đặt <code>ripgrep</code>, chúng ta
+có thể chạy lệnh sau:</p>
 <!-- manual-regeneration
 cargo install something you don't have, copy relevant output below
 -->
@@ -209,10 +209,10 @@ cargo install something you don't have, copy relevant output below
   Installing ~/.cargo/bin/rg
    Installed package `ripgrep v14.1.1` (executable `rg`)
 </code></pre>
-<p>The second-to-last line of the output shows the location and the name of the
-installed binary, which in the case of <code>ripgrep</code> is <code>rg</code>. As long as the
-installation directory is in your <code>$PATH</code>, as mentioned previously, you can
-then run <code>rg --help</code> and start using a faster, Rustier tool for searching files!</p>
+<p>Dòng kế cuối của đầu ra hiển thị vị trí và tên của
+tệp nhị phân đã cài đặt, trong trường hợp của <code>ripgrep</code> là <code>rg</code>. Miễn là
+thư mục cài đặt nằm trong <code>$PATH</code> của bạn, như đã đề cập trước đó, bạn có thể
+chạy <code>rg --help</code> và bắt đầu sử dụng một công cụ tìm kiếm tệp nhanh hơn, đậm chất Rust hơn!</p>
 
                     </main>
 
