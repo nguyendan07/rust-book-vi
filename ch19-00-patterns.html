@@ -175,32 +175,32 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="patterns-and-matching"><a class="header" href="#patterns-and-matching">Patterns and Matching</a></h1>
-<p><em>Patterns</em> are a special syntax in Rust for matching against the structure of
-types, both complex and simple. Using patterns in conjunction with <code>match</code>
-expressions and other constructs gives you more control over a program’s
-control flow. A pattern consists of some combination of the following:</p>
+                        <h1 id="mẫu-và-khớp-mẫu-patterns-and-matching"><a class="header" href="#mẫu-và-khớp-mẫu-patterns-and-matching">Mẫu và Khớp mẫu (Patterns and Matching)</a></h1>
+<p><em>Mẫu</em> (Patterns) là một cú pháp đặc biệt trong Rust để khớp với cấu trúc của
+các kiểu dữ liệu, cả phức tạp và đơn giản. Sử dụng mẫu kết hợp với
+biểu thức <code>match</code> và các cấu trúc khác giúp bạn kiểm soát nhiều hơn đối với
+luồng điều khiển (control flow) của chương trình. Một mẫu bao gồm một số sự kết hợp của các thành phần sau:</p>
 <ul>
-<li>Literals</li>
-<li>Destructured arrays, enums, structs, or tuples</li>
-<li>Variables</li>
-<li>Wildcards</li>
-<li>Placeholders</li>
+<li>Các hằng (Literals)</li>
+<li>Các mảng, enum, struct, hoặc tuple đã được phá cấu trúc (destructured)</li>
+<li>Biến</li>
+<li>Các ký tự đại diện (Wildcards)</li>
+<li>Các trình giữ chỗ (Placeholders)</li>
 </ul>
-<p>Some example patterns include <code>x</code>, <code>(a, 3)</code>, and <code>Some(Color::Red)</code>. In the
-contexts in which patterns are valid, these components describe the shape of
-data. Our program then matches values against the patterns to determine whether
-it has the correct shape of data to continue running a particular piece of code.</p>
-<p>To use a pattern, we compare it to some value. If the pattern matches the
-value, we use the value parts in our code. Recall the <code>match</code> expressions in
-Chapter 6 that used patterns, such as the coin-sorting machine example. If the
-value fits the shape of the pattern, we can use the named pieces. If it
-doesn’t, the code associated with the pattern won’t run.</p>
-<p>This chapter is a reference on all things related to patterns. We’ll cover the
-valid places to use patterns, the difference between refutable and irrefutable
-patterns, and the different kinds of pattern syntax that you might see. By the
-end of the chapter, you’ll know how to use patterns to express many concepts in
-a clear way.</p>
+<p>Một số mẫu ví dụ bao gồm <code>x</code>, <code>(a, 3)</code>, và <code>Some(Color::Red)</code>. Trong
+các ngữ cảnh mà mẫu hợp lệ, các thành phần này mô tả hình dạng của
+dữ liệu. Chương trình của chúng ta sau đó sẽ khớp các giá trị với các mẫu để xác định xem
+nó có đúng hình dạng dữ liệu để tiếp tục chạy một đoạn mã cụ thể hay không.</p>
+<p>Để sử dụng một mẫu, chúng ta so sánh nó với một giá trị nào đó. Nếu mẫu khớp với
+giá trị, chúng ta sử dụng các phần của giá trị đó trong mã của mình. Hãy nhớ lại các biểu thức <code>match</code> trong
+Chương 6 đã sử dụng các mẫu, chẳng hạn như ví dụ về máy phân loại tiền xu. Nếu
+giá trị phù hợp với hình dạng của mẫu, chúng ta có thể sử dụng các phần đã được đặt tên. Nếu nó
+không khớp, mã liên kết với mẫu đó sẽ không chạy.</p>
+<p>Chương này là một tài liệu tham khảo về tất cả những thứ liên quan đến mẫu. Chúng ta sẽ đề cập đến
+những nơi hợp lệ để sử dụng mẫu, sự khác biệt giữa mẫu refutable và irrefutable,
+và các loại cú pháp mẫu khác nhau mà bạn có thể gặp. Đến cuối chương,
+bạn sẽ biết cách sử dụng mẫu để diễn đạt nhiều khái niệm theo
+một cách rõ ràng.</p>
 
                     </main>
 
