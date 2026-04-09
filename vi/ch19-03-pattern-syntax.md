@@ -1,35 +1,35 @@
-## Pattern Syntax
+## Cú pháp mẫu (Pattern Syntax)
 
-In this section, we gather all the syntax that is valid in patterns and discuss
-why and when you might want to use each one.
+Trong phần này, chúng ta tập hợp tất cả các cú pháp hợp lệ trong các mẫu và thảo luận
+về lý do tại sao và khi nào bạn có thể muốn sử dụng từng loại.
 
-### Matching Literals
+### Khớp với các hằng (Literals)
 
-As you saw in Chapter 6, you can match patterns against literals directly. The
-following code gives some examples:
+Như bạn đã thấy trong Chương 6, bạn có thể khớp các mẫu trực tiếp với các hằng. Đoạn
+mã sau đây đưa ra một số ví dụ:
 
 ```rust
 {{#rustdoc_include ../listings/ch19-patterns-and-matching/no-listing-01-literals/src/main.rs:here}}
 ```
 
-This code prints `one` because the value in `x` is 1. This syntax is useful
-when you want your code to take an action if it gets a particular concrete
-value.
+Mã này in ra `one` bởi vì giá trị trong `x` là 1. Cú pháp này hữu ích
+khi bạn muốn mã của mình thực hiện một hành động nếu nó nhận được một giá trị cụ thể
+cụ thể.
 
-### Matching Named Variables
+### Khớp với các biến đã đặt tên
 
-Named variables are irrefutable patterns that match any value, and we’ve used
-them many times in this book. However, there is a complication when you use
-named variables in `match`, `if let`, or `while let` expressions. Because each
-of these kinds of expression starts a new scope, variables declared as part of a
-pattern inside the expression will shadow those with the same name outside, as
-is the case with all variables. In Listing 19-11, we declare a variable named
-`x` with the value `Some(5)` and a variable `y` with the value `10`. We then
-create a `match` expression on the value `x`. Look at the patterns in the match
-arms and `println!` at the end, and try to figure out what the code will print
-before running this code or reading further.
+Các biến đã đặt tên là các mẫu irrefutable khớp với bất kỳ giá trị nào, và chúng ta đã sử dụng
+chúng nhiều lần trong cuốn sách này. Tuy nhiên, có một sự phức tạp khi bạn sử dụng
+các biến đã đặt tên trong các biểu thức `match`, `if let`, hoặc `while let`. Bởi vì mỗi
+loại biểu thức này bắt đầu một phạm vi (scope) mới, các biến được khai báo như một phần của
+mẫu bên trong biểu thức sẽ che bóng (shadow) những biến có cùng tên ở bên ngoài, như
+là trường hợp của tất cả các biến. Trong Liệt kê 19-11, chúng ta khai báo một biến tên là
+`x` với giá trị `Some(5)` và một biến `y` với giá trị `10`. Sau đó chúng ta
+tạo một biểu thức `match` trên giá trị `x`. Hãy nhìn vào các mẫu trong các nhánh match
+và `println!` ở cuối, và cố gắng tìm hiểu xem mã sẽ in ra gì
+trước khi chạy mã này hoặc đọc tiếp.
 
-<Listing number="19-11" file-name="src/main.rs" caption="A `match` expression with an arm that introduces a new variable which shadows an existing variable `y`">
+<Listing number="19-11" file-name="src/main.rs" caption="Một biểu thức `match` với một nhánh giới thiệu một biến mới che bóng một biến `y` hiện có">
 
 ```rust
 {{#rustdoc_include ../listings/ch19-patterns-and-matching/listing-19-11/src/main.rs:here}}
@@ -37,87 +37,87 @@ before running this code or reading further.
 
 </Listing>
 
-Let’s walk through what happens when the `match` expression runs. The pattern
-in the first match arm doesn’t match the defined value of `x`, so the code
-continues.
+Hãy cùng xem qua những gì xảy ra khi biểu thức `match` chạy. Mẫu
+trong nhánh match đầu tiên không khớp với giá trị đã định nghĩa của `x`, vì vậy mã
+tiếp tục.
 
-The pattern in the second match arm introduces a new variable named `y` that
-will match any value inside a `Some` value. Because we’re in a new scope inside
-the `match` expression, this is a new `y` variable, not the `y` we declared at
-the beginning with the value `10`. This new `y` binding will match any value
-inside a `Some`, which is what we have in `x`. Therefore, this new `y` binds to
-the inner value of the `Some` in `x`. That value is `5`, so the expression for
-that arm executes and prints `Matched, y = 5`.
+Mẫu trong nhánh match thứ hai giới thiệu một biến mới tên là `y` mà
+sẽ khớp với bất kỳ giá trị nào bên trong một giá trị `Some`. Bởi vì chúng ta đang ở trong một phạm vi mới bên trong
+biểu thức `match`, đây là một biến `y` mới, không phải biến `y` chúng ta đã khai báo ở
+đầu với giá trị `10`. Liên kết `y` mới này sẽ khớp với bất kỳ giá trị nào
+bên trong một `Some`, đó là những gì chúng ta có trong `x`. Do đó, `y` mới này liên kết với
+giá trị bên trong của `Some` trong `x`. Giá trị đó là `5`, vì vậy biểu thức cho
+nhánh đó thực thi và in ra `Matched, y = 5`.
 
-If `x` had been a `None` value instead of `Some(5)`, the patterns in the first
-two arms wouldn’t have matched, so the value would have matched to the
-underscore. We didn’t introduce the `x` variable in the pattern of the
-underscore arm, so the `x` in the expression is still the outer `x` that hasn’t
-been shadowed. In this hypothetical case, the `match` would print `Default
+Nếu `x` là một giá trị `None` thay vì `Some(5)`, các mẫu trong hai
+nhánh đầu tiên sẽ không khớp, vì vậy giá trị sẽ khớp với dấu
+gạch dưới. Chúng ta đã không giới thiệu biến `x` trong mẫu của nhánh
+gạch dưới, vì vậy `x` trong biểu thức vẫn là `x` bên ngoài chưa
+bị che bóng. Trong trường hợp giả định này, `match` sẽ in ra `Default
 case, x = None`.
 
-When the `match` expression is done, its scope ends, and so does the scope of
-the inner `y`. The last `println!` produces `at the end: x = Some(5), y = 10`.
+Khi biểu thức `match` kết thúc, phạm vi của nó kết thúc, và phạm vi của
+biến `y` bên trong cũng vậy. Dòng `println!` cuối cùng tạo ra `at the end: x = Some(5), y = 10`.
 
-To create a `match` expression that compares the values of the outer `x` and
-`y`, rather than introducing a new variable that shadows the existing `y`
-variable, we would need to use a match guard conditional instead. We’ll talk
-about match guards later in [“Extra Conditionals with Match
+Để tạo một biểu thức `match` so sánh các giá trị của `x` và
+`y` bên ngoài, thay vì giới thiệu một biến mới che bóng biến `y`
+hiện có, chúng ta sẽ cần sử dụng một điều kiện match guard (bảo vệ khớp) thay thế. Chúng ta sẽ nói
+về match guard sau trong phần [“Các điều kiện bổ sung với Match
 Guards”](#extra-conditionals-with-match-guards)<!-- ignore -->.
 
-### Multiple Patterns
+### Nhiều mẫu
 
-You can match multiple patterns using the `|` syntax, which is the pattern _or_
-operator. For example, in the following code we match the value of `x` against
-the match arms, the first of which has an _or_ option, meaning if the value of
-`x` matches either of the values in that arm, that arm’s code will run:
+Bạn có thể khớp nhiều mẫu bằng cú pháp `|`, đây là toán tử _hoặc_ (or) của
+mẫu. Ví dụ, trong đoạn mã sau, chúng ta khớp giá trị của `x` với
+các nhánh match, nhánh đầu tiên có một tùy chọn _hoặc_, nghĩa là nếu giá trị của
+`x` khớp với một trong hai giá trị trong nhánh đó, mã của nhánh đó sẽ chạy:
 
 ```rust
 {{#rustdoc_include ../listings/ch19-patterns-and-matching/no-listing-02-multiple-patterns/src/main.rs:here}}
 ```
 
-This code prints `one or two`.
+Mã này in ra `one or two`.
 
-### Matching Ranges of Values with `..=`
+### Khớp các khoảng giá trị với `..=`
 
-The `..=` syntax allows us to match to an inclusive range of values. In the
-following code, when a pattern matches any of the values within the given
-range, that arm will execute:
+Cú pháp `..=` cho phép chúng ta khớp với một khoảng giá trị bao gồm cả hai đầu (inclusive range). Trong
+đoạn mã sau, khi một mẫu khớp với bất kỳ giá trị nào trong khoảng
+đã cho, nhánh đó sẽ thực thi:
 
 ```rust
 {{#rustdoc_include ../listings/ch19-patterns-and-matching/no-listing-03-ranges/src/main.rs:here}}
 ```
 
-If `x` is `1`, `2`, `3`, `4`, or `5`, the first arm will match. This syntax is
-more convenient for multiple match values than using the `|` operator to express
-the same idea; if we were to use `|` we would have to specify `1 | 2 | 3 | 4 |
-5`. Specifying a range is much shorter, especially if we want to match, say, any
-number between 1 and 1,000!
+Nếu `x` là `1`, `2`, `3`, `4`, hoặc `5`, nhánh đầu tiên sẽ khớp. Cú pháp này
+tiện lợi hơn cho nhiều giá trị match so với việc sử dụng toán tử `|` để diễn đạt
+cùng một ý tưởng; nếu chúng ta sử dụng `|` chúng ta sẽ phải chỉ định `1 | 2 | 3 | 4 |
+5`. Chỉ định một khoảng ngắn hơn nhiều, đặc biệt nếu chúng ta muốn khớp, ví dụ, bất kỳ
+số nào từ 1 đến 1.000!
 
-The compiler checks that the range isn’t empty at compile time, and because the
-only types for which Rust can tell if a range is empty or not are `char` and
-numeric values, ranges are only allowed with numeric or `char` values.
+Trình biên dịch kiểm tra xem khoảng đó có trống hay không tại thời điểm biên dịch, và bởi vì
+các kiểu duy nhất mà Rust có thể biết liệu một khoảng có trống hay không là `char` và
+các giá trị số, các khoảng chỉ được phép với các giá trị số hoặc `char`.
 
-Here is an example using ranges of `char` values:
+Dưới đây là một ví dụ sử dụng các khoảng giá trị `char`:
 
 ```rust
 {{#rustdoc_include ../listings/ch19-patterns-and-matching/no-listing-04-ranges-of-char/src/main.rs:here}}
 ```
 
-Rust can tell that `'c'` is within the first pattern’s range and prints `early
+Rust có thể biết rằng `'c'` nằm trong khoảng của mẫu đầu tiên và in ra `early
 ASCII letter`.
 
-### Destructuring to Break Apart Values
+### Phá cấu trúc để chia nhỏ các giá trị
 
-We can also use patterns to destructure structs, enums, and tuples to use
-different parts of these values. Let’s walk through each value.
+Chúng ta cũng có thể sử dụng các mẫu để phá cấu trúc (destructure) struct, enum, và tuple để sử dụng
+các phần khác nhau của các giá trị này. Hãy cùng đi qua từng loại giá trị.
 
-#### Destructuring Structs
+#### Phá cấu trúc Struct
 
-Listing 19-12 shows a `Point` struct with two fields, `x` and `y`, that we can
-break apart using a pattern with a `let` statement.
+Liệt kê 19-12 hiển thị một struct `Point` với hai trường, `x` và `y`, mà chúng ta có thể
+chia nhỏ bằng cách sử dụng một mẫu với câu lệnh `let`.
 
-<Listing number="19-12" file-name="src/main.rs" caption="Destructuring a struct’s fields into separate variables">
+<Listing number="19-12" file-name="src/main.rs" caption="Phá cấu trúc các trường của một struct thành các biến riêng biệt">
 
 ```rust
 {{#rustdoc_include ../listings/ch19-patterns-and-matching/listing-19-12/src/main.rs}}
@@ -125,19 +125,19 @@ break apart using a pattern with a `let` statement.
 
 </Listing>
 
-This code creates the variables `a` and `b` that match the values of the `x`
-and `y` fields of the `p` struct. This example shows that the names of the
-variables in the pattern don’t have to match the field names of the struct.
-However, it’s common to match the variable names to the field names to make it
-easier to remember which variables came from which fields. Because of this
-common usage, and because writing `let Point { x: x, y: y } = p;` contains a
-lot of duplication, Rust has a shorthand for patterns that match struct fields:
-you only need to list the name of the struct field, and the variables created
-from the pattern will have the same names. Listing 19-13 behaves in the same
-way as the code in Listing 19-12, but the variables created in the `let`
-pattern are `x` and `y` instead of `a` and `b`.
+Mã này tạo ra các biến `a` và `b` khớp với các giá trị của các trường `x`
+và `y` của struct `p`. Ví dụ này cho thấy tên của các
+biến trong mẫu không nhất thiết phải khớp với tên trường của struct.
+Tuy nhiên, việc khớp tên biến với tên trường là phổ biến để làm cho nó
+dễ nhớ hơn biến nào đến từ trường nào. Vì cách sử dụng phổ biến này,
+và vì việc viết `let Point { x: x, y: y } = p;` chứa rất nhiều sự lặp lại,
+Rust có một cách viết tắt cho các mẫu khớp với các trường struct:
+bạn chỉ cần liệt kê tên của trường struct, và các biến được tạo
+từ mẫu sẽ có cùng tên. Liệt kê 19-13 hoạt động theo cùng cách
+với mã trong Liệt kê 19-12, nhưng các biến được tạo trong mẫu `let`
+là `x` và `y` thay vì `a` và `b`.
 
-<Listing number="19-13" file-name="src/main.rs" caption="Destructuring struct fields using struct field shorthand">
+<Listing number="19-13" file-name="src/main.rs" caption="Phá cấu trúc các trường struct bằng cách sử dụng cách viết tắt trường struct">
 
 ```rust
 {{#rustdoc_include ../listings/ch19-patterns-and-matching/listing-19-13/src/main.rs}}
@@ -145,20 +145,20 @@ pattern are `x` and `y` instead of `a` and `b`.
 
 </Listing>
 
-This code creates the variables `x` and `y` that match the `x` and `y` fields
-of the `p` variable. The outcome is that the variables `x` and `y` contain the
-values from the `p` struct.
+Mã này tạo ra các biến `x` và `y` khớp với các trường `x` và `y`
+của biến `p`. Kết quả là các biến `x` và `y` chứa các
+giá trị từ struct `p`.
 
-We can also destructure with literal values as part of the struct pattern
-rather than creating variables for all the fields. Doing so allows us to test
-some of the fields for particular values while creating variables to
-destructure the other fields.
+Chúng ta cũng có thể phá cấu trúc với các giá trị hằng như một phần của mẫu struct
+thay vì tạo các biến cho tất cả các trường. Làm như vậy cho phép chúng ta kiểm tra
+một số trường cho các giá trị cụ thể trong khi tạo các biến để
+phá cấu trúc các trường khác.
 
-In Listing 19-14, we have a `match` expression that separates `Point` values
-into three cases: points that lie directly on the `x` axis (which is true when
-`y = 0`), on the `y` axis (`x = 0`), or on neither axis.
+Trong Liệt kê 19-14, chúng ta có một biểu thức `match` phân tách các giá trị `Point`
+thành ba trường hợp: các điểm nằm trực tiếp trên trục `x` (đúng khi
+`y = 0`), trên trục `y` (`x = 0`), hoặc không nằm trên trục nào.
 
-<Listing number="19-14" file-name="src/main.rs" caption="Destructuring and matching literal values in one pattern">
+<Listing number="19-14" file-name="src/main.rs" caption="Phá cấu trúc và khớp các giá trị hằng trong một mẫu">
 
 ```rust
 {{#rustdoc_include ../listings/ch19-patterns-and-matching/listing-19-14/src/main.rs:here}}
@@ -166,31 +166,31 @@ into three cases: points that lie directly on the `x` axis (which is true when
 
 </Listing>
 
-The first arm will match any point that lies on the `x` axis by specifying that
-the `y` field matches if its value matches the literal `0`. The pattern still
-creates an `x` variable that we can use in the code for this arm.
+Nhánh đầu tiên sẽ khớp với bất kỳ điểm nào nằm trên trục `x` bằng cách chỉ định rằng
+trường `y` khớp nếu giá trị của nó khớp với hằng `0`. Mẫu vẫn
+tạo ra một biến `x` mà chúng ta có thể sử dụng trong mã cho nhánh này.
 
-Similarly, the second arm matches any point on the `y` axis by specifying that
-the `x` field matches if its value is `0` and creates a variable `y` for the
-value of the `y` field. The third arm doesn’t specify any literals, so it
-matches any other `Point` and creates variables for both the `x` and `y` fields.
+Tương tự, nhánh thứ hai khớp với bất kỳ điểm nào trên trục `y` bằng cách chỉ định rằng
+trường `x` khớp nếu giá trị của nó là `0` và tạo một biến `y` cho
+giá trị của trường `y`. Nhánh thứ ba không chỉ định bất kỳ hằng nào, vì vậy nó
+khớp với bất kỳ `Point` nào khác và tạo các biến cho cả hai trường `x` và `y`.
 
-In this example, the value `p` matches the second arm by virtue of `x`
-containing a `0`, so this code will print `On the y axis at 7`.
+Trong ví dụ này, giá trị `p` khớp với nhánh thứ hai nhờ vào việc `x`
+chứa giá trị `0`, vì vậy mã này sẽ in ra `On the y axis at 7`.
 
-Remember that a `match` expression stops checking arms once it has found the
-first matching pattern, so even though `Point { x: 0, y: 0}` is on the `x` axis
-and the `y` axis, this code would only print `On the x axis at 0`.
+Hãy nhớ rằng một biểu thức `match` sẽ ngừng kiểm tra các nhánh khi nó đã tìm thấy
+mẫu khớp đầu tiên, vì vậy ngay cả khi `Point { x: 0, y: 0}` nằm trên trục `x`
+và trục `y`, mã này sẽ chỉ in ra `On the x axis at 0`.
 
-#### Destructuring Enums
+#### Phá cấu trúc Enum
 
-We've destructured enums in this book (for example, Listing 6-5), but we haven’t
-yet explicitly discussed that the pattern to destructure an enum corresponds to
-the way the data stored within the enum is defined. As an example, in Listing
-19-15 we use the `Message` enum from Listing 6-2 and write a `match` with
-patterns that will destructure each inner value.
+Chúng ta đã phá cấu trúc enum trong cuốn sách này (ví dụ, Liệt kê 6-5), nhưng chúng ta chưa
+thảo luận rõ ràng rằng mẫu để phá cấu trúc một enum tương ứng với
+cách dữ liệu được lưu trữ bên trong enum được định nghĩa. Ví dụ, trong Liệt kê
+19-15 chúng ta sử dụng enum `Message` từ Liệt kê 6-2 và viết một `match` với
+các mẫu sẽ phá cấu trúc từng giá trị bên trong.
 
-<Listing number="19-15" file-name="src/main.rs" caption="Destructuring enum variants that hold different kinds of values">
+<Listing number="19-15" file-name="src/main.rs" caption="Phá cấu trúc các biến thể enum chứa các loại giá trị khác nhau">
 
 ```rust
 {{#rustdoc_include ../listings/ch19-patterns-and-matching/listing-19-15/src/main.rs}}
@@ -198,33 +198,33 @@ patterns that will destructure each inner value.
 
 </Listing>
 
-This code will print `Change color to red 0, green 160, and blue 255`. Try
-changing the value of `msg` to see the code from the other arms run.
+Mã này sẽ in ra `Change color to red 0, green 160, and blue 255`. Hãy thử
+thay đổi giá trị của `msg` để thấy mã từ các nhánh khác chạy.
 
-For enum variants without any data, like `Message::Quit`, we can’t destructure
-the value any further. We can only match on the literal `Message::Quit` value,
-and no variables are in that pattern.
+Đối với các biến thể enum không có bất kỳ dữ liệu nào, như `Message::Quit`, chúng ta không thể phá cấu trúc
+giá trị thêm nữa. Chúng ta chỉ có thể khớp trên giá trị hằng `Message::Quit`,
+và không có biến nào trong mẫu đó.
 
-For struct-like enum variants, such as `Message::Move`, we can use a pattern
-similar to the pattern we specify to match structs. After the variant name, we
-place curly brackets and then list the fields with variables so we break apart
-the pieces to use in the code for this arm. Here we use the shorthand form as
-we did in Listing 19-13.
+Đối với các biến thể enum giống struct, chẳng hạn như `Message::Move`, chúng ta có thể sử dụng một mẫu
+tương tự như mẫu chúng ta chỉ định để khớp struct. Sau tên biến thể, chúng ta
+đặt các dấu ngoặc nhọn và sau đó liệt kê các trường với các biến để chúng ta chia nhỏ
+các phần để sử dụng trong mã cho nhánh này. Ở đây chúng ta sử dụng dạng viết tắt
+như chúng ta đã làm trong Liệt kê 19-13.
 
-For tuple-like enum variants, like `Message::Write` that holds a tuple with one
-element and `Message::ChangeColor` that holds a tuple with three elements, the
-pattern is similar to the pattern we specify to match tuples. The number of
-variables in the pattern must match the number of elements in the variant we’re
-matching.
+Đối với các biến thể enum giống tuple, như `Message::Write` giữ một tuple với một
+phần tử và `Message::ChangeColor` giữ một tuple với ba phần tử,
+mẫu tương tự như mẫu chúng ta chỉ định để khớp tuple. Số lượng
+biến trong mẫu phải khớp với số lượng phần tử trong biến thể mà chúng ta
+đang khớp.
 
-#### Destructuring Nested Structs and Enums
+#### Phá cấu trúc các Struct và Enum lồng nhau
 
-So far, our examples have all been matching structs or enums one level deep,
-but matching can work on nested items too! For example, we can refactor the
-code in Listing 19-15 to support RGB and HSV colors in the `ChangeColor`
-message, as shown in Listing 19-16.
+Cho đến nay, các ví dụ của chúng ta đều là khớp struct hoặc enum ở mức sâu một cấp,
+nhưng việc khớp có thể hoạt động trên cả các mục lồng nhau! Ví dụ, chúng ta có thể tái cấu trúc
+mã trong Liệt kê 19-15 để hỗ trợ các màu RGB và HSV trong thông báo
+`ChangeColor`, như được hiển thị trong Liệt kê 19-16.
 
-<Listing number="19-16" caption="Matching on nested enums">
+<Listing number="19-16" caption="Khớp trên các enum lồng nhau">
 
 ```rust
 {{#rustdoc_include ../listings/ch19-patterns-and-matching/listing-19-16/src/main.rs}}
@@ -232,51 +232,51 @@ message, as shown in Listing 19-16.
 
 </Listing>
 
-The pattern of the first arm in the `match` expression matches a
-`Message::ChangeColor` enum variant that contains a `Color::Rgb` variant; then
-the pattern binds to the three inner `i32` values. The pattern of the second
-arm also matches a `Message::ChangeColor` enum variant, but the inner enum
-matches `Color::Hsv` instead. We can specify these complex conditions in one
-`match` expression, even though two enums are involved.
+Mẫu của nhánh đầu tiên trong biểu thức `match` khớp với một biến thể enum
+`Message::ChangeColor` chứa một biến thể `Color::Rgb`; sau đó
+mẫu liên kết với ba giá trị `i32` bên trong. Mẫu của nhánh thứ hai
+cũng khớp với một biến thể enum `Message::ChangeColor`, nhưng enum bên trong
+khớp với `Color::Hsv` thay thế. Chúng ta có thể chỉ định các điều kiện phức tạp này trong một
+biểu thức `match`, mặc dù có hai enum liên quan.
 
-#### Destructuring Structs and Tuples
+#### Phá cấu trúc Struct và Tuple
 
-We can mix, match, and nest destructuring patterns in even more complex ways.
-The following example shows a complicated destructure where we nest structs and
-tuples inside a tuple and destructure all the primitive values out:
+Chúng ta có thể trộn, khớp và lồng các mẫu phá cấu trúc theo những cách thậm chí còn phức tạp hơn.
+Ví dụ sau đây cho thấy một sự phá cấu trúc phức tạp nơi chúng ta lồng các struct và
+tuple bên trong một tuple và phá cấu trúc tất cả các giá trị nguyên thủy ra ngoài:
 
 ```rust
 {{#rustdoc_include ../listings/ch19-patterns-and-matching/no-listing-05-destructuring-structs-and-tuples/src/main.rs:here}}
 ```
 
-This code lets us break complex types into their component parts so we can use
-the values we’re interested in separately.
+Mã này cho phép chúng ta chia các kiểu phức tạp thành các phần thành phần của chúng để chúng ta có thể sử dụng
+các giá trị mà chúng ta quan tâm một cách riêng biệt.
 
-Destructuring with patterns is a convenient way to use pieces of values, such
-as the value from each field in a struct, separately from each other.
+Phá cấu trúc với các mẫu là một cách thuận tiện để sử dụng các phần của giá trị, chẳng
+hạn như giá trị từ mỗi trường trong một struct, riêng biệt với nhau.
 
-### Ignoring Values in a Pattern
+### Bỏ qua các giá trị trong một mẫu
 
-You’ve seen that it’s sometimes useful to ignore values in a pattern, such as
-in the last arm of a `match`, to get a catchall that doesn’t actually do
-anything but does account for all remaining possible values. There are a few
-ways to ignore entire values or parts of values in a pattern: using the `_`
-pattern (which you’ve seen), using the `_` pattern within another pattern,
-using a name that starts with an underscore, or using `..` to ignore remaining
-parts of a value. Let’s explore how and why to use each of these patterns.
+Bạn đã thấy rằng đôi khi việc bỏ qua các giá trị trong một mẫu là hữu ích, chẳng hạn
+như trong nhánh cuối cùng của một `match`, để có một mẫu bao quát tất cả (catchall) mà thực tế không
+làm gì cả nhưng vẫn tính đến tất cả các giá trị khả thi còn lại. Có một vài
+cách để bỏ qua toàn bộ giá trị hoặc các phần của giá trị trong một mẫu: sử dụng mẫu `_`
+(mà bạn đã thấy), sử dụng mẫu `_` bên trong một mẫu khác, sử dụng một tên bắt đầu
+với dấu gạch dưới, hoặc sử dụng `..` để bỏ qua các phần còn lại của một giá trị. Hãy cùng khám phá
+cách thức và lý do tại sao nên sử dụng từng loại mẫu này.
 
 <!-- Old link, do not remove -->
 
 <a id="ignoring-an-entire-value-with-_"></a>
 
-#### An Entire Value with `_`
+#### Toàn bộ một giá trị với `_`
 
-We’ve used the underscore as a wildcard pattern that will match any value but
-not bind to the value. This is especially useful as the last arm in a `match`
-expression, but we can also use it in any pattern, including function
-parameters, as shown in Listing 19-17.
+Chúng ta đã sử dụng dấu gạch dưới như một mẫu ký tự đại diện (wildcard) sẽ khớp với bất kỳ giá trị nào nhưng
+không liên kết với giá trị đó. Điều này đặc biệt hữu ích như là nhánh cuối cùng trong một biểu thức
+`match`, nhưng chúng ta cũng có thể sử dụng nó trong bất kỳ mẫu nào, bao gồm cả các tham số
+hàm, như được hiển thị trong Liệt kê 19-17.
 
-<Listing number="19-17" file-name="src/main.rs" caption="Using `_` in a function signature">
+<Listing number="19-17" file-name="src/main.rs" caption="Sử dụng `_` trong một chữ ký hàm">
 
 ```rust
 {{#rustdoc_include ../listings/ch19-patterns-and-matching/listing-19-17/src/main.rs}}
@@ -284,29 +284,29 @@ parameters, as shown in Listing 19-17.
 
 </Listing>
 
-This code will completely ignore the value `3` passed as the first argument,
-and will print `This code only uses the y parameter: 4`.
+Mã này sẽ hoàn toàn bỏ qua giá trị `3` được truyền vào như đối số đầu tiên,
+và sẽ in ra `This code only uses the y parameter: 4`.
 
-In most cases when you no longer need a particular function parameter, you
-would change the signature so it doesn’t include the unused parameter. Ignoring
-a function parameter can be especially useful in cases when, for example,
-you're implementing a trait where you need a certain type signature but the
-function body in your implementation doesn’t need one of the parameters. You
-then avoid getting a compiler warning about unused function parameters, as you
-would if you used a name instead.
+Trong hầu hết các trường hợp khi bạn không còn cần một tham số hàm cụ thể nào đó, bạn
+sẽ thay đổi chữ ký để nó không bao gồm tham số không sử dụng đó. Bỏ qua
+một tham số hàm có thể đặc biệt hữu ích trong các trường hợp, ví dụ,
+bạn đang triển khai một trait nơi bạn cần một chữ ký kiểu nhất định nhưng
+thân hàm trong triển khai của bạn không cần một trong các tham số. Sau đó bạn
+tránh nhận được cảnh báo của trình biên dịch về các tham số hàm không được sử dụng, như bạn
+sẽ gặp nếu bạn sử dụng một cái tên thay thế.
 
 <a id="ignoring-parts-of-a-value-with-a-nested-_"></a>
 
-#### Parts of a Value with a Nested `_`
+#### Các phần của một giá trị với một `_` lồng nhau
 
-We can also use `_` inside another pattern to ignore just part of a value, for
-example, when we want to test for only part of a value but have no use for the
-other parts in the corresponding code we want to run. Listing 19-18 shows code
-responsible for managing a setting’s value. The business requirements are that
-the user should not be allowed to overwrite an existing customization of a
-setting but can unset the setting and give it a value if it is currently unset.
+Chúng ta cũng có thể sử dụng `_` bên trong một mẫu khác để chỉ bỏ qua một phần của một giá trị, ví
+dụ, khi chúng ta muốn kiểm tra chỉ một phần của một giá trị nhưng không có nhu cầu sử dụng
+các phần khác trong mã tương ứng mà chúng ta muốn chạy. Liệt kê 19-18 cho thấy mã
+chịu trách nhiệm quản lý giá trị của một cài đặt. Các yêu cầu nghiệp vụ là
+người dùng không được phép ghi đè lên một tùy chỉnh hiện có của một cài đặt
+nhưng có thể hủy cài đặt và cung cấp cho nó một giá trị nếu nó hiện đang chưa được thiết lập.
 
-<Listing number="19-18" caption=" Using an underscore within patterns that match `Some` variants when we don’t need to use the value inside the `Some`">
+<Listing number="19-18" caption=" Sử dụng một dấu gạch dưới bên trong các mẫu khớp với các biến thể `Some` khi chúng ta không cần sử dụng giá trị bên trong `Some`">
 
 ```rust
 {{#rustdoc_include ../listings/ch19-patterns-and-matching/listing-19-18/src/main.rs:here}}
@@ -314,22 +314,22 @@ setting but can unset the setting and give it a value if it is currently unset.
 
 </Listing>
 
-This code will print `Can't overwrite an existing customized value` and then
-`setting is Some(5)`. In the first match arm, we don’t need to match on or use
-the values inside either `Some` variant, but we do need to test for the case
-when `setting_value` and `new_setting_value` are the `Some` variant. In that
-case, we print the reason for not changing `setting_value`, and it doesn’t get
-changed.
+Mã này sẽ in ra `Can't overwrite an existing customized value` và sau đó
+`setting is Some(5)`. Trong nhánh match đầu tiên, chúng ta không cần khớp hoặc sử dụng
+các giá trị bên trong cả hai biến thể `Some`, nhưng chúng ta cần kiểm tra trường hợp
+khi `setting_value` và `new_setting_value` là biến thể `Some`. Trong trường hợp
+đó, chúng ta in ra lý do không thay đổi `setting_value`, và nó không bị
+thay đổi.
 
-In all other cases (if either `setting_value` or `new_setting_value` is `None`)
-expressed by the `_` pattern in the second arm, we want to allow
-`setting_value` to be set to `new_setting_value`.
+Trong tất cả các trường hợp khác (nếu `setting_value` hoặc `new_setting_value` là `None`)
+được biểu thị bằng mẫu `_` trong nhánh thứ hai, chúng ta muốn cho phép
+`setting_value` được thiết lập thành `new_setting_value`.
 
-We can also use underscores in multiple places within one pattern to ignore
-particular values. Listing 19-19 shows an example of ignoring the second and
-fourth values in a tuple of five items.
+Chúng ta cũng có thể sử dụng dấu gạch dưới ở nhiều nơi trong một mẫu để bỏ qua
+các giá trị cụ thể. Liệt kê 19-19 cho thấy một ví dụ về việc bỏ qua giá trị thứ hai và
+thứ tư trong một tuple có năm mục.
 
-<Listing number="19-19" caption="Ignoring multiple parts of a tuple">
+<Listing number="19-19" caption="Bỏ qua nhiều phần của một tuple">
 
 ```rust
 {{#rustdoc_include ../listings/ch19-patterns-and-matching/listing-19-19/src/main.rs:here}}
@@ -337,24 +337,24 @@ fourth values in a tuple of five items.
 
 </Listing>
 
-This code will print `Some numbers: 2, 8, 32`, and the values `4` and `16` will
-be ignored.
+Mã này sẽ in ra `Some numbers: 2, 8, 32`, và các giá trị `4` và `16` sẽ
+bị bỏ qua.
 
 <!-- Old link, do not remove -->
 
 <a id="ignoring-an-unused-variable-by-starting-its-name-with-_"></a>
 
-#### An Unused Variable by Starting Its Name with `_`
+#### Một biến không sử dụng bằng cách bắt đầu tên của nó với `_`
 
-If you create a variable but don’t use it anywhere, Rust will usually issue a
-warning because an unused variable could be a bug. However, sometimes it’s
-useful to be able to create a variable you won’t use yet, such as when you’re
-prototyping or just starting a project. In this situation, you can tell Rust
-not to warn you about the unused variable by starting the name of the variable
-with an underscore. In Listing 19-20, we create two unused variables, but when
-we compile this code, we should only get a warning about one of them.
+Nếu bạn tạo một biến nhưng không sử dụng nó ở bất cứ đâu, Rust thường sẽ đưa ra một
+cảnh báo vì một biến không được sử dụng có thể là một lỗi. Tuy nhiên, đôi khi việc
+tạo một biến mà bạn chưa sử dụng ngay là hữu ích, chẳng hạn như khi bạn đang
+tạo nguyên mẫu hoặc mới bắt đầu một dự án. Trong tình huống này, bạn có thể bảo Rust
+đừng cảnh báo bạn về biến không được sử dụng bằng cách bắt đầu tên của biến
+với một dấu gạch dưới. Trong Liệt kê 19-20, chúng ta tạo hai biến không được sử dụng, nhưng khi
+chúng ta biên dịch mã này, chúng ta chỉ nhận được cảnh báo về một trong số chúng.
 
-<Listing number="19-20" file-name="src/main.rs" caption="Starting a variable name with an underscore to avoid getting unused variable warnings">
+<Listing number="19-20" file-name="src/main.rs" caption="Bắt đầu tên biến bằng dấu gạch dưới để tránh nhận cảnh báo biến không sử dụng">
 
 ```rust
 {{#rustdoc_include ../listings/ch19-patterns-and-matching/listing-19-20/src/main.rs}}
@@ -362,15 +362,15 @@ we compile this code, we should only get a warning about one of them.
 
 </Listing>
 
-Here, we get a warning about not using the variable `y`, but we don’t get a
-warning about not using `_x`.
+Ở đây, chúng ta nhận được cảnh báo về việc không sử dụng biến `y`, nhưng chúng ta không nhận được
+cảnh báo về việc không sử dụng `_x`.
 
-Note that there is a subtle difference between using only `_` and using a name
-that starts with an underscore. The syntax `_x` still binds the value to the
-variable, whereas `_` doesn’t bind at all. To show a case where this
-distinction matters, Listing 19-21 will provide us with an error.
+Lưu ý rằng có một sự khác biệt nhỏ giữa việc chỉ sử dụng `_` và sử dụng một tên
+bắt đầu bằng dấu gạch dưới. Cú pháp `_x` vẫn liên kết giá trị với
+biến, trong khi `_` hoàn toàn không liên kết. Để cho thấy một trường hợp mà sự
+khác biệt này quan trọng, Liệt kê 19-21 sẽ cung cấp cho chúng ta một lỗi.
 
-<Listing number="19-21" caption="An unused variable starting with an underscore still binds the value, which might take ownership of the value">
+<Listing number="19-21" caption="Một biến không được sử dụng bắt đầu bằng dấu gạch dưới vẫn liên kết giá trị, điều này có thể lấy quyền sở hữu của giá trị">
 
 ```rust,ignore,does_not_compile
 {{#rustdoc_include ../listings/ch19-patterns-and-matching/listing-19-21/src/main.rs:here}}
@@ -378,12 +378,12 @@ distinction matters, Listing 19-21 will provide us with an error.
 
 </Listing>
 
-We’ll receive an error because the `s` value will still be moved into `_s`,
-which prevents us from using `s` again. However, using the underscore by itself
-doesn’t ever bind to the value. Listing 19-22 will compile without any errors
-because `s` doesn’t get moved into `_`.
+Chúng ta sẽ nhận được một lỗi vì giá trị `s` vẫn sẽ được chuyển (move) vào `_s`,
+điều này ngăn cản chúng ta sử dụng lại `s`. Tuy nhiên, việc sử dụng dấu gạch dưới một mình
+không bao giờ liên kết với giá trị. Liệt kê 19-22 sẽ biên dịch mà không có bất kỳ lỗi nào
+vì `s` không bị chuyển vào `_`.
 
-<Listing number="19-22" caption="Using an underscore does not bind the value">
+<Listing number="19-22" caption="Sử dụng dấu gạch dưới không liên kết giá trị">
 
 ```rust
 {{#rustdoc_include ../listings/ch19-patterns-and-matching/listing-19-22/src/main.rs:here}}
@@ -391,21 +391,21 @@ because `s` doesn’t get moved into `_`.
 
 </Listing>
 
-This code works just fine because we never bind `s` to anything; it isn’t moved.
+Mã này hoạt động tốt vì chúng ta không bao giờ liên kết `s` với bất cứ thứ gì; nó không bị chuyển đi.
 
 <a id="ignoring-remaining-parts-of-a-value-with-"></a>
 
-#### Remaining Parts of a Value with `..`
+#### Các phần còn lại của một giá trị với `..`
 
-With values that have many parts, we can use the `..` syntax to use specific
-parts and ignore the rest, avoiding the need to list underscores for each
-ignored value. The `..` pattern ignores any parts of a value that we haven’t
-explicitly matched in the rest of the pattern. In Listing 19-23, we have a
-`Point` struct that holds a coordinate in three-dimensional space. In the
-`match` expression, we want to operate only on the `x` coordinate and ignore
-the values in the `y` and `z` fields.
+Với các giá trị có nhiều phần, chúng ta có thể sử dụng cú pháp `..` để sử dụng các phần
+cụ thể và bỏ qua phần còn lại, tránh việc phải liệt kê các dấu gạch dưới cho mỗi
+giá trị bị bỏ qua. Mẫu `..` bỏ qua bất kỳ phần nào của một giá trị mà chúng ta chưa
+khớp rõ ràng trong phần còn lại của mẫu. Trong Liệt kê 19-23, chúng ta có một
+struct `Point` giữ một tọa độ trong không gian ba chiều. Trong biểu thức
+`match`, chúng ta chỉ muốn thao tác trên tọa độ `x` và bỏ qua
+các giá trị trong các trường `y` và `z`.
 
-<Listing number="19-23" caption="Ignoring all fields of a `Point` except for `x` by using `..`">
+<Listing number="19-23" caption="Bỏ qua tất cả các trường của một `Point` ngoại trừ `x` bằng cách sử dụng `..`">
 
 ```rust
 {{#rustdoc_include ../listings/ch19-patterns-and-matching/listing-19-23/src/main.rs:here}}
@@ -413,15 +413,15 @@ the values in the `y` and `z` fields.
 
 </Listing>
 
-We list the `x` value and then just include the `..` pattern. This is quicker
-than having to list `y: _` and `z: _`, particularly when we’re working with
-structs that have lots of fields in situations where only one or two fields are
-relevant.
+Chúng ta liệt kê giá trị `x` và sau đó chỉ bao gồm mẫu `..`. Điều này nhanh hơn
+so với việc phải liệt kê `y: _` và `z: _`, đặc biệt là khi chúng ta đang làm việc với
+các struct có nhiều trường trong các tình huống mà chỉ có một hoặc hai trường là
+có liên quan.
 
-The syntax `..` will expand to as many values as it needs to be. Listing 19-24
-shows how to use `..` with a tuple.
+Cú pháp `..` sẽ mở rộng thành bao nhiêu giá trị tùy thích. Liệt kê 19-24
+cho thấy cách sử dụng `..` với một tuple.
 
-<Listing number="19-24" file-name="src/main.rs" caption="Matching only the first and last values in a tuple and ignoring all other values">
+<Listing number="19-24" file-name="src/main.rs" caption="Chỉ khớp các giá trị đầu tiên và cuối cùng trong một tuple và bỏ qua tất cả các giá trị khác">
 
 ```rust
 {{#rustdoc_include ../listings/ch19-patterns-and-matching/listing-19-24/src/main.rs}}
@@ -429,15 +429,15 @@ shows how to use `..` with a tuple.
 
 </Listing>
 
-In this code, the first and last value are matched with `first` and `last`. The
-`..` will match and ignore everything in the middle.
+Trong mã này, giá trị đầu tiên và cuối cùng được khớp với `first` và `last`.
+`..` sẽ khớp và bỏ qua mọi thứ ở giữa.
 
-However, using `..` must be unambiguous. If it is unclear which values are
-intended for matching and which should be ignored, Rust will give us an error.
-Listing 19-25 shows an example of using `..` ambiguously, so it will not
-compile.
+Tuy nhiên, việc sử dụng `..` phải không được mơ hồ. Nếu không rõ giá trị nào
+được dự định để khớp và giá trị nào nên được bỏ qua, Rust sẽ báo lỗi cho chúng ta.
+Liệt kê 19-25 cho thấy một ví dụ về việc sử dụng `..` một cách mơ hồ, vì vậy nó sẽ không
+biên dịch.
 
-<Listing number="19-25" file-name="src/main.rs" caption="An attempt to use `..` in an ambiguous way">
+<Listing number="19-25" file-name="src/main.rs" caption="Một nỗ lực sử dụng `..` theo cách mơ hồ">
 
 ```rust,ignore,does_not_compile
 {{#rustdoc_include ../listings/ch19-patterns-and-matching/listing-19-25/src/main.rs}}
@@ -445,33 +445,33 @@ compile.
 
 </Listing>
 
-When we compile this example, we get this error:
+Khi chúng ta biên dịch ví dụ này, chúng ta nhận được lỗi này:
 
 ```console
 {{#include ../listings/ch19-patterns-and-matching/listing-19-25/output.txt}}
 ```
 
-It’s impossible for Rust to determine how many values in the tuple to ignore
-before matching a value with `second` and then how many further values to
-ignore thereafter. This code could mean that we want to ignore `2`, bind
-`second` to `4`, and then ignore `8`, `16`, and `32`; or that we want to ignore
-`2` and `4`, bind `second` to `8`, and then ignore `16` and `32`; and so forth.
-The variable name `second` doesn’t mean anything special to Rust, so we get a
-compiler error because using `..` in two places like this is ambiguous.
+Rust không thể xác định được có bao nhiêu giá trị trong tuple cần bỏ qua
+trước khi khớp một giá trị với `second` và sau đó có bao nhiêu giá trị tiếp theo cần bỏ qua
+sau đó. Mã này có thể có nghĩa là chúng ta muốn bỏ qua `2`, liên kết
+`second` với `4`, và sau đó bỏ qua `8`, `16`, và `32`; hoặc chúng ta muốn bỏ qua
+`2` và `4`, liên kết `second` với `8`, và sau đó bỏ qua `16` và `32`; vân vân.
+Tên biến `second` không có ý nghĩa gì đặc biệt đối với Rust, vì vậy chúng ta nhận được một
+lỗi biên dịch vì việc sử dụng `..` ở hai nơi như thế này là mơ hồ.
 
-### Extra Conditionals with Match Guards
+### Các điều kiện bổ sung với Match Guard
 
-A _match guard_ is an additional `if` condition, specified after the pattern in
-a `match` arm, that must also match for that arm to be chosen. Match guards are
-useful for expressing more complex ideas than a pattern alone allows. Note,
-however, that they are only available in `match` expressions, not in `if let` or
-`while let` expressions.
+Một _match guard_ là một điều kiện `if` bổ sung, được chỉ định sau mẫu trong
+một nhánh `match`, điều kiện này cũng phải khớp để nhánh đó được chọn. Match guard
+hữu ích để diễn đạt các ý tưởng phức tạp hơn so với chỉ dùng mẫu đơn thuần. Tuy nhiên,
+lưu ý rằng chúng chỉ khả dụng trong các biểu thức `match`, không có trong các biểu thức `if let` hoặc
+`while let`.
 
-The condition can use variables created in the pattern. Listing 19-26 shows a
-`match` where the first arm has the pattern `Some(x)` and also has a match
-guard of `if x % 2 == 0` (which will be `true` if the number is even).
+Điều kiện có thể sử dụng các biến được tạo trong mẫu. Liệt kê 19-26 cho thấy một
+`match` nơi nhánh đầu tiên có mẫu `Some(x)` và cũng có một match guard
+là `if x % 2 == 0` (sẽ là `true` nếu số đó là số chẵn).
 
-<Listing number="19-26" caption="Adding a match guard to a pattern">
+<Listing number="19-26" caption="Thêm một match guard vào một mẫu">
 
 ```rust
 {{#rustdoc_include ../listings/ch19-patterns-and-matching/listing-19-26/src/main.rs:here}}
@@ -479,30 +479,30 @@ guard of `if x % 2 == 0` (which will be `true` if the number is even).
 
 </Listing>
 
-This example will print `The number 4 is even`. When `num` is compared to the
-pattern in the first arm, it matches because `Some(4)` matches `Some(x)`. Then
-the match guard checks whether the remainder of dividing `x` by 2 is equal to
-0, and because it is, the first arm is selected.
+Ví dụ này sẽ in ra `The number 4 is even`. Khi `num` được so sánh với
+mẫu trong nhánh đầu tiên, nó khớp vì `Some(4)` khớp với `Some(x)`. Sau đó
+match guard kiểm tra xem phần dư của phép chia `x` cho 2 có bằng
+0 hay không, và vì nó bằng 0, nhánh đầu tiên được chọn.
 
-If `num` had been `Some(5)` instead, the match guard in the first arm would
-have been `false` because the remainder of 5 divided by 2 is 1, which is not
-equal to 0. Rust would then go to the second arm, which would match because the
-second arm doesn’t have a match guard and therefore matches any `Some` variant.
+Nếu `num` là `Some(5)` thay thế, match guard trong nhánh đầu tiên sẽ
+là `false` vì phần dư của 5 chia cho 2 là 1, không
+bằng 0. Rust sau đó sẽ chuyển sang nhánh thứ hai, nhánh này sẽ khớp vì
+nhánh thứ hai không có match guard và do đó khớp với bất kỳ biến thể `Some` nào.
 
-There is no way to express the `if x % 2 == 0` condition within a pattern, so
-the match guard gives us the ability to express this logic. The downside of
-this additional expressiveness is that arms with match guards don't "count" towards
-exhaustiveness. So even if we added `Some(x) if x % 2 == 1` as an additional arm, we would still
-need the un-guarded `Some(x)` arm.
+Không có cách nào để diễn đạt điều kiện `if x % 2 == 0` bên trong một mẫu, vì vậy
+match guard cho chúng ta khả năng diễn đạt logic này. Nhược điểm của
+khả năng diễn đạt bổ sung này là các nhánh có match guard không được "tính" vào
+tính đầy đủ (exhaustiveness). Vì vậy, ngay cả khi chúng ta thêm `Some(x) if x % 2 == 1` như một nhánh bổ sung, chúng ta vẫn
+cần nhánh `Some(x)` không có guard.
 
-In Listing 19-11, we mentioned that we could use match guards to solve our
-pattern-shadowing problem. Recall that we created a new variable inside the
-pattern in the `match` expression instead of using the variable outside the
-`match`. That new variable meant we couldn’t test against the value of the
-outer variable. Listing 19-27 shows how we can use a match guard to fix this
-problem.
+Trong Liệt kê 19-11, chúng ta đã đề cập rằng chúng ta có thể sử dụng match guard để giải quyết
+vấn đề che bóng mẫu của mình. Hãy nhớ lại rằng chúng ta đã tạo một biến mới bên trong
+mẫu trong biểu thức `match` thay vì sử dụng biến bên ngoài
+`match`. Biến mới đó có nghĩa là chúng ta không thể kiểm tra giá trị của
+biến bên ngoài. Liệt kê 19-27 cho thấy cách chúng ta có thể sử dụng một match guard để khắc phục
+vấn đề này.
 
-<Listing number="19-27" file-name="src/main.rs" caption="Using a match guard to test for equality with an outer variable">
+<Listing number="19-27" file-name="src/main.rs" caption="Sử dụng một match guard để kiểm tra sự bằng nhau với một biến bên ngoài">
 
 ```rust
 {{#rustdoc_include ../listings/ch19-patterns-and-matching/listing-19-27/src/main.rs}}
@@ -510,26 +510,26 @@ problem.
 
 </Listing>
 
-This code will now print `Default case, x = Some(5)`. The pattern in the second
-match arm doesn’t introduce a new variable `y` that would shadow the outer `y`,
-meaning we can use the outer `y` in the match guard. Instead of specifying the
-pattern as `Some(y)`, which would have shadowed the outer `y`, we specify
-`Some(n)`. This creates a new variable `n` that doesn’t shadow anything because
-there is no `n` variable outside the `match`.
+Mã này bây giờ sẽ in ra `Default case, x = Some(5)`. Mẫu trong nhánh match
+thứ hai không giới thiệu một biến `y` mới che bóng `y` bên ngoài,
+nghĩa là chúng ta có thể sử dụng `y` bên ngoài trong match guard. Thay vì chỉ định
+mẫu là `Some(y)`, mẫu này sẽ che bóng `y` bên ngoài, chúng ta chỉ định
+`Some(n)`. Điều này tạo ra một biến `n` mới không che bóng bất cứ thứ gì vì
+không có biến `n` nào bên ngoài `match`.
 
-The match guard `if n == y` is not a pattern and therefore doesn’t introduce new
-variables. This `y` _is_ the outer `y` rather than a new `y` shadowing it, and
-we can look for a value that has the same value as the outer `y` by comparing
-`n` to `y`.
+Match guard `if n == y` không phải là một mẫu và do đó không giới thiệu các
+biến mới. `y` này _là_ `y` bên ngoài thay vì một `y` mới che bóng nó, và
+chúng ta có thể tìm kiếm một giá trị có cùng giá trị với `y` bên ngoài bằng cách so sánh
+`n` với `y`.
 
-You can also use the _or_ operator `|` in a match guard to specify multiple
-patterns; the match guard condition will apply to all the patterns. Listing
-19-28 shows the precedence when combining a pattern that uses `|` with a match
-guard. The important part of this example is that the `if y` match guard
-applies to `4`, `5`, _and_ `6`, even though it might look like `if y` only
-applies to `6`.
+Bạn cũng có thể sử dụng toán tử _hoặc_ `|` trong một match guard để chỉ định nhiều
+mẫu; điều kiện match guard sẽ áp dụng cho tất cả các mẫu. Liệt kê
+19-28 cho thấy thứ tự ưu tiên (precedence) khi kết hợp một mẫu sử dụng `|` với một match
+guard. Phần quan trọng của ví dụ này là match guard `if y`
+áp dụng cho `4`, `5`, _và_ `6`, mặc dù nó có vẻ như `if y` chỉ
+áp dụng cho `6`.
 
-<Listing number="19-28" caption="Combining multiple patterns with a match guard">
+<Listing number="19-28" caption="Kết hợp nhiều mẫu với một match guard">
 
 ```rust
 {{#rustdoc_include ../listings/ch19-patterns-and-matching/listing-19-28/src/main.rs:here}}
@@ -537,40 +537,40 @@ applies to `6`.
 
 </Listing>
 
-The match condition states that the arm only matches if the value of `x` is
-equal to `4`, `5`, or `6` _and_ if `y` is `true`. When this code runs, the
-pattern of the first arm matches because `x` is `4`, but the match guard `if y`
-is `false`, so the first arm is not chosen. The code moves on to the second arm,
-which does match, and this program prints `no`. The reason is that the `if`
-condition applies to the whole pattern `4 | 5 | 6`, not just to the last value
-`6`. In other words, the precedence of a match guard in relation to a pattern
-behaves like this:
+Điều kiện match quy định rằng nhánh chỉ khớp nếu giá trị của `x`
+bằng `4`, `5`, hoặc `6` _và_ nếu `y` là `true`. Khi mã này chạy,
+mẫu của nhánh đầu tiên khớp vì `x` là `4`, nhưng match guard `if y`
+là `false`, vì vậy nhánh đầu tiên không được chọn. Mã chuyển sang nhánh thứ hai,
+nhánh này khớp, và chương trình này in ra `no`. Lý do là điều kiện
+`if` áp dụng cho toàn bộ mẫu `4 | 5 | 6`, chứ không chỉ cho giá trị cuối cùng
+`6`. Nói cách khác, thứ tự ưu tiên của một match guard so với một mẫu
+hoạt động như thế này:
 
 ```text
 (4 | 5 | 6) if y => ...
 ```
 
-rather than this:
+thay vì thế này:
 
 ```text
 4 | 5 | (6 if y) => ...
 ```
 
-After running the code, the precedence behavior is evident: if the match guard
-were applied only to the final value in the list of values specified using the
-`|` operator, the arm would have matched and the program would have printed
+Sau khi chạy mã, hành vi ưu tiên là rõ ràng: nếu match guard
+chỉ được áp dụng cho giá trị cuối cùng trong danh sách các giá trị được chỉ định bằng
+toán tử `|`, nhánh đó sẽ khớp và chương trình sẽ in ra
 `yes`.
 
-### `@` Bindings
+### Liên kết `@` (@ Bindings)
 
-The _at_ operator `@` lets us create a variable that holds a value at the same
-time we’re testing that value for a pattern match. In Listing 19-29, we want
-to test that a `Message::Hello` `id` field is within the range `3..=7`. We also
-want to bind the value to the variable `id_variable` so we can use it in the
-code associated with the arm. We could name this variable `id`, the same as the
-field, but for this example we’ll use a different name.
+Toán tử _at_ `@` cho phép chúng ta tạo một biến giữ một giá trị đồng thời với
+việc chúng ta kiểm tra giá trị đó để khớp mẫu. Trong Liệt kê 19-29, chúng ta muốn
+kiểm tra xem một trường `id` của `Message::Hello` có nằm trong khoảng `3..=7` hay không. Chúng ta cũng
+muốn liên kết giá trị đó với biến `id_variable` để có thể sử dụng nó trong
+mã liên kết với nhánh đó. Chúng ta có thể đặt tên biến này là `id`, giống như tên
+trường, nhưng trong ví dụ này chúng ta sẽ sử dụng một cái tên khác.
 
-<Listing number="19-29" caption="Using `@` to bind to a value in a pattern while also testing it">
+<Listing number="19-29" caption="Sử dụng `@` để liên kết với một giá trị trong một mẫu đồng thời kiểm tra nó">
 
 ```rust
 {{#rustdoc_include ../listings/ch19-patterns-and-matching/listing-19-29/src/main.rs:here}}
@@ -578,35 +578,35 @@ field, but for this example we’ll use a different name.
 
 </Listing>
 
-This example will print `Found an id in range: 5`. By specifying `id_variable
-@` before the range `3..=7`, we’re capturing whatever value matched the range
-while also testing that the value matched the range pattern.
+Ví dụ này sẽ in ra `Found an id in range: 5`. Bằng cách chỉ định `id_variable
+@` trước khoảng `3..=7`, chúng ta đang nắm bắt bất kỳ giá trị nào khớp với khoảng
+đồng thời kiểm tra xem giá trị đó có khớp với mẫu khoảng hay không.
 
-In the second arm, where we only have a range specified in the pattern, the code
-associated with the arm doesn’t have a variable that contains the actual value
-of the `id` field. The `id` field’s value could have been 10, 11, or 12, but
-the code that goes with that pattern doesn’t know which it is. The pattern code
-isn’t able to use the value from the `id` field, because we haven’t saved the
-`id` value in a variable.
+Trong nhánh thứ hai, nơi chúng ta chỉ có một khoảng được chỉ định trong mẫu, mã
+liên kết với nhánh đó không có một biến chứa giá trị thực tế của
+trường `id`. Giá trị của trường `id` có thể là 10, 11, hoặc 12, nhưng
+mã đi kèm với mẫu đó không biết nó là giá trị nào. Mã mẫu
+không thể sử dụng giá trị từ trường `id`, vì chúng ta chưa lưu
+giá trị `id` vào một biến.
 
-In the last arm, where we’ve specified a variable without a range, we do have
-the value available to use in the arm’s code in a variable named `id`. The
-reason is that we’ve used the struct field shorthand syntax. But we haven’t
-applied any test to the value in the `id` field in this arm, as we did with the
-first two arms: any value would match this pattern.
+Trong nhánh cuối cùng, nơi chúng ta đã chỉ định một biến mà không có khoảng, chúng ta có
+giá trị sẵn sàng để sử dụng trong mã của nhánh trong một biến tên là `id`. Lý
+do là chúng ta đã sử dụng cú pháp viết tắt trường struct. Nhưng chúng ta chưa
+áp dụng bất kỳ kiểm tra nào cho giá trị trong trường `id` ở nhánh này, như chúng ta đã làm với
+hai nhánh đầu tiên: bất kỳ giá trị nào cũng sẽ khớp với mẫu này.
 
-Using `@` lets us test a value and save it in a variable within one pattern.
+Sử dụng `@` cho phép chúng ta kiểm tra một giá trị và lưu nó vào một biến trong cùng một mẫu.
 
 {{#quiz ../quizzes/ch18-03-pattern-syntax.toml}}
 
-## Summary
+## Tổng kết
 
-Rust’s patterns are very useful in distinguishing between different kinds of
-data. When used in `match` expressions, Rust ensures your patterns cover every
-possible value, or your program won’t compile. Patterns in `let` statements and
-function parameters make those constructs more useful, enabling the
-destructuring of values into smaller parts at the same time as assigning those
-parts to variables. We can create simple or complex patterns to suit our needs.
+Các mẫu của Rust rất hữu ích trong việc phân biệt giữa các loại dữ liệu khác
+nhau. Khi được sử dụng trong các biểu thức `match`, Rust đảm bảo các mẫu của bạn bao quát mọi
+giá trị có thể, nếu không chương trình của bạn sẽ không biên dịch. Các mẫu trong các câu lệnh `let` và
+các tham số hàm làm cho các cấu trúc đó hữu ích hơn, cho phép
+phá cấu trúc các giá trị thành các phần nhỏ hơn đồng thời gán các
+phần đó cho các biến. Chúng ta có thể tạo các mẫu đơn giản hoặc phức tạp để phù hợp với nhu cầu của mình.
 
-Next, for the penultimate chapter of the book, we’ll look at some advanced
-aspects of a variety of Rust’s features.
+Tiếp theo, cho chương áp chót của cuốn sách, chúng ta sẽ xem xét một số khía cạnh nâng cao
+của nhiều tính năng khác nhau của Rust.

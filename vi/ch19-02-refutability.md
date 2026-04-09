@@ -1,37 +1,45 @@
-## Refutability: Whether a Pattern Might Fail to Match
+## Tính có thể bác bỏ (Refutability): Liệu một mẫu có thể không khớp
 
-Patterns come in two forms: refutable and irrefutable. Patterns that will match
-for any possible value passed are _irrefutable_. An example would be `x` in the
-statement `let x = 5;` because `x` matches anything and therefore cannot fail
-to match. Patterns that can fail to match for some possible value are
-_refutable_. Here are some examples:
+Mẫu có hai dạng: refutable (có thể bác bỏ) và irrefutable (không thể bác bỏ).
+Các mẫu sẽ khớp với bất kỳ giá trị nào có thể được truyền vào là
+_irrefutable_. Một ví dụ sẽ là `x` trong câu lệnh
+`let x = 5;` bởi vì `x` khớp với bất kỳ thứ gì và do đó không thể
+thất bại khi khớp. Các mẫu có thể không khớp với một số giá trị
+có thể có là _refutable_. Dưới đây là một số ví dụ:
 
 <!-- BEGIN INTERVENTION: 3c29eb2d-cbe9-4a2c-99b8-aa5c6467c8b4 -->
-* In the expression `if let Some(x) = a_value`, then `Some(x)` is refutable. If the value in the `a_value` variable is `None` rather than
-`Some`, the `Some(x)` pattern will not match. 
-* In the expression `if let &[x, ..] = a_slice`, then `&[x, ..]` is refutable. If the value in the `a_slice` variable has zero elements, the `&[x, ..]` pattern will not match.
+
+- Trong biểu thức `if let Some(x) = a_value`, thì `Some(x)` là refutable. Nếu giá trị trong biến `a_value` là `None` thay vì
+  `Some`, mẫu `Some(x)` sẽ không khớp.
+- Trong biểu thức `if let &[x, ..] = a_slice`, thì `&[x, ..]` là refutable. Nếu giá trị trong biến `a_slice` không có
+  phần tử nào, mẫu `&[x, ..]` sẽ không khớp.
 <!-- END INTERVENTION: 3c29eb2d-cbe9-4a2c-99b8-aa5c6467c8b4 -->
 
-Function parameters, `let` statements, and `for` loops can only accept
-irrefutable patterns because the program cannot do anything meaningful when
-values don’t match. The `if let` and `while let` expressions and the
-`let...else` statement accept refutable and irrefutable patterns, but the
-compiler warns against irrefutable patterns because, by definition, they’re
-intended to handle possible failure: the functionality of a conditional is in
-its ability to perform differently depending on success or failure.
+Các tham số hàm, câu lệnh `let`, và vòng lặp `for` chỉ có thể
+chấp nhận các mẫu irrefutable bởi vì chương trình không thể làm bất cứ điều gì
+có ý nghĩa khi các giá trị không khớp. Các biểu thức `if let`
+và `while let` và câu lệnh `let...else` chấp nhận cả mẫu
+refutable và irrefutable, nhưng trình biên dịch cảnh báo đối với các mẫu
+irrefutable bởi vì, theo định nghĩa, chúng được dùng để xử lý khả năng
+thất bại: chức năng của một câu lệnh điều kiện nằm ở khả năng
+thực hiện khác nhau tùy thuộc vào sự thành công hay thất bại.
+tùy thuộc vào thành công hay thất bại.
 
-In general, you shouldn’t have to worry about the distinction between refutable
-and irrefutable patterns; however, you do need to be familiar with the concept
-of refutability so you can respond when you see it in an error message. In
-those cases, you’ll need to change either the pattern or the construct you’re
-using the pattern with, depending on the intended behavior of the code.
+Nói chung, bạn không cần phải lo lắng về sự phân biệt giữa mẫu
+refutable và irrefutable; tuy nhiên, bạn cần phải làm quen với
+khái niệm về tính có thể bác bỏ (refutability) để bạn có thể phản hồi khi
+thấy nó trong một thông báo lỗi. Trong những trường hợp đó,
+bạn sẽ cần thay đổi mẫu hoặc cấu trúc mà bạn đang sử dụng
+với mẫu đó, tùy thuộc vào hành vi dự định của mã.
+hành vi dự định của mã.
 
-Let’s look at an example of what happens when we try to use a refutable pattern
-where Rust requires an irrefutable pattern and vice versa. Listing 19-8 shows a
-`let` statement, but for the pattern, we’ve specified `Some(x)`, a refutable
-pattern. As you might expect, this code will not compile.
+Hãy xem một ví dụ về điều gì xảy ra khi chúng ta cố gắng sử dụng
+một mẫu refutable ở nơi mà Rust yêu cầu một mẫu irrefutable
+và ngược lại. Liệt kê 19-8 hiển thị một câu lệnh `let`, nhưng đối với
+mẫu, chúng ta đã chỉ định `Some(x)`, một mẫu refutable. Như bạn có thể
+mong đợi, mã này sẽ không biên dịch.
 
-<Listing number="19-8" caption="Attempting to use a refutable pattern with `let`">
+<Listing number="19-8" caption="Cố gắng sử dụng một mẫu refutable với `let`">
 
 ```rust,ignore,does_not_compile
 {{#rustdoc_include ../listings/ch19-patterns-and-matching/listing-19-08/src/main.rs:here}}
@@ -39,26 +47,29 @@ pattern. As you might expect, this code will not compile.
 
 </Listing>
 
-If `some_option_value` were a `None` value, it would fail to match the pattern
-`Some(x)`, meaning the pattern is refutable. However, the `let` statement can
-only accept an irrefutable pattern because there is nothing valid the code can
-do with a `None` value. At compile time, Rust will complain that we’ve tried to
-use a refutable pattern where an irrefutable pattern is required:
+Nếu `some_option_value` là một giá trị `None`, nó sẽ thất bại khi
+khớp với mẫu `Some(x)`, nghĩa là mẫu đó là refutable. Tuy nhiên,
+câu lệnh `let` chỉ có thể chấp nhận một mẫu irrefutable bởi vì không có
+gì hợp lệ mà mã có thể làm với giá trị `None`. Tại thời điểm biên dịch,
+Rust sẽ phàn nàn rằng chúng ta đã cố gắng sử dụng một mẫu refutable
+ở nơi yêu cầu một mẫu irrefutable:
 
 ```console
 {{#include ../listings/ch19-patterns-and-matching/listing-19-08/output.txt}}
 ```
 
-Because we didn’t cover (and couldn’t cover!) every valid value with the
-pattern `Some(x)`, Rust rightfully produces a compiler error.
+Bởi vì chúng ta đã không bao quát (và không thể bao quát!) mọi giá trị hợp lệ
+với mẫu `Some(x)`, Rust tạo ra một lỗi biên dịch một cách chính đáng.
+lỗi biên dịch.
 
-If we have a refutable pattern where an irrefutable pattern is needed, we can
-fix it by changing the code that uses the pattern: instead of using `let`, we
-can use `if let`. Then if the pattern doesn’t match, the code will just skip
-the code in the curly brackets, giving it a way to continue validly. Listing
-19-9 shows how to fix the code in Listing 19-8.
+Nếu chúng ta có một mẫu refutable ở nơi cần một mẫu irrefutable,
+chúng ta có thể khắc phục bằng cách thay đổi mã sử dụng mẫu đó:
+thay vì sử dụng `let`, chúng ta có thể sử dụng `if let`. Khi đó nếu
+mẫu không khớp, mã sẽ chỉ bỏ qua đoạn mã trong dấu ngoặc nhọn,
+cung cấp cho nó một cách để tiếp tục một cách hợp lệ. Liệt kê 19-9
+cho thấy cách sửa mã trong Liệt kê 19-8.
 
-<Listing number="19-9" caption="Using `let...else` and a block with refutable patterns instead of `let`">
+<Listing number="19-9" caption="Sử dụng `let...else` và một khối với các mẫu refutable thay vì `let`">
 
 ```rust
 {{#rustdoc_include ../listings/ch19-patterns-and-matching/listing-19-09/src/main.rs:here}}
@@ -66,12 +77,12 @@ the code in the curly brackets, giving it a way to continue validly. Listing
 
 </Listing>
 
-We’ve given the code an out! This code is perfectly valid now. However,
-if we give `if let` an irrefutable pattern (a pattern that will always
-match), such as `x`, as shown in Listing 19-10, the compiler will give a
-warning.
+Chúng ta đã cho mã một lối thoát! Mã này hiện đã hoàn toàn hợp lệ.
+Tuy nhiên, nếu chúng ta đưa cho `if let` một mẫu irrefutable (một mẫu
+sẽ luôn khớp), chẳng hạn như `x`, như được hiển thị trong Liệt kê 19-10,
+trình biên dịch sẽ đưa ra một cảnh báo.
 
-<Listing number="19-10" caption="Attempting to use an irrefutable pattern with `if let`">
+<Listing number="19-10" caption="Cố gắng sử dụng một mẫu irrefutable với `if let`">
 
 ```rust
 {{#rustdoc_include ../listings/ch19-patterns-and-matching/listing-19-10/src/main.rs:here}}
@@ -79,21 +90,22 @@ warning.
 
 </Listing>
 
-Rust complains that it doesn’t make sense to use `if let` with an irrefutable
-pattern:
+Rust phàn nàn rằng việc sử dụng `if let` với một mẫu irrefutable là
+không có ý nghĩa:
 
 ```console
 {{#include ../listings/ch19-patterns-and-matching/listing-19-10/output.txt}}
 ```
 
-For this reason, match arms must use refutable patterns, except for the last
-arm, which should match any remaining values with an irrefutable pattern. Rust
-allows us to use an irrefutable pattern in a `match` with only one arm, but
-this syntax isn’t particularly useful and could be replaced with a simpler
-`let` statement.
+Vì lý do này, các nhánh match phải sử dụng các mẫu refutable, ngoại trừ
+nhánh cuối cùng, nhánh này nên khớp với bất kỳ giá trị còn lại nào
+bằng một mẫu irrefutable. Rust cho phép chúng ta sử dụng một mẫu
+irrefutable trong một `match` chỉ có một nhánh, nhưng cú pháp này
+không đặc biệt hữu ích và có thể được thay thế bằng một câu lệnh `let`
+đơn giản hơn.
 
-Now that you know where to use patterns and the difference between refutable
-and irrefutable patterns, let’s cover all the syntax we can use to create
-patterns.
+Bây giờ bạn đã biết nơi để sử dụng các mẫu và sự khác biệt giữa
+mẫu refutable và irrefutable, hãy cùng tìm hiểu tất cả cú pháp
+chúng ta có thể sử dụng để tạo ra các mẫu.
 
 {{#quiz ../quizzes/ch18-02-refutability.toml}}
