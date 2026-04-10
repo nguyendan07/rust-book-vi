@@ -1,4 +1,4 @@
-# Các tính năng ngôn ngữ hàm: Iterator và Closure
+# Các tính năng của ngôn ngữ lập trình hàm: Iterator và Closure
 
 Thiết kế của Rust đã lấy cảm hứng từ nhiều ngôn ngữ và
 kỹ thuật hiện có, và một ảnh hưởng đáng kể là _lập trình hàm_ (functional programming).
