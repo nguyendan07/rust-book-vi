@@ -1,21 +1,21 @@
-## Turning Our Single-Threaded Server into a Multithreaded Server
+## Chuyển Web Server Đơn Luồng Thành Web Server Đa Luồng
 
-Right now, the server will process each request in turn, meaning it won’t
-process a second connection until the first is finished processing. If the
-server received more and more requests, this serial execution would be less and
-less optimal. If the server receives a request that takes a long time to
-process, subsequent requests will have to wait until the long request is
-finished, even if the new requests can be processed quickly. We’ll need to fix
-this, but first we’ll look at the problem in action.
+Hiện tại, server sẽ xử lý lần lượt từng request, nghĩa là nó sẽ không xử lý kết
+nối thứ hai cho đến khi kết nối đầu tiên được xử lý xong. Nếu server nhận được ngày
+càng nhiều request, việc thực thi tuần tự (serial execution) này sẽ ngày càng kém
+tối ưu. Nếu server nhận được một request mất nhiều thời gian để xử lý, các request
+tiếp theo sẽ phải đợi cho đến khi request kéo dài đó kết thúc, ngay cả khi các request
+mới có thể được xử lý nhanh chóng. Chúng ta sẽ cần khắc phục điều này, nhưng trước
+tiên chúng ta sẽ xem xét vấn đề đang diễn ra trong thực tế.
 
-### Simulating a Slow Request in the Current Server Implementation
+### Mô Phỏng Một Request Chậm Trong Triển Khai Server Hiện Tại
 
-We’ll look at how a slow-processing request can affect other requests made to
-our current server implementation. Listing 21-10 implements handling a request
-to _/sleep_ with a simulated slow response that will cause the server to sleep
-for five seconds before responding.
+Chúng ta sẽ xem xét cách một request xử lý chậm có thể ảnh hưởng đến các request
+khác được gửi tới bản triển khai server hiện tại của chúng ta. Listing 21-10 triển
+khai việc xử lý một request đến _/sleep_ với một phản hồi chậm được mô phỏng sẽ khiến
+server sleep (ngủ) trong năm giây trước khi phản hồi.
 
-<Listing number="21-10" file-name="src/main.rs" caption="Simulating a slow request by sleeping for 5 seconds">
+<Listing number="21-10" file-name="src/main.rs" caption="Mô phỏng một request chậm bằng cách sleep trong 5 giây">
 
 ```rust,no_run
 {{#rustdoc_include ../listings/ch21-web-server/listing-21-10/src/main.rs:here}}
@@ -23,91 +23,90 @@ for five seconds before responding.
 
 </Listing>
 
-We switched from `if` to `match` now that we have three cases. We need to
-explicitly match on a slice of `request_line` to pattern match against the
-string literal values; `match` doesn’t do automatic referencing and
-dereferencing, like the equality method does.
+Chúng ta đã chuyển từ `if` sang `match` vì giờ đây chúng ta có ba trường hợp. Chúng
+ta cần khớp rõ ràng trên một slice của `request_line` để khớp mẫu (pattern match) với
+các giá trị chuỗi ký tự (string literal); `match` không tự động tạo tham chiếu và
+giải tham chiếu (dereferencing) như phương thức so sánh bằng.
 
-The first arm is the same as the `if` block from Listing 21-9. The second arm
-matches a request to _/sleep_. When that request is received, the server will
-sleep for five seconds before rendering the successful HTML page. The third arm
-is the same as the `else` block from Listing 21-9.
+Nhánh (arm) đầu tiên giống như khối `if` trong Listing 21-9. Nhánh thứ hai khớp với
+request đến _/sleep_. Khi nhận được request đó, server sẽ sleep trong năm giây trước
+khi hiển thị trang HTML thành công. Nhánh thứ ba giống như khối `else` trong Listing
+21-9.
 
-You can see how primitive our server is: real libraries would handle the
-recognition of multiple requests in a much less verbose way!
+Bạn có thể thấy server của chúng ta sơ khai đến mức nào: các thư viện thực tế sẽ
+xử lý việc nhận diện nhiều request theo cách ít rườm rà hơn nhiều!
 
-Start the server using `cargo run`. Then open two browser windows: one for
-_http://127.0.0.1:7878/_ and the other for _http://127.0.0.1:7878/sleep_. If
-you enter the _/_ URI a few times, as before, you’ll see it respond quickly.
-But if you enter _/sleep_ and then load _/_, you’ll see that _/_ waits until
-`sleep` has slept for its full five seconds before loading.
+Khởi động server bằng `cargo run`. Sau đó mở hai cửa sổ trình duyệt: một cho
+_http://127.0.0.1:7878/_ và một cho _http://127.0.0.1:7878/sleep_. Nếu bạn nhập URI
+_/_ một vài lần, như trước đây, bạn sẽ thấy nó phản hồi nhanh chóng. Nhưng nếu bạn
+nhập _/sleep_ rồi sau đó tải _/_, bạn sẽ thấy rằng _/_ phải đợi cho đến khi `sleep`
+đã ngủ đủ năm giây trước khi tải.
 
-There are multiple techniques we could use to avoid requests backing up behind
-a slow request, including using async as we did Chapter 17; the one we’ll
-implement is a thread pool.
+Có nhiều kỹ thuật chúng ta có thể sử dụng để tránh việc các request bị ùn tắc phía
+sau một request chậm, bao gồm cả việc sử dụng async như chúng ta đã làm trong Chương
+17; kỹ thuật mà chúng ta sẽ triển khai là thread pool (nhóm luồng).
 
-### Improving Throughput with a Thread Pool
+### Cải Thiện Thông Lượng Với Thread Pool
 
-A _thread pool_ is a group of spawned threads that are waiting and ready to
-handle a task. When the program receives a new task, it assigns one of the
-threads in the pool to the task, and that thread will process the task. The
-remaining threads in the pool are available to handle any other tasks that come
-in while the first thread is processing. When the first thread is done
-processing its task, it’s returned to the pool of idle threads, ready to handle
-a new task. A thread pool allows you to process connections concurrently,
-increasing the throughput of your server.
+Một _thread pool_ (nhóm luồng) là một nhóm các luồng (thread) đã được tạo sẵn, đang
+chờ đợi và sẵn sàng xử lý một tác vụ. Khi chương trình nhận được một tác vụ mới, nó
+sẽ gán một trong các luồng trong pool cho tác vụ đó, và luồng đó sẽ xử lý tác vụ.
+Các luồng còn lại trong pool luôn sẵn sàng xử lý bất kỳ tác vụ nào khác xuất hiện
+trong khi luồng đầu tiên đang xử lý. Khi luồng đầu tiên xử lý xong tác vụ của nó, nó
+sẽ được đưa trở lại nhóm các luồng rảnh rỗi (idle threads), sẵn sàng xử lý một tác vụ
+mới. Thread pool cho phép bạn xử lý các kết nối đồng thời (concurrently), làm tăng
+thông lượng (throughput) của server.
 
-We’ll limit the number of threads in the pool to a small number to protect us
-from DoS attacks; if we had our program create a new thread for each request as
-it came in, someone making 10 million requests to our server could create havoc
-by using up all our server’s resources and grinding the processing of requests
-to a halt.
+Chúng ta sẽ giới hạn số lượng luồng trong pool ở một con số nhỏ để bảo vệ chúng ta
+khỏi các cuộc tấn công DoS (Từ chối dịch vụ); nếu chúng ta để chương trình tạo một
+luồng mới cho mỗi request đến, ai đó gửi 10 triệu request đến server của chúng ta có
+thể gây ra hỗn loạn bằng cách sử dụng hết tài nguyên của server và làm tê liệt quá
+trình xử lý request.
 
-Rather than spawning unlimited threads, then, we’ll have a fixed number of
-threads waiting in the pool. Requests that come in are sent to the pool for
-processing. The pool will maintain a queue of incoming requests. Each of the
-threads in the pool will pop off a request from this queue, handle the request,
-and then ask the queue for another request. With this design, we can process up
-to *`N`* requests concurrently, where *`N`* is the number of threads. If each
-thread is responding to a long-running request, subsequent requests can still
-back up in the queue, but we’ve increased the number of long-running requests
-we can handle before reaching that point.
+Do đó, thay vì tạo số lượng luồng không giới hạn, chúng ta sẽ có một số lượng luồng
+cố định chờ đợi trong pool. Các request đến sẽ được gửi đến pool để xử lý. Pool sẽ
+duy trì một hàng đợi (queue) chứa các request gửi đến. Mỗi luồng trong pool sẽ lấy
+một request ra khỏi hàng đợi này, xử lý request, và sau đó yêu cầu hàng đợi cung cấp
+một request khác. Với thiết kế này, chúng ta có thể xử lý đồng thời tối đa *`N`*
+request, trong đó *`N`* là số lượng luồng. Nếu mỗi luồng đang phản hồi một request kéo
+dài, các request tiếp theo vẫn có thể bị ùn lại trong hàng đợi, nhưng chúng ta đã
+tăng số lượng request kéo dài mà chúng ta có thể xử lý trước khi chạm đến điểm giới
+hạn đó.
 
-This technique is just one of many ways to improve the throughput of a web
-server. Other options you might explore are the fork/join model, the
-single-threaded async I/O model, and the multithreaded async I/O model. If
-you’re interested in this topic, you can read more about other solutions and
-try to implement them; with a low-level language like Rust, all of these
-options are possible.
+Kỹ thuật này chỉ là một trong nhiều cách để cải thiện thông lượng của một web server.
+Các tùy chọn khác bạn có thể khám phá là mô hình fork/join, mô hình async I/O đơn
+luồng và mô hình async I/O đa luồng. Nếu bạn quan tâm đến chủ đề này, bạn có thể đọc
+thêm về các giải pháp khác và thử triển khai chúng; với một ngôn ngữ cấp thấp như
+Rust, tất cả các tùy chọn này đều khả thi.
 
-Before we begin implementing a thread pool, let’s talk about what using the
-pool should look like. When you’re trying to design code, writing the client
-interface first can help guide your design. Write the API of the code so it’s
-structured in the way you want to call it; then implement the functionality
-within that structure rather than implementing the functionality and then
-designing the public API.
+Trước khi bắt đầu triển khai một thread pool, hãy nói về việc sử dụng pool trông sẽ
+như thế nào. Khi bạn đang cố gắng thiết kế mã, viết giao diện phía client (client
+interface) trước có thể giúp định hướng thiết kế của bạn. Hãy viết API của mã để nó
+được cấu trúc theo cách bạn muốn gọi; sau đó triển khai chức năng bên trong cấu trúc
+đó thay vì triển khai chức năng trước rồi mới thiết kế public API.
 
-Similar to how we used test-driven development in the project in Chapter 12,
-we’ll use compiler-driven development here. We’ll write the code that calls the
-functions we want, and then we’ll look at errors from the compiler to determine
-what we should change next to get the code to work. Before we do that, however,
-we’ll explore the technique we’re not going to use as a starting point.
+Tương tự như cách chúng ta đã sử dụng phát triển hướng kiểm thử (test-driven
+development) trong dự án ở Chương 12, ở đây chúng ta sẽ sử dụng phát triển hướng
+trình biên dịch (compiler-driven development). Chúng ta sẽ viết mã gọi các hàm mình
+muốn, và sau đó xem xét các lỗi từ trình biên dịch để xác định xem nên thay đổi điều
+gì tiếp theo nhằm làm cho mã hoạt động. Tuy nhiên, trước khi làm điều đó, chúng ta
+sẽ khám phá kỹ thuật mà chúng ta sẽ không sử dụng làm điểm khởi đầu.
 
 <!-- Old headings. Do not remove or links may break. -->
 
 <a id="code-structure-if-we-could-spawn-a-thread-for-each-request"></a>
 
-#### Spawning a Thread for Each Request
+#### Tạo Một Luồng Cho Mỗi Request
 
-First, let’s explore how our code might look if it did create a new thread for
-every connection. As mentioned earlier, this isn’t our final plan due to the
-problems with potentially spawning an unlimited number of threads, but it is a
-starting point to get a working multithreaded server first. Then we’ll add the
-thread pool as an improvement, and contrasting the two solutions will be
-easier. Listing 21-11 shows the changes to make to `main` to spawn a new thread
-to handle each stream within the `for` loop.
+Đầu tiên, hãy khám phá xem mã của chúng ta sẽ trông như thế nào nếu nó thực sự tạo
+một luồng mới cho mỗi kết nối. Như đã đề cập trước đó, đây không phải là kế hoạch
+cuối cùng của chúng ta do các vấn đề tiềm ẩn khi tạo ra số lượng luồng không giới hạn,
+nhưng nó là một điểm khởi đầu để có được một server đa luồng hoạt động trước. Sau
+đó, chúng ta sẽ thêm thread pool như một sự cải tiến, và việc đối chiếu giữa hai giải
+pháp sẽ dễ dàng hơn. Listing 21-11 cho thấy những thay đổi cần thực hiện đối với
+`main` để tạo một luồng mới xử lý từng stream bên trong vòng lặp `for`.
 
-<Listing number="21-11" file-name="src/main.rs" caption="Spawning a new thread for each stream">
+<Listing number="21-11" file-name="src/main.rs" caption="Tạo một luồng mới cho mỗi stream">
 
 ```rust,no_run
 {{#rustdoc_include ../listings/ch21-web-server/listing-21-11/src/main.rs:here}}
@@ -115,29 +114,29 @@ to handle each stream within the `for` loop.
 
 </Listing>
 
-As you learned in Chapter 16, `thread::spawn` will create a new thread and then
-run the code in the closure in the new thread. If you run this code and load
-_/sleep_ in your browser, then _/_ in two more browser tabs, you’ll indeed see
-that the requests to _/_ don’t have to wait for _/sleep_ to finish. However, as
-we mentioned, this will eventually overwhelm the system because you’d be making
-new threads without any limit.
+Như bạn đã học trong Chương 16, `thread::spawn` sẽ tạo một luồng mới và sau đó chạy
+mã trong closure ở luồng mới. Nếu bạn chạy mã này và tải _/sleep_ trong trình duyệt của
+mình, sau đó tải _/_ trong hai tab trình duyệt khác, bạn thực sự sẽ thấy rằng các
+request đến _/_ không cần phải đợi _/sleep_ hoàn thành. Tuy nhiên, như chúng tôi đã đề
+cập, điều này cuối cùng sẽ làm quá tải hệ thống vì bạn sẽ tạo ra các luồng mới mà
+không có bất kỳ giới hạn nào.
 
-You may also recall from Chapter 17 that this is exactly the kind of situation
-where async and await really shine! Keep that in mind as we build the thread
-pool and think about how things would look different or the same with async.
+Bạn cũng có thể nhớ lại từ Chương 17 rằng đây chính xác là tình huống mà async và
+await thực sự tỏa sáng! Hãy ghi nhớ điều đó khi chúng ta xây dựng thread pool và suy
+nghĩ về việc mọi thứ sẽ khác nhau hay giống nhau như thế nào với async.
 
 <!-- Old headings. Do not remove or links may break. -->
 
 <a id="creating-a-similar-interface-for-a-finite-number-of-threads"></a>
 
-#### Creating a Finite Number of Threads
+#### Tạo Một Số Lượng Hữu Hạn Các Luồng
 
-We want our thread pool to work in a similar, familiar way so that switching
-from threads to a thread pool doesn’t require large changes to the code that
-uses our API. Listing 21-12 shows the hypothetical interface for a `ThreadPool`
-struct we want to use instead of `thread::spawn`.
+Chúng ta muốn thread pool của mình hoạt động theo cách tương tự, quen thuộc để việc
+chuyển đổi từ các luồng sang thread pool không đòi hỏi những thay đổi lớn đối với mã
+sử dụng API của chúng ta. Listing 21-12 hiển thị giao diện giả định cho một struct
+`ThreadPool` mà chúng ta muốn sử dụng thay cho `thread::spawn`.
 
-<Listing number="21-12" file-name="src/main.rs" caption="Our ideal `ThreadPool` interface">
+<Listing number="21-12" file-name="src/main.rs" caption="Giao diện `ThreadPool` lý tưởng của chúng ta">
 
 ```rust,ignore,does_not_compile
 {{#rustdoc_include ../listings/ch21-web-server/listing-21-12/src/main.rs:here}}
@@ -145,37 +144,38 @@ struct we want to use instead of `thread::spawn`.
 
 </Listing>
 
-We use `ThreadPool::new` to create a new thread pool with a configurable number
-of threads, in this case four. Then, in the `for` loop, `pool.execute` has a
-similar interface as `thread::spawn` in that it takes a closure the pool should
-run for each stream. We need to implement `pool.execute` so it takes the
-closure and gives it to a thread in the pool to run. This code won’t yet
-compile, but we’ll try so the compiler can guide us in how to fix it.
+Chúng ta sử dụng `ThreadPool::new` để tạo một thread pool mới với số lượng luồng có
+thể cấu hình được, trong trường hợp này là 4. Sau đó, trong vòng lặp `for`,
+`pool.execute` có giao diện tương tự như `thread::spawn` ở chỗ nó nhận một closure mà
+pool nên chạy cho mỗi stream. Chúng ta cần triển khai `pool.execute` sao cho nó nhận
+closure và giao cho một luồng trong pool chạy. Mã này chưa thể biên dịch được, nhưng
+chúng ta sẽ thử để trình biên dịch có thể hướng dẫn chúng ta cách sửa nó.
 
 <!-- Old headings. Do not remove or links may break. -->
 
 <a id="building-the-threadpool-struct-using-compiler-driven-development"></a>
 
-#### Building `ThreadPool` Using Compiler Driven Development
+#### Xây Dựng `ThreadPool` Bằng Cách Phát Triển Hướng Trình Biên Dịch
 
-Make the changes in Listing 21-12 to _src/main.rs_, and then let’s use the
-compiler errors from `cargo check` to drive our development. Here is the first
-error we get:
+Thực hiện các thay đổi trong Listing 21-12 vào _src/main.rs_, và sau đó hãy sử dụng
+các lỗi trình biên dịch từ `cargo check` để thúc đẩy quá trình phát triển của chúng
+ta. Dưới đây là lỗi đầu tiên chúng ta nhận được:
 
 ```console
 {{#include ../listings/ch21-web-server/listing-21-12/output.txt}}
 ```
 
-Great! This error tells us we need a `ThreadPool` type or module, so we’ll
-build one now. Our `ThreadPool` implementation will be independent of the kind
-of work our web server is doing. So let’s switch the `hello` crate from a
-binary crate to a library crate to hold our `ThreadPool` implementation. After
-we change to a library crate, we could also use the separate thread pool
-library for any work we want to do using a thread pool, not just for serving
-web requests.
+Tuyệt vời! Lỗi này cho chúng ta biết rằng chúng ta cần một kiểu hoặc module
+`ThreadPool`, vì vậy chúng ta sẽ xây dựng một cái ngay bây giờ. Bản triển khai
+`ThreadPool` của chúng ta sẽ độc lập với loại công việc mà web server của chúng ta
+đang làm. Vì vậy, hãy chuyển crate `hello` từ một binary crate sang một library crate
+để chứa bản triển khai `ThreadPool` của chúng ta. Sau khi chuyển sang library crate,
+chúng ta cũng có thể sử dụng thư viện thread pool riêng biệt này cho bất kỳ công
+việc nào chúng ta muốn thực hiện bằng thread pool, chứ không chỉ để phục vụ các web
+request.
 
-Create a _src/lib.rs_ file that contains the following, which is the simplest
-definition of a `ThreadPool` struct that we can have for now:
+Tạo một tệp _src/lib.rs_ chứa nội dung sau, đây là định nghĩa đơn giản nhất của struct
+`ThreadPool` mà chúng ta có thể có vào lúc này:
 
 <Listing file-name="src/lib.rs">
 
@@ -185,8 +185,8 @@ definition of a `ThreadPool` struct that we can have for now:
 
 </Listing>
 
-Then edit _main.rs_ file to bring `ThreadPool` into scope from the library
-crate by adding the following code to the top of _src/main.rs_:
+Sau đó chỉnh sửa tệp _src/main.rs_ để đưa `ThreadPool` vào phạm vi từ library crate
+bằng cách thêm mã sau vào đầu _src/main.rs_:
 
 <Listing file-name="src/main.rs">
 
@@ -196,18 +196,17 @@ crate by adding the following code to the top of _src/main.rs_:
 
 </Listing>
 
-This code still won’t work, but let’s check it again to get the next error that
-we need to address:
+Mã này vẫn chưa hoạt động, nhưng hãy kiểm tra lại để nhận lỗi tiếp theo mà chúng ta
+cần giải quyết:
 
 ```console
 {{#include ../listings/ch21-web-server/no-listing-01-define-threadpool-struct/output.txt}}
 ```
 
-This error indicates that next we need to create an associated function named
-`new` for `ThreadPool`. We also know that `new` needs to have one parameter
-that can accept `4` as an argument and should return a `ThreadPool` instance.
-Let’s implement the simplest `new` function that will have those
-characteristics:
+Lỗi này chỉ ra rằng tiếp theo chúng ta cần tạo một hàm liên kết (associated
+function) có tên là `new` cho `ThreadPool`. Chúng ta cũng biết rằng `new` cần có một
+tham số có thể nhận `4` làm đối số và sẽ trả về một instance `ThreadPool`. Hãy triển
+khai hàm `new` đơn giản nhất có các đặc điểm đó:
 
 <Listing file-name="src/lib.rs">
 
@@ -217,33 +216,33 @@ characteristics:
 
 </Listing>
 
-We chose `usize` as the type of the `size` parameter because we know that a
-negative number of threads doesn’t make any sense. We also know we’ll use this
-`4` as the number of elements in a collection of threads, which is what the
-`usize` type is for, as discussed in [“Integer Types”][integer-types]<!-- ignore
---> in Chapter 3.
+Chúng ta đã chọn `usize` làm kiểu của tham số `size` vì chúng ta biết rằng số lượng
+luồng là một số âm thì không có ý nghĩa gì. Chúng ta cũng biết mình sẽ sử dụng `4`
+này làm số lượng phần tử trong một tập hợp các luồng, đó chính là mục đích của kiểu
+`usize`, như đã thảo luận trong phần [“Các kiểu số nguyên”][integer-types]<!-- ignore
+--> ở Chương 3.
 
-Let’s check the code again:
+Hãy kiểm tra lại mã:
 
 ```console
 {{#include ../listings/ch21-web-server/no-listing-02-impl-threadpool-new/output.txt}}
 ```
 
-Now the error occurs because we don’t have an `execute` method on `ThreadPool`.
-Recall from [“Creating a Finite Number of
-Threads”](#creating-a-finite-number-of-threads)<!-- ignore --> that we decided
-our thread pool should have an interface similar to `thread::spawn`. In
-addition, we’ll implement the `execute` function so it takes the closure it’s
-given and gives it to an idle thread in the pool to run.
+Bây giờ lỗi xảy ra vì chúng ta không có phương thức `execute` trên `ThreadPool`. Nhớ
+lại từ phần [“Tạo Một Số Lượng Hữu Hạn Các
+Luồng”](#creating-a-finite-number-of-threads)<!-- ignore --> rằng chúng ta đã quyết
+định thread pool của mình nên có một giao diện tương tự như `thread::spawn`. Ngoài ra,
+chúng ta sẽ triển khai hàm `execute` sao cho nó nhận closure được truyền vào và giao
+nó cho một luồng đang rảnh rỗi trong pool để chạy.
 
-We’ll define the `execute` method on `ThreadPool` to take a closure as a
-parameter. Recall from [“Moving Captured Values Out of the Closure and the `Fn`
-Traits”][fn-traits]<!-- ignore --> in Chapter 13 that we can take closures as
-parameters with three different traits: `Fn`, `FnMut`, and `FnOnce`. We need to
-decide which kind of closure to use here. We know we’ll end up doing something
-similar to the standard library `thread::spawn` implementation, so we can look
-at what bounds the signature of `thread::spawn` has on its parameter. The
-documentation shows us the following:
+Chúng ta sẽ định nghĩa phương thức `execute` trên `ThreadPool` để nhận một closure
+làm tham số. Nhớ lại từ [“Di chuyển các giá trị đã capture ra khỏi closure và các
+trait `Fn`”][fn-traits]<!-- ignore --> trong Chương 13 rằng chúng ta có thể nhận các
+closure làm tham số với ba trait khác nhau: `Fn`, `FnMut`, và `FnOnce`. Chúng ta cần
+quyết định loại closure nào sẽ sử dụng ở đây. Chúng ta biết cuối cùng mình sẽ làm điều
+gì đó tương tự như bản triển khai `thread::spawn` của thư viện chuẩn, vì vậy chúng ta
+có thể xem xét những ràng buộc (bounds) mà chữ ký của `thread::spawn` đặt trên tham số
+của nó. Tài liệu cho chúng ta thấy như sau:
 
 ```rust,ignore
 pub fn spawn<F, T>(f: F) -> JoinHandle<T>
@@ -253,19 +252,19 @@ pub fn spawn<F, T>(f: F) -> JoinHandle<T>
         T: Send + 'static,
 ```
 
-The `F` type parameter is the one we’re concerned with here; the `T` type
-parameter is related to the return value, and we’re not concerned with that. We
-can see that `spawn` uses `FnOnce` as the trait bound on `F`. This is probably
-what we want as well, because we’ll eventually pass the argument we get in
-`execute` to `spawn`. We can be further confident that `FnOnce` is the trait we
-want to use because the thread for running a request will only execute that
-request’s closure one time, which matches the `Once` in `FnOnce`.
+Tham số kiểu `F` là tham số chúng ta quan tâm ở đây; tham số kiểu `T` liên quan đến
+giá trị trả về, và chúng ta không quan tâm đến điều đó. Chúng ta có thể thấy rằng
+`spawn` sử dụng `FnOnce` làm trait bound trên `F`. Đây có thể cũng là điều chúng ta
+muốn, bởi vì cuối cùng chúng ta sẽ truyền đối số nhận được trong `execute` cho
+`spawn`. Chúng ta có thể tự tin hơn nữa rằng `FnOnce` là trait chúng ta muốn sử dụng
+vì luồng chạy request sẽ chỉ thực thi closure của request đó một lần, điều này khớp
+với chữ `Once` trong `FnOnce`.
 
-The `F` type parameter also has the trait bound `Send` and the lifetime bound
-`'static`, which are useful in our situation: we need `Send` to transfer the
-closure from one thread to another and `'static` because we don’t know how long
-the thread will take to execute. Let’s create an `execute` method on
-`ThreadPool` that will take a generic parameter of type `F` with these bounds:
+Tham số kiểu `F` cũng có trait bound `Send` và lifetime bound `'static`, những ràng
+buộc này rất hữu ích trong tình huống của chúng ta: chúng ta cần `Send` để truyền
+closure từ luồng này sang luồng khác và `'static` vì chúng ta không biết luồng sẽ mất
+bao lâu để thực thi. Hãy tạo một phương thức `execute` trên `ThreadPool` nhận một
+tham số generic kiểu `F` với các ràng buộc này:
 
 <Listing file-name="src/lib.rs">
 
@@ -275,45 +274,46 @@ the thread will take to execute. Let’s create an `execute` method on
 
 </Listing>
 
-We still use the `()` after `FnOnce` because this `FnOnce` represents a closure
-that takes no parameters and returns the unit type `()`. Just like function
-definitions, the return type can be omitted from the signature, but even if we
-have no parameters, we still need the parentheses.
+Chúng ta vẫn sử dụng `()` sau `FnOnce` vì `FnOnce` này đại diện cho một closure không
+nhận tham số nào và trả về kiểu unit `()`. Giống như định nghĩa hàm, kiểu trả về có
+thể được bỏ qua khỏi chữ ký, nhưng ngay cả khi không có tham số, chúng ta vẫn cần
+dấu ngoặc đơn.
 
-Again, this is the simplest implementation of the `execute` method: it does
-nothing, but we’re only trying to make our code compile. Let’s check it again:
+Một lần nữa, đây là bản triển khai đơn giản nhất của phương thức `execute`: nó không
+làm gì cả, nhưng chúng ta chỉ đang cố gắng làm cho mã của mình biên dịch được. Hãy
+kiểm tra lại:
 
 ```console
 {{#include ../listings/ch21-web-server/no-listing-03-define-execute/output.txt}}
 ```
 
-It compiles! But note that if you try `cargo run` and make a request in the
-browser, you’ll see the errors in the browser that we saw at the beginning of
-the chapter. Our library isn’t actually calling the closure passed to `execute`
-yet!
+Nó đã biên dịch được! Nhưng lưu ý rằng nếu bạn thử chạy `cargo run` và thực hiện một
+yêu cầu trong trình duyệt, bạn sẽ thấy các lỗi trong trình duyệt mà chúng ta đã thấy
+ở đầu chương. Thư viện của chúng ta thực sự vẫn chưa gọi closure được truyền vào
+`execute`!
 
-> Note: A saying you might hear about languages with strict compilers, such as
-> Haskell and Rust, is “if the code compiles, it works.” But this saying is not
-> universally true. Our project compiles, but it does absolutely nothing! If we
-> were building a real, complete project, this would be a good time to start
-> writing unit tests to check that the code compiles _and_ has the behavior we
-> want.
+> Ghi chú: Một câu nói bạn có thể nghe về các ngôn ngữ có trình biên dịch nghiêm
+> ngặt, chẳng hạn như Haskell và Rust, là “nếu mã biên dịch được thì nó hoạt động”.
+> Nhưng câu nói này không đúng trong mọi trường hợp. Dự án của chúng ta biên dịch
+> được, nhưng nó hoàn toàn không làm gì cả! Nếu chúng ta đang xây dựng một dự án hoàn
+> chỉnh, thực tế, đây sẽ là thời điểm thích hợp để bắt đầu viết unit test để kiểm tra
+> xem mã vừa biên dịch được _vừa_ có hành vi mà chúng ta mong muốn.
 
-Consider: what would be different here if we were going to execute a _future_
-instead of a closure?
+Hãy cân nhắc: điều gì sẽ khác ở đây nếu chúng ta thực thi một _future_ thay vì một
+closure?
 
-#### Validating the Number of Threads in `new`
+#### Xác Thực Số Lượng Luồng Trong `new`
 
-We aren’t doing anything with the parameters to `new` and `execute`. Let’s
-implement the bodies of these functions with the behavior we want. To start,
-let’s think about `new`. Earlier we chose an unsigned type for the `size`
-parameter because a pool with a negative number of threads makes no sense.
-However, a pool with zero threads also makes no sense, yet zero is a perfectly
-valid `usize`. We’ll add code to check that `size` is greater than zero before
-we return a `ThreadPool` instance and have the program panic if it receives a
-zero by using the `assert!` macro, as shown in Listing 21-13.
+Chúng ta chưa làm gì với các tham số truyền vào `new` và `execute`. Hãy triển khai
+phần thân của các hàm này với hành vi mà chúng ta muốn. Để bắt đầu, hãy nghĩ về `new`.
+Trước đó, chúng ta đã chọn một kiểu số không dấu cho tham số `size` vì một pool có
+số lượng luồng âm là vô nghĩa. Tuy nhiên, một pool có không luồng cũng là vô nghĩa,
+thế nhưng 0 lại là một giá trị `usize` hoàn toàn hợp lệ. Chúng ta sẽ thêm mã để kiểm
+tra xem `size` có lớn hơn 0 hay không trước khi trả về một instance `ThreadPool` và
+làm cho chương trình panic nếu nó nhận giá trị 0 bằng cách sử dụng macro `assert!`,
+như được hiển thị trong Listing 21-13.
 
-<Listing number="21-13" file-name="src/lib.rs" caption="Implementing `ThreadPool::new` to panic if `size` is zero">
+<Listing number="21-13" file-name="src/lib.rs" caption="Triển khai `ThreadPool::new` để panic nếu `size` bằng 0">
 
 ```rust,noplayground
 {{#rustdoc_include ../listings/ch21-web-server/listing-21-13/src/lib.rs:here}}
@@ -321,29 +321,29 @@ zero by using the `assert!` macro, as shown in Listing 21-13.
 
 </Listing>
 
-We’ve also added some documentation for our `ThreadPool` with doc comments.
-Note that we followed good documentation practices by adding a section that
-calls out the situations in which our function can panic, as discussed in
-Chapter 14. Try running `cargo doc --open` and clicking the `ThreadPool` struct
-to see what the generated docs for `new` look like!
+Chúng ta cũng đã thêm một số tài liệu cho `ThreadPool` bằng các doc comment. Lưu ý
+rằng chúng ta đã tuân theo các thực hành tài liệu tốt bằng cách thêm một phần nêu rõ
+các tình huống mà hàm của chúng ta có thể panic, như đã thảo luận trong Chương 14.
+Hãy thử chạy `cargo doc --open` và nhấp vào struct `ThreadPool` để xem tài liệu được
+tạo cho `new` trông như thế nào!
 
-Instead of adding the `assert!` macro as we’ve done here, we could change `new`
-into `build` and return a `Result` like we did with `Config::build` in the I/O
-project in Listing 12-9. But we’ve decided in this case that trying to create a
-thread pool without any threads should be an unrecoverable error. If you’re
-feeling ambitious, try to write a function named `build` with the following
-signature to compare with the `new` function:
+Thay vì thêm macro `assert!` như chúng ta đã làm ở đây, chúng ta có thể đổi `new`
+thành `build` và trả về một `Result` giống như chúng ta đã làm với `Config::build`
+trong dự án I/O ở Listing 12-9. Nhưng chúng ta đã quyết định trong trường hợp này rằng
+việc cố gắng tạo một thread pool không có luồng nào phải là một lỗi không thể phục
+hồi (unrecoverable error). Nếu bạn muốn thử thách bản thân, hãy thử viết một hàm có
+tên là `build` với chữ ký sau để so sánh với hàm `new`:
 
 ```rust,ignore
 pub fn build(size: usize) -> Result<ThreadPool, PoolCreationError> {
 ```
 
-#### Creating Space to Store the Threads
+#### Tạo Không Gian Để Lưu Trữ Các Luồng
 
-Now that we have a way to know we have a valid number of threads to store in
-the pool, we can create those threads and store them in the `ThreadPool` struct
-before returning the struct. But how do we “store” a thread? Let’s take another
-look at the `thread::spawn` signature:
+Bây giờ chúng ta đã có cách để biết mình có một số lượng luồng hợp lệ để lưu trữ trong
+pool, chúng ta có thể tạo các luồng đó và lưu trữ chúng trong struct `ThreadPool`
+trước khi trả về struct. Nhưng làm thế nào để chúng ta “lưu trữ” một luồng? Hãy xem
+lại chữ ký của `thread::spawn` một lần nữa:
 
 ```rust,ignore
 pub fn spawn<F, T>(f: F) -> JoinHandle<T>
@@ -353,18 +353,18 @@ pub fn spawn<F, T>(f: F) -> JoinHandle<T>
         T: Send + 'static,
 ```
 
-The `spawn` function returns a `JoinHandle<T>`, where `T` is the type that the
-closure returns. Let’s try using `JoinHandle` too and see what happens. In our
-case, the closures we’re passing to the thread pool will handle the connection
-and not return anything, so `T` will be the unit type `()`.
+Hàm `spawn` trả về một `JoinHandle<T>`, trong đó `T` là kiểu mà closure trả về. Hãy
+thử sử dụng `JoinHandle` và xem điều gì xảy ra. Trong trường hợp của chúng ta, các
+closure mà chúng ta truyền vào thread pool sẽ xử lý kết nối và không trả về bất kỳ
+thứ gì, vì vậy `T` sẽ là kiểu unit `()`.
 
-The code in Listing 21-14 will compile but doesn’t create any threads yet.
-We’ve changed the definition of `ThreadPool` to hold a vector of
-`thread::JoinHandle<()>` instances, initialized the vector with a capacity of
-`size`, set up a `for` loop that will run some code to create the threads, and
-returned a `ThreadPool` instance containing them.
+Mã trong Listing 21-14 sẽ biên dịch nhưng vẫn chưa tạo bất kỳ luồng nào. Chúng ta đã
+thay đổi định nghĩa của `ThreadPool` để chứa một vector các instance
+`thread::JoinHandle<()>`, khởi tạo vector với dung lượng (capacity) là `size`, thiết
+lập một vòng lặp `for` sẽ chạy một số mã để tạo các luồng, và trả về một instance
+`ThreadPool` chứa chúng.
 
-<Listing number="21-14" file-name="src/lib.rs" caption="Creating a vector for `ThreadPool` to hold the threads">
+<Listing number="21-14" file-name="src/lib.rs" caption="Tạo một vector cho `ThreadPool` để giữ các luồng">
 
 ```rust,ignore,not_desired_behavior
 {{#rustdoc_include ../listings/ch21-web-server/listing-21-14/src/lib.rs:here}}
@@ -372,65 +372,62 @@ returned a `ThreadPool` instance containing them.
 
 </Listing>
 
-We’ve brought `std::thread` into scope in the library crate because we’re
-using `thread::JoinHandle` as the type of the items in the vector in
-`ThreadPool`.
+Chúng ta đã đưa `std::thread` vào phạm vi trong library crate vì chúng ta đang sử
+dụng `thread::JoinHandle` làm kiểu của các phần tử trong vector của `ThreadPool`.
 
-Once a valid size is received, our `ThreadPool` creates a new vector that can
-hold `size` items. The `with_capacity` function performs the same task as
-`Vec::new` but with an important difference: it pre-allocates space in the
-vector. Because we know we need to store `size` elements in the vector, doing
-this allocation up front is slightly more efficient than using `Vec::new`,
-which resizes itself as elements are inserted.
+Khi nhận được một kích thước hợp lệ, `ThreadPool` của chúng ta tạo một vector mới có
+thể chứa `size` phần tử. Hàm `with_capacity` thực hiện cùng tác vụ với `Vec::new`
+nhưng có một điểm khác biệt quan trọng: nó cấp phát trước không gian trong vector.
+Bởi vì chúng ta biết mình cần lưu trữ `size` phần tử trong vector, việc cấp phát
+trước này hiệu quả hơn một chút so với việc sử dụng `Vec::new`, vốn sẽ tự thay đổi
+kích thước khi các phần tử được chèn vào.
 
-When you run `cargo check` again, it should succeed.
+Khi bạn chạy lại `cargo check`, nó sẽ thành công.
 
-#### A `Worker` Struct Responsible for Sending Code from the `ThreadPool` to a Thread
+#### Một Struct `Worker` Chịu Trách Nhiệm Gửi Mã Từ `ThreadPool` Đến Một Luồng
 
-We left a comment in the `for` loop in Listing 21-14 regarding the creation of
-threads. Here, we’ll look at how we actually create threads. The standard
-library provides `thread::spawn` as a way to create threads, and
-`thread::spawn` expects to get some code the thread should run as soon as the
-thread is created. However, in our case, we want to create the threads and have
-them _wait_ for code that we’ll send later. The standard library’s
-implementation of threads doesn’t include any way to do that; we have to
-implement it manually.
+Chúng ta đã để lại một comment trong vòng lặp `for` ở Listing 21-14 liên quan đến
+việc tạo các luồng. Ở đây, chúng ta sẽ xem xét cách chúng ta thực sự tạo các luồng.
+Thư viện chuẩn cung cấp `thread::spawn` như một cách để tạo các luồng, và
+`thread::spawn` mong muốn nhận được một số mã mà luồng nên chạy ngay khi luồng được
+tạo. Tuy nhiên, trong trường hợp của chúng ta, chúng ta muốn tạo các luồng và để chúng
+_chờ đợi_ mã mà chúng ta sẽ gửi sau. Bản triển khai các luồng của thư viện chuẩn
+không bao gồm bất kỳ cách nào để làm điều đó; chúng ta phải tự triển khai nó một cách
+thủ công.
 
-We’ll implement this behavior by introducing a new data structure between the
-`ThreadPool` and the threads that will manage this new behavior. We’ll call
-this data structure _Worker_, which is a common term in pooling
-implementations. The `Worker` picks up code that needs to be run and runs the
-code in the Worker’s thread.
+Chúng ta sẽ triển khai hành vi này bằng cách giới thiệu một cấu trúc dữ liệu mới nằm
+giữa `ThreadPool` và các luồng để quản lý hành vi mới này. Chúng ta sẽ gọi cấu trúc
+dữ liệu này là _Worker_ (công nhân), đây là một thuật ngữ phổ biến trong các triển
+khai pooling. `Worker` nhận mã cần chạy và chạy mã đó trong luồng của Worker.
 
-Think of people working in the kitchen at a restaurant: the workers wait until
-orders come in from customers, and then they’re responsible for taking those
-orders and fulfilling them.
+Hãy nghĩ về những người làm việc trong bếp tại một nhà hàng: các nhân viên chờ đợi
+cho đến khi có đơn đặt hàng từ khách hàng, và sau đó họ chịu trách nhiệm nhận các đơn
+hàng đó và hoàn thành chúng.
 
-Instead of storing a vector of `JoinHandle<()>` instances in the thread pool,
-we’ll store instances of the `Worker` struct. Each `Worker` will store a single
-`JoinHandle<()>` instance. Then we’ll implement a method on `Worker` that will
-take a closure of code to run and send it to the already running thread for
-execution. We’ll also give each `Worker` an `id` so we can distinguish between
-the different instances of `Worker` in the pool when logging or debugging.
+Thay vì lưu trữ một vector chứa các instance `JoinHandle<()>` trong thread pool,
+chúng ta sẽ lưu trữ các instance của struct `Worker`. Mỗi `Worker` sẽ lưu trữ một
+instance `JoinHandle<()>` đơn lẻ. Sau đó, chúng ta sẽ triển khai một phương thức trên
+`Worker` nhận một closure chứa mã để chạy và gửi nó đến luồng đang chạy để thực thi.
+Chúng ta cũng sẽ cung cấp cho mỗi `Worker` một `id` để có thể phân biệt giữa các
+instance `Worker` khác nhau trong pool khi ghi log hoặc debug.
 
-Here is the new process that will happen when we create a `ThreadPool`. We’ll
-implement the code that sends the closure to the thread after we have `Worker`
-set up in this way:
+Dưới đây là quy trình mới sẽ diễn ra khi chúng ta tạo một `ThreadPool`. Chúng ta sẽ
+triển khai mã gửi closure đến luồng sau khi đã thiết lập `Worker` theo cách này:
 
-1. Define a `Worker` struct that holds an `id` and a `JoinHandle<()>`.
-2. Change `ThreadPool` to hold a vector of `Worker` instances.
-3. Define a `Worker::new` function that takes an `id` number and returns a
-   `Worker` instance that holds the `id` and a thread spawned with an empty
-   closure.
-4. In `ThreadPool::new`, use the `for` loop counter to generate an `id`, create
-   a new `Worker` with that `id`, and store the worker in the vector.
+1. Định nghĩa một struct `Worker` chứa một `id` và một `JoinHandle<()>`.
+2. Thay đổi `ThreadPool` để chứa một vector các instance `Worker`.
+3. Định nghĩa một hàm `Worker::new` nhận một số `id` và trả về một instance `Worker`
+   chứa `id` đó và một luồng được tạo với một closure rỗng.
+4. Trong `ThreadPool::new`, sử dụng biến đếm của vòng lặp `for` để tạo một `id`, tạo
+   một `Worker` mới với `id` đó, và lưu trữ worker trong vector.
 
-If you’re up for a challenge, try implementing these changes on your own before
-looking at the code in Listing 21-15.
+Nếu bạn muốn thử sức, hãy thử tự mình thực hiện những thay đổi này trước khi xem mã
+trong Listing 21-15.
 
-Ready? Here is Listing 21-15 with one way to make the preceding modifications.
+Sẵn sàng chưa? Dưới đây là Listing 21-15 với một cách để thực hiện các sửa đổi nói
+trên.
 
-<Listing number="21-15" file-name="src/lib.rs" caption="Modifying `ThreadPool` to hold `Worker` instances instead of holding threads directly">
+<Listing number="21-15" file-name="src/lib.rs" caption="Sửa đổi `ThreadPool` để chứa các instance `Worker` thay vì giữ trực tiếp các luồng">
 
 ```rust,noplayground
 {{#rustdoc_include ../listings/ch21-web-server/listing-21-15/src/lib.rs:here}}
@@ -438,59 +435,59 @@ Ready? Here is Listing 21-15 with one way to make the preceding modifications.
 
 </Listing>
 
-We’ve changed the name of the field on `ThreadPool` from `threads` to `workers`
-because it’s now holding `Worker` instances instead of `JoinHandle<()>`
-instances. We use the counter in the `for` loop as an argument to
-`Worker::new`, and we store each new `Worker` in the vector named `workers`.
+Chúng ta đã đổi tên trường trên `ThreadPool` từ `threads` thành `workers` vì giờ đây
+nó chứa các instance `Worker` thay vì các instance `JoinHandle<()>`. Chúng ta sử
+dụng biến đếm trong vòng lặp `for` làm đối số cho `Worker::new`, và chúng ta lưu trữ
+từng `Worker` mới trong vector có tên là `workers`.
 
-External code (like our server in _src/main.rs_) doesn’t need to know the
-implementation details regarding using a `Worker` struct within `ThreadPool`,
-so we make the `Worker` struct and its `new` function private. The
-`Worker::new` function uses the `id` we give it and stores a `JoinHandle<()>`
-instance that is created by spawning a new thread using an empty closure.
+Mã bên ngoài (như server của chúng ta trong _src/main.rs_) không cần biết chi tiết
+triển khai liên quan đến việc sử dụng struct `Worker` bên trong `ThreadPool`, vì vậy
+chúng ta để struct `Worker` và hàm `new` của nó ở chế độ private. Hàm `Worker::new`
+sử dụng `id` mà chúng ta cung cấp và lưu trữ một instance `JoinHandle<()>` được tạo
+bằng cách sinh ra một luồng mới sử dụng một closure rỗng.
 
-> Note: If the operating system can’t create a thread because there aren’t
-> enough system resources, `thread::spawn` will panic. That will cause our
-> whole server to panic, even though the creation of some threads might
-> succeed. For simplicity’s sake, this behavior is fine, but in a production
-> thread pool implementation, you’d likely want to use
-> [`std::thread::Builder`][builder]<!-- ignore --> and its
-> [`spawn`][builder-spawn]<!-- ignore --> method that returns `Result` instead.
+> Ghi chú: Nếu hệ điều hành không thể tạo luồng vì không đủ tài nguyên hệ thống,
+> `thread::spawn` sẽ panic. Điều đó sẽ khiến toàn bộ server của chúng ta bị panic, mặc
+> dù việc tạo một số luồng có thể đã thành công. Vì sự đơn giản, hành vi này có thể
+> chấp nhận được, nhưng trong một bản triển khai thread pool thực tế cho môi trường
+> production, bạn có thể sẽ muốn sử dụng [`std::thread::Builder`][builder]<!-- ignore
+> --> và phương thức [`spawn`][builder-spawn]<!-- ignore --> của nó trả về `Result`
+> thay thế.
 
-This code will compile and will store the number of `Worker` instances we
-specified as an argument to `ThreadPool::new`. But we’re _still_ not processing
-the closure that we get in `execute`. Let’s look at how to do that next.
+Mã này sẽ biên dịch và sẽ lưu trữ số lượng các instance `Worker` mà chúng ta đã chỉ
+định làm đối số cho `ThreadPool::new`. Nhưng chúng ta _vẫn_ chưa xử lý closure nhận
+được trong `execute`. Hãy xem cách thực hiện điều đó tiếp theo.
 
-#### Sending Requests to Threads via Channels
+#### Gửi Request Đến Các Luồng Thông Qua Channel
 
-The next problem we’ll tackle is that the closures given to `thread::spawn` do
-absolutely nothing. Currently, we get the closure we want to execute in the
-`execute` method. But we need to give `thread::spawn` a closure to run when we
-create each `Worker` during the creation of the `ThreadPool`.
+Vấn đề tiếp theo chúng ta sẽ giải quyết là các closure được cung cấp cho
+`thread::spawn` hoàn toàn không làm gì cả. Hiện tại, chúng ta nhận được closure muốn
+thực thi trong phương thức `execute`. Nhưng chúng ta cần cung cấp cho `thread::spawn`
+một closure để chạy khi chúng ta tạo từng `Worker` trong quá trình khởi tạo
+`ThreadPool`.
 
-We want the `Worker` structs that we just created to fetch the code to run from
-a queue held in the `ThreadPool` and send that code to its thread to run.
+Chúng ta muốn các struct `Worker` mà chúng ta vừa tạo lấy mã cần chạy từ một hàng đợi
+được giữ trong `ThreadPool` và gửi mã đó đến luồng của nó để chạy.
 
-The channels we learned about in Chapter 16—a simple way to communicate between
-two threads—would be perfect for this use case. We’ll use a channel to function
-as the queue of jobs, and `execute` will send a job from the `ThreadPool` to
-the `Worker` instances, which will send the job to its thread. Here is the plan:
+Các channel mà chúng ta đã tìm hiểu trong Chương 16—một cách đơn giản để giao tiếp
+giữa hai luồng—sẽ là sự lựa chọn hoàn hảo cho trường hợp sử dụng này. Chúng ta sẽ sử
+dụng một channel để hoạt động như một hàng đợi các công việc (job), và `execute` sẽ
+gửi một job từ `ThreadPool` đến các instance `Worker`, và worker sẽ gửi job đó đến
+luồng của nó. Dưới đây là kế hoạch:
 
-1. The `ThreadPool` will create a channel and hold on to the sender.
-2. Each `Worker` will hold on to the receiver.
-3. We’ll create a new `Job` struct that will hold the closures we want to send
-   down the channel.
-4. The `execute` method will send the job it wants to execute through the
-   sender.
-5. In its thread, the `Worker` will loop over its receiver and execute the
-   closures of any jobs it receives.
+1. `ThreadPool` sẽ tạo một channel và giữ bên gửi (sender).
+2. Mỗi `Worker` sẽ giữ bên nhận (receiver).
+3. Chúng ta sẽ tạo một struct `Job` mới chứa các closure mà chúng ta muốn gửi qua
+   channel.
+4. Phương thức `execute` sẽ gửi job mà nó muốn thực thi thông qua sender.
+5. Trong luồng của mình, `Worker` sẽ lặp qua receiver của nó và thực thi các closure
+   của bất kỳ job nào mà nó nhận được.
 
-Let’s start by creating a channel in `ThreadPool::new` and holding the sender
-in the `ThreadPool` instance, as shown in Listing 21-16. The `Job` struct
-doesn’t hold anything for now but will be the type of item we’re sending down
-the channel.
+Hãy bắt đầu bằng cách tạo một channel trong `ThreadPool::new` và giữ sender trong
+instance `ThreadPool`, như được hiển thị trong Listing 21-16. Struct `Job` hiện tại
+chưa chứa bất kỳ thứ gì nhưng sẽ là kiểu của mục mà chúng ta gửi qua channel.
 
-<Listing number="21-16" file-name="src/lib.rs" caption="Modifying `ThreadPool` to store the sender of a channel that transmits `Job` instances">
+<Listing number="21-16" file-name="src/lib.rs" caption="Sửa đổi `ThreadPool` để lưu trữ sender của một channel truyền các instance `Job`">
 
 ```rust,noplayground
 {{#rustdoc_include ../listings/ch21-web-server/listing-21-16/src/lib.rs:here}}
@@ -498,15 +495,15 @@ the channel.
 
 </Listing>
 
-In `ThreadPool::new`, we create our new channel and have the pool hold the
-sender. This will successfully compile.
+Trong `ThreadPool::new`, chúng ta tạo channel mới và để pool giữ sender. Mã này sẽ
+biên dịch thành công.
 
-Let’s try passing a receiver of the channel into each `Worker` as the thread
-pool creates the channel. We know we want to use the receiver in the thread that
-the `Worker` instances spawn, so we’ll reference the `receiver` parameter in the
-closure. The code in Listing 21-17 won’t quite compile yet.
+Hãy thử truyền một receiver của channel vào từng `Worker` khi thread pool tạo
+channel. Chúng ta biết mình muốn sử dụng receiver trong luồng mà các instance `Worker`
+sinh ra, vì vậy chúng ta sẽ tham chiếu tham số `receiver` trong closure. Mã trong
+Listing 21-17 vẫn chưa thể biên dịch được.
 
-<Listing number="21-17" file-name="src/lib.rs" caption="Passing the receiver to each `Worker`">
+<Listing number="21-17" file-name="src/lib.rs" caption="Truyền receiver đến từng `Worker`">
 
 ```rust,ignore,does_not_compile
 {{#rustdoc_include ../listings/ch21-web-server/listing-21-17/src/lib.rs:here}}
@@ -514,34 +511,36 @@ closure. The code in Listing 21-17 won’t quite compile yet.
 
 </Listing>
 
-We’ve made some small and straightforward changes: we pass the receiver into
-`Worker::new`, and then we use it inside the closure.
+Chúng ta đã thực hiện một số thay đổi nhỏ và trực tiếp: chúng ta truyền receiver vào
+`Worker::new`, và sau đó chúng ta sử dụng nó bên trong closure.
 
-When we try to check this code, we get this error:
+Khi chúng ta thử kiểm tra mã này, chúng ta nhận được lỗi sau:
 
 ```console
 {{#include ../listings/ch21-web-server/listing-21-17/output.txt}}
 ```
 
-The code is trying to pass `receiver` to multiple `Worker` instances. This
-won’t work, as you’ll recall from Chapter 16: the channel implementation that
-Rust provides is multiple _producer_, single _consumer_. This means we can’t
-just clone the consuming end of the channel to fix this code. We also don’t
-want to send a message multiple times to multiple consumers; we want one list
-of messages with multiple `Worker` instances such that each message gets
-processed once.
+Mã đang cố gắng truyền `receiver` cho nhiều instance `Worker`. Điều này sẽ không hoạt
+động, như bạn nhớ lại từ Chương 16: bản triển khai channel mà Rust cung cấp là đa
+_nhà sản xuất_ (multiple producer), đơn _người tiêu dùng_ (single consumer). Điều này
+có nghĩa là chúng ta không thể chỉ đơn giản là clone đầu nhận (consuming end) của
+channel để sửa mã này. Chúng ta cũng không muốn gửi một thông điệp nhiều lần tới nhiều
+người nhận; chúng ta muốn có một danh sách các thông điệp với nhiều instance `Worker`
+sao cho mỗi thông điệp chỉ được xử lý một lần.
 
-Additionally, taking a job off the channel queue involves mutating the
-`receiver`, so the threads need a safe way to share and modify `receiver`;
-otherwise, we might get race conditions (as covered in Chapter 16).
+Ngoài ra, việc lấy một job ra khỏi hàng đợi channel liên quan đến việc thay đổi
+(mutate) `receiver`, vì vậy các luồng cần một cách an toàn để chia sẻ và sửa đổi
+`receiver`; nếu không, chúng ta có thể gặp phải race conditions (tình trạng tranh đua,
+như đã đề cập trong Chương 16).
 
-Recall the thread-safe smart pointers discussed in Chapter 16: to share
-ownership across multiple threads and allow the threads to mutate the value, we
-need to use `Arc<Mutex<T>>`. The `Arc` type will let multiple `Worker` instances
-own the receiver, and `Mutex` will ensure that only one `Worker` gets a job from
-the receiver at a time. Listing 21-18 shows the changes we need to make.
+Hãy nhớ lại các con trỏ thông minh an toàn theo luồng (thread-safe smart pointers)
+đã được thảo luận trong Chương 16: để chia sẻ quyền sở hữu (ownership) qua nhiều luồng
+và cho phép các luồng thay đổi giá trị, chúng ta cần sử dụng `Arc<Mutex<T>>`. Kiểu
+`Arc` sẽ cho phép nhiều instance `Worker` sở hữu receiver, và `Mutex` sẽ đảm bảo rằng
+chỉ có một `Worker` lấy job từ receiver tại một thời điểm. Listing 21-18 cho thấy
+những thay đổi chúng ta cần thực hiện.
 
-<Listing number="21-18" file-name="src/lib.rs" caption="Sharing the receiver among the `Worker` instances using `Arc` and `Mutex`">
+<Listing number="21-18" file-name="src/lib.rs" caption="Chia sẻ receiver giữa các instance `Worker` bằng cách sử dụng `Arc` và `Mutex`">
 
 ```rust,noplayground
 {{#rustdoc_include ../listings/ch21-web-server/listing-21-18/src/lib.rs:here}}
@@ -549,22 +548,22 @@ the receiver at a time. Listing 21-18 shows the changes we need to make.
 
 </Listing>
 
-In `ThreadPool::new`, we put the receiver in an `Arc` and a `Mutex`. For each
-new `Worker`, we clone the `Arc` to bump the reference count so the `Worker`
-instances can share ownership of the receiver.
+Trong `ThreadPool::new`, chúng ta đặt receiver vào trong một `Arc` và một `Mutex`.
+Đối với mỗi `Worker` mới, chúng ta clone `Arc` để tăng số lượng tham chiếu (reference
+count) để các instance `Worker` có thể chia sẻ quyền sở hữu receiver.
 
-With these changes, the code compiles! We’re getting there!
+Với những thay đổi này, mã đã biên dịch được! Chúng ta đang tiến gần đến đích rồi!
 
-#### Implementing the `execute` Method
+#### Triển Khai Phương Thức `execute`
 
-Let’s finally implement the `execute` method on `ThreadPool`. We’ll also change
-`Job` from a struct to a type alias for a trait object that holds the type of
-closure that `execute` receives. As discussed in [“Creating Type Synonyms with
-Type Aliases”][creating-type-synonyms-with-type-aliases]<!-- ignore --> in
-Chapter 20, type aliases allow us to make long types shorter for ease of use.
-Look at Listing 21-19.
+Cuối cùng hãy triển khai phương thức `execute` trên `ThreadPool`. Chúng ta cũng sẽ đổi
+`Job` từ một struct thành một bí danh kiểu (type alias) cho một trait object chứa kiểu
+closure mà `execute` nhận được. Như đã thảo luận trong phần [“Tạo tên đồng nghĩa cho
+kiểu với bí danh kiểu”][creating-type-synonyms-with-type-aliases]<!-- ignore --> ở
+Chương 20, bí danh kiểu cho phép chúng ta làm ngắn các kiểu dài để dễ sử dụng hơn. Hãy
+xem Listing 21-19.
 
-<Listing number="21-19" file-name="src/lib.rs" caption="Creating a `Job` type alias for a `Box` that holds each closure and then sending the job down the channel">
+<Listing number="21-19" file-name="src/lib.rs" caption="Tạo bí danh kiểu `Job` cho một `Box` chứa từng closure và sau đó gửi job qua channel">
 
 ```rust,noplayground
 {{#rustdoc_include ../listings/ch21-web-server/listing-21-19/src/lib.rs:here}}
@@ -572,22 +571,22 @@ Look at Listing 21-19.
 
 </Listing>
 
-After creating a new `Job` instance using the closure we get in `execute`, we
-send that job down the sending end of the channel. We’re calling `unwrap` on
-`send` for the case that sending fails. This might happen if, for example, we
-stop all our threads from executing, meaning the receiving end has stopped
-receiving new messages. At the moment, we can’t stop our threads from
-executing: our threads continue executing as long as the pool exists. The
-reason we use `unwrap` is that we know the failure case won’t happen, but the
-compiler doesn’t know that.
+Sau khi tạo một instance `Job` mới bằng cách sử dụng closure nhận được trong
+`execute`, chúng ta gửi job đó qua đầu gửi của channel. Chúng ta gọi `unwrap` trên
+`send` cho trường hợp việc gửi bị thất bại. Điều này có thể xảy ra nếu, chẳng hạn,
+chúng ta dừng tất cả các luồng không cho thực thi, nghĩa là đầu nhận đã ngừng nhận các
+thông điệp mới. Tại thời điểm này, chúng ta không thể dừng các luồng của mình thực thi:
+các luồng của chúng ta tiếp tục thực thi chừng nào pool còn tồn tại. Lý do chúng ta sử
+dụng `unwrap` là vì chúng ta biết trường hợp thất bại sẽ không xảy ra, nhưng trình
+biên dịch thì không biết điều đó.
 
-But we’re not quite done yet! In the `Worker`, our closure being passed to
-`thread::spawn` still only _references_ the receiving end of the channel.
-Instead, we need the closure to loop forever, asking the receiving end of the
-channel for a job and running the job when it gets one. Let’s make the change
-shown in Listing 21-20 to `Worker::new`.
+Nhưng chúng ta vẫn chưa hoàn thành hoàn toàn! Trong `Worker`, closure được truyền vào
+`thread::spawn` vẫn chỉ _tham chiếu_ đến đầu nhận của channel. Thay vào đó, chúng ta
+cần closure lặp vô tận, liên tục yêu cầu đầu nhận của channel cung cấp một job và chạy
+job đó khi nhận được. Hãy thực hiện thay đổi hiển thị trong Listing 21-20 đối với
+`Worker::new`.
 
-<Listing number="21-20" file-name="src/lib.rs" caption="Receiving and executing the jobs in the `Worker` instance’s thread">
+<Listing number="21-20" file-name="src/lib.rs" caption="Nhận và thực thi các job trong luồng của instance `Worker`">
 
 ```rust,noplayground
 {{#rustdoc_include ../listings/ch21-web-server/listing-21-20/src/lib.rs:here}}
@@ -595,25 +594,25 @@ shown in Listing 21-20 to `Worker::new`.
 
 </Listing>
 
-Here, we first call `lock` on the `receiver` to acquire the mutex, and then we
-call `unwrap` to panic on any errors. Acquiring a lock might fail if the mutex
-is in a _poisoned_ state, which can happen if some other thread panicked while
-holding the lock rather than releasing the lock. In this situation, calling
-`unwrap` to have this thread panic is the correct action to take. Feel free to
-change this `unwrap` to an `expect` with an error message that is meaningful to
-you.
+Ở đây, trước tiên chúng ta gọi `lock` trên `receiver` để giành quyền sở hữu mutex
+(acquire the mutex), và sau đó chúng ta gọi `unwrap` để panic đối với bất kỳ lỗi nào.
+Việc giành khóa (acquiring a lock) có thể thất bại nếu mutex ở trạng thái _bị nhiễm
+độc_ (poisoned), điều này có thể xảy ra nếu một luồng khác bị panic trong khi đang giữ
+khóa thay vì giải phóng khóa. Trong tình huống này, việc gọi `unwrap` để luồng này
+panic là hành động chính xác cần thực hiện. Bạn có thể thoải mái đổi `unwrap` này thành
+`expect` với thông báo lỗi có ý nghĩa với bạn.
 
-If we get the lock on the mutex, we call `recv` to receive a `Job` from the
-channel. A final `unwrap` moves past any errors here as well, which might occur
-if the thread holding the sender has shut down, similar to how the `send`
-method returns `Err` if the receiver shuts down.
+Nếu chúng ta có được khóa trên mutex, chúng ta gọi `recv` để nhận một `Job` từ
+channel. Lệnh `unwrap` cuối cùng cũng vượt qua mọi lỗi ở đây, lỗi này có thể xảy ra
+nếu luồng giữ sender đã bị tắt, tương tự như cách phương thức `send` trả về `Err` nếu
+receiver bị tắt.
 
-The call to `recv` blocks, so if there is no job yet, the current thread will
-wait until a job becomes available. The `Mutex<T>` ensures that only one
-`Worker` thread at a time is trying to request a job.
+Lệnh gọi tới `recv` là chặn (blocks), vì vậy nếu chưa có job nào, luồng hiện tại sẽ
+chờ cho đến khi có một job khả dụng. `Mutex<T>` đảm bảo rằng chỉ có một luồng `Worker`
+tại một thời điểm cố gắng yêu cầu một job.
 
-Our thread pool is now in a working state! Give it a `cargo run` and make some
-requests:
+Thread pool của chúng ta bây giờ đã ở trạng thái hoạt động! Hãy chạy `cargo run` và
+thực hiện một số request:
 
 <!-- manual-regeneration
 cd listings/ch21-web-server/listing-21-20
@@ -660,26 +659,26 @@ Worker 0 got a job; executing.
 Worker 2 got a job; executing.
 ```
 
-Success! We now have a thread pool that executes connections asynchronously.
-There are never more than four threads created, so our system won’t get
-overloaded if the server receives a lot of requests. If we make a request to
-_/sleep_, the server will be able to serve other requests by having another
-thread run them.
+Thành công rồi! Bây giờ chúng ta có một thread pool thực thi các kết nối bất đồng bộ.
+Không bao giờ có nhiều hơn bốn luồng được tạo ra, vì vậy hệ thống của chúng ta sẽ
+không bị quá tải nếu server nhận được nhiều request. Nếu chúng ta thực hiện một
+request đến _/sleep_, server sẽ có thể phục vụ các request khác bằng cách để một
+luồng khác chạy chúng.
 
-> Note: If you open _/sleep_ in multiple browser windows simultaneously, they
-> might load one at a time in five-second intervals. Some web browsers execute
-> multiple instances of the same request sequentially for caching reasons. This
-> limitation is not caused by our web server.
+> Ghi chú: Nếu bạn mở _/sleep_ trong nhiều cửa sổ trình duyệt cùng một lúc, chúng có
+> thể tải từng cửa sổ một theo các khoảng thời gian năm giây. Một số trình duyệt web
+> thực thi tuần tự nhiều phiên bản của cùng một request vì lý do bộ nhớ đệm (caching).
+> Giới hạn này không phải do web server của chúng ta gây ra.
 
-This is a good time to pause and consider how the code in Listings 21-18, 21-19,
-and 21-20 would be different if we were using futures instead of a closure for
-the work to be done. What types would change? How would the method signatures be
-different, if at all? What parts of the code would stay the same?
+Đây là thời điểm thích hợp để dừng lại và xem xét mã trong các Listing 21-18, 21-19 và
+21-20 sẽ khác nhau như thế nào nếu chúng ta sử dụng future thay vì một closure cho công
+việc cần hoàn thành. Những kiểu nào sẽ thay đổi? Chữ ký của các phương thức sẽ khác
+nhau như thế nào, nếu có? Những phần nào của mã sẽ giữ nguyên?
 
-After learning about the `while let` loop in Chapters 17 and 18, you might be
-wondering why we didn’t write the worker thread code as shown in Listing 21-21.
+Sau khi tìm hiểu về vòng lặp `while let` trong Chương 17 và 18, bạn có thể thắc mắc
+tại sao chúng ta không viết mã luồng worker như hiển thị trong Listing 21-21.
 
-<Listing number="21-21" file-name="src/lib.rs" caption="An alternative implementation of `Worker::new` using `while let`">
+<Listing number="21-21" file-name="src/lib.rs" caption="Một cách triển khai thay thế của `Worker::new` sử dụng `while let`">
 
 ```rust,ignore,not_desired_behavior
 {{#rustdoc_include ../listings/ch21-web-server/listing-21-21/src/lib.rs:here}}
@@ -687,24 +686,23 @@ wondering why we didn’t write the worker thread code as shown in Listing 21-21
 
 </Listing>
 
-This code compiles and runs but doesn’t result in the desired threading
-behavior: a slow request will still cause other requests to wait to be
-processed. The reason is somewhat subtle: the `Mutex` struct has no public
-`unlock` method because the ownership of the lock is based on the lifetime of
-the `MutexGuard<T>` within the `LockResult<MutexGuard<T>>` that the `lock`
-method returns. At compile time, the borrow checker can then enforce the rule
-that a resource guarded by a `Mutex` cannot be accessed unless we hold the
-lock. However, this implementation can also result in the lock being held
-longer than intended if we aren’t mindful of the lifetime of the
-`MutexGuard<T>`.
+Mã này biên dịch và chạy được nhưng không mang lại hành vi phân luồng mong muốn: một
+request chậm vẫn sẽ khiến các request khác phải đợi để được xử lý. Lý do có phần tinh
+tế: struct `Mutex` không có phương thức `unlock` công khai (public) vì quyền sở hữu
+khóa dựa trên lifetime (vòng đời) của `MutexGuard<T>` bên trong
+`LockResult<MutexGuard<T>>` mà phương thức `lock` trả về. Tại thời điểm biên dịch,
+borrow checker có thể thực thi quy tắc rằng tài nguyên được bảo vệ bởi `Mutex` không
+thể được truy cập trừ khi chúng ta giữ khóa. Tuy nhiên, việc triển khai này cũng có
+thể dẫn đến việc khóa bị giữ lâu hơn dự định nếu chúng ta không chú ý đến lifetime
+của `MutexGuard<T>`.
 
-The code in Listing 21-20 that uses `let job =
-receiver.lock().unwrap().recv().unwrap();` works because with `let`, any
-temporary values used in the expression on the right hand side of the equal
-sign are immediately dropped when the `let` statement ends. However, `while
-let` (and `if let` and `match`) does not drop temporary values until the end of
-the associated block. In Listing 21-21, the lock remains held for the duration
-of the call to `job()`, meaning other `Worker` instances cannot receive jobs.
+Mã trong Listing 21-20 sử dụng `let job = receiver.lock().unwrap().recv().unwrap();`
+hoạt động được là vì với `let`, bất kỳ giá trị tạm thời nào được sử dụng trong biểu
+thức ở phía bên phải dấu bằng đều ngay lập tức bị drop khi câu lệnh `let` kết thúc.
+Tuy nhiên, `while let` (và cả `if let` cùng `match`) không drop các giá trị tạm thời
+cho đến khi kết thúc khối mã liên quan. Trong Listing 21-21, khóa vẫn được giữ trong
+suốt thời gian diễn ra lệnh gọi `job()`, nghĩa là các instance `Worker` khác không thể
+nhận job.
 
 [creating-type-synonyms-with-type-aliases]: ch20-03-advanced-types.html#creating-type-synonyms-with-type-aliases
 [integer-types]: ch03-02-data-types.html#integer-types

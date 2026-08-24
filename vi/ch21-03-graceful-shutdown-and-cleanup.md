@@ -1,32 +1,32 @@
-## Graceful Shutdown and Cleanup
+## Dừng Hoạt Động Nhịp Nhàng (Graceful Shutdown) và Dọn Dẹp
 
-The code in Listing 21-20 is responding to requests asynchronously through the
-use of a thread pool, as we intended. We get some warnings about the `workers`,
-`id`, and `thread` fields that we’re not using in a direct way that reminds us
-we’re not cleaning up anything. When we use the less elegant
-<kbd>ctrl</kbd>-<kbd>c</kbd> method to halt the main thread, all other threads
-are stopped immediately as well, even if they’re in the middle of serving a
-request.
+Mã trong Listing 21-20 đang phản hồi các request một cách bất đồng bộ thông qua
+việc sử dụng thread pool, đúng như chúng ta mong muốn. Chúng ta nhận được một số
+cảnh báo về các trường `workers`, `id`, và `thread` mà chúng ta không sử dụng một cách
+trực tiếp, điều này nhắc nhở chúng ta rằng mình chưa dọn dẹp bất kỳ thứ gì. Khi chúng
+ta sử dụng phương pháp kém tinh tế là nhấn <kbd>ctrl</kbd>-<kbd>c</kbd> để dừng
+luồng chính, tất cả các luồng khác cũng bị dừng ngay lập tức, ngay cả khi chúng đang
+trong quá trình phục vụ một request.
 
-Next, then, we’ll implement the `Drop` trait to call `join` on each of the
-threads in the pool so they can finish the requests they’re working on before
-closing. Then we’ll implement a way to tell the threads they should stop
-accepting new requests and shut down. To see this code in action, we’ll modify
-our server to accept only two requests before gracefully shutting down its
-thread pool.
+Tiếp theo, chúng ta sẽ triển khai trait `Drop` để gọi `join` trên từng luồng trong
+pool nhằm đảm bảo chúng có thể hoàn thành các request đang xử lý trước khi đóng. Sau
+đó, chúng ta sẽ triển khai một cách để báo cho các luồng biết rằng chúng nên ngừng
+nhận các request mới và tắt đi. Để thấy mã này hoạt động trong thực tế, chúng ta sẽ
+sửa đổi server của mình để chỉ chấp nhận hai request trước khi tắt thread pool một
+cách nhịp nhàng (gracefully).
 
-One thing to notice as we go: none of this affects the parts of the code that
-handle executing the closures, so everything here would be just the same if we
-were using a thread pool for an async runtime.
+Một điều cần lưu ý trong quá trình thực hiện: không có điều nào trong số này ảnh
+hưởng đến các phần mã xử lý việc thực thi các closure, vì vậy mọi thứ ở đây sẽ hoàn
+toàn giống nhau nếu chúng ta sử dụng một thread pool cho một async runtime.
 
-### Implementing the `Drop` Trait on `ThreadPool`
+### Triển Khai Trait `Drop` Cho `ThreadPool`
 
-Let’s start with implementing `Drop` on our thread pool. When the pool is
-dropped, our threads should all join to make sure they finish their work.
-Listing 21-22 shows a first attempt at a `Drop` implementation; this code won’t
-quite work yet.
+Hãy bắt đầu với việc triển khai `Drop` cho thread pool của chúng ta. Khi pool bị
+drop, tất cả các luồng của chúng ta nên join để đảm bảo chúng hoàn thành công việc
+của mình. Listing 21-22 hiển thị thử nghiệm đầu tiên về việc triển khai `Drop`; mã
+này vẫn chưa hoạt động được.
 
-<Listing number="21-22" file-name="src/lib.rs" caption="Joining each thread when the thread pool goes out of scope">
+<Listing number="21-22" file-name="src/lib.rs" caption="Join từng luồng khi thread pool đi ra ngoài phạm vi">
 
 ```rust,ignore,does_not_compile
 {{#rustdoc_include ../listings/ch21-web-server/listing-21-22/src/lib.rs:here}}
@@ -34,43 +34,45 @@ quite work yet.
 
 </Listing>
 
-First, we loop through each of the thread pool `workers`. We use `&mut` for this
-because `self` is a mutable reference, and we also need to be able to mutate
-`worker`. For each worker, we print a message saying that this particular
-`Worker` instance is shutting down, and then we call `join` on that `Worker`
-instance’s thread. If the call to `join` fails, we use `unwrap` to make Rust
-panic and go into an ungraceful shutdown.
+Đầu tiên, chúng ta lặp qua từng phần tử trong `workers` của thread pool. Chúng ta
+sử dụng `&mut` cho việc này vì `self` là một tham chiếu khả biến (mutable reference),
+và chúng ta cũng cần có khả năng thay đổi `worker`. Đối với mỗi worker, chúng ta in
+một thông báo cho biết instance `Worker` cụ thể này đang tắt, và sau đó chúng ta gọi
+`join` trên luồng của instance `Worker` đó. Nếu lệnh gọi `join` thất bại, chúng ta
+sử dụng `unwrap` để làm cho Rust panic và chuyển sang trạng thái tắt không an toàn
+(ungraceful shutdown).
 
-Here is the error we get when we compile this code:
+Dưới đây là lỗi chúng ta nhận được khi biên dịch mã này:
 
 ```console
 {{#include ../listings/ch21-web-server/listing-21-22/output.txt}}
 ```
 
-The error tells us we can’t call `join` because we only have a mutable borrow of
-each `worker` and `join` takes ownership of its argument. To solve this issue,
-we need to move the thread out of the `Worker` instance that owns `thread` so
-`join` can consume the thread. One way to do this is by taking the same approach
-we did in Listing 18-15. If `Worker` held an `Option<thread::JoinHandle<()>>`,
-we could call the `take` method on the `Option` to move the value out of the
-`Some` variant and leave a `None` variant in its place. In other words, a
-`Worker` that is running would have a `Some` variant in `thread`, and when we
-wanted to clean up a `Worker`, we’d replace `Some` with `None` so the `Worker`
-wouldn’t have a thread to run.
+Lỗi cho chúng ta biết rằng chúng ta không thể gọi `join` vì chúng ta chỉ có một
+mutable borrow của từng `worker` và `join` nhận quyền sở hữu (ownership) của đối số
+của nó. Để giải quyết vấn đề này, chúng ta cần di chuyển luồng ra khỏi instance
+`Worker` sở hữu `thread` để `join` có thể tiêu thụ (consume) luồng đó. Một cách để
+làm điều này là áp dụng cách tiếp cận tương tự như chúng ta đã làm trong Listing
+18-15. Nếu `Worker` giữ một `Option<thread::JoinHandle<()>>`, chúng ta có thể gọi
+phương thức `take` trên `Option` để di chuyển giá trị ra khỏi biến thể `Some` và để
+lại biến thể `None` vào vị trí của nó. Nói cách khác, một `Worker` đang chạy sẽ có
+biến thể `Some` trong `thread`, và khi chúng ta muốn dọn dẹp một `Worker`, chúng ta
+sẽ thay thế `Some` bằng `None` để `Worker` không còn luồng nào để chạy nữa.
 
-However, the _only_ time this would come up would be when dropping the `Worker`.
-In exchange, we’d have to deal with an `Option<thread::JoinHandle<()>>` anywhere
-we accessed `worker.thread`. Idiomatic Rust uses `Option` quite a bit, but when
-you find yourself wrapping something you know will always be present in `Option`
-as a workaround like this, it’s a good idea to look for alternative approaches.
-They can make your code cleaner and less error-prone.
+Tuy nhiên, thời điểm _duy nhất_ điều này xuất hiện là khi drop `Worker`. Đổi lại,
+chúng ta sẽ phải xử lý `Option<thread::JoinHandle<()>>` ở bất kỳ nơi nào chúng ta
+truy cập `worker.thread`. Mã Rust chuẩn mực (idiomatic Rust) sử dụng `Option` khá
+nhiều, nhưng khi bạn thấy mình đang bọc một thứ mà bạn biết chắc sẽ luôn tồn tại vào
+`Option` như một giải pháp tình thế (workaround) như thế này, bạn nên tìm kiếm các
+phương pháp tiếp cận thay thế. Chúng có thể làm cho mã của bạn sạch hơn và ít bị lỗi
+hơn.
 
-In this case, a better alternative exists: the `Vec::drain` method. It accepts
-a range parameter to specify which items to remove from the `Vec`, and returns
-an iterator of those items. Passing the `..` range syntax will remove _every_
-value from the `Vec`.
+Trong trường hợp này, tồn tại một giải pháp thay thế tốt hơn: phương thức
+`Vec::drain`. Nó chấp nhận một tham số phạm vi (range) để chỉ định những phần tử nào
+cần xóa khỏi `Vec`, và trả về một iterator của những phần tử đó. Truyền cú pháp
+phạm vi `..` sẽ xóa _mọi_ giá trị khỏi `Vec`.
 
-So we need to update the `ThreadPool` `drop` implementation like this:
+Vì vậy, chúng ta cần cập nhật bản triển khai `drop` của `ThreadPool` như sau:
 
 <Listing file-name="src/lib.rs">
 
@@ -80,29 +82,29 @@ So we need to update the `ThreadPool` `drop` implementation like this:
 
 </Listing>
 
-This resolves the compiler error and does not require any other changes to our
-code.
+Điều này giải quyết được lỗi trình biên dịch và không yêu cầu bất kỳ thay đổi nào
+khác đối với mã của chúng ta.
 
-### Signaling to the Threads to Stop Listening for Jobs
+### Báo Hiệu Cho Các Luồng Dừng Lắng Nghe Các Job
 
-With all the changes we’ve made, our code compiles without any warnings.
-However, the bad news is that this code doesn’t function the way we want it to
-yet. The key is the logic in the closures run by the threads of the `Worker`
-instances: at the moment, we call `join`, but that won’t shut down the threads
-because they `loop` forever looking for jobs. If we try to drop our `ThreadPool`
-with our current implementation of `drop`, the main thread will block forever,
-waiting for the first thread to finish.
+Với tất cả những thay đổi đã thực hiện, mã của chúng ta biên dịch mà không có bất
+kỳ cảnh báo nào. Tuy nhiên, tin xấu là mã này vẫn chưa hoạt động theo cách chúng ta
+mong muốn. Mấu chốt nằm ở logic trong các closure được chạy bởi các luồng của các
+instance `Worker`: tại thời điểm này, chúng ta gọi `join`, nhưng điều đó sẽ không tắt
+các luồng vì chúng `loop` (lặp) vô tận để tìm kiếm job. Nếu chúng ta cố gắng drop
+`ThreadPool` với bản triển khai `drop` hiện tại, luồng chính sẽ bị chặn (block) mãi
+mãi để đợi luồng đầu tiên hoàn thành.
 
-To fix this problem, we’ll need a change in the `ThreadPool` `drop`
-implementation and then a change in the `Worker` loop.
+Để khắc phục vấn đề này, chúng ta sẽ cần thay đổi trong bản triển khai `drop` của
+`ThreadPool` và sau đó thay đổi trong vòng lặp của `Worker`.
 
-First we’ll change the `ThreadPool` `drop` implementation to explicitly drop
-the `sender` before waiting for the threads to finish. Listing 21-23 shows the
-changes to `ThreadPool` to explicitly drop `sender`. Unlike with the thread,
-here we _do_ need to use an `Option` to be able to move `sender` out of
-`ThreadPool` with `Option::take`.
+Trước tiên, chúng ta sẽ thay đổi bản triển khai `drop` của `ThreadPool` để drop
+`sender` một cách rõ ràng (explicitly) trước khi đợi các luồng hoàn thành. Listing
+21-23 hiển thị các thay đổi đối với `ThreadPool` để drop `sender` một cách rõ ràng.
+Không giống như với luồng, ở đây chúng ta _thực sự_ cần sử dụng `Option` để có thể di
+chuyển `sender` ra khỏi `ThreadPool` bằng `Option::take`.
 
-<Listing number="21-23" file-name="src/lib.rs" caption="Explicitly drop `sender` before joining the `Worker` threads">
+<Listing number="21-23" file-name="src/lib.rs" caption="Drop `sender` một cách rõ ràng trước khi join các luồng `Worker`">
 
 ```rust,noplayground,not_desired_behavior
 {{#rustdoc_include ../listings/ch21-web-server/listing-21-23/src/lib.rs:here}}
@@ -110,13 +112,14 @@ here we _do_ need to use an `Option` to be able to move `sender` out of
 
 </Listing>
 
-Dropping `sender` closes the channel, which indicates no more messages will be
-sent. When that happens, all the calls to `recv` that the `Worker` instances do
-in the infinite loop will return an error. In Listing 21-24, we change the
-`Worker` loop to gracefully exit the loop in that case, which means the threads
-will finish when the `ThreadPool` `drop` implementation calls `join` on them.
+Việc drop `sender` sẽ đóng channel, báo hiệu rằng sẽ không có thêm thông điệp nào
+được gửi nữa. Khi điều đó xảy ra, tất cả các lệnh gọi tới `recv` mà các instance
+`Worker` thực hiện trong vòng lặp vô hạn sẽ trả về một lỗi. Trong Listing 21-24,
+chúng ta thay đổi vòng lặp của `Worker` để thoát khỏi vòng lặp một cách nhẹ nhàng trong
+trường hợp đó, điều này có nghĩa là các luồng sẽ kết thúc khi bản triển khai `drop`
+của `ThreadPool` gọi `join` trên chúng.
 
-<Listing number="21-24" file-name="src/lib.rs" caption="Explicitly breaking out of the loop when `recv` returns an error">
+<Listing number="21-24" file-name="src/lib.rs" caption="Thoát khỏi vòng lặp một cách rõ ràng khi `recv` trả về một lỗi">
 
 ```rust,noplayground
 {{#rustdoc_include ../listings/ch21-web-server/listing-21-24/src/lib.rs:here}}
@@ -124,10 +127,10 @@ will finish when the `ThreadPool` `drop` implementation calls `join` on them.
 
 </Listing>
 
-To see this code in action, let’s modify `main` to accept only two requests
-before gracefully shutting down the server, as shown in Listing 21-25.
+Để thấy mã này hoạt động, hãy sửa đổi `main` để chỉ chấp nhận hai request trước khi
+tắt server một cách nhịp nhàng, như được hiển thị trong Listing 21-25.
 
-<Listing number="21-25" file-name="src/main.rs" caption="Shutting down the server after serving two requests by exiting the loop">
+<Listing number="21-25" file-name="src/main.rs" caption="Tắt server sau khi phục vụ hai request bằng cách thoát khỏi vòng lặp">
 
 ```rust,ignore
 {{#rustdoc_include ../listings/ch21-web-server/listing-21-25/src/main.rs:here}}
@@ -135,16 +138,16 @@ before gracefully shutting down the server, as shown in Listing 21-25.
 
 </Listing>
 
-You wouldn’t want a real-world web server to shut down after serving only two
-requests. This code just demonstrates that the graceful shutdown and cleanup is
-in working order.
+Bạn sẽ không muốn một web server trong thế giới thực tắt sau khi chỉ phục vụ hai
+request. Mã này chỉ nhằm chứng minh rằng quá trình graceful shutdown và cleanup đang
+hoạt động bình thường.
 
-The `take` method is defined in the `Iterator` trait and limits the iteration
-to the first two items at most. The `ThreadPool` will go out of scope at the
-end of `main`, and the `drop` implementation will run.
+Phương thức `take` được định nghĩa trong trait `Iterator` và giới hạn số lần lặp tối
+đa ở hai phần tử đầu tiên. `ThreadPool` sẽ đi ra ngoài phạm vi ở cuối hàm `main`, và
+bản triển khai `drop` sẽ chạy.
 
-Start the server with `cargo run`, and make three requests. The third request
-should error, and in your terminal you should see output similar to this:
+Khởi động server bằng `cargo run`, và thực hiện ba request. Request thứ ba sẽ bị
+lỗi, và trong terminal của bạn sẽ thấy đầu ra tương tự như thế này:
 
 <!-- manual-regeneration
 cd listings/ch21-web-server/listing-21-25
@@ -175,28 +178,28 @@ Shutting down worker 2
 Shutting down worker 3
 ```
 
-You might see a different ordering of `Worker` IDs and messages printed. We can
-see how this code works from the messages: `Worker` instances 0 and 3 got the
-first two requests. The server stopped accepting connections after the second
-connection, and the `Drop` implementation on `ThreadPool` starts executing
-before `Worker` 3 even starts its job. Dropping the `sender` disconnects all the
-`Worker` instances and tells them to shut down. The `Worker` instances each
-print a message when they disconnect, and then the thread pool calls `join` to
-wait for each `Worker` thread to finish.
+Bạn có thể thấy thứ tự các ID của `Worker` và các thông báo được in ra có chút khác
+biệt. Chúng ta có thể thấy cách mã này hoạt động từ các thông báo: các instance
+`Worker` 0 và 3 đã nhận hai request đầu tiên. Server đã ngừng chấp nhận kết nối sau
+kết nối thứ hai, và bản triển khai `Drop` trên `ThreadPool` bắt đầu thực thi thậm chí
+trước khi `Worker` 3 bắt đầu job của nó. Việc drop `sender` sẽ ngắt kết nối tất cả các
+instance `Worker` và báo cho chúng tắt. Mỗi instance `Worker` in một thông báo khi
+chúng ngắt kết nối, và sau đó thread pool gọi `join` để đợi từng luồng `Worker` hoàn
+thành.
 
-Notice one interesting aspect of this particular execution: the `ThreadPool`
-dropped the `sender`, and before any `Worker` received an error, we tried to
-join `Worker` 0. `Worker` 0 had not yet gotten an error from `recv`, so the main
-thread blocked waiting for `Worker` 0 to finish. In the meantime, `Worker` 3
-received a job and then all threads received an error. When `Worker` 0 finished,
-the main thread waited for the rest of the `Worker` instances to finish. At that
-point, they had all exited their loops and stopped.
+Hãy chú ý một khía cạnh thú vị của lần thực thi cụ thể này: `ThreadPool` đã drop
+`sender`, và trước khi bất kỳ `Worker` nào nhận được lỗi, chúng ta đã thử join
+`Worker` 0. `Worker` 0 vẫn chưa nhận được lỗi từ `recv`, vì vậy luồng chính bị chặn
+để đợi `Worker` 0 hoàn thành. Trong thời gian đó, `Worker` 3 nhận được một job và sau
+đó tất cả các luồng đều nhận được lỗi. Khi `Worker` 0 hoàn thành, luồng chính đợi
+các instance `Worker` còn lại hoàn thành. Tại thời điểm đó, tất cả chúng đều đã thoát
+khỏi vòng lặp và dừng lại.
 
-Congrats! We’ve now completed our project; we have a basic web server that uses
-a thread pool to respond asynchronously. We’re able to perform a graceful
-shutdown of the server, which cleans up all the threads in the pool.
+Chúc mừng! Bây giờ chúng ta đã hoàn thành dự án của mình; chúng ta có một web
+server cơ bản sử dụng thread pool để phản hồi bất đồng bộ. Chúng ta có thể thực hiện
+graceful shutdown server, giúp dọn dẹp tất cả các luồng trong pool.
 
-Here’s the full code for reference:
+Dưới đây là toàn bộ mã để tham khảo:
 
 <Listing file-name="src/main.rs">
 
@@ -214,21 +217,23 @@ Here’s the full code for reference:
 
 </Listing>
 
-We could do more here! If you want to continue enhancing this project, here are
-some ideas:
+Chúng ta có thể làm nhiều hơn ở đây! Nếu bạn muốn tiếp tục nâng cao dự án này, dưới
+đây là một số ý tưởng:
 
-- Add more documentation to `ThreadPool` and its public methods.
-- Add tests of the library’s functionality.
-- Change calls to `unwrap` to more robust error handling.
-- Use `ThreadPool` to perform some task other than serving web requests.
-- Find a thread pool crate on [crates.io](https://crates.io/) and implement a
-  similar web server using the crate instead. Then compare its API and
-  robustness to the thread pool we implemented.
+- Thêm nhiều tài liệu hơn cho `ThreadPool` và các phương thức công khai của nó.
+- Thêm các bài kiểm thử (tests) cho chức năng của thư viện.
+- Thay đổi các lệnh gọi tới `unwrap` bằng cách xử lý lỗi mạnh mẽ hơn.
+- Sử dụng `ThreadPool` để thực hiện một số tác vụ khác ngoài việc phục vụ các web
+  request.
+- Tìm một crate thread pool trên [crates.io](https://crates.io/) và triển khai một web
+  server tương tự bằng cách sử dụng crate đó thay thế. Sau đó so sánh API và độ mạnh mẽ
+  (robustness) của nó với thread pool mà chúng ta đã triển khai.
 
-## Summary
+## Tổng kết
 
-Well done! You’ve made it to the end of the book! We want to thank you for
-joining us on this tour of Rust. You’re now ready to implement your own Rust
-projects and help with other people’s projects. Keep in mind that there is a
-welcoming community of other Rustaceans who would love to help you with any
-challenges you encounter on your Rust journey.
+Làm tốt lắm! Bạn đã đi đến phần cuối của cuốn sách! Chúng tôi muốn cảm ơn bạn đã
+tham gia cùng chúng tôi trong chuyến hành trình khám phá Rust này. Bây giờ bạn đã sẵn
+sàng để tự triển khai các dự án Rust của riêng mình và giúp đỡ các dự án của những
+người khác. Hãy nhớ rằng luôn có một cộng đồng chào đón gồm các Rustacean khác, những
+người sẵn lòng giúp đỡ bạn giải quyết bất kỳ thách thức nào bạn gặp phải trên hành
+trình Rust của mình.

@@ -1,28 +1,29 @@
-## Building a Single-Threaded Web Server
+## Xây Dựng Một Web Server Đơn Luồng
 
-We’ll start by getting a single-threaded web server working. Before we begin,
-let’s look at a quick overview of the protocols involved in building web
-servers. The details of these protocols are beyond the scope of this book, but
-a brief overview will give you the information you need.
+Chúng ta sẽ bắt đầu bằng việc làm cho một web server đơn luồng (single-threaded)
+hoạt động. Trước khi bắt đầu, hãy xem qua tổng quan nhanh về các giao thức liên quan
+đến việc xây dựng web server. Chi tiết về các giao thức này nằm ngoài phạm vi của cuốn
+sách, nhưng một cái nhìn tổng quan ngắn gọn sẽ cung cấp cho bạn thông tin cần thiết.
 
-The two main protocols involved in web servers are _Hypertext Transfer
-Protocol_ _(HTTP)_ and _Transmission Control Protocol_ _(TCP)_. Both protocols
-are _request-response_ protocols, meaning a _client_ initiates requests and a
-_server_ listens to the requests and provides a response to the client. The
-contents of those requests and responses are defined by the protocols.
+Hai giao thức chính liên quan đến web server là _Hypertext Transfer Protocol_
+_(HTTP)_ và _Transmission Control Protocol_ _(TCP)_. Cả hai giao thức đều là giao
+thức _yêu cầu - phản hồi_ (_request-response_), nghĩa là một _client_ (phía máy khách)
+khởi tạo các yêu cầu (request) và một _server_ (máy chủ) lắng nghe các yêu cầu và
+cung cấp phản hồi (response) cho client. Nội dung của các request và response đó được
+định nghĩa bởi các giao thức.
 
-TCP is the lower-level protocol that describes the details of how information
-gets from one server to another but doesn’t specify what that information is.
-HTTP builds on top of TCP by defining the contents of the requests and
-responses. It’s technically possible to use HTTP with other protocols, but in
-the vast majority of cases, HTTP sends its data over TCP. We’ll work with the
-raw bytes of TCP and HTTP requests and responses.
+TCP là giao thức ở tầng thấp hơn, mô tả chi tiết cách thông tin truyền từ máy chủ này
+sang máy chủ khác nhưng không chỉ định thông tin đó là gì. HTTP được xây dựng trên
+nền tảng TCP bằng cách định nghĩa nội dung của các request và response. Về mặt kỹ
+thuật, có thể sử dụng HTTP với các giao thức khác, nhưng trong phần lớn các trường
+hợp, HTTP gửi dữ liệu của nó qua TCP. Chúng ta sẽ làm việc với các byte thô của TCP
+cùng các request và response HTTP.
 
-### Listening to the TCP Connection
+### Lắng Nghe Kết Nối TCP
 
-Our web server needs to listen to a TCP connection, so that’s the first part
-we’ll work on. The standard library offers a `std::net` module that lets us do
-this. Let’s make a new project in the usual fashion:
+Web server của chúng ta cần lắng nghe một kết nối TCP, vì vậy đó là phần đầu tiên
+chúng ta sẽ thực hiện. Thư viện chuẩn cung cấp module `std::net` cho phép chúng ta
+làm điều này. Hãy tạo một dự án mới theo cách thông thường:
 
 ```console
 $ cargo new hello
@@ -30,11 +31,11 @@ $ cargo new hello
 $ cd hello
 ```
 
-Now enter the code in Listing 21-1 in _src/main.rs_ to start. This code will
-listen at the local address `127.0.0.1:7878` for incoming TCP streams. When it
-gets an incoming stream, it will print `Connection established!`.
+Bây giờ, hãy nhập mã trong Listing 21-1 vào _src/main.rs_ để bắt đầu. Mã này sẽ lắng
+nghe tại địa chỉ cục bộ `127.0.0.1:7878` cho các TCP stream đến. Khi nhận được một
+stream đến, nó sẽ in ra `Connection established!`.
 
-<Listing number="21-1" file-name="src/main.rs" caption="Listening for incoming streams and printing a message when we receive a stream">
+<Listing number="21-1" file-name="src/main.rs" caption="Lắng nghe các stream đến và in một thông báo khi nhận được một stream">
 
 ```rust,no_run
 {{#rustdoc_include ../listings/ch21-web-server/listing-21-01/src/main.rs}}
@@ -42,56 +43,51 @@ gets an incoming stream, it will print `Connection established!`.
 
 </Listing>
 
-Using `TcpListener`, we can listen for TCP connections at the address
-`127.0.0.1:7878`. In the address, the section before the colon is an IP address
-representing your computer (this is the same on every computer and doesn’t
-represent the authors’ computer specifically), and `7878` is the port. We’ve
-chosen this port for two reasons: HTTP isn’t normally accepted on this port so
-our server is unlikely to conflict with any other web server you might have
-running on your machine, and 7878 is _rust_ typed on a telephone.
+Sử dụng `TcpListener`, chúng ta có thể lắng nghe các kết nối TCP tại địa chỉ
+`127.0.0.1:7878`. Trong địa chỉ này, phần trước dấu hai chấm là địa chỉ IP đại diện
+cho máy tính của bạn (địa chỉ này giống nhau trên mọi máy tính và không đại diện
+riêng cho máy tính của tác giả), và `7878` là cổng (port). Chúng ta chọn cổng này vì
+hai lý do: HTTP thường không được chấp nhận trên cổng này nên server của chúng ta khó
+có khả năng xung đột với bất kỳ web server nào khác có thể đang chạy trên máy của
+bạn, và 7878 là các phím gõ chữ _rust_ trên bàn phím điện thoại.
 
-The `bind` function in this scenario works like the `new` function in that it
-will return a new `TcpListener` instance. The function is called `bind`
-because, in networking, connecting to a port to listen to is known as “binding
-to a port.”
+Hàm `bind` trong kịch bản này hoạt động giống như hàm `new` ở chỗ nó sẽ trả về một
+instance `TcpListener` mới. Hàm được gọi là `bind` vì trong mạng máy tính, việc kết
+nối tới một cổng để lắng nghe được gọi là “ràng buộc vào một cổng” (binding to a port).
 
-The `bind` function returns a `Result<T, E>`, which indicates that it’s
-possible for binding to fail. For example, connecting to port 80 requires
-administrator privileges (non-administrators can listen only on ports higher
-than 1023), so if we tried to connect to port 80 without being an
-administrator, binding wouldn’t work. Binding also wouldn’t work, for example,
-if we ran two instances of our program and so had two programs listening to the
-same port. Because we’re writing a basic server just for learning purposes, we
-won’t worry about handling these kinds of errors; instead, we use `unwrap` to
-stop the program if errors happen.
+Hàm `bind` trả về một `Result<T, E>`, cho biết việc binding có thể thất bại. Ví dụ:
+kết nối đến cổng 80 yêu cầu quyền quản trị viên (người dùng không phải quản trị viên
+chỉ có thể lắng nghe trên các cổng lớn hơn 1023), vì vậy nếu chúng ta cố gắng kết
+nối đến cổng 80 mà không có quyền quản trị, binding sẽ không hoạt động. Binding cũng
+sẽ không hoạt động nếu, chẳng hạn, chúng ta chạy hai phiên bản của chương trình và có
+hai chương trình cùng lắng nghe trên một cổng. Vì chúng ta chỉ đang viết một server cơ
+bản cho mục đích học tập, chúng ta sẽ không bận tâm đến việc xử lý các loại lỗi này;
+thay vào đó, chúng ta sử dụng `unwrap` để dừng chương trình nếu xảy ra lỗi.
 
-The `incoming` method on `TcpListener` returns an iterator that gives us a
-sequence of streams (more specifically, streams of type `TcpStream`). A single
-_stream_ represents an open connection between the client and the server. A
-_connection_ is the name for the full request and response process in which a
-client connects to the server, the server generates a response, and the server
-closes the connection. As such, we will read from the `TcpStream` to see what
-the client sent and then write our response to the stream to send data back to
-the client. Overall, this `for` loop will process each connection in turn and
-produce a series of streams for us to handle.
+Phương thức `incoming` trên `TcpListener` trả về một iterator cung cấp cho chúng ta
+một chuỗi các stream (cụ thể hơn là các stream có kiểu `TcpStream`). Một _stream_ đơn
+lẻ đại diện cho một kết nối mở giữa client và server. Một _kết nối_ (connection) là
+tên gọi cho toàn bộ quá trình yêu cầu và phản hồi, trong đó client kết nối đến server,
+server tạo một phản hồi, và server đóng kết nối. Do đó, chúng ta sẽ đọc từ `TcpStream`
+để xem client đã gửi những gì và sau đó ghi phản hồi của chúng ta vào stream để gửi
+dữ liệu trở lại cho client. Nhìn chung, vòng lặp `for` này sẽ xử lý lần lượt từng kết
+nối và tạo ra một loạt các stream để chúng ta xử lý.
 
-For now, our handling of the stream consists of calling `unwrap` to terminate
-our program if the stream has any errors; if there aren’t any errors, the
-program prints a message. We’ll add more functionality for the success case in
-the next listing. The reason we might receive errors from the `incoming` method
-when a client connects to the server is that we’re not actually iterating over
-connections. Instead, we’re iterating over _connection attempts_. The
-connection might not be successful for a number of reasons, many of them
-operating system specific. For example, many operating systems have a limit to
-the number of simultaneous open connections they can support; new connection
-attempts beyond that number will produce an error until some of the open
-connections are closed.
+Hiện tại, việc xử lý stream của chúng ta bao gồm việc gọi `unwrap` để chấm dứt chương
+trình nếu stream có bất kỳ lỗi nào; nếu không có lỗi, chương trình sẽ in một thông
+báo. Chúng ta sẽ thêm nhiều chức năng hơn cho trường hợp thành công trong listing tiếp
+theo. Lý do chúng ta có thể nhận được lỗi từ phương thức `incoming` khi một client
+kết nối đến server là vì chúng ta không thực sự đang lặp qua các kết nối. Thay vào đó,
+chúng ta đang lặp qua _các nỗ lực kết nối_ (connection attempts). Kết nối có thể không
+thành công vì nhiều lý do, nhiều lý do trong số đó mang tính đặc thù của hệ điều hành.
+Ví dụ, nhiều hệ điều hành có giới hạn về số lượng kết nối mở đồng thời mà chúng có
+thể hỗ trợ; các nỗ lực kết nối mới vượt quá con số đó sẽ tạo ra lỗi cho đến khi một
+số kết nối đang mở được đóng lại.
 
-Let’s try running this code! Invoke `cargo run` in the terminal and then load
-_127.0.0.1:7878_ in a web browser. The browser should show an error message
-like “Connection reset” because the server isn’t currently sending back any
-data. But when you look at your terminal, you should see several messages that
-were printed when the browser connected to the server!
+Hãy thử chạy mã này! Chạy `cargo run` trong terminal và sau đó mở _127.0.0.1:7878_ trong
+trình duyệt web. Trình duyệt sẽ hiển thị một thông báo lỗi như “Connection reset” vì
+server hiện không gửi lại bất kỳ dữ liệu nào. Nhưng khi nhìn vào terminal, bạn sẽ
+thấy một vài thông báo đã được in ra khi trình duyệt kết nối với server!
 
 ```text
      Running `target/debug/hello`
@@ -100,42 +96,39 @@ Connection established!
 Connection established!
 ```
 
-Sometimes you’ll see multiple messages printed for one browser request; the
-reason might be that the browser is making a request for the page as well as a
-request for other resources, like the _favicon.ico_ icon that appears in the
-browser tab.
+Đôi khi bạn sẽ thấy nhiều thông báo được in ra cho một yêu cầu từ trình duyệt; lý do
+có thể là trình duyệt đang gửi một yêu cầu cho trang cũng như một yêu cầu cho các tài
+nguyên khác, chẳng hạn như biểu tượng _favicon.ico_ xuất hiện trên tab trình duyệt.
 
-It could also be that the browser is trying to connect to the server multiple
-times because the server isn’t responding with any data. When `stream` goes out
-of scope and is dropped at the end of the loop, the connection is closed as
-part of the `drop` implementation. Browsers sometimes deal with closed
-connections by retrying, because the problem might be temporary.
+Nó cũng có thể là do trình duyệt đang cố gắng kết nối với server nhiều lần vì server
+không phản hồi bất kỳ dữ liệu nào. Khi `stream` đi ra ngoài phạm vi và bị drop ở cuối
+vòng lặp, kết nối sẽ bị đóng như một phần của quá trình triển khai `drop`. Các trình
+duyệt đôi khi xử lý các kết nối bị đóng bằng cách thử lại, vì sự cố có thể chỉ là tạm
+thời.
 
-Browsers also sometimes open multiple connections to the server without sending
-any requests, so that if they *do* later send requests, they can happen faster.
-When this happens, our server will see each connection, regardless of whether
-there are any requests over that connection. Many versions of Chrome-based
-browsers do this, for example; you can disable that optimization by using =
-private browsing mode or use a different browser.
+Các trình duyệt đôi khi cũng mở nhiều kết nối tới server mà không gửi bất kỳ yêu cầu
+nào, để nếu sau đó chúng *thực sự* gửi yêu cầu, chúng có thể diễn ra nhanh hơn. Khi
+điều này xảy ra, server của chúng ta sẽ nhìn thấy từng kết nối, bất kể có bất kỳ yêu
+cầu nào qua kết nối đó hay không. Ví dụ, nhiều phiên bản của các trình duyệt dựa trên
+Chrome thực hiện điều này; bạn có thể vô hiệu hóa tối ưu hóa đó bằng cách sử dụng chế
+độ duyệt web riêng tư hoặc sử dụng một trình duyệt khác.
 
-The important factor is that we’ve successfully gotten a handle to a TCP
-connection!
+Yếu tố quan trọng là chúng ta đã nắm giữ thành công một kết nối TCP!
 
-Remember to stop the program by pressing <kbd>ctrl</kbd>-<kbd>c</kbd> when
-you’re done running a particular version of the code. Then restart the program
-by invoking the `cargo run` command after you’ve made each set of code changes
-to make sure you’re running the newest code.
+Hãy nhớ dừng chương trình bằng cách nhấn <kbd>ctrl</kbd>-<kbd>c</kbd> khi bạn chạy
+xong một phiên bản mã cụ thể. Sau đó khởi động lại chương trình bằng cách gọi lệnh
+`cargo run` sau mỗi lần bạn thực hiện thay đổi mã để đảm bảo bạn đang chạy mã mới
+nhất.
 
-### Reading the Request
+### Đọc Request
 
-Let’s implement the functionality to read the request from the browser! To
-separate the concerns of first getting a connection and then taking some action
-with the connection, we’ll start a new function for processing connections. In
-this new `handle_connection` function, we’ll read data from the TCP stream and
-print it so we can see the data being sent from the browser. Change the code to
-look like Listing 21-2.
+Hãy triển khai chức năng đọc request từ trình duyệt! Để tách biệt các mối quan tâm
+giữa việc nhận kết nối trước rồi sau đó thực hiện một số hành động với kết nối, chúng
+ta sẽ bắt đầu một hàm mới để xử lý các kết nối. Trong hàm `handle_connection` mới
+này, chúng ta sẽ đọc dữ liệu từ TCP stream và in ra để có thể xem dữ liệu được gửi từ
+trình duyệt. Hãy thay đổi mã để trông giống như Listing 21-2.
 
-<Listing number="21-2" file-name="src/main.rs" caption="Reading from the `TcpStream` and printing the data">
+<Listing number="21-2" file-name="src/main.rs" caption="Đọc từ `TcpStream` và in dữ liệu ra">
 
 ```rust,no_run
 {{#rustdoc_include ../listings/ch21-web-server/listing-21-02/src/main.rs}}
@@ -143,38 +136,36 @@ look like Listing 21-2.
 
 </Listing>
 
-We bring `std::io::prelude` and `std::io::BufReader` into scope to get access
-to traits and types that let us read from and write to the stream. In the `for`
-loop in the `main` function, instead of printing a message that says we made a
-connection, we now call the new `handle_connection` function and pass the
-`stream` to it.
+Chúng ta đưa `std::io::prelude` và `std::io::BufReader` vào phạm vi để có quyền truy
+cập vào các trait và kiểu cho phép chúng ta đọc và ghi vào stream. Trong vòng lặp
+`for` ở hàm `main`, thay vì in một thông báo cho biết chúng ta đã tạo kết nối, giờ
+đây chúng ta gọi hàm `handle_connection` mới và truyền `stream` cho nó.
 
-In the `handle_connection` function, we create a new `BufReader` instance that
-wraps a reference to the `stream`. The `BufReader` adds buffering by managing calls
-to the `std::io::Read` trait methods for us.
+Trong hàm `handle_connection`, chúng ta tạo một instance `BufReader` mới bao bọc
+một tham chiếu đến `stream`. `BufReader` thêm bộ đệm bằng cách thay chúng ta quản lý
+các lệnh gọi phương thức của trait `std::io::Read`.
 
-We create a variable named `http_request` to collect the lines of the request
-the browser sends to our server. We indicate that we want to collect these
-lines in a vector by adding the `Vec<_>` type annotation.
+Chúng ta tạo một biến tên là `http_request` để thu thập các dòng của request mà trình
+duyệt gửi đến server của chúng ta. Chúng ta chỉ định rằng mình muốn thu thập các dòng
+này vào một vector bằng cách thêm chú thích kiểu `Vec<_>`.
 
-`BufReader` implements the `std::io::BufRead` trait, which provides the `lines`
-method. The `lines` method returns an iterator of `Result<String,
-std::io::Error>` by splitting the stream of data whenever it sees a newline
-byte. To get each `String`, we map and `unwrap` each `Result`. The `Result`
-might be an error if the data isn’t valid UTF-8 or if there was a problem
-reading from the stream. Again, a production program should handle these errors
-more gracefully, but we’re choosing to stop the program in the error case for
-simplicity.
+`BufReader` triển khai trait `std::io::BufRead`, trait này cung cấp phương thức
+`lines`. Phương thức `lines` trả về một iterator của `Result<String, std::io::Error>`
+bằng cách tách luồng dữ liệu bất cứ khi nào nó thấy một byte dòng mới (newline byte).
+Để lấy từng `String`, chúng ta map và `unwrap` từng `Result`. `Result` có thể là một
+lỗi nếu dữ liệu không phải là UTF-8 hợp lệ hoặc nếu có vấn đề khi đọc từ stream. Một
+lần nữa, một chương trình production nên xử lý các lỗi này một cách khéo léo hơn, nhưng
+chúng ta chọn dừng chương trình trong trường hợp có lỗi để cho đơn giản.
 
-The browser signals the end of an HTTP request by sending two newline
-characters in a row, so to get one request from the stream, we take lines until
-we get a line that is the empty string. Once we’ve collected the lines into the
-vector, we’re printing them out using pretty debug formatting so we can take a
-look at the instructions the web browser is sending to our server.
+Trình duyệt báo hiệu kết thúc một HTTP request bằng cách gửi hai ký tự dòng mới liên
+tiếp, vì vậy để lấy một request từ stream, chúng ta lấy các dòng cho đến khi gặp một
+dòng là chuỗi rỗng. Khi đã thu thập các dòng vào vector, chúng ta in chúng ra bằng định
+dạng debug đẹp mắt để có thể xem các chỉ dẫn mà trình duyệt web đang gửi tới server
+của chúng ta.
 
-Let’s try this code! Start the program and make a request in a web browser
-again. Note that we’ll still get an error page in the browser, but our
-program’s output in the terminal will now look similar to this:
+Hãy thử mã này! Khởi động chương trình và thực hiện lại một yêu cầu trong trình duyệt
+web. Lưu ý rằng chúng ta vẫn sẽ nhận được một trang lỗi trong trình duyệt, nhưng đầu
+ra của chương trình trong terminal giờ đây sẽ trông tương tự như thế này:
 
 ```console
 $ cargo run
@@ -199,19 +190,19 @@ Request: [
 ]
 ```
 
-Depending on your browser, you might get slightly different output. Now that
-we’re printing the request data, we can see why we get multiple connections
-from one browser request by looking at the path after `GET` in the first line
-of the request. If the repeated connections are all requesting _/_, we know the
-browser is trying to fetch _/_ repeatedly because it’s not getting a response
-from our program.
+Tùy thuộc vào trình duyệt của bạn, bạn có thể nhận được đầu ra hơi khác một chút.
+Bây giờ chúng ta đang in dữ liệu request, chúng ta có thể thấy lý do tại sao chúng
+ta nhận được nhiều kết nối từ một yêu cầu của trình duyệt bằng cách nhìn vào đường
+dẫn sau `GET` ở dòng đầu tiên của request. Nếu các kết nối lặp lại đều đang yêu cầu
+_/_, chúng ta biết trình duyệt đang cố gắng lấy _/_ lặp đi lặp lại vì nó không nhận
+được phản hồi từ chương trình của chúng ta.
 
-Let’s break down this request data to understand what the browser is asking of
-our program.
+Hãy phân tích dữ liệu request này để hiểu những gì trình duyệt đang yêu cầu từ chương
+trình của chúng ta.
 
-### A Closer Look at an HTTP Request
+### Tìm Hiểu Kỹ Hơn Về Một HTTP Request
 
-HTTP is a text-based protocol, and a request takes this format:
+HTTP là một giao thức dựa trên văn bản, và một request có định dạng như sau:
 
 ```text
 Method Request-URI HTTP-Version CRLF
@@ -219,41 +210,41 @@ headers CRLF
 message-body
 ```
 
-The first line is the _request line_ that holds information about what the
-client is requesting. The first part of the request line indicates the _method_
-being used, such as `GET` or `POST`, which describes how the client is making
-this request. Our client used a `GET` request, which means it is asking for
-information.
+Dòng đầu tiên là _request line_ chứa thông tin về những gì client đang yêu cầu. Phần
+đầu tiên của dòng request cho biết _method_ (phương thức) đang được sử dụng, chẳng
+hạn như `GET` hoặc `POST`, mô tả cách client thực hiện yêu cầu này. Client của chúng
+ta đã sử dụng một request `GET`, có nghĩa là nó đang yêu cầu thông tin.
 
-The next part of the request line is _/_, which indicates the _uniform resource
-identifier_ _(URI)_ the client is requesting: a URI is almost, but not quite,
-the same as a _uniform resource locator_ _(URL)_. The difference between URIs
-and URLs isn’t important for our purposes in this chapter, but the HTTP spec
-uses the term URI, so we can just mentally substitute _URL_ for _URI_ here.
+Phần tiếp theo của dòng request là _/_, biểu thị _uniform resource identifier_
+_(URI)_ mà client đang yêu cầu: URI gần như, nhưng không hoàn toàn, giống với
+_uniform resource locator_ _(URL)_. Sự khác biệt giữa URI và URL không quan trọng
+đối với mục đích của chúng ta trong chương này, nhưng đặc tả HTTP sử dụng thuật ngữ
+URI, vì vậy chúng ta có thể ngầm hiểu _URL_ thay cho _URI_ ở đây.
 
-The last part is the HTTP version the client uses, and then the request line
-ends in a CRLF sequence. (CRLF stands for _carriage return_ and _line feed_,
-which are terms from the typewriter days!) The CRLF sequence can also be
-written as `\r\n`, where `\r` is a carriage return and `\n` is a line feed. The
-_CRLF sequence_ separates the request line from the rest of the request data.
-Note that when the CRLF is printed, we see a new line start rather than `\r\n`.
+Phần cuối cùng là phiên bản HTTP mà client sử dụng, và sau đó dòng request kết thúc
+bằng một chuỗi CRLF. (CRLF là viết tắt của _carriage return_ và _line feed_, là những
+thuật ngữ từ thời máy đánh chữ!) Chuỗi CRLF cũng có thể được viết là `\r\n`, trong
+đó `\r` là carriage return (về đầu dòng) và `\n` là line feed (xuống dòng). _Chuỗi
+CRLF_ phân tách dòng request với phần còn lại của dữ liệu request. Lưu ý rằng khi CRLF
+được in ra, chúng ta thấy một dòng mới bắt đầu thay vì nhìn thấy `\r\n`.
 
-Looking at the request line data we received from running our program so far,
-we see that `GET` is the method, _/_ is the request URI, and `HTTP/1.1` is the
-version.
+Nhìn vào dữ liệu dòng request mà chúng ta nhận được từ việc chạy chương trình cho đến
+nay, chúng ta thấy rằng `GET` là method, _/_ là URI được yêu cầu, và `HTTP/1.1` là
+phiên bản.
 
-After the request line, the remaining lines starting from `Host:` onward are
-headers. `GET` requests have no body.
+Sau dòng request, các dòng còn lại bắt đầu từ `Host:` trở đi là các header. Các
+request `GET` không có body.
 
-Try making a request from a different browser or asking for a different
-address, such as _127.0.0.1:7878/test_, to see how the request data changes.
+Hãy thử thực hiện một yêu cầu từ một trình duyệt khác hoặc yêu cầu một địa chỉ khác,
+chẳng hạn như _127.0.0.1:7878/test_, để xem dữ liệu request thay đổi như thế nào.
 
-Now that we know what the browser is asking for, let’s send back some data!
+Bây giờ chúng ta đã biết trình duyệt đang yêu cầu những gì, hãy gửi lại một số dữ
+liệu!
 
-### Writing a Response
+### Viết Một Response
 
-We’re going to implement sending data in response to a client request.
-Responses have the following format:
+Chúng ta sẽ triển khai việc gửi dữ liệu để phản hồi một yêu cầu của client. Các
+response có định dạng như sau:
 
 ```text
 HTTP-Version Status-Code Reason-Phrase CRLF
@@ -261,26 +252,24 @@ headers CRLF
 message-body
 ```
 
-The first line is a _status line_ that contains the HTTP version used in the
-response, a numeric status code that summarizes the result of the request, and
-a reason phrase that provides a text description of the status code. After the
-CRLF sequence are any headers, another CRLF sequence, and the body of the
-response.
+Dòng đầu tiên là _status line_ (dòng trạng thái) chứa phiên bản HTTP được sử dụng
+trong response, một mã trạng thái (status code) bằng số tóm tắt kết quả của request,
+và một cụm từ lý do (reason phrase) cung cấp mô tả dạng văn bản cho mã trạng thái đó.
+Sau chuỗi CRLF là các header (nếu có), một chuỗi CRLF khác, và phần body của response.
 
-Here is an example response that uses HTTP version 1.1, and has a status code of
-200, an OK reason phrase, no headers, and no body:
+Dưới đây là một ví dụ về response sử dụng HTTP phiên bản 1.1, có status code là 200,
+reason phrase là OK, không có header và không có body:
 
 ```text
 HTTP/1.1 200 OK\r\n\r\n
 ```
 
-The status code 200 is the standard success response. The text is a tiny
-successful HTTP response. Let’s write this to the stream as our response to a
-successful request! From the `handle_connection` function, remove the
-`println!` that was printing the request data and replace it with the code in
-Listing 21-3.
+Mã trạng thái 200 là phản hồi thành công tiêu chuẩn. Văn bản này là một HTTP response
+thành công nhỏ gọn. Hãy ghi nội dung này vào stream làm phản hồi của chúng ta cho một
+request thành công! Từ hàm `handle_connection`, hãy xóa lệnh `println!` dùng để in
+dữ liệu request và thay thế bằng mã trong Listing 21-3.
 
-<Listing number="21-3" file-name="src/main.rs" caption="Writing a tiny successful HTTP response to the stream">
+<Listing number="21-3" file-name="src/main.rs" caption="Ghi một HTTP response thành công nhỏ gọn vào stream">
 
 ```rust,no_run
 {{#rustdoc_include ../listings/ch21-web-server/listing-21-03/src/main.rs:here}}
@@ -288,27 +277,26 @@ Listing 21-3.
 
 </Listing>
 
-The first new line defines the `response` variable that holds the success
-message’s data. Then we call `as_bytes` on our `response` to convert the string
-data to bytes. The `write_all` method on `stream` takes a `&[u8]` and sends
-those bytes directly down the connection. Because the `write_all` operation
-could fail, we use `unwrap` on any error result as before. Again, in a real
-application you would add error handling here.
+Dòng mới đầu tiên định nghĩa biến `response` chứa dữ liệu của thông báo thành công.
+Sau đó, chúng ta gọi `as_bytes` trên `response` để chuyển đổi dữ liệu chuỗi thành các
+byte. Phương thức `write_all` trên `stream` nhận một `&[u8]` và gửi các byte đó trực
+tiếp qua kết nối. Vì thao tác `write_all` có thể thất bại, chúng ta sử dụng `unwrap`
+trên mọi kết quả lỗi như trước. Một lần nữa, trong một ứng dụng thực tế, bạn sẽ thêm
+phần xử lý lỗi ở đây.
 
-With these changes, let’s run our code and make a request. We’re no longer
-printing any data to the terminal, so we won’t see any output other than the
-output from Cargo. When you load _127.0.0.1:7878_ in a web browser, you should
-get a blank page instead of an error. You’ve just handcoded receiving an HTTP
-request and sending a response!
+Với những thay đổi này, hãy chạy mã của chúng ta và thực hiện một request. Chúng ta
+không còn in bất kỳ dữ liệu nào ra terminal nữa, vì vậy chúng ta sẽ không thấy đầu ra
+nào khác ngoài đầu ra từ Cargo. Khi bạn mở _127.0.0.1:7878_ trong trình duyệt web,
+bạn sẽ nhận được một trang trắng thay vì một trang lỗi. Bạn vừa tự tay viết mã nhận
+một HTTP request và gửi một response!
 
-### Returning Real HTML
+### Trả Về HTML Thực Sự
 
-Let’s implement the functionality for returning more than a blank page. Create
-the new file _hello.html_ in the root of your project directory, not in the
-_src_ directory. You can input any HTML you want; Listing 21-4 shows one
-possibility.
+Hãy triển khai chức năng trả về nhiều hơn một trang trắng. Tạo tệp mới _hello.html_
+trong thư mục gốc của dự án, không phải trong thư mục _src_. Bạn có thể nhập bất kỳ
+mã HTML nào bạn muốn; Listing 21-4 cho thấy một ví dụ khả dĩ.
 
-<Listing number="21-4" file-name="hello.html" caption="A sample HTML file to return in a response">
+<Listing number="21-4" file-name="hello.html" caption="Một tệp HTML mẫu để trả về trong response">
 
 ```html
 {{#include ../listings/ch21-web-server/listing-21-05/hello.html}}
@@ -316,12 +304,11 @@ possibility.
 
 </Listing>
 
-This is a minimal HTML5 document with a heading and some text. To return this
-from the server when a request is received, we’ll modify `handle_connection` as
-shown in Listing 21-5 to read the HTML file, add it to the response as a body,
-and send it.
+Đây là một tài liệu HTML5 tối giản với một tiêu đề và một số văn bản. Để server trả
+về nội dung này khi nhận được một request, chúng ta sẽ sửa đổi `handle_connection`
+như trong Listing 21-5 để đọc tệp HTML, thêm nó vào response dưới dạng body và gửi đi.
 
-<Listing number="21-5" file-name="src/main.rs" caption="Sending the contents of *hello.html* as the body of the response">
+<Listing number="21-5" file-name="src/main.rs" caption="Gửi nội dung của *hello.html* dưới dạng body của response">
 
 ```rust,no_run
 {{#rustdoc_include ../listings/ch21-web-server/listing-21-05/src/main.rs:here}}
@@ -329,38 +316,37 @@ and send it.
 
 </Listing>
 
-We’ve added `fs` to the `use` statement to bring the standard library’s
-filesystem module into scope. The code for reading the contents of a file to a
-string should look familiar; we used it when we read the contents of a file for
-our I/O project in Listing 12-4.
+Chúng ta đã thêm `fs` vào câu lệnh `use` để đưa module hệ thống tệp của thư viện
+chuẩn vào phạm vi. Mã để đọc nội dung của một tệp thành chuỗi hẳn trông quen thuộc;
+chúng ta đã sử dụng nó khi đọc nội dung của một tệp cho dự án I/O của chúng ta trong
+Listing 12-4.
 
-Next, we use `format!` to add the file’s contents as the body of the success
-response. To ensure a valid HTTP response, we add the `Content-Length` header
-which is set to the size of our response body, in this case the size of
-`hello.html`.
+Tiếp theo, chúng ta sử dụng `format!` để thêm nội dung của tệp vào làm body của
+response thành công. Để đảm bảo một HTTP response hợp lệ, chúng ta thêm header
+`Content-Length` được đặt bằng kích thước của body phản hồi, trong trường hợp này là
+kích thước của `hello.html`.
 
-Run this code with `cargo run` and load _127.0.0.1:7878_ in your browser; you
-should see your HTML rendered!
+Chạy mã này bằng `cargo run` và mở _127.0.0.1:7878_ trong trình duyệt của bạn; bạn
+sẽ thấy HTML của mình được hiển thị!
 
-Currently, we’re ignoring the request data in `http_request` and just sending
-back the contents of the HTML file unconditionally. That means if you try
-requesting _127.0.0.1:7878/something-else_ in your browser, you’ll still get
-back this same HTML response. At the moment, our server is very limited and
-does not do what most web servers do. We want to customize our responses
-depending on the request and only send back the HTML file for a well-formed
-request to _/_.
+Hiện tại, chúng ta đang bỏ qua dữ liệu request trong `http_request` và chỉ gửi lại
+nội dung của tệp HTML một cách vô điều kiện. Điều đó có nghĩa là nếu bạn thử yêu cầu
+_127.0.0.1:7878/something-else_ trong trình duyệt, bạn vẫn sẽ nhận lại cùng phản hồi
+HTML này. Hiện tại, server của chúng ta rất hạn chế và không làm những gì mà hầu hết
+các web server thường làm. Chúng ta muốn tùy chỉnh các phản hồi tùy thuộc vào request
+và chỉ gửi lại tệp HTML cho một request đúng định dạng tới _/_.
 
-### Validating the Request and Selectively Responding
+### Xác Thực Request và Phản Hồi Có Chọn Lọc
 
-Right now, our web server will return the HTML in the file no matter what the
-client requested. Let’s add functionality to check that the browser is
-requesting _/_ before returning the HTML file and return an error if the
-browser requests anything else. For this we need to modify `handle_connection`,
-as shown in Listing 21-6. This new code checks the content of the request
-received against what we know a request for _/_ looks like and adds `if` and
-`else` blocks to treat requests differently.
+Ngay lúc này, web server của chúng ta sẽ trả về mã HTML trong tệp bất kể client đã
+yêu cầu điều gì. Hãy thêm chức năng để kiểm tra xem trình duyệt có đang yêu cầu _/_
+hay không trước khi trả về tệp HTML và trả về lỗi nếu trình duyệt yêu cầu bất kỳ thứ
+gì khác. Để làm điều này, chúng ta cần sửa đổi `handle_connection`, như được hiển thị
+trong Listing 21-6. Mã mới này kiểm tra nội dung của request nhận được so với những
+gì chúng ta biết về một request cho _/_ và thêm các khối `if` và `else` để xử lý các
+request khác nhau.
 
-<Listing number="21-6" file-name="src/main.rs" caption="Handling requests to */* differently from other requests">
+<Listing number="21-6" file-name="src/main.rs" caption="Xử lý các request đến */* khác biệt so với các request khác">
 
 ```rust,no_run
 {{#rustdoc_include ../listings/ch21-web-server/listing-21-06/src/main.rs:here}}
@@ -368,32 +354,31 @@ received against what we know a request for _/_ looks like and adds `if` and
 
 </Listing>
 
-We’re only going to be looking at the first line of the HTTP request, so rather
-than reading the entire request into a vector, we’re calling `next` to get the
-first item from the iterator. The first `unwrap` takes care of the `Option` and
-stops the program if the iterator has no items. The second `unwrap` handles the
-`Result` and has the same effect as the `unwrap` that was in the `map` added in
-Listing 21-2.
+Chúng ta sẽ chỉ xem xét dòng đầu tiên của HTTP request, vì vậy thay vì đọc toàn bộ
+request vào một vector, chúng ta gọi `next` để lấy mục đầu tiên từ iterator. Lệnh
+`unwrap` đầu tiên xử lý `Option` và dừng chương trình nếu iterator không có phần tử
+nào. Lệnh `unwrap` thứ hai xử lý `Result` và có tác dụng tương tự như `unwrap` nằm
+trong `map` được thêm vào trong Listing 21-2.
 
-Next, we check the `request_line` to see if it equals the request line of a GET
-request to the _/_ path. If it does, the `if` block returns the contents of our
-HTML file.
+Tiếp theo, chúng ta kiểm tra `request_line` xem nó có bằng với request line của một
+GET request đến đường dẫn _/_ hay không. Nếu bằng, khối `if` sẽ trả về nội dung của
+tệp HTML của chúng ta.
 
-If the `request_line` does _not_ equal the GET request to the _/_ path, it
-means we’ve received some other request. We’ll add code to the `else` block in
-a moment to respond to all other requests.
+Nếu `request_line` _không_ bằng GET request đến đường dẫn _/_, điều đó có nghĩa là
+chúng ta đã nhận được một request khác. Chúng ta sẽ thêm mã vào khối `else` ngay sau
+đây để phản hồi tất cả các request khác.
 
-Run this code now and request _127.0.0.1:7878_; you should get the HTML in
-_hello.html_. If you make any other request, such as
-_127.0.0.1:7878/something-else_, you’ll get a connection error like those you
-saw when running the code in Listing 21-1 and Listing 21-2.
+Hãy chạy mã này ngay bây giờ và yêu cầu _127.0.0.1:7878_; bạn sẽ nhận được HTML trong
+_hello.html_. Nếu bạn thực hiện bất kỳ request nào khác, chẳng hạn như
+_127.0.0.1:7878/something-else_, bạn sẽ nhận được lỗi kết nối giống như những lỗi bạn
+đã thấy khi chạy mã trong Listing 21-1 và Listing 21-2.
 
-Now let’s add the code in Listing 21-7 to the `else` block to return a response
-with the status code 404, which signals that the content for the request was
-not found. We’ll also return some HTML for a page to render in the browser
-indicating the response to the end user.
+Bây giờ hãy thêm mã trong Listing 21-7 vào khối `else` để trả về một response với
+status code 404, báo hiệu rằng nội dung cho request không được tìm thấy. Chúng ta
+cũng sẽ trả về một số mã HTML để một trang hiển thị trong trình duyệt cho người dùng
+cuối thấy phản hồi.
 
-<Listing number="21-7" file-name="src/main.rs" caption="Responding with status code 404 and an error page if anything other than */* was requested">
+<Listing number="21-7" file-name="src/main.rs" caption="Phản hồi với status code 404 và một trang lỗi nếu có bất kỳ thứ gì khác */* được yêu cầu">
 
 ```rust,no_run
 {{#rustdoc_include ../listings/ch21-web-server/listing-21-07/src/main.rs:here}}
@@ -401,13 +386,12 @@ indicating the response to the end user.
 
 </Listing>
 
-Here, our response has a status line with status code 404 and the reason phrase
-`NOT FOUND`. The body of the response will be the HTML in the file _404.html_.
-You’ll need to create a _404.html_ file next to _hello.html_ for the error
-page; again feel free to use any HTML you want or use the example HTML in
-Listing 21-8.
+Ở đây, response của chúng ta có một status line với status code 404 và reason phrase
+`NOT FOUND`. Body của response sẽ là HTML trong tệp _404.html_. Bạn sẽ cần tạo một
+tệp _404.html_ cạnh _hello.html_ cho trang lỗi; một lần nữa, bạn có thể thoải mái sử
+dụng bất kỳ mã HTML nào bạn muốn hoặc sử dụng mã HTML mẫu trong Listing 21-8.
 
-<Listing number="21-8" file-name="404.html" caption="Sample content for the page to send back with any 404 response">
+<Listing number="21-8" file-name="404.html" caption="Nội dung mẫu cho trang gửi lại với bất kỳ response 404 nào">
 
 ```html
 {{#include ../listings/ch21-web-server/listing-21-07/404.html}}
@@ -415,22 +399,21 @@ Listing 21-8.
 
 </Listing>
 
-With these changes, run your server again. Requesting _127.0.0.1:7878_ should
-return the contents of _hello.html_, and any other request, like
-_127.0.0.1:7878/foo_, should return the error HTML from _404.html_.
+Với những thay đổi này, hãy chạy lại server của bạn. Yêu cầu _127.0.0.1:7878_ sẽ trả
+về nội dung của _hello.html_, và bất kỳ yêu cầu nào khác, chẳng hạn như
+_127.0.0.1:7878/foo_, sẽ trả về HTML báo lỗi từ _404.html_.
 
-### A Touch of Refactoring
+### Tinh Chỉnh Mã Nguồn (Refactoring)
 
-At the moment, the `if` and `else` blocks have a lot of repetition: they’re both
-reading files and writing the contents of the files to the stream. The only
-differences are the status line and the filename. Let’s make the code more
-concise by pulling out those differences into separate `if` and `else` lines
-that will assign the values of the status line and the filename to variables; we
-can then use those variables unconditionally in the code to read the file and
-write the response. Listing 21-9 shows the resultant code after replacing the
-large `if` and `else` blocks.
+Hiện tại, các khối `if` và `else` có rất nhiều sự lặp lại: cả hai đều đang đọc các
+tệp và ghi nội dung của các tệp vào stream. Điểm khác biệt duy nhất là status line và
+tên tệp. Hãy làm cho mã súc tích hơn bằng cách tách những điểm khác biệt đó ra thành
+các dòng `if` và `else` riêng biệt nhằm gán giá trị của status line và tên tệp cho các
+biến; sau đó chúng ta có thể sử dụng các biến đó một cách vô điều kiện trong mã để đọc
+tệp và ghi response. Listing 21-9 hiển thị mã kết quả sau khi thay thế các khối `if`
+và `else` lớn.
 
-<Listing number="21-9" file-name="src/main.rs" caption="Refactoring the `if` and `else` blocks to contain only the code that differs between the two cases">
+<Listing number="21-9" file-name="src/main.rs" caption="Refactor các khối `if` và `else` để chỉ chứa mã khác biệt giữa hai trường hợp">
 
 ```rust,no_run
 {{#rustdoc_include ../listings/ch21-web-server/listing-21-09/src/main.rs:here}}
@@ -438,23 +421,22 @@ large `if` and `else` blocks.
 
 </Listing>
 
-Now the `if` and `else` blocks only return the appropriate values for the
-status line and filename in a tuple; we then use destructuring to assign these
-two values to `status_line` and `filename` using a pattern in the `let`
-statement, as discussed in Chapter 19.
+Bây giờ các khối `if` và `else` chỉ trả về các giá trị thích hợp cho status line và
+tên tệp trong một tuple; sau đó chúng ta sử dụng phân rã (destructuring) để gán hai
+giá trị này cho `status_line` và `filename` bằng cách sử dụng một pattern trong câu
+lệnh `let`, như đã thảo luận trong Chương 19.
 
-The previously duplicated code is now outside the `if` and `else` blocks and
-uses the `status_line` and `filename` variables. This makes it easier to see
-the difference between the two cases, and it means we have only one place to
-update the code if we want to change how the file reading and response writing
-work. The behavior of the code in Listing 21-9 will be the same as that in
-Listing 21-7.
+Mã bị trùng lặp trước đó giờ đã nằm ngoài các khối `if` và `else` và sử dụng các biến
+`status_line` cùng `filename`. Điều này giúp dễ dàng nhận thấy sự khác biệt giữa hai
+trường hợp, và có nghĩa là chúng ta chỉ có một nơi duy nhất để cập nhật mã nếu muốn
+thay đổi cách hoạt động của việc đọc tệp và ghi response. Hành vi của mã trong Listing
+21-9 sẽ giống với mã trong Listing 21-7.
 
-Awesome! We now have a simple web server in approximately 40 lines of Rust code
-that responds to one request with a page of content and responds to all other
-requests with a 404 response.
+Tuyệt vời! Bây giờ chúng ta đã có một web server đơn giản với khoảng 40 dòng mã Rust,
+phản hồi một yêu cầu bằng một trang nội dung và phản hồi tất cả các yêu cầu khác bằng
+một phản hồi 404.
 
-Currently, our server runs in a single thread, meaning it can only serve one
-request at a time. Let’s examine how that can be a problem by simulating some
-slow requests. Then we’ll fix it so our server can handle multiple requests at
-once.
+Hiện tại, server của chúng ta chạy trong một luồng đơn (single thread), nghĩa là nó
+chỉ có thể phục vụ một request tại một thời điểm. Hãy xem xét việc đó có thể gây ra
+vấn đề như thế nào bằng cách mô phỏng một số request chậm. Sau đó, chúng ta sẽ khắc
+phục để server của chúng ta có thể xử lý nhiều request cùng một lúc.
