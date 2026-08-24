@@ -1,8 +1,7 @@
-# Getting Started
+# Bắt đầu với Rust
 
-Let’s start your Rust journey! There’s a lot to learn, but every journey starts
-somewhere. In this chapter, we’ll discuss:
+Hãy bắt đầu hành trình khám phá Rust của bạn! Có rất nhiều điều thú vị đang chờ bạn học hỏi, nhưng mọi hành trình đều bắt đầu từ những bước đi đầu tiên. Trong chương này, chúng ta sẽ tìm hiểu về:
 
-- Installing Rust on Linux, macOS, and Windows
-- Writing a program that prints `Hello, world!`
-- Using `cargo`, Rust’s package manager and build system
+- Cách cài đặt Rust trên Linux, macOS, và Windows
+- Viết chương trình đầu tiên in ra dòng chữ `Hello, world!`
+- Sử dụng `cargo`, công cụ quản lý gói (package manager) và hệ thống build của Rust
