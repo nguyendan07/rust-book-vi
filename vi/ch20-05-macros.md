@@ -17,12 +17,12 @@ cần các macro khi chúng ta đã có các hàm.
 ### Sự khác biệt giữa Macro và Hàm
 
 Về cơ bản, macro là một cách viết mã nguồn để viết mã nguồn khác, cái mà
-được gọi là _lập trình siêu cấp_ (metaprogramming). Trong Phụ lục C, chúng ta thảo luận về thuộc tính `derive`,
-thứ tạo ra một triển khai của các trait khác nhau cho bạn. Chúng ta
+được gọi là _siêu lập trình_ (metaprogramming). Trong Phụ lục C, chúng ta thảo luận về thuộc tính `derive`,
+thứ tạo ra một bản triển khai của các trait khác nhau cho bạn. Chúng ta
 cũng đã sử dụng các macro `println!` và `vec!` xuyên suốt cuốn sách. Tất cả những
 macro này _mở rộng_ (expand) để tạo ra nhiều mã nguồn hơn so với mã nguồn bạn đã viết thủ công.
 
-Lập trình siêu cấp hữu ích cho việc giảm lượng mã nguồn bạn phải viết và
+Siêu lập trình hữu ích cho việc giảm lượng mã nguồn bạn phải viết và
 bảo trì, vốn cũng là một trong những vai trò của các hàm. Tuy nhiên, các macro có
 một số sức mạnh bổ sung mà các hàm không có.
 
@@ -31,8 +31,13 @@ hàm có. Mặt khác, các macro có thể nhận một số lượng tham số
 chúng ta có thể gọi `println!("hello")` với một đối số hoặc
 `println!("hello {}", name)` với hai đối số. Ngoài ra, các macro được mở rộng
 trước khi trình biên dịch diễn giải ý nghĩa của mã nguồn, vì vậy một macro có thể, ví dụ,
-thực thi một trait trên một kiểu dữ liệu nhất định. Một hàm thì không thể, bởi vì nó được
-gọi lúc thực thi (runtime) và một trait cần được thực thi tại thời điểm biên dịch (compile time).
+triển khai một trait cho một kiểu dữ liệu nhất định. Một hàm thì không thể, bởi vì nó được
+gọi lúc runtime trong khi một trait cần được triển khai tại thời điểm biên dịch (compile time).
+
+> [!NOTE]
+> **Liên hệ với Python:**
+> - Trong Python, bạn có thể dễ dàng viết một hàm nhận số lượng tham số tùy ý bằng cú pháp `*args, **kwargs`.
+> - Trong Rust, hàm thông thường bắt buộc phải khai báo cố định số lượng và kiểu dữ liệu của từng tham số tại thời điểm biên dịch. Để tạo ra những cấu trúc nhận số lượng đối số linh hoạt (như `println!("a", "b", ...)` hay `vec![1, 2, 3]`), Rust bắt buộc phải sử dụng **Macro**.
 
 Nhược điểm của việc triển khai một macro thay vì một hàm là các định nghĩa
 macro phức tạp hơn các định nghĩa hàm bởi vì bạn đang viết mã Rust
@@ -43,7 +48,7 @@ Một sự khác biệt quan trọng khác giữa macro và hàm là bạn phả
 định nghĩa các macro hoặc đưa chúng vào phạm vi (scope) _trước khi_ bạn gọi chúng trong một tệp,
 trái ngược với các hàm mà bạn có thể định nghĩa ở bất cứ đâu và gọi ở bất cứ đâu.
 
-### Macro khai báo với `macro_rules!` cho lập trình siêu cấp tổng quát
+### Macro khai báo với `macro_rules!` cho siêu lập trình tổng quát
 
 Dạng macro được sử dụng rộng rãi nhất trong Rust là _macro khai báo_ (declarative macro). Những
 macro này đôi khi cũng được gọi là “macros by example,” “`macro_rules!` macros,”
@@ -103,7 +108,7 @@ sẽ dẫn đến lỗi. Các macro phức tạp hơn sẽ có nhiều hơn mộ
 Cú pháp mẫu hợp lệ trong các định nghĩa macro khác với cú pháp mẫu
 được đề cập trong Chương 19 bởi vì các mẫu macro được khớp với cấu trúc mã Rust
 thay vì các giá trị. Hãy cùng xem qua ý nghĩa của các phần mẫu trong
-Danh sách 20-29; để biết cú pháp mẫu macro đầy đủ, hãy xem [Tài liệu tham khảo
+Danh sách 20-35; để biết cú pháp mẫu macro đầy đủ, hãy xem [Tài liệu tham khảo
 Rust][ref].
 
 Đầu tiên chúng ta sử dụng một cặp dấu ngoặc đơn để bao quanh toàn bộ mẫu. Chúng ta sử dụng một
@@ -115,7 +120,7 @@ mã thay thế. Bên trong `$()` là `$x:expr`, thứ khớp với bất kỳ bi
 và đặt tên cho biểu thức đó là `$x`.
 
 Dấu phẩy theo sau `$()` cho biết rằng một ký tự phân cách dấu phẩy theo nghĩa đen
-phải xuất hiện giữa mỗi thực thể của mã khớp với mã bên trong
+phải xuất hiện giữa mỗi lần xuất hiện của đoạn mã khớp với mã bên trong
 `$()`. Dấu `*` chỉ định rằng mẫu khớp với không hoặc nhiều hơn bất cứ thứ gì
 đứng trước dấu `*`.
 
@@ -164,7 +169,7 @@ loại macro cụ thể.
 <Listing number="20-36" file-name="src/lib.rs" caption="Một ví dụ về việc định nghĩa một macro thủ tục">
 
 ```rust,ignore
-use proc_macro;
+use proc_macro::TokenStream;
 
 #[some_attribute]
 pub fn some_name(input: TokenStream) -> TokenStream {
@@ -190,12 +195,12 @@ các dạng khác.
 
 Hãy tạo một crate tên là `hello_macro` định nghĩa một trait tên là
 `HelloMacro` với một hàm liên kết tên là `hello_macro`. Thay vì
-bắt người dùng của chúng ta thực thi trait `HelloMacro` cho từng kiểu của họ,
+bắt người dùng của chúng ta phải tự tay triển khai trait `HelloMacro` cho từng kiểu dữ liệu của họ,
 chúng ta sẽ cung cấp một macro thủ tục để người dùng có thể chú thích kiểu của họ với
-`#[derive(HelloMacro)]` nhằm có được một triển khai mặc định của hàm
-`hello_macro`. Triển khai mặc định sẽ in ra `Hello, Macro! My name is
+`#[derive(HelloMacro)]` nhằm có được một bản triển khai mặc định của hàm
+`hello_macro`. Bản triển khai mặc định sẽ in ra `Hello, Macro! My name is
 TypeName!` trong đó `TypeName` là tên của kiểu mà trait này đã
-được định nghĩa trên đó. Nói cách khác, chúng ta sẽ viết một crate cho phép một
+được triển khai cho kiểu đó. Nói cách khác, chúng ta sẽ viết một crate cho phép một
 lập trình viên khác viết mã như Danh sách 20-37 bằng cách sử dụng crate của chúng ta.
 
 <Listing number="20-37" file-name="src/main.rs" caption="Mã nguồn mà người dùng crate của chúng ta sẽ có thể viết khi sử dụng macro thủ tục của chúng ta">
@@ -223,7 +228,7 @@ Tiếp theo, chúng ta sẽ định nghĩa trait `HelloMacro` và hàm liên k�
 
 </Listing>
 
-Chúng ta có một trait và hàm của nó. Tại thời điểm này, người dùng crate của chúng ta có thể thực thi
+Chúng ta có một trait và hàm của nó. Tại thời điểm này, người dùng crate của chúng ta có thể triển khai
 trait để đạt được chức năng mong muốn, như trong Danh sách 20-39.
 
 <Listing number="20-39" file-name="src/main.rs" caption="Nó sẽ trông như thế nào nếu người dùng viết một triển khai thủ công cho trait `HelloMacro` ">
@@ -238,10 +243,13 @@ Tuy nhiên, họ sẽ cần viết khối triển khai cho từng kiểu mà h�
 muốn sử dụng với `hello_macro`; chúng ta muốn giúp họ không phải làm
 công việc này.
 
-Ngoài ra, chúng ta chưa thể cung cấp cho hàm `hello_macro` một triển khai mặc định
-để in ra tên của kiểu mà trait được thực thi trên đó:
-Rust không có các khả năng phản chiếu (reflection), vì vậy nó không thể tra cứu tên của kiểu
-lúc thực thi. Chúng ta cần một macro để tạo mã tại thời điểm biên dịch.
+Ngoài ra, chúng ta chưa thể cung cấp cho hàm `hello_macro` một bản triển khai mặc định
+để in ra tên của kiểu mà trait được triển khai cho kiểu đó:
+Rust không có cơ chế phản chiếu (reflection), vì vậy nó không thể tra cứu tên của kiểu
+lúc runtime. Chúng ta cần một macro để tạo mã tại thời điểm biên dịch.
+
+> [!NOTE]
+> **Khác biệt với Python:** Python là ngôn ngữ thông dịch động, hỗ trợ Reflection mạnh mẽ (bạn có thể lấy tên class qua `obj.__class__.__name__` hoặc can thiệp lúc tạo class bằng Metaclass). Rust không có Reflection lúc runtime để đảm bảo hiệu năng tối đa và an toàn bộ nhớ. Thay vào đó, Rust giải quyết bài toán này bằng **Procedural Macro**: phân tích cây cú pháp (AST) của code và tự động sinh thêm mã nguồn mới ngay khi biên dịch.
 
 Bước tiếp theo là định nghĩa macro thủ tục. Tại thời điểm viết bài này,
 các macro thủ tục cần phải nằm trong crate của riêng chúng. Cuối cùng, hạn chế này
@@ -323,7 +331,7 @@ các thao tác trên đó. Đây là nơi `syn` phát huy tác dụng. Hàm `par
 mã Rust đã được phân tích cú pháp. Danh sách 20-41 trình bày các phần liên quan của struct
 `DeriveInput` mà chúng ta nhận được từ việc phân tích cú pháp chuỗi `struct Pancakes;`.
 
-<Listing number="20-41" caption="Thực thể `DeriveInput` chúng ta nhận được khi phân tích cú pháp mã có thuộc tính của macro trong Danh sách 20-37">
+<Listing number="20-41" caption="Thể hiện `DeriveInput` chúng ta nhận được khi phân tích cú pháp mã có thuộc tính của macro trong Danh sách 20-37">
 
 ```rust,ignore
 DeriveInput {
@@ -348,7 +356,7 @@ DeriveInput {
 </Listing>
 
 Các trường của struct này cho thấy mã Rust chúng ta đã phân tích cú pháp là một unit struct
-với `ident` (_identifier_, nghĩa là tên) là `Pancakes`. Có nhiều
+bằng `ident` (_identifier_, nghĩa là tên) là `Pancakes`. Có nhiều
 trường hơn trên struct này để mô tả tất cả các loại mã Rust; hãy kiểm tra [tài liệu
 `syn` cho `DeriveInput`][syn-docs] để biết thêm thông tin.
 
@@ -368,10 +376,10 @@ tuân thủ API macro thủ tục. Chúng ta đã đơn giản hóa ví dụ nà
 về những gì đã xảy ra bằng cách sử dụng `panic!` hoặc `expect`.
 
 Bây giờ chúng ta đã có mã để chuyển mã Rust được chú thích từ một `TokenStream`
-thành một thực thể `DeriveInput`, hãy tạo mã thực thi
-trait `HelloMacro` trên kiểu được chú thích, như được trình bày trong Danh sách 20-42.
+thành một thể hiện `DeriveInput`, hãy tạo mã triển khai
+trait `HelloMacro` cho kiểu được chú thích, như được trình bày trong Danh sách 20-42.
 
-<Listing number="20-42" file-name="hello_macro_derive/src/lib.rs" caption="Thực thi trait `HelloMacro` bằng mã Rust đã được phân tích cú pháp">
+<Listing number="20-42" file-name="hello_macro_derive/src/lib.rs" caption="Triển khai trait `HelloMacro` bằng mã Rust đã được phân tích cú pháp">
 
 ```rust,ignore
 {{#rustdoc_include ../listings/ch20-advanced-features/listing-20-42/hello_macro/hello_macro_derive/src/lib.rs:here}}
@@ -379,11 +387,11 @@ trait `HelloMacro` trên kiểu được chú thích, như được trình bày 
 
 </Listing>
 
-Chúng ta nhận được một thực thể struct `Ident` chứa tên (định danh) của
-kiểu được chú thích bằng cách sử dụng `ast.ident`. Struct trong Danh sách 20-33 cho thấy khi
-chúng ta chạy hàm `impl_hello_macro` trên mã trong Danh sách 20-31,
+Chúng ta nhận được một thể hiện struct `Ident` chứa tên (định danh) của
+kiểu được chú thích bằng cách sử dụng `ast.ident`. Struct trong Danh sách 20-41 cho thấy khi
+chúng ta chạy hàm `impl_hello_macro` trên mã trong Danh sách 20-37,
 `ident` chúng ta nhận được sẽ có trường `ident` với giá trị là `"Pancakes"`. Do đó,
-biến `name` trong Danh sách 20-34 sẽ chứa một thực thể struct `Ident`
+biến `name` trong Danh sách 20-42 sẽ chứa một thể hiện struct `Ident`
 mà khi in ra sẽ là chuỗi `"Pancakes"`, tên của struct trong
 Danh sách 20-37.
 
@@ -398,9 +406,9 @@ nhập `#name`, và `quote!` sẽ thay thế nó bằng giá trị trong biến
 `name`. Bạn thậm chí có thể thực hiện một số lặp lại tương tự như cách các macro thông thường hoạt động.
 Hãy xem [tài liệu của crate `quote`][quote-docs] để biết phần giới thiệu kỹ lưỡng.
 
-Chúng ta muốn macro thủ tục của mình tạo ra một triển khai của trait `HelloMacro`
+Chúng ta muốn macro thủ tục của mình tạo ra một bản triển khai của trait `HelloMacro`
 cho kiểu mà người dùng đã chú thích, cái mà chúng ta có thể lấy được bằng cách sử dụng `#name`.
-Việc triển khai trait có một hàm `hello_macro`, thân hàm chứa
+Bản triển khai trait có một hàm `hello_macro`, thân hàm chứa
 chức năng chúng ta muốn cung cấp: in ra `Hello, Macro! My name is` và sau đó là
 tên của kiểu được chú thích.
 
@@ -414,7 +422,7 @@ tiết kiệm một lần cấp phát bằng cách chuyển đổi `#name` thàn
 
 Tại thời điểm này, `cargo build` sẽ hoàn tất thành công trong cả `hello_macro`
 và `hello_macro_derive`. Hãy kết nối các crate này với mã trong Danh sách
-20-31 để xem macro thủ tục hoạt động! Tạo một dự án binary mới trong
+20-37 để xem macro thủ tục hoạt động! Tạo một dự án binary mới trong
 thư mục _projects_ của bạn bằng cách sử dụng `cargo new pancakes`. Chúng ta cần thêm
 `hello_macro` và `hello_macro_derive` làm phụ thuộc trong tệp _Cargo.toml_ của crate
 `pancakes`. Nếu bạn đang xuất bản các phiên bản `hello_macro` và
@@ -426,10 +434,10 @@ thông thường; nếu không, bạn có thể chỉ định chúng là các ph
 ```
 
 Đặt mã trong Danh sách 20-37 vào _src/main.rs_, và chạy `cargo run`: nó
-sẽ in ra `Hello, Macro! My name is Pancakes!` Việc triển khai trait
-`HelloMacro` từ macro thủ tục đã được bao gồm mà không cần crate
-`pancakes` phải thực thi nó; `#[derive(HelloMacro)]` đã thêm
-việc triển khai trait.
+sẽ in ra `Hello, Macro! My name is Pancakes!`. Bản triển khai trait
+`HelloMacro` từ macro thủ tục đã được tự động thêm vào mà không cần crate
+`pancakes` phải tự tay triển khai nó; `#[derive(HelloMacro)]` đã tự động bổ sung
+bản triển khai của trait.
 
 Tiếp theo, hãy khám phá xem các loại macro thủ tục khác khác gì so với các macro
 `derive` tùy chỉnh.
@@ -462,8 +470,13 @@ mục mà thuộc tính được đính kèm: trong trường hợp này là `fn
 của thân hàm.
 
 Ngoài ra, các macro giống thuộc tính hoạt động theo cùng cách với các macro `derive`
-tùy chỉnh: bạn tạo một crate với kiểu crate `proc-macro` và thực thi một
+tùy chỉnh: bạn tạo một crate với kiểu crate `proc-macro` và triển khai một
 hàm tạo ra mã bạn muốn!
+
+> [!NOTE]
+> **Liên hệ với Python:** Cú pháp Attribute-like Macro trong Rust (`#[route(GET, "/")]`) trông rất giống với **Decorator** trong Python (`@app.route('/')`). Tuy nhiên có sự khác biệt bản chất:
+> - **Python Decorator:** Thực thi lúc runtime, nhận vào một đối tượng hàm và bọc nó bằng một hàm khác.
+> - **Rust Attribute Macro:** Thực thi lúc compile time, nhận vào toàn bộ chuỗi token mã nguồn của hàm, cho phép bạn phân tích cú pháp, sửa đổi hoặc sinh ra mã máy mới hoàn toàn trước khi chương trình chạy.
 
 ### Macro giống hàm (Function-Like macros)
 
@@ -471,7 +484,7 @@ Các macro giống hàm định nghĩa các macro trông giống như các lời
 các macro `macro_rules!`, chúng linh hoạt hơn các hàm; ví dụ, chúng
 có thể nhận một số lượng đối số không xác định. Tuy nhiên, các macro `macro_rules!` chỉ có thể
 được định nghĩa bằng cú pháp giống match mà chúng ta đã thảo luận trong [“Macro khai báo với
-`macro_rules!` cho lập trình siêu cấp tổng quát”][decl]<!-- ignore --> ở trên.
+`macro_rules!` cho siêu lập trình tổng quát”][decl]<!-- ignore --> ở trên.
 Các macro giống hàm nhận một tham số `TokenStream` và định nghĩa của chúng
 thao tác trên `TokenStream` đó bằng mã Rust như hai loại macro thủ tục kia vẫn làm.
 Một ví dụ về macro giống hàm là macro `sql!` có thể được
